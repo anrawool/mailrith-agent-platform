@@ -49,7 +49,7 @@
     "@mailrith/public-api": "workspace:^",
     "@mailrith/sdk": "workspace:^",
     "@modelcontextprotocol/server": "2.0.0-beta.5",
-    "zod": "4.3.6"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@modelcontextprotocol/client": "2.0.0-beta.5",
