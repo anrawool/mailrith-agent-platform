@@ -44,6 +44,6 @@
   "devDependencies": {
     "@mailrith/public-api": "workspace:^",
     "@types/node": "^24.5.2",
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   }
 }

@@ -27,7 +27,7 @@
     "@typescript-eslint/parser": "8.53.1",
     "eslint": "9.39.2",
     "tsx": "4.21.0",
-    "typescript": "5.9.3",
+    "typescript": "7.0.2",
     "vitest": "4.1.10"
   }
 }
