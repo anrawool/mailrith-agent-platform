@@ -1,0 +1,49 @@
+{
+  "name": "@mailrith/sdk",
+  "version": "0.1.0-beta.1",
+  "description": "Official generated TypeScript SDK for Mailrith.",
+  "license": "MIT",
+  "homepage": "https://mailrith.com/developers/sdks",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anrawool/mailrith-agent-platform.git",
+    "directory": "packages/sdk"
+  },
+  "bugs": "https://github.com/anrawool/mailrith-agent-platform/issues",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm build",
+    "lint": "pnpm -w exec eslint packages/sdk/src --ext .ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --root ../.. packages/sdk/src/index.test.ts"
+  },
+  "devDependencies": {
+    "@mailrith/public-api": "workspace:^",
+    "@types/node": "^24.5.2",
+    "typescript": "5.9.3"
+  }
+}

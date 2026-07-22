@@ -1,0 +1,77 @@
+{
+  "name": "Mailrith - Read Agent Capabilities",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "mailrith-manual-trigger",
+      "name": "Run Manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.mailrith.com/v1/capabilities",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Mailrith-Client",
+              "value": "n8n/phase-6-template"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": false,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "id": "mailrith-read-capabilities",
+      "name": "Read Mailrith Capabilities",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [500, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CONFIGURE_AFTER_IMPORT",
+          "name": "Mailrith Bearer Token"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Run Manually": {
+      "main": [
+        [
+          {
+            "node": "Read Mailrith Capabilities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b58173b0-29e9-4e28-8798-eaf968c8cc35",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

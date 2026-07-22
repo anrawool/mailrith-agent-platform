@@ -1,0 +1,49 @@
+{
+  "name": "@mailrith/public-api",
+  "version": "0.1.0-beta.1",
+  "description": "Versioned Mailrith public API, OAuth, MCP, scope, and risk contract.",
+  "license": "MIT",
+  "homepage": "https://mailrith.com/developers",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anrawool/mailrith-agent-platform.git",
+    "directory": "packages/public-api"
+  },
+  "bugs": "https://github.com/anrawool/mailrith-agent-platform/issues",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./scopes": {
+      "types": "./dist/scopes.d.ts",
+      "import": "./dist/scopes.js",
+      "default": "./dist/scopes.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm build",
+    "lint": "pnpm -w exec eslint packages/public-api/src --ext .ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --root ../.. packages/public-api/src/index.test.ts packages/public-api/src/agent-risk.test.ts"
+  }
+}

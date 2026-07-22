@@ -1,0 +1,59 @@
+{
+  "name": "@mailrith/mcp-server",
+  "version": "0.1.0-beta.1",
+  "description": "Official local and self-hosted MCP server for Mailrith.",
+  "license": "MIT",
+  "homepage": "https://mailrith.com/developers/mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anrawool/mailrith-agent-platform.git",
+    "directory": "packages/mcp-server"
+  },
+  "bugs": "https://github.com/anrawool/mailrith-agent-platform/issues",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "mailrith-mcp": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm build",
+    "lint": "pnpm -w exec eslint packages/mcp-server/src --ext .ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --root ../.. packages/mcp-server/src/index.test.ts",
+    "stdio": "tsx src/cli.ts --transport stdio",
+    "http": "tsx src/cli.ts --transport http --port 8788"
+  },
+  "dependencies": {
+    "@mailrith/public-api": "workspace:^",
+    "@mailrith/sdk": "workspace:^",
+    "@modelcontextprotocol/server": "2.0.0-beta.5",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0-beta.5",
+    "@types/node": "^24.5.2",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "model": "gpt-5.4",
+  "store": false,
+  "tools": [
+    {
+      "type": "mcp",
+      "server_label": "mailrith",
+      "server_description": "Mailrith email marketing tools with scoped access, action previews, approvals, and activity records.",
+      "server_url": "https://api.mailrith.com/mcp",
+      "authorization": "${MAILRITH_ACCESS_TOKEN}",
+      "allowed_tools": {
+        "read_only": true
+      },
+      "require_approval": "always"
+    }
+  ]
+}

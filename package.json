@@ -1,0 +1,33 @@
+{
+  "name": "mailrith-agent-platform",
+  "version": "0.1.0-beta.1",
+  "private": true,
+  "description": "Public contracts, SDKs, MCP server, CLI, and Agent Skill for the Mailrith AI agent platform.",
+  "license": "MIT",
+  "repository": "https://github.com/anrawool/mailrith-agent-platform",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm --filter @mailrith/public-api build && pnpm --filter @mailrith/sdk build && pnpm --filter @mailrith/mcp-server build && pnpm --filter @mailrith/cli build",
+    "generate:agent-artifacts": "tsx scripts/generate-agent-artifacts.ts",
+    "agent:release:manifest": "tsx scripts/verify-agent-release.ts --write",
+    "agent:release:verify": "tsx scripts/verify-agent-release.ts",
+    "lint": "eslint .",
+    "typecheck": "pnpm --filter @mailrith/public-api typecheck && pnpm --filter @mailrith/sdk typecheck && pnpm --filter @mailrith/mcp-server typecheck && pnpm --filter @mailrith/cli typecheck",
+    "test": "vitest run",
+    "test:python": "cd packages/python-sdk && python3 -m unittest discover -s tests -p 'test_*.py'",
+    "validate": "pnpm generate:agent-artifacts && git diff --exit-code -- packages/sdk/src/generated.ts packages/python-sdk/mailrith_sdk/contract.json packages/python-sdk/mailrith_sdk/manifest.json packages/mcp-server/src/generated-tool-manifest.ts && pnpm agent:release:verify && pnpm lint && pnpm typecheck && pnpm test && pnpm test:python && pnpm build"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.2",
+    "@types/node": "^24.5.2",
+    "@typescript-eslint/eslint-plugin": "8.53.1",
+    "@typescript-eslint/parser": "8.53.1",
+    "eslint": "9.39.2",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "@mailrith/agent-skill",
+  "version": "0.1.0-beta.1",
+  "description": "Installable Mailrith skill for safe AI agent email marketing workflows.",
+  "license": "MIT",
+  "homepage": "https://mailrith.com/developers/agent-quickstarts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anrawool/mailrith-agent-platform.git",
+    "directory": "packages/agent-skill"
+  },
+  "bugs": "https://github.com/anrawool/mailrith-agent-platform/issues",
+  "type": "module",
+  "bin": {
+    "mailrith-agent-skill": "./bin/install.js"
+  },
+  "files": [
+    "bin",
+    "mailrith-email-marketing",
+    "connectors",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "lint": "pnpm -w exec eslint packages/agent-skill --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.astro",
+    "test": "vitest run --root ../.. packages/agent-skill/src/install.test.ts",
+    "validate": "node bin/validate.js"
+  },
+  "devDependencies": {
+    "@mailrith/sdk": "workspace:^"
+  }
+}

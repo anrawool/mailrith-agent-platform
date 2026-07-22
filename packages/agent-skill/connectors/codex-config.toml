@@ -1,0 +1,21 @@
+[mcp_servers.mailrith]
+url = "https://api.mailrith.com/mcp"
+auth = "oauth"
+enabled = true
+required = false
+default_tools_approval_mode = "writes"
+startup_timeout_sec = 20
+tool_timeout_sec = 60
+enabled_tools = [
+  "discovery_get_metadata",
+  "discovery_get_capabilities",
+  "workspace_get",
+  "agent_activity_list",
+  "agent_activity_get",
+  "subscribers_list",
+  "broadcasts_get_send_progress",
+]
+
+# Run `codex mcp login mailrith` after adding this block.
+# For a non-interactive runtime, replace `auth = "oauth"` with:
+# bearer_token_env_var = "MAILRITH_ACCESS_TOKEN"

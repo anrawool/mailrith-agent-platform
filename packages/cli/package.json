@@ -1,0 +1,53 @@
+{
+  "name": "@mailrith/cli",
+  "version": "0.1.0-beta.1",
+  "description": "Official command-line interface for Mailrith agent workflows.",
+  "license": "MIT",
+  "homepage": "https://mailrith.com/developers/agent-quickstarts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anrawool/mailrith-agent-platform.git",
+    "directory": "packages/cli"
+  },
+  "bugs": "https://github.com/anrawool/mailrith-agent-platform/issues",
+  "type": "module",
+  "bin": {
+    "mailrith": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm build",
+    "lint": "pnpm -w exec eslint packages/cli/src --ext .ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --root ../.. packages/cli/src/index.test.ts"
+  },
+  "dependencies": {
+    "@mailrith/sdk": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "typescript": "5.9.3"
+  }
+}

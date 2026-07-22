@@ -1,0 +1,15 @@
+node_modules/
+packages/*/node_modules/
+packages/*/dist/
+packages/python-sdk/build/
+packages/python-sdk/dist/
+packages/python-sdk/*.egg-info/
+**/__pycache__/
+*.pyc
+release/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
