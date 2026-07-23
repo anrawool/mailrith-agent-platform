@@ -142,7 +142,7 @@ jobs:
             ./npm/mailrith-cli-*.tgz \
             ./npm/mailrith-agent-skill-*.tgz
           do
-            npm publish "$archive" --access public --provenance
+            npm publish "$archive" --access public --provenance --tag beta
           done
         working-directory: release
 
