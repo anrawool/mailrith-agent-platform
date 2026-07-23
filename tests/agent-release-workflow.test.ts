@@ -25,6 +25,9 @@ describe("agent release workflow", () => {
   });
 
   it("supports bounded single-registry retries while retaining the full clean-install gate", () => {
+    expect(workflow).toContain(
+      'npm publish "$archive" --access public --provenance --tag beta',
+    );
     expect(workflow).toContain("publish_target:");
     expect(workflow).toContain("inputs.publish_target == 'npm'");
     expect(workflow).toContain("inputs.publish_target == 'pypi'");
