@@ -1,13 +1,16 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import {
-  INVALID_PARAMS,
-  McpServer,
-  ProtocolError,
-  createMcpHandler,
+  CallToolRequestSchema,
+  ErrorCode,
+  ListToolsRequestSchema,
+  McpError,
   type Tool,
-} from "@modelcontextprotocol/server";
-import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
+} from "@modelcontextprotocol/sdk/types.js";
 import {
   publicApiAgentsPath,
+  publicApiAgentReadQuickstartScopeKeys,
   publicApiCapabilitiesPath,
   publicApiDocsPath,
   publicApiMcpPath,
@@ -36,7 +39,7 @@ const defaultBaseUrl = "https://api.mailrith.com";
 const mcpRequestMaxBodyBytes = 1024 * 1024;
 const mcpServerInfo = {
   name: "mailrith",
-  version: "0.1.0-beta.1",
+  version: "0.1.0",
 } as const;
 
 type MailrithFetch = typeof fetch;
@@ -74,7 +77,8 @@ export type MailrithMcpToolDefinition = {
   }>;
 };
 
-export const mailrithMcpDefaultOAuthScopes = ["workspace:read"] as const;
+export const mailrithMcpDefaultOAuthScopes =
+  publicApiAgentReadQuickstartScopeKeys;
 
 export const mailrithMcpToolsetsHeader = "mailrith-mcp-toolsets";
 
@@ -162,11 +166,7 @@ const buildToolResult = (
 };
 
 const resolveToolErrorCategory = (error: MailrithApiError) => {
-  const normalizedCode = `${error.type ?? ""} ${error.code ?? ""}`.toLowerCase();
   if (error.status === 401) return "authentication";
-  if (error.status === 403 && normalizedCode.includes("approval")) {
-    return "approval";
-  }
   if (error.status === 403) return "permission";
   if (error.status === 400 || error.status === 422) return "validation";
   if (error.status === 409) return "conflict";
@@ -290,7 +290,7 @@ const createToolDescription = (operation: MailrithSdkOperationDescriptor) => {
     description && description !== summary ? description : null,
     `Calls ${operation.method} ${operation.path}.`,
     `Risk: ${operation.risk}. Side-effect class: ${operation.sideEffectClass}.`,
-    `Approval: ${operation.approvalPolicy}. ${operation.riskRationale}`,
+    operation.riskRationale,
   ].filter((part): part is string => Boolean(part));
 
   if (operation.idempotencyPolicy === "safe-read") {
@@ -309,17 +309,6 @@ const createToolDescription = (operation: MailrithSdkOperationDescriptor) => {
     parts.push(`Required scopes: ${operation.requiredScopes.join(", ")}.`);
   } else {
     parts.push("No bearer credential is required for this operation.");
-  }
-
-  if (operation.risk !== "read" && operation.namespace !== "agentActions") {
-    parts.push(
-      "Approval flow: call this tool with mode=plan and the final exact arguments; show the returned preview and approval_url to the user; poll agent_actions_get; after approval call agent_actions_issue_approval_token; then call this same tool once with the unchanged arguments plus action_id and approval_token. Never invent, persist, log, or expose an approval token.",
-    );
-  }
-  if (operation.operationId === "issueAgentApprovalToken") {
-    parts.push(
-      "Treat approval_token as a secret: use it immediately for the exact approved operation and never persist, log, display, or retry it against another action.",
-    );
   }
 
   const eventPatternScopeRequirements =
@@ -396,21 +385,10 @@ const buildOperationRequest = (
   const query =
     queryEntries.length > 0 ? Object.fromEntries(queryEntries) : undefined;
 
-  const headers = Object.fromEntries(
-    [
-      ["X-Mailrith-Action-Id", args.action_id],
-      ["X-Mailrith-Approval-Token", args.approval_token],
-      ["X-Mailrith-Approval-Return-Url", args.approval_return_url],
-    ].filter(
-      (entry): entry is [string, string] => typeof entry[1] === "string",
-    ),
-  );
-
   return {
     path,
     query,
     body: operation.hasRequestBody ? args.body : undefined,
-    headers: Object.keys(headers).length > 0 ? headers : undefined,
     idempotencyKey:
       typeof args.idempotency_key === "string" ? args.idempotency_key : undefined,
   };
@@ -898,7 +876,6 @@ export const createMailrithMcpToolDefinitions = (
           "mailrith/operationId": tool.operationId,
           "mailrith/risk": tool.risk,
           "mailrith/sideEffectClass": tool.sideEffectClass,
-          "mailrith/approvalPolicy": tool.approvalPolicy,
           "mailrith/idempotencyPolicy": tool.idempotencyPolicy,
           "mailrith/toolsets": tool.toolsets,
           "mailrith/schemaDigest":
@@ -952,7 +929,7 @@ export const createMailrithMcpServer = (
   const tools = createMailrithMcpToolDefinitions(client, options);
   const toolByName = new Map(tools.map((tool) => [tool.name, tool]));
   server.server.registerCapabilities({ tools: { listChanged: false } });
-  server.server.setRequestHandler("tools/list", async () => ({
+  server.server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: tools.map(
       (tool): Tool => ({
         name: tool.name,
@@ -965,11 +942,11 @@ export const createMailrithMcpServer = (
       }),
     ),
   }));
-  server.server.setRequestHandler("tools/call", async (request) => {
+  server.server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const tool = toolByName.get(request.params.name);
     if (!tool) {
-      throw new ProtocolError(
-        INVALID_PARAMS,
+      throw new McpError(
+        ErrorCode.InvalidParams,
         `Tool ${request.params.name} is not available for this credential and toolset selection.`,
       );
     }
@@ -1129,7 +1106,7 @@ export const handleMailrithMcpHttpRequest = async (
       ? requiredScopes
       : mailrithMcpDefaultOAuthScopes.length > 0
         ? [...mailrithMcpDefaultOAuthScopes]
-        : ["workspace:read"];
+        : [...publicApiAgentReadQuickstartScopeKeys];
   if (!apiKey) {
     return createMcpAuthResponse(
       baseUrl,
@@ -1179,19 +1156,23 @@ export const handleMailrithMcpHttpRequest = async (
   // has no cross-request sessions or in-memory subscriber state, which keeps
   // Worker memory bounded and prevents one credential from leaking into
   // another request.
-  const handler = createMcpHandler(
-    () =>
-      createMailrithMcpServer({
-        ...options,
-        apiKey,
-        grantedScopes: validation.scopes,
-        enabledToolsets: enabledToolsets.toolsets,
-      }),
-    { legacy: "stateless", responseMode: "json" },
-  );
+  const server = createMailrithMcpServer({
+    ...options,
+    apiKey,
+    grantedScopes: validation.scopes,
+    enabledToolsets: enabledToolsets.toolsets,
+  });
+  const transport = new WebStandardStreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+    enableJsonResponse: true,
+  });
+  await server.connect(transport);
   try {
-    return await handler.fetch(request, { parsedBody: parsedBody?.value });
+    return await transport.handleRequest(request, {
+      parsedBody: parsedBody?.value,
+    });
   } finally {
-    await handler.close().catch(() => undefined);
+    await transport.close().catch(() => undefined);
+    await server.close().catch(() => undefined);
   }
 };

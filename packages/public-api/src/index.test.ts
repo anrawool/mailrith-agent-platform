@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   getPublicApiWebhookEventPatternRequiredScopes,
   getPublicApiOperations,
+  publicApiAgentReadQuickstartScopeKeys,
   publicApiAgentSkillsIndexPath,
   publicApiAgentStatusPath,
   publicApiCapabilityResources,
@@ -9,6 +10,7 @@ import {
   publicApiBasePath,
   publicApiCapabilitiesPath,
   publicApiDefaultScopeKeys,
+  publicApiExamplePayloads,
   publicApiGuides,
   publicApiMcpOperationContractMap,
   publicApiMcpOperationContracts,
@@ -19,8 +21,11 @@ import {
   publicApiSdkResources,
   publicApiWebhookSubscriptionsPath,
   publicApiScopeDefinitions,
+  publicApiScopeDisplaySections,
   publicApiScopeKeys,
+  publicApiScopePresetDisplaySections,
   publicApiScopePresets,
+  publicApiScopeResourceOrder,
   publicApiMcpToolsetKeys,
   publicApiQuickstart,
   emailTemplateBodyDocumentMaxBytes,
@@ -47,6 +52,51 @@ type PublicApiSchemaObject = {
 };
 
 describe("@mailrith/public-api", () => {
+  it("keeps the read-only agent starter and copyable payloads aligned with the contract", () => {
+    expect(publicApiAgentReadQuickstartScopeKeys).toEqual([
+      "workspace:read",
+      "subscribers:read",
+    ]);
+
+    const expectExampleToMatchSchema = (
+      example: Record<string, unknown>,
+      schemaName:
+        | "BroadcastUpsertRequest"
+        | "WebhookSubscriptionCreateRequest",
+    ) => {
+      const schema = publicApiSpec.components.schemas[
+        schemaName
+      ] as PublicApiSchemaObject;
+      expect(Object.keys(example).sort()).toEqual(
+        expect.arrayContaining(schema.required ?? []),
+      );
+      expect(
+        Object.keys(example).filter(
+          (key) => !(key in (schema.properties ?? {})),
+        ),
+      ).toEqual([]);
+    };
+
+    expectExampleToMatchSchema(
+      publicApiExamplePayloads.broadcastDraft,
+      "BroadcastUpsertRequest",
+    );
+    expectExampleToMatchSchema(
+      publicApiExamplePayloads.webhookSubscription,
+      "WebhookSubscriptionCreateRequest",
+    );
+    expect(publicApiExamplePayloads.broadcastDraft).not.toHaveProperty("body");
+    expect(publicApiExamplePayloads.broadcastDraft).not.toHaveProperty(
+      "status",
+    );
+    expect(
+      publicApiExamplePayloads.webhookSubscription.event_patterns.every(
+        (pattern) =>
+          getPublicApiWebhookEventPatternRequiredScopes([pattern]).length > 0,
+      ),
+    ).toBe(true);
+  });
+
   it("publishes a versioned OpenAPI document", () => {
     expect(publicApiSpec.openapi).toBe("3.1.0");
     expect(publicApiSpec.info.version).toBe("v1");
@@ -72,6 +122,13 @@ describe("@mailrith/public-api", () => {
       publicApiSpec.paths["/v1/webhook-subscriptions"]?.post,
     ).toBeDefined();
     expect(
+      publicApiSpec.paths["/v1/webhook-subscriptions"]?.post.description,
+    ).toContain("up to 20 webhook subscriptions");
+    expect(
+      publicApiSpec.paths["/v1/webhook-subscriptions"]?.post.responses["409"]
+        .description,
+    ).toContain("20-subscription limit");
+    expect(
       publicApiSpec.paths["/v1/broadcasts/{broadcast_id}/cancel"]?.post,
     ).toEqual(
       expect.objectContaining({
@@ -82,13 +139,11 @@ describe("@mailrith/public-api", () => {
       (
         publicApiSpec.paths["/v1/broadcasts/{broadcast_id}/cancel"]?.post
           .responses["202"].content?.["application/json"].schema as {
-          anyOf?: Array<{
           properties?: {
             data?: { properties?: { status?: { enum?: string[] } } };
           };
-          }>;
         }
-      ).anyOf?.[0]?.properties?.data?.properties?.status?.enum,
+      ).properties?.data?.properties?.status?.enum,
     ).toEqual(["canceling", "canceled"]);
     expect(publicApiSpec.paths["/v1/subscribers"]?.post).toBeDefined();
     expect(
@@ -459,20 +514,15 @@ describe("@mailrith/public-api", () => {
       content: {
         "application/json": {
           schema: {
-            anyOf: [
-              {
+            properties: {
+              data: {
+                required: ["status", "run_id", "resource"],
                 properties: {
-                  data: {
-                    required: ["status", "run_id", "resource"],
-                    properties: {
-                      status: { enum: ["running", "queued"] },
-                      run_id: { type: "string" },
-                    },
-                  },
+                  status: { enum: ["running", "queued"] },
+                  run_id: { type: "string" },
                 },
               },
-              { $ref: "#/components/schemas/AgentActionResponse" },
-            ],
+            },
           },
         },
       },
@@ -563,13 +613,9 @@ describe("@mailrith/public-api", () => {
       [
         "discovery",
         "workspace",
-        "agentActions",
         "agentActivity",
         "analytics",
         "diagnostics",
-        "consent",
-        "recommendations",
-        "experiments",
         "subscribers",
         "tags",
         "customFields",
@@ -744,7 +790,7 @@ describe("@mailrith/public-api", () => {
     expect(JSON.stringify(upsert?.outputSchema)).toContain('"type":"null"');
   });
 
-  it("adds complete operation-specific risk, approval, idempotency, and toolset metadata", () => {
+  it("adds complete operation-specific risk, idempotency, and toolset metadata", () => {
     const sdkOperations = publicApiSdkResources.flatMap(
       (resource) => resource.operations,
     );
@@ -755,10 +801,15 @@ describe("@mailrith/public-api", () => {
     expect(publicApiMcpToolsetKeys).toEqual([
       "reporting",
       "subscriber_sync",
-      "campaign_drafting",
-      "campaign_sending",
-      "automations",
+      "data_transfer",
+      "content_and_targeting",
       "capture",
+      "broadcast_preparation",
+      "broadcast_sending",
+      "sequence_preparation",
+      "sequence_operations",
+      "automations",
+      "webhooks",
       "administration",
     ]);
     for (const operation of sdkOperations) {
@@ -767,7 +818,6 @@ describe("@mailrith/public-api", () => {
         risk: risk?.risk,
         externalSideEffect: risk?.externalSideEffect,
         sideEffectClass: risk?.sideEffectClass,
-        approvalPolicy: risk?.approvalPolicy,
         idempotencyPolicy: risk?.idempotencyPolicy,
       });
       expect(operation.toolsets, operation.operationId).toContain(
@@ -791,7 +841,6 @@ describe("@mailrith/public-api", () => {
     ).toMatchObject({
       risk: "test",
       sideEffectClass: "external-email",
-      approvalPolicy: "policy",
       annotations: { openWorldHint: true },
     });
   });
@@ -833,13 +882,9 @@ describe("@mailrith/public-api", () => {
       publicApiCapabilityResources.map((resource) => resource.key),
     ).toEqual([
       "workspace",
-      "agent_actions",
       "agent_activity",
       "analytics",
       "diagnostics",
-      "consent",
-      "recommendations",
-      "experiments",
       "subscribers",
       "tags",
       "custom_fields",
@@ -955,6 +1000,11 @@ describe("@mailrith/public-api", () => {
         }),
         expect.objectContaining({
           method: "GET",
+          path: "/v1/jobs/subscriber-imports/{job_id}",
+          requiredScopes: ["subscribers:bulk_import"],
+        }),
+        expect.objectContaining({
+          method: "GET",
           path: "/v1/jobs/subscriber-exports/{job_id}",
           requiredScopes: ["subscribers:bulk_export"],
         }),
@@ -962,6 +1012,30 @@ describe("@mailrith/public-api", () => {
           method: "POST",
           path: "/v1/jobs/subscriber-exports",
           requiredScopes: ["subscribers:bulk_export"],
+        }),
+      ]),
+    );
+    expect(
+      publicApiCapabilityResources.find(
+        (resource) => resource.key === "diagnostics",
+      )?.operations,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          operationId: "listAutomationRunDiagnostics",
+          requiredScopes: ["automations:read"],
+        }),
+        expect.objectContaining({
+          operationId: "getSequenceDiagnostics",
+          requiredScopes: ["sequences:read"],
+        }),
+        expect.objectContaining({
+          operationId: "getBroadcastDiagnostics",
+          requiredScopes: ["broadcasts:read"],
+        }),
+        expect.objectContaining({
+          operationId: "getSubscriberActivityDiagnostics",
+          requiredScopes: ["subscribers:read", "subscriptions:read"],
         }),
       ]),
     );
@@ -1002,12 +1076,12 @@ describe("@mailrith/public-api", () => {
         expect.objectContaining({
           method: "GET",
           path: "/v1/webhook-subscriptions",
-          requiredScopes: ["webhook_subscriptions:read"],
+          requiredScopes: ["webhooks:read"],
         }),
         expect.objectContaining({
           method: "DELETE",
           path: "/v1/webhook-subscriptions/{webhook_subscription_id}",
-          requiredScopes: ["webhook_subscriptions:delete"],
+          requiredScopes: ["webhooks:write"],
         }),
       ]),
     );
@@ -1021,7 +1095,7 @@ describe("@mailrith/public-api", () => {
       ),
     ).toEqual(
       expect.objectContaining({
-        requiredScopes: ["webhook_subscriptions:configure"],
+        requiredScopes: ["webhooks:write"],
         eventPatternScopeRequirements:
           publicApiWebhookEventPatternScopeRequirements,
       }),
@@ -1032,7 +1106,7 @@ describe("@mailrith/public-api", () => {
       ),
     ).toEqual(
       expect.objectContaining({
-        requiredScopes: ["webhook_subscriptions:configure"],
+        requiredScopes: ["webhooks:write"],
         eventPatternScopeRequirements:
           publicApiWebhookEventPatternScopeRequirements,
       }),
@@ -1049,7 +1123,7 @@ describe("@mailrith/public-api", () => {
         "custom_fields:read",
         "landing_pages:read",
         "segments:read",
-        "webhook_subscriptions:read",
+        "webhooks:read",
       ]),
     );
     expect(normalizePublicApiScopeKeys(["tags:configure"])).toEqual([
@@ -1075,11 +1149,35 @@ describe("@mailrith/public-api", () => {
     expect(publicApiScopePresets.map((preset) => preset.label)).toEqual([
       "Reporting",
       "Subscriber Sync",
-      "Campaign Drafting",
-      "Campaign Sending",
+      "Subscriber Import & Export",
+      "Templates, Tags, Fields & Segments",
+      "Forms, Landing Pages & Magic Links",
+      "Broadcast Preparation",
+      "Broadcast Sending",
+      "Sequence Preparation",
+      "Sequence Operations",
       "Automation Management",
+      "Outbound Webhook Setup",
       "Full Administration",
     ]);
+    expect([
+      ...new Set(publicApiScopeDefinitions.map((scope) => scope.resourceKey)),
+    ]).toEqual(publicApiScopeResourceOrder);
+    expect(
+      publicApiScopeDisplaySections.flatMap((section) =>
+        section.resources.flatMap((resource) => resource.resourceKeys),
+      ),
+    ).toEqual(publicApiScopeResourceOrder);
+    expect(
+      publicApiScopePresetDisplaySections.flatMap(
+        (section) => section.presetKeys,
+      ),
+    ).toEqual(publicApiScopePresets.map((preset) => preset.key));
+    for (const preset of publicApiScopePresets) {
+      expect(preset.scopeKeys).toEqual(
+        normalizePublicApiScopeKeys(preset.scopeKeys),
+      );
+    }
     expect(
       publicApiScopePresets.find((preset) => preset.key === "full_administration")
         ?.scopeKeys,
@@ -1094,23 +1192,23 @@ describe("@mailrith/public-api", () => {
             ?.action === "read",
       ),
     ).toBe(true);
-    const campaignDrafting = publicApiScopePresets.find(
-      (preset) => preset.key === "campaign_drafting",
+    const broadcastPreparation = publicApiScopePresets.find(
+      (preset) => preset.key === "broadcast_preparation",
     )!;
-    expect(campaignDrafting.scopeKeys).toContain("broadcasts:draft");
-    expect(campaignDrafting.scopeKeys).not.toEqual(
+    expect(broadcastPreparation.scopeKeys).toContain("broadcasts:draft");
+    expect(broadcastPreparation.scopeKeys).toContain("broadcasts:delete");
+    expect(broadcastPreparation.scopeKeys).not.toEqual(
       expect.arrayContaining([
         "broadcasts:send",
         "sequences:activate",
         "automations:activate",
         "subscribers:bulk_import",
-        "broadcasts:delete",
       ]),
     );
-    const campaignSending = publicApiScopePresets.find(
-      (preset) => preset.key === "campaign_sending",
+    const broadcastSending = publicApiScopePresets.find(
+      (preset) => preset.key === "broadcast_sending",
     )!;
-    expect(campaignSending.scopeKeys).toEqual(
+    expect(broadcastSending.scopeKeys).toEqual(
       expect.arrayContaining([
         "broadcasts:preflight",
         "broadcasts:test",
@@ -1118,19 +1216,84 @@ describe("@mailrith/public-api", () => {
         "broadcasts:cancel",
       ]),
     );
-    expect(campaignSending.scopeKeys).not.toEqual(
+    expect(broadcastSending.scopeKeys).not.toEqual(
       expect.arrayContaining([
         "automations:draft",
         "automations:activate",
         "automations:delete",
       ]),
     );
+    const sequencePreparation = publicApiScopePresets.find(
+      (preset) => preset.key === "sequence_preparation",
+    )!;
+    expect(sequencePreparation.scopeKeys).toEqual(
+      expect.arrayContaining([
+        "sequences:read",
+        "sequences:draft",
+        "sequences:delete",
+      ]),
+    );
+    expect(sequencePreparation.scopeKeys).not.toContain("sequences:activate");
+    expect(sequencePreparation.scopeKeys).not.toContain(
+      "subscribers:sequence_enroll",
+    );
+    const sequenceOperations = publicApiScopePresets.find(
+      (preset) => preset.key === "sequence_operations",
+    )!;
+    expect(sequenceOperations.scopeKeys).toEqual(
+      expect.arrayContaining([
+        "sequences:read",
+        "sequences:activate",
+        "subscribers:sequence_enroll",
+      ]),
+    );
+    expect(sequenceOperations.scopeKeys).not.toContain("sequences:draft");
+
+    const captureManagement = publicApiScopePresets.find(
+      (preset) => preset.key === "capture_management",
+    )!;
+    const subscriberSync = publicApiScopePresets.find(
+      (preset) => preset.key === "subscriber_sync",
+    )!;
+    expect(subscriberSync.scopeKeys).toEqual(
+      expect.arrayContaining(["subscriptions:read", "subscriptions:write"]),
+    );
+    expect(captureManagement.scopeKeys).not.toEqual(
+      expect.arrayContaining([
+        "subscribers:profile",
+        "subscriptions:write",
+        "subscribers:targeting",
+      ]),
+    );
+    expect(broadcastPreparation.scopeKeys).not.toContain(
+      "email_templates:draft",
+    );
+  });
+
+  it("keeps every custom permission tied to an implemented API capability", () => {
+    const implementedScopeKeys = new Set(
+      publicApiCapabilityResources.flatMap((resource) =>
+        resource.operations.flatMap((operation) => [
+          ...operation.requiredScopes,
+          ...Object.values(
+            operation.payloadFieldScopeRequirements?.requiredScopesByField ??
+              {},
+          ).flat(),
+        ]),
+      ),
+    );
+
+    expect(
+      publicApiScopeKeys.filter(
+        (scopeKey) => !implementedScopeKeys.has(scopeKey),
+      ),
+    ).toEqual([]);
   });
 
   it("derives event-family scopes for webhook subscriptions", () => {
     expect(
       getPublicApiWebhookEventPatternRequiredScopes(["subscriber.*"]),
-    ).toEqual(["consent:read", "subscribers:read"]);
+    ).toEqual(["subscribers:read", "subscriptions:read"]);
     expect(
       getPublicApiWebhookEventPatternRequiredScopes(["form.submitted"]),
     ).toEqual(["subscribers:read", "forms:read"]);
@@ -1143,7 +1306,7 @@ describe("@mailrith/public-api", () => {
     expect(getPublicApiWebhookEventPatternRequiredScopes(["*"])).toEqual(
       expect.arrayContaining([
         "subscribers:read",
-        "consent:read",
+        "subscriptions:read",
         "forms:read",
         "landing_pages:read",
         "broadcasts:read",
@@ -1196,7 +1359,7 @@ describe("OAuth discovery paths", () => {
     expect(bodyText.toLowerCase()).toContain("oauth");
   });
 
-  it("documents the currently available public webhook privacy events", () => {
+  it("documents the currently available public webhook Subscriber events", () => {
     const webhookGuide = publicApiGuides.find(
       (section) => section.id === "webhooks",
     );
@@ -1204,11 +1367,7 @@ describe("OAuth discovery paths", () => {
     const bodyText = webhookGuide!.body.join(" ");
     expect(bodyText).toContain("subscriber.created");
     expect(bodyText).toContain("subscriber.status_changed");
-    expect(bodyText).toContain("subscriber.consent_withdrawn");
-    expect(bodyText).toContain("subscriber.erasure_completed");
-    expect(bodyText).toContain("subscriber.processing_restricted");
-    expect(bodyText).toContain("subscriber.objection_recorded");
-    expect(bodyText).toContain("subscriber.privacy_request_completed");
+    expect(bodyText).not.toContain("subscriber.erasure_completed");
     expect(bodyText).toContain("not email addresses or raw technical evidence");
   });
 });

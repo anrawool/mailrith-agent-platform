@@ -8,37 +8,28 @@ const workflow = readFileSync(
   ),
   "utf8",
 );
-const releaseManifest = readFileSync(
+const releaseConfig = readFileSync(
   fileURLToPath(
-    new URL("../packages/agent-release-manifest.json", import.meta.url),
-  ),
-  "utf8",
-);
-const releaseVerifier = readFileSync(
-  fileURLToPath(
-    new URL("../scripts/verify-agent-release.ts", import.meta.url),
+    new URL("../packages/agent-release-config.json", import.meta.url),
   ),
   "utf8",
 );
 
 describe("agent release workflow", () => {
-  it("records the coordinated public release as published", () => {
-    expect(JSON.parse(releaseManifest)).toMatchObject({
-      release_version: "0.1.0-beta.1",
-      status: "published",
-      documentation_revision: "2026-07-23",
+  it("uses the coordinated stable release configuration", () => {
+    expect(JSON.parse(releaseConfig)).toMatchObject({
+      release_version: "0.1.0",
+      python_release_version: "0.1.0",
+      channel: "ga",
+      documentation_revision: "2026-07-24",
     });
-    expect(releaseVerifier).toContain('status: "published"');
-    expect(releaseVerifier).not.toContain(
-      'status: "prepared_not_published"',
-    );
   });
 
   it("publishes through npm OIDC without a long-lived workflow token", () => {
     expect(workflow).toContain("uses: actions/setup-node@v6");
     expect(workflow).toContain('NPM_CONFIG_PROVENANCE: "true"');
     expect(workflow).toContain(
-      'npm publish "$archive" --access public --provenance --tag beta',
+      'npm publish "$archive" --access public --provenance --tag latest',
     );
     expect(workflow).not.toContain("NODE_AUTH_TOKEN");
     expect(workflow).not.toContain("secrets.NPM_TOKEN");
@@ -60,7 +51,7 @@ describe("agent release workflow", () => {
 
   it("supports bounded single-registry retries while retaining the full clean-install gate", () => {
     expect(workflow).toContain(
-      'npm publish "$archive" --access public --provenance --tag beta',
+      'npm publish "$archive" --access public --provenance --tag latest',
     );
     expect(workflow).toContain("publish_target:");
     expect(workflow).toContain("inputs.publish_target == 'npm'");

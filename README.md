@@ -32,7 +32,7 @@ Commit the contract and every regenerated artifact in the same change.
 
 The `Release Agent Packages` workflow prepares checksummed packages on every manual run. Publishing requires the protected `agent-packages-production` environment, npm credentials, and PyPI Trusted Publishing. A matching `agent-v<version>` tag or an explicitly approved publish run starts publication.
 
-Package versions remain beta until the release manifest and public registry checks are complete.
+Mailrith publishes the npm and Python packages as one coordinated stable version. The release manifest records the current version, contract digest, package digests, and public-registry status.
 
 ## Security
 

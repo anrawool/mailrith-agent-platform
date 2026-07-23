@@ -27,10 +27,7 @@
         "discovery_get_metadata": { "enabled": true },
         "discovery_get_capabilities": { "enabled": true },
         "workspace_get": { "enabled": true },
-        "agent_activity_list": { "enabled": true },
-        "agent_activity_get": { "enabled": true },
-        "subscribers_list": { "enabled": true },
-        "broadcasts_get_send_progress": { "enabled": true }
+        "subscribers_list": { "enabled": true }
       }
     }
   ],

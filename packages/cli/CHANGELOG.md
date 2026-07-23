@@ -1,7 +1,9 @@
 # Changelog
 
-## 0.1.0-beta.1 - 2026-07-22
+## 0.1.0 - 2026-07-24
 
+- Request the workspace and Subscriber read permissions required by the read-only starter.
+- Execute operations directly when the credential has the required permission instead of requiring an additional `--yes` flag.
 - Add OAuth and API-key authentication without secret output.
-- Add bounded discovery, capabilities, Subscriber sync, campaign draft, preview, approved execution, activity, progress, generic operation, and doctor commands.
+- Add bounded discovery, capabilities, Subscriber sync, Broadcast draft, preview, execution, activity, progress, generic operation, and doctor commands.
 - Add JSON output, request IDs, stable exit codes, idempotency support, and bounded cursor pagination.

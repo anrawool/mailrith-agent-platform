@@ -1,16 +1,61 @@
 import { createHash } from "node:crypto";
 import { readFile, readdir, writeFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const repositoryRoot = process.cwd();
 const manifestPath = path.join(repositoryRoot, "packages", "agent-release-manifest.json");
-const releaseVersion = "0.1.0-beta.1";
-const pythonReleaseVersion = "0.1.0b1";
 
 type JsonObject = Record<string, unknown>;
+type AgentReleaseConfig = {
+  schema_version: 1;
+  release_version: string;
+  python_release_version: string;
+  channel: "ga";
+  status: "prepared_not_published" | "published";
+  documentation_revision: string;
+};
 
 const readJson = async (relativePath: string) =>
   JSON.parse(await readFile(path.join(repositoryRoot, relativePath), "utf8")) as JsonObject;
+
+export const parseAgentReleaseConfig = (value: unknown): AgentReleaseConfig => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("Agent release config must be a JSON object.");
+  }
+  const config = value as Record<string, unknown>;
+  if (config.schema_version !== 1) {
+    throw new Error("Agent release config schema version is unsupported.");
+  }
+  if (
+    typeof config.release_version !== "string" ||
+    config.release_version.trim().length === 0 ||
+    typeof config.python_release_version !== "string" ||
+    config.python_release_version.trim().length === 0
+  ) {
+    throw new Error("Agent release config must declare both package versions.");
+  }
+  if (config.channel !== "ga") {
+    throw new Error("Agent release config channel must be ga.");
+  }
+  if (
+    config.status !== "prepared_not_published" &&
+    config.status !== "published"
+  ) {
+    throw new Error(
+      "Agent release config status must be prepared_not_published or published.",
+    );
+  }
+  if (
+    typeof config.documentation_revision !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(config.documentation_revision)
+  ) {
+    throw new Error(
+      "Agent release config documentation revision must use YYYY-MM-DD.",
+    );
+  }
+  return config as AgentReleaseConfig;
+};
 
 const hashFiles = async (relativePaths: string[]) => {
   const hash = createHash("sha256");
@@ -43,7 +88,11 @@ const npmPackages = [
   ["@mailrith/agent-skill", "packages/agent-skill/package.json"],
 ] as const;
 
-const verifyNpmPackage = async (expectedName: string, packagePath: string) => {
+const verifyNpmPackage = async (
+  expectedName: string,
+  packagePath: string,
+  releaseVersion: string,
+) => {
   const packageJson = await readJson(packagePath);
   if (packageJson.name !== expectedName || packageJson.version !== releaseVersion) {
     throw new Error(`${packagePath} must publish ${expectedName}@${releaseVersion}.`);
@@ -63,15 +112,26 @@ const verifyNpmPackage = async (expectedName: string, packagePath: string) => {
 };
 
 const buildManifest = async () => {
+  const releaseConfig = parseAgentReleaseConfig(
+    await readJson("packages/agent-release-config.json"),
+  );
   const publishedNpmPackages = await Promise.all(
-    npmPackages.map(([name, packagePath]) => verifyNpmPackage(name, packagePath)),
+    npmPackages.map(([name, packagePath]) =>
+      verifyNpmPackage(name, packagePath, releaseConfig.release_version),
+    ),
   );
   const pyproject = await readFile(
     path.join(repositoryRoot, "packages/python-sdk/pyproject.toml"),
     "utf8",
   );
-  if (!pyproject.includes(`version = "${pythonReleaseVersion}"`)) {
-    throw new Error(`Python SDK must use version ${pythonReleaseVersion}.`);
+  if (
+    !pyproject.includes(
+      `version = "${releaseConfig.python_release_version}"`,
+    )
+  ) {
+    throw new Error(
+      `Python SDK must use version ${releaseConfig.python_release_version}.`,
+    );
   }
   for (const requiredProjectField of [
     'requires-python = ">=3.10"',
@@ -92,16 +152,16 @@ const buildManifest = async () => {
     publishedNpmPackages.map((item) => [item.name, item.version]),
   );
 
-  return {
-    schema_version: 1,
-    release_version: releaseVersion,
-    channel: "beta",
-    status: "published",
+  const manifest = {
+    schema_version: releaseConfig.schema_version,
+    release_version: releaseConfig.release_version,
+    channel: releaseConfig.channel,
+    status: releaseConfig.status,
     contract_version: "v1",
-    documentation_revision: "2026-07-23",
+    documentation_revision: releaseConfig.documentation_revision,
     packages: {
       npm: packageVersions,
-      pypi: { "mailrith-sdk": pythonReleaseVersion },
+      pypi: { "mailrith-sdk": releaseConfig.python_release_version },
     },
     digests: {
       public_contract_sha256: await hashFiles([
@@ -125,20 +185,27 @@ const buildManifest = async () => {
       node: ">=20",
       python: ">=3.10",
       mcp_transport: "streamable_http",
-      mcp_typescript_server: "2.0.0-beta.5",
-      claude_mcp_beta: "mcp-client-2025-11-20",
+      mcp_typescript_sdk: "1.29.0",
+      claude_mcp_protocol: "mcp-client-2025-11-20",
       supported_clients: ["openai_responses", "claude_messages", "codex", "n8n", "pipedream"],
     },
-  };
+  } as const;
+
+  return { manifest, releaseConfig };
 };
 
 const stableJson = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
 const main = async () => {
+  const { manifest: expected, releaseConfig } = await buildManifest();
   const requestedTag = process.env.MAILRITH_AGENT_RELEASE_TAG?.trim();
-  if (requestedTag && requestedTag !== `agent-v${releaseVersion}`) {
-    throw new Error(`Release tag ${requestedTag} does not match agent-v${releaseVersion}.`);
+  if (
+    requestedTag &&
+    requestedTag !== `agent-v${releaseConfig.release_version}`
+  ) {
+    throw new Error(
+      `Release tag ${requestedTag} does not match agent-v${releaseConfig.release_version}.`,
+    );
   }
-  const expected = await buildManifest();
   if (process.argv.includes("--write")) {
     await writeFile(manifestPath, stableJson(expected), "utf8");
     process.stdout.write(`Wrote ${path.relative(repositoryRoot, manifestPath)}.\n`);
@@ -147,8 +214,12 @@ const main = async () => {
     if (current !== stableJson(expected)) {
       throw new Error("Agent release manifest is stale. Run `pnpm agent:release:manifest`.");
     }
-    process.stdout.write(`Agent release ${releaseVersion} is internally consistent.\n`);
+    process.stdout.write(
+      `Agent release ${releaseConfig.release_version} is internally consistent.\n`,
+    );
   }
 };
 
-void main();
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  void main();
+}

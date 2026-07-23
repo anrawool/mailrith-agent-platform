@@ -92,7 +92,7 @@ describe("Mailrith connector templates", () => {
       type: "mcp",
       server_url: "https://api.mailrith.com/mcp",
       allowed_tools: { read_only: true },
-      require_approval: "always",
+      require_approval: "never",
     });
     expect(claude.betas).toEqual(["mcp-client-2025-11-20"]);
     expect(claude.mcp_servers[0].url).toBe("https://api.mailrith.com/mcp");
@@ -100,11 +100,19 @@ describe("Mailrith connector templates", () => {
       enabled: false,
       defer_loading: true,
     });
+    expect(Object.keys(claude.tools[0].configs)).toEqual([
+      "discovery_get_metadata",
+      "discovery_get_capabilities",
+      "workspace_get",
+      "subscribers_list",
+    ]);
     expect(n8n.active).toBe(false);
     expect(n8n.nodes[1].parameters.url).toBe("https://api.mailrith.com/v1/capabilities");
     expect(n8n.nodes[1].parameters.options.timeout).toBe(10_000);
     expect(codexSource).toContain('url = "https://api.mailrith.com/mcp"');
-    expect(codexSource).toContain('default_tools_approval_mode = "writes"');
+    expect(codexSource).toContain('default_tools_approval_mode = "never"');
+    expect(codexSource).not.toContain("agent_activity_");
+    expect(codexSource).not.toContain("broadcasts_get_send_progress");
     expect(pipedreamSource).toContain('url: "https://api.mailrith.com/v1/capabilities"');
     expect(pipedreamSource).toContain("secret: true");
 

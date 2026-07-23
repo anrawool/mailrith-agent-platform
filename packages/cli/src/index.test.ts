@@ -2,7 +2,11 @@ import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { mailrithCliExitCodes, runMailrithCli } from "./index.js";
+import {
+  mailrithCliDefaultOAuthScopes,
+  mailrithCliExitCodes,
+  runMailrithCli,
+} from "./index.js";
 
 const temporaryDirectories: string[] = [];
 
@@ -21,6 +25,13 @@ afterEach(async () => {
 });
 
 describe("Mailrith CLI", () => {
+  it("uses the bounded read-only OAuth scopes needed by the starter workflow", () => {
+    expect(mailrithCliDefaultOAuthScopes).toEqual([
+      "workspace:read",
+      "subscribers:read",
+    ]);
+  });
+
   it("stores API keys in a private config file without printing the secret", async () => {
     const configPath = await createTemporaryConfigPath();
     const stdout: string[] = [];
@@ -74,7 +85,7 @@ describe("Mailrith CLI", () => {
       "Bearer mailrith_test_secret",
     );
     expect(requests[0]?.headers.get("x-mailrith-client")).toBe(
-      "cli/0.1.0-beta.1",
+      "cli/0.1.0",
     );
     expect(stdout.join("\n")).not.toContain("mailrith_test_secret");
     expect(JSON.parse(stdout[0] ?? "{}")).toMatchObject({
@@ -120,30 +131,6 @@ describe("Mailrith CLI", () => {
     });
   });
 
-  it("blocks approval-token issuance through the generic command", async () => {
-    const fetchMock = vi.fn();
-    const stderr: string[] = [];
-
-    const exitCode = await runMailrithCli(
-      ["call", "agentActions", "issueApprovalToken", "--path", "action_id=action_1", "--json"],
-      {
-        environment: {
-          MAILRITH_API_KEY: "mailrith_test_secret",
-          MAILRITH_API_BASE_URL: "https://api.mailrith.test",
-        },
-        fetch: fetchMock as typeof fetch,
-        stderr: (line) => stderr.push(line),
-      },
-    );
-
-    expect(exitCode).toBe(mailrithCliExitCodes.usage);
-    expect(fetchMock).not.toHaveBeenCalled();
-    expect(JSON.parse(stderr[0] ?? "{}")).toMatchObject({
-      ok: false,
-      error: { code: "invalid_usage" },
-    });
-  });
-
   it("maps API permission failures to a stable exit and request ID", async () => {
     const stderr: string[] = [];
     const exitCode = await runMailrithCli(["capabilities", "--json"], {
@@ -171,5 +158,49 @@ describe("Mailrith CLI", () => {
         request_id: "req_denied_123",
       },
     });
+  });
+
+  it("executes an authorized Broadcast send without a second CLI confirmation", async () => {
+    const requests: Request[] = [];
+    const fetchMock = vi.fn(
+      async (input: string | URL | Request, init?: RequestInit) => {
+        const request = new Request(input, init);
+        requests.push(request);
+        return Response.json({
+          data: { status: "completed", resource: { id: "broadcast_123" } },
+        });
+      },
+    );
+
+    const exitCode = await runMailrithCli(
+      [
+        "call",
+        "broadcasts",
+        "send",
+        "--path",
+        "broadcast_id=broadcast_123",
+        "--idempotency-key",
+        "broadcast-send-123",
+        "--json",
+      ],
+      {
+        environment: {
+          MAILRITH_API_KEY: "mailrith_test_secret",
+          MAILRITH_API_BASE_URL: "https://api.mailrith.test",
+        },
+        fetch: fetchMock as typeof fetch,
+        stdout: () => undefined,
+      },
+    );
+
+    expect(exitCode).toBe(mailrithCliExitCodes.success);
+    expect(requests).toHaveLength(1);
+    expect(requests[0]?.method).toBe("POST");
+    expect(requests[0]?.url).toBe(
+      "https://api.mailrith.test/v1/broadcasts/broadcast_123/send",
+    );
+    expect(requests[0]?.headers.get("idempotency-key")).toBe(
+      "broadcast-send-123",
+    );
   });
 });

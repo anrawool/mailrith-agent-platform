@@ -3,6 +3,7 @@ import { stdin as processStdin } from "node:process";
 import {
   MailrithApiError,
   createMailrithClient,
+  mailrithAgentReadQuickstartScopeKeys,
   mailrithSdkResources,
   type MailrithOperationRequest,
   type MailrithResponseMetadata,
@@ -15,20 +16,21 @@ import {
   writeMailrithCliConfig,
 } from "./config.js";
 
-export const mailrithCliVersion = "0.1.0-beta.1";
+export const mailrithCliVersion = "0.1.0";
+export const mailrithCliDefaultOAuthScopes =
+  mailrithAgentReadQuickstartScopeKeys;
 
 const inputMaxBytes = 1024 * 1024;
 const diagnosticResponseMaxBytes = 128 * 1024;
 const defaultMaxPages = 10;
 const absoluteMaxPages = 100;
-const secretFieldPattern = /(?:^|_)(?:access_?token|refresh_?token|approval_?token|authorization|api_?key|client_?secret|password|secret)(?:$|_)/i;
+const secretFieldPattern = /(?:^|_)(?:access_?token|refresh_?token|authorization|api_?key|client_?secret|password|secret)(?:$|_)/i;
 const booleanFlags = new Set([
   "all",
   "help",
   "json",
   "no-browser",
   "show-version",
-  "yes",
 ]);
 
 export const mailrithCliExitCodes = {
@@ -468,15 +470,13 @@ const runDoctor = async (params: {
 const helpText = `Mailrith CLI ${mailrithCliVersion}
 
 Commands:
-  auth login [--scope workspace:read] [--no-browser]
+  auth login [--scope workspace:read --scope subscribers:read] [--no-browser]
   auth set-key [--from-env MAILRITH_API_KEY]
   auth logout
   discovery
   capabilities
   subscribers sync --body-file <path|->
-  campaigns draft --body-file <path|->
-  preview <namespace> <method> [--path name=value] [--body-file <path|->]
-  execute <namespace> <method> --action-id <id> --yes [request options]
+  broadcasts draft --body-file <path|->
   activity list [--all --max-pages 10] [--query name=value]
   activity show <activity-id>
   progress broadcast <broadcast-id>
@@ -550,7 +550,7 @@ export const runMailrithCli = async (
           scopes:
             getStringFlags(args, "scope").length > 0
               ? getStringFlags(args, "scope")
-              : ["workspace:read"],
+              : [...mailrithCliDefaultOAuthScopes],
           noBrowser: hasFlag(args, "no-browser"),
           port: parseBoundedInteger(getStringFlag(args, "port"), {
             label: "--port",
@@ -622,7 +622,7 @@ export const runMailrithCli = async (
     } else if (command === "subscribers" && subcommand === "sync") {
       operation = findOperation("subscribers", "upsert");
       request = await buildOperationRequest(args);
-    } else if (command === "campaigns" && subcommand === "draft") {
+    } else if (command === "broadcasts" && subcommand === "draft") {
       operation = findOperation("broadcasts", "create");
       request = await buildOperationRequest(args);
     } else if (command === "activity" && subcommand === "list") {
@@ -637,67 +637,6 @@ export const runMailrithCli = async (
     } else if (command === "call" && subcommand && third) {
       operation = findOperation(subcommand, third);
       request = await buildOperationRequest(args);
-      if (operation.operationId === "issueAgentApprovalToken") {
-        throw usageError("Approval tokens are never printed. Use `mailrith execute` to claim and consume one in memory.");
-      }
-      if (operation.approvalPolicy === "required") {
-        throw usageError("This operation requires a plan and approval. Use `mailrith preview`, then `mailrith execute`.");
-      }
-      if (
-        ["execute", "bulk", "delete", "admin"].includes(operation.risk) &&
-        !hasFlag(args, "yes")
-      ) {
-        throw usageError("High-impact CLI calls require --yes.");
-      }
-    } else if (command === "preview" && subcommand && third) {
-      operation = findOperation(subcommand, third);
-      if (operation.method === "GET") {
-        throw usageError("Read operations do not need an action preview.");
-      }
-      request = await buildOperationRequest(args);
-      request.query = { ...request.query, mode: "plan" };
-    } else if (command === "execute" && subcommand && third) {
-      operation = findOperation(subcommand, third);
-      if (!hasFlag(args, "yes")) {
-        throw usageError("Approved execution requires --yes.");
-      }
-      const actionId = getStringFlag(args, "action-id");
-      if (!actionId) throw usageError("Approved execution requires --action-id.");
-      request = await buildOperationRequest(args);
-
-      let approvalToken = getStringFlag(args, "approval-token-env")
-        ? environment[getStringFlag(args, "approval-token-env") as string]?.trim()
-        : undefined;
-      if (!approvalToken) {
-        let approvalRequestId: string | undefined;
-        const approvalClient = createMailrithClient({
-          apiKey: credential.token,
-          baseUrl,
-          fetch: fetchImpl,
-          defaultHeaders: { "x-mailrith-client": `cli/${mailrithCliVersion}` },
-          onResponse: (value) => {
-            approvalRequestId = value.requestId;
-          },
-        });
-        const approvalResponse = (await approvalClient.request(
-          findOperation("agentActions", "issueApprovalToken"),
-          { path: { action_id: actionId } },
-        )) as { data?: { approval_token?: string } };
-        approvalToken = approvalResponse.data?.approval_token;
-        if (!approvalToken) {
-          throw new MailrithCliError({
-            message: "Mailrith did not issue an approval token.",
-            code: "approval_token_missing",
-            exitCode: mailrithCliExitCodes.permission,
-            details: { request_id: approvalRequestId ?? null },
-          });
-        }
-      }
-      request.headers = {
-        ...request.headers,
-        "x-mailrith-action-id": actionId,
-        "x-mailrith-approval-token": approvalToken,
-      };
     } else {
       throw usageError("Unknown Mailrith CLI command. Run `mailrith help`.");
     }

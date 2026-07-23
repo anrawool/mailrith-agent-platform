@@ -14,7 +14,6 @@ export type PublicApiScopeDefinition = {
   action: PublicApiScopeAction;
   label: string;
   description: string;
-  highImpact: boolean;
 };
 
 const scope = <
@@ -27,31 +26,15 @@ const scope = <
   action: Action,
   label: string,
   description: string,
-  highImpact = false,
-) => ({ key, resourceKey, action, label, description, highImpact }) as const;
+) => ({ key, resourceKey, action, label, description }) as const;
 
-export const publicApiScopeDefinitions = [
+const publicApiScopeDefinitionCatalog = [
   scope(
     "workspace:read",
     "workspace",
     "read",
     "View workspace",
     "View the selected workspace name, settings, and current API context.",
-  ),
-  scope(
-    "approvals:read",
-    "agent_actions",
-    "read",
-    "View agent action plans",
-    "View bounded previews, approval state, expiration, and outcomes for this credential's agent actions.",
-  ),
-  scope(
-    "approvals:write",
-    "agent_actions",
-    "admin",
-    "Use approved agent actions",
-    "Claim a short-lived, single-use token after a workspace owner approves an action. This permission cannot approve its own action.",
-    true,
   ),
   scope(
     "activity:read",
@@ -68,56 +51,6 @@ export const publicApiScopeDefinitions = [
     "Run bounded aggregate reports from compact delivery and engagement rollups.",
   ),
   scope(
-    "diagnostics:read",
-    "diagnostics",
-    "read",
-    "View diagnostics",
-    "Inspect bounded, privacy-conscious Broadcast, Sequence, Automation, and Subscriber diagnostics.",
-  ),
-  scope(
-    "consent:read",
-    "consent",
-    "read",
-    "View consent evidence",
-    "View compact consent and privacy-event evidence without raw technical identifiers.",
-  ),
-  scope(
-    "consent:write",
-    "consent",
-    "execute",
-    "Record consent and privacy events",
-    "Record consent withdrawal, restriction, objection, erasure, and privacy completion events that can change sending eligibility.",
-    true,
-  ),
-  scope(
-    "recommendations:read",
-    "recommendations",
-    "read",
-    "View recommendations",
-    "View bounded recommendations, evidence, confidence, expected effects, and linked action plans.",
-  ),
-  scope(
-    "recommendations:draft",
-    "recommendations",
-    "draft",
-    "Draft recommendations",
-    "Create non-executing recommendations that must become a policy-checked action plan before execution.",
-  ),
-  scope(
-    "experiments:read",
-    "experiments",
-    "read",
-    "View experiments",
-    "View reference-only experiment definitions, safeguards, aggregate evidence, and winner decisions.",
-  ),
-  scope(
-    "experiments:draft",
-    "experiments",
-    "draft",
-    "Draft experiments",
-    "Define recommendation-only experiments and record aggregate winner evidence without automatically changing campaigns.",
-  ),
-  scope(
     "subscribers:read",
     "subscribers",
     "read",
@@ -132,18 +65,24 @@ export const publicApiScopeDefinitions = [
     "Create Subscriber records and change names, email addresses, countries, subscription dates, and custom-field values. This cannot change sending eligibility.",
   ),
   scope(
-    "subscribers:eligibility",
-    "subscribers",
+    "subscriptions:read",
+    "subscriptions",
+    "read",
+    "View Subscriber Status",
+    "View email subscription status, sending eligibility, suppression details, and compact consent evidence.",
+  ),
+  scope(
+    "subscriptions:write",
+    "subscriptions",
     "execute",
-    "Change Subscriber sending eligibility",
-    "Create send-eligible Subscribers or change whether an existing Subscriber can receive email.",
-    true,
+    "Manage Subscriber Status",
+    "Subscribe or unsubscribe Subscribers, manage sending eligibility, and record the compact consent evidence required for those changes.",
   ),
   scope(
     "subscribers:targeting",
     "subscribers",
     "configure",
-    "Change Subscriber targeting",
+    "Manage Subscriber Tags",
     "Add or remove Tags that can change segmentation and Automation eligibility for one Subscriber.",
   ),
   scope(
@@ -152,7 +91,13 @@ export const publicApiScopeDefinitions = [
     "execute",
     "Manage Sequence enrollment",
     "Add or remove one Subscriber from a Sequence. Enrollment in a running Sequence can send email.",
-    true,
+  ),
+  scope(
+    "subscribers:delete",
+    "subscribers",
+    "delete",
+    "Delete Subscribers",
+    "Permanently remove individual Subscribers and their Mailrith activity history.",
   ),
   scope(
     "subscribers:bulk_import",
@@ -160,7 +105,6 @@ export const publicApiScopeDefinitions = [
     "bulk",
     "Import Subscribers in bulk",
     "Start bulk imports that can create or change many Subscribers, Tags, sending eligibility, and Sequence enrollment.",
-    true,
   ),
   scope(
     "subscribers:bulk_export",
@@ -168,7 +112,6 @@ export const publicApiScopeDefinitions = [
     "bulk",
     "Export Subscribers in bulk",
     "Create and download exports containing bulk Subscriber data.",
-    true,
   ),
   scope("tags:read", "tags", "read", "View Tags", "View the workspace Tag catalog."),
   scope(
@@ -177,6 +120,13 @@ export const publicApiScopeDefinitions = [
     "configure",
     "Configure Tags",
     "Create Tags used for Subscriber organization, targeting, and preferences.",
+  ),
+  scope(
+    "tags:delete",
+    "tags",
+    "delete",
+    "Delete Tags",
+    "Permanently remove Tags that are not referenced by another Mailrith resource.",
   ),
   scope(
     "custom_fields:read",
@@ -198,7 +148,6 @@ export const publicApiScopeDefinitions = [
     "delete",
     "Delete custom fields",
     "Permanently remove custom-field definitions and their saved Subscriber values.",
-    true,
   ),
   scope(
     "email_templates:read",
@@ -220,7 +169,6 @@ export const publicApiScopeDefinitions = [
     "delete",
     "Delete email templates",
     "Permanently remove reusable email template content.",
-    true,
   ),
   scope("forms:read", "forms", "read", "View Forms", "View Form definitions and settings."),
   scope(
@@ -243,7 +191,6 @@ export const publicApiScopeDefinitions = [
     "delete",
     "Delete Forms",
     "Remove publicly reachable Subscriber capture Forms.",
-    true,
   ),
   scope(
     "landing_pages:read",
@@ -272,7 +219,6 @@ export const publicApiScopeDefinitions = [
     "delete",
     "Delete Landing Pages",
     "Remove publicly reachable hosted Landing Pages.",
-    true,
   ),
   scope(
     "sequences:read",
@@ -294,7 +240,6 @@ export const publicApiScopeDefinitions = [
     "execute",
     "Activate or pause Sequences",
     "Start or pause Sequences. Starting a Sequence can send email to enrolled Subscribers.",
-    true,
   ),
   scope(
     "sequences:delete",
@@ -302,7 +247,6 @@ export const publicApiScopeDefinitions = [
     "delete",
     "Delete Sequences",
     "Permanently remove lifecycle Sequences.",
-    true,
   ),
   scope(
     "automations:read",
@@ -324,7 +268,6 @@ export const publicApiScopeDefinitions = [
     "execute",
     "Activate or pause Automations",
     "Start or pause Automations. Starting an Automation can run actions for matching Subscribers.",
-    true,
   ),
   scope(
     "automations:delete",
@@ -332,7 +275,6 @@ export const publicApiScopeDefinitions = [
     "delete",
     "Delete Automations",
     "Permanently remove Automation workflows.",
-    true,
   ),
   scope(
     "magic_links:read",
@@ -354,7 +296,6 @@ export const publicApiScopeDefinitions = [
     "delete",
     "Delete Magic Links",
     "Remove public Magic Links and their configured actions.",
-    true,
   ),
   scope(
     "broadcasts:read",
@@ -383,7 +324,6 @@ export const publicApiScopeDefinitions = [
     "test",
     "Send Broadcast tests",
     "Send a real test email from a Broadcast to one chosen recipient.",
-    true,
   ),
   scope(
     "broadcasts:send",
@@ -391,7 +331,6 @@ export const publicApiScopeDefinitions = [
     "execute",
     "Send Broadcasts",
     "Start durable delivery of a Broadcast to real Subscribers.",
-    true,
   ),
   scope(
     "broadcasts:cancel",
@@ -399,7 +338,6 @@ export const publicApiScopeDefinitions = [
     "execute",
     "Cancel Broadcast sends",
     "Stop remaining delivery work for a running Broadcast. Emails already accepted by a provider cannot be recalled.",
-    true,
   ),
   scope(
     "broadcasts:delete",
@@ -407,7 +345,6 @@ export const publicApiScopeDefinitions = [
     "delete",
     "Delete Broadcasts",
     "Permanently remove eligible Broadcast drafts or failed sends.",
-    true,
   ),
   scope(
     "segments:read",
@@ -429,57 +366,110 @@ export const publicApiScopeDefinitions = [
     "delete",
     "Delete Segments",
     "Permanently remove saved Subscriber-selection definitions.",
-    true,
   ),
   scope(
-    "jobs:read",
-    "jobs",
+    "webhooks:read",
+    "webhooks",
     "read",
-    "View background jobs",
-    "View bounded status summaries for permitted import and export jobs.",
+    "View Outbound Webhooks",
+    "View outbound webhook destinations, selected events, and delivery health.",
   ),
   scope(
-    "webhook_subscriptions:read",
-    "webhook_subscriptions",
-    "read",
-    "View webhook subscriptions",
-    "View webhook destinations, selected events, and delivery health.",
-  ),
-  scope(
-    "webhook_subscriptions:configure",
-    "webhook_subscriptions",
+    "webhooks:write",
+    "webhooks",
     "admin",
-    "Configure webhook subscriptions",
-    "Create and change outbound webhook destinations and the workspace data sent to them.",
-    true,
-  ),
-  scope(
-    "webhook_subscriptions:secret_rotate",
-    "webhook_subscriptions",
-    "admin",
-    "Rotate webhook secrets",
-    "Replace a webhook signing secret and reveal the new secret once.",
-    true,
-  ),
-  scope(
-    "webhook_subscriptions:delete",
-    "webhook_subscriptions",
-    "delete",
-    "Delete webhook subscriptions",
-    "Remove outbound webhook destinations and stop future deliveries to them.",
-    true,
+    "Configure Outbound Webhooks",
+    "Create, change, delete, and rotate signing secrets for outbound webhook destinations.",
   ),
 ] as const satisfies readonly PublicApiScopeDefinition[];
 
 export type PublicApiScopeKey =
-  (typeof publicApiScopeDefinitions)[number]["key"];
+  (typeof publicApiScopeDefinitionCatalog)[number]["key"];
+
+// Keep displayed permissions in the same sections and resource order people
+// already learn from the app sidebar. API-only resources stay beside their
+// nearest visible page.
+export const publicApiScopeDisplaySections = [
+  {
+    key: "overview",
+    label: "Overview",
+    resources: [
+      {
+        label: "Dashboard",
+        resourceKeys: ["analytics"],
+      },
+    ],
+  },
+  {
+    key: "subscribers",
+    label: "Subscribers",
+    resources: [
+      {
+        label: "Subscribers",
+        resourceKeys: ["subscribers", "subscriptions"],
+      },
+      { label: "Segments", resourceKeys: ["segments"] },
+      { label: "Tags", resourceKeys: ["tags"] },
+      { label: "Forms", resourceKeys: ["forms"] },
+      { label: "Landing Pages", resourceKeys: ["landing_pages"] },
+    ],
+  },
+  {
+    key: "campaigns",
+    label: "Campaigns",
+    resources: [
+      { label: "Broadcasts", resourceKeys: ["broadcasts"] },
+      { label: "Sequences", resourceKeys: ["sequences"] },
+      { label: "Magic Links", resourceKeys: ["magic_links"] },
+      { label: "Automations", resourceKeys: ["automations"] },
+    ],
+  },
+  {
+    key: "account",
+    label: "Account",
+    resources: [
+      { label: "Workspaces", resourceKeys: ["workspace"] },
+      { label: "Email Templates", resourceKeys: ["email_templates"] },
+      { label: "Custom Fields", resourceKeys: ["custom_fields"] },
+      {
+        label: "Integrations",
+        resourceKeys: ["agent_activity", "webhooks"],
+      },
+    ],
+  },
+] as const;
+
+export const publicApiScopeResourceOrder =
+  publicApiScopeDisplaySections.flatMap((section) =>
+    section.resources.flatMap((resource) => resource.resourceKeys),
+  );
+
+const publicApiScopeResourceOrderByKey = new Map<string, number>(
+  publicApiScopeResourceOrder.map((resourceKey, index) => [resourceKey, index]),
+);
+
+export const publicApiScopeDefinitions = [
+  ...publicApiScopeDefinitionCatalog,
+].sort(
+  (left, right) =>
+    (publicApiScopeResourceOrderByKey.get(left.resourceKey) ??
+      Number.MAX_SAFE_INTEGER) -
+    (publicApiScopeResourceOrderByKey.get(right.resourceKey) ??
+      Number.MAX_SAFE_INTEGER),
+);
 
 export type PublicApiScopePresetKey =
   | "reporting"
   | "subscriber_sync"
-  | "campaign_drafting"
-  | "campaign_sending"
+  | "content_and_targeting"
+  | "capture_management"
+  | "broadcast_preparation"
+  | "broadcast_sending"
+  | "sequence_preparation"
+  | "sequence_operations"
   | "automation_management"
+  | "webhook_management"
+  | "data_transfer"
   | "full_administration";
 
 export type PublicApiScopePreset = {
@@ -508,7 +498,17 @@ const preset = (
   label: string,
   description: string,
   scopeKeys: readonly PublicApiScopeKey[],
-): PublicApiScopePreset => ({ key, label, description, scopeKeys });
+): PublicApiScopePreset => {
+  const selectedScopeKeys = new Set(scopeKeys);
+  return {
+    key,
+    label,
+    description,
+    scopeKeys: publicApiScopeKeys.filter((scopeKey) =>
+      selectedScopeKeys.has(scopeKey),
+    ),
+  };
+};
 
 export const publicApiScopePresets = [
   preset(
@@ -520,48 +520,100 @@ export const publicApiScopePresets = [
   preset(
     "subscriber_sync",
     "Subscriber Sync",
-    "Sync individual Subscriber profiles, sending eligibility, targeting, and supporting field definitions.",
+    "Manage individual Subscriber profiles, status, Tags, deletion, and supporting field definitions.",
     [
       "workspace:read",
       "subscribers:read",
       "subscribers:profile",
-      "subscribers:eligibility",
-      "consent:read",
-      "consent:write",
+      "subscriptions:read",
+      "subscriptions:write",
       "subscribers:targeting",
+      "subscribers:delete",
       "tags:read",
       "tags:configure",
       "custom_fields:read",
       "custom_fields:configure",
-      "jobs:read",
     ],
   ),
   preset(
-    "campaign_drafting",
-    "Campaign Drafting",
-    "Create campaign content, Segments, and Broadcast drafts without sending email.",
+    "data_transfer",
+    "Subscriber Import & Export",
+    "Run bounded Subscriber imports and exports and monitor their jobs.",
+    [
+      "workspace:read",
+      "subscribers:read",
+      "subscribers:bulk_import",
+      "subscribers:bulk_export",
+      "tags:read",
+      "custom_fields:read",
+    ],
+  ),
+  preset(
+    "content_and_targeting",
+    "Templates, Tags, Fields & Segments",
+    "Manage reusable email content, Tags, custom fields, and Segments without sending email.",
+    [
+      "workspace:read",
+      "subscribers:read",
+      "tags:read",
+      "tags:configure",
+      "tags:delete",
+      "custom_fields:read",
+      "custom_fields:configure",
+      "custom_fields:delete",
+      "email_templates:read",
+      "email_templates:draft",
+      "email_templates:delete",
+      "segments:read",
+      "segments:configure",
+      "segments:delete",
+      "analytics:read",
+    ],
+  ),
+  preset(
+    "capture_management",
+    "Forms, Landing Pages & Magic Links",
+    "Manage Forms, Landing Pages, Magic Links, and their Subscriber capture data.",
+    [
+      "workspace:read",
+      "subscribers:read",
+      "tags:read",
+      "custom_fields:read",
+      "forms:read",
+      "forms:submissions_read",
+      "forms:configure",
+      "forms:delete",
+      "landing_pages:read",
+      "landing_pages:submissions_read",
+      "landing_pages:configure",
+      "landing_pages:delete",
+      "magic_links:read",
+      "magic_links:configure",
+      "magic_links:delete",
+    ],
+  ),
+  preset(
+    "broadcast_preparation",
+    "Broadcast Preparation",
+    "Create, change, check, and delete Broadcast drafts without sending email.",
     [
       "workspace:read",
       "subscribers:read",
       "tags:read",
       "custom_fields:read",
       "email_templates:read",
-      "email_templates:draft",
       "broadcasts:read",
       "broadcasts:draft",
       "broadcasts:preflight",
+      "broadcasts:delete",
       "segments:read",
       "segments:configure",
       "analytics:read",
-      "recommendations:read",
-      "recommendations:draft",
-      "experiments:read",
-      "experiments:draft",
     ],
   ),
   preset(
-    "campaign_sending",
-    "Campaign Sending",
+    "broadcast_sending",
+    "Broadcast Sending",
     "Review, test, send, and stop Broadcasts without changing Automation definitions.",
     [
       "workspace:read",
@@ -572,20 +624,13 @@ export const publicApiScopePresets = [
       "broadcasts:send",
       "broadcasts:cancel",
       "segments:read",
-      "approvals:read",
-      "approvals:write",
       "analytics:read",
-      "diagnostics:read",
-      "recommendations:read",
-      "recommendations:draft",
-      "experiments:read",
-      "experiments:draft",
     ],
   ),
   preset(
-    "automation_management",
-    "Automation Management",
-    "Draft, activate, and pause Sequences and Automations without deleting them or sending Broadcasts.",
+    "sequence_preparation",
+    "Sequence Preparation",
+    "Create, change, and delete paused Sequences without activating them or enrolling Subscribers.",
     [
       "workspace:read",
       "subscribers:read",
@@ -593,19 +638,44 @@ export const publicApiScopePresets = [
       "email_templates:read",
       "sequences:read",
       "sequences:draft",
+      "sequences:delete",
+      "analytics:read",
+    ],
+  ),
+  preset(
+    "sequence_operations",
+    "Sequence Operations",
+    "Activate or pause Sequences and add or remove individual Subscribers.",
+    [
+      "workspace:read",
+      "subscribers:read",
+      "subscribers:sequence_enroll",
+      "sequences:read",
       "sequences:activate",
+      "analytics:read",
+    ],
+  ),
+  preset(
+    "automation_management",
+    "Automation Management",
+    "Create, change, activate, pause, and delete Automations without sending Broadcasts.",
+    [
+      "workspace:read",
+      "subscribers:read",
+      "tags:read",
+      "email_templates:read",
       "automations:read",
       "automations:draft",
       "automations:activate",
-      "approvals:read",
-      "approvals:write",
+      "automations:delete",
       "analytics:read",
-      "diagnostics:read",
-      "recommendations:read",
-      "recommendations:draft",
-      "experiments:read",
-      "experiments:draft",
     ],
+  ),
+  preset(
+    "webhook_management",
+    "Outbound Webhook Setup",
+    "View and configure outbound webhook event delivery.",
+    ["workspace:read", "webhooks:read", "webhooks:write"],
   ),
   preset(
     "full_administration",
@@ -614,6 +684,44 @@ export const publicApiScopePresets = [
     publicApiScopeKeys,
   ),
 ] as const satisfies readonly PublicApiScopePreset[];
+
+export const publicApiScopePresetDisplaySections = [
+  {
+    key: "overview",
+    label: "Overview",
+    presetKeys: ["reporting"],
+  },
+  {
+    key: "subscribers",
+    label: "Subscribers",
+    presetKeys: [
+      "subscriber_sync",
+      "data_transfer",
+      "content_and_targeting",
+      "capture_management",
+    ],
+  },
+  {
+    key: "campaigns",
+    label: "Campaigns",
+    presetKeys: [
+      "broadcast_preparation",
+      "broadcast_sending",
+      "sequence_preparation",
+      "sequence_operations",
+      "automation_management",
+    ],
+  },
+  {
+    key: "account",
+    label: "Account",
+    presetKeys: ["webhook_management", "full_administration"],
+  },
+] as const satisfies readonly {
+  key: string;
+  label: string;
+  presetKeys: readonly PublicApiScopePresetKey[];
+}[];
 
 export const publicApiScopePresetByKey = new Map(
   publicApiScopePresets.map((definition) => [definition.key, definition]),
@@ -624,6 +732,15 @@ export const publicApiScopePresetByKey = new Map(
 export const publicApiDefaultScopeKeys = [
   ...publicApiScopePresetByKey.get("reporting")!.scopeKeys,
 ];
+
+// The interactive read-only starter deliberately exposes only workspace
+// context and bounded Subscriber reads. Keep this compact list separate from
+// the broader Reporting preset so a first OAuth connection does not gain
+// unrelated analytics, content, workflow, or delivery access.
+export const publicApiAgentReadQuickstartScopeKeys = [
+  "workspace:read",
+  "subscribers:read",
+] as const satisfies readonly PublicApiScopeKey[];
 
 export const isPublicApiScopeKey = (
   value: string,
@@ -660,13 +777,4 @@ export const validatePublicApiScopeKeys = (
     ok: true,
     value: normalizePublicApiScopeKeys(requestedScopeKeys),
   };
-};
-
-export const hasHighImpactPublicApiScope = (scopeKeys: Iterable<string>) => {
-  for (const scopeKey of scopeKeys) {
-    if (publicApiScopeDefinitionMap.get(scopeKey as PublicApiScopeKey)?.highImpact) {
-      return true;
-    }
-  }
-  return false;
 };

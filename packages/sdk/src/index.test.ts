@@ -1,6 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
-import { publicApiSdkResources } from "@mailrith/public-api";
-import { MailrithApiError, createMailrithClient, mailrithSdkResources } from "./index";
+import {
+  publicApiAgentReadQuickstartScopeKeys,
+  publicApiSdkResources,
+} from "@mailrith/public-api";
+import {
+  MailrithApiError,
+  createMailrithClient,
+  mailrithAgentReadQuickstartScopeKeys,
+  mailrithSdkResources,
+} from "./index";
 
 describe("@mailrith/sdk", () => {
   it("exposes discovery and resource namespaces generated from the public api manifest", () => {
@@ -36,6 +44,9 @@ describe("@mailrith/sdk", () => {
   });
 
   it("keeps generated resources in sync with the public api manifest", () => {
+    expect(mailrithAgentReadQuickstartScopeKeys).toEqual(
+      publicApiAgentReadQuickstartScopeKeys,
+    );
     expect(mailrithSdkResources).toEqual(publicApiSdkResources);
     expect(
       mailrithSdkResources

@@ -4,7 +4,7 @@ These templates were reviewed on July 22, 2026 against the current OpenAI Respon
 
 ## OpenAI
 
-Resolve `${MAILRITH_ACCESS_TOKEN}` in server-side code before sending the request. The starter template exposes read-only tools and keeps provider-level approval on every MCP call. Expand the allowlist only for the workflow you have reviewed.
+Resolve `${MAILRITH_ACCESS_TOKEN}` in server-side code before sending the request. The starter template exposes only read-only tools. Expand the allowlist only for the workflow and Mailrith permissions you intend to grant.
 
 ## Claude
 

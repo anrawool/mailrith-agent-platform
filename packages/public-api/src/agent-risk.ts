@@ -44,15 +44,6 @@ export const publicApiAgentSideEffectClasses = [
 export type PublicApiAgentSideEffectClass =
   (typeof publicApiAgentSideEffectClasses)[number];
 
-export const publicApiAgentApprovalPolicies = [
-  "none",
-  "policy",
-  "required",
-] as const;
-
-export type PublicApiAgentApprovalPolicy =
-  (typeof publicApiAgentApprovalPolicies)[number];
-
 export const publicApiAgentDataScopes = [
   "public",
   "workspace",
@@ -71,7 +62,6 @@ export type PublicApiAgentOperationRisk = {
   sideEffectClass: PublicApiAgentSideEffectClass;
   retryMode: PublicApiAgentRetryMode;
   idempotencyPolicy: PublicApiAgentIdempotencyPolicy;
-  approvalPolicy: PublicApiAgentApprovalPolicy;
   minimumPermission: string;
   dataScope: PublicApiAgentDataScope;
   rationale: string;
@@ -91,7 +81,6 @@ const read = (
   sideEffectClass: "none",
   retryMode: "safe",
   idempotencyPolicy: "safe-read",
-  approvalPolicy: "none",
   minimumPermission,
   dataScope,
   rationale,
@@ -106,7 +95,6 @@ const change = (
     externalSideEffect?: boolean;
     sideEffectClass?: Exclude<PublicApiAgentSideEffectClass, "none">;
     retryMode?: Exclude<PublicApiAgentRetryMode, "safe">;
-    approvalPolicy?: Exclude<PublicApiAgentApprovalPolicy, "none"> | "none";
     dataScope?: Exclude<PublicApiAgentDataScope, "public">;
     rationale: string;
   },
@@ -138,7 +126,6 @@ const change = (
     retryMode,
     idempotencyPolicy:
       retryMode === "resource-state" ? "resource-state" : "idempotency-key",
-    approvalPolicy: options.approvalPolicy ?? "policy",
     minimumPermission,
     dataScope: options.dataScope ?? "workspace",
     rationale: options.rationale,
@@ -175,13 +162,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "Reads one authenticated workspace profile.",
   ),
   read(
-    "getAgentAction",
-    "agent_actions",
-    "approvals:read",
-    "workspace",
-    "Reads one compact action plan bound to the current credential or OAuth authorization.",
-  ),
-  read(
     "listAgentActivity",
     "agent_activity",
     "activity:read",
@@ -212,132 +192,37 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "listAutomationRunDiagnostics",
     "diagnostics",
-    "diagnostics:read",
+    "automations:read",
     "workspace",
     "Reads a bounded page of redacted Automation run diagnostics.",
   ),
   read(
     "getAutomationRunDiagnostics",
     "diagnostics",
-    "diagnostics:read",
+    "automations:read",
     "workspace",
     "Reads one redacted Automation run and its bounded step diagnostics.",
   ),
   read(
     "getSequenceDiagnostics",
     "diagnostics",
-    "diagnostics:read",
+    "sequences:read",
     "workspace",
     "Reads bounded Sequence failure and retry diagnostics.",
   ),
   read(
     "getBroadcastDiagnostics",
     "diagnostics",
-    "diagnostics:read",
+    "broadcasts:read",
     "workspace",
     "Reads bounded Broadcast selection, provider readiness, and delivery reasons.",
   ),
   read(
     "getSubscriberActivityDiagnostics",
     "diagnostics",
-    "diagnostics:read",
+    "subscribers:read",
     "subscriber",
-    "Reads one privacy-conscious Subscriber activity and compliance summary without an email address.",
-  ),
-  change(
-    "recordSubscriberComplianceEvent",
-    "consent",
-    "execute",
-    "consent:write",
-    {
-      retryMode: "resource-state",
-      approvalPolicy: "required",
-      dataScope: "subscriber",
-      rationale:
-        "Records a legal or privacy state event that can require suppression or deletion handling.",
-    },
-  ),
-  read(
-    "listRecommendations",
-    "recommendations",
-    "recommendations:read",
-    "workspace",
-    "Reads the current credential's bounded, expiring recommendations.",
-  ),
-  read(
-    "getRecommendation",
-    "recommendations",
-    "recommendations:read",
-    "workspace",
-    "Reads one bounded recommendation created by the current credential.",
-  ),
-  change(
-    "createRecommendation",
-    "recommendations",
-    "draft",
-    "recommendations:draft",
-    {
-      sideEffectClass: "workspace-change",
-      rationale:
-        "Stores non-executing advice with bounded evidence and no automatic action.",
-    },
-  ),
-  read(
-    "planRecommendation",
-    "recommendations",
-    "recommendations:draft",
-    "workspace",
-    "Creates the normal policy-checked preview for a recommendation; it cannot approve or execute it.",
-  ),
-  read(
-    "listExperiments",
-    "experiments",
-    "experiments:read",
-    "workspace",
-    "Reads bounded reference-only experiments.",
-  ),
-  read(
-    "getExperiment",
-    "experiments",
-    "experiments:read",
-    "workspace",
-    "Reads one reference-only experiment and aggregate decision evidence.",
-  ),
-  change(
-    "createExperiment",
-    "experiments",
-    "draft",
-    "experiments:draft",
-    {
-      sideEffectClass: "workspace-change",
-      rationale:
-        "Stores a recommendation-only experiment definition without per-Subscriber assignments or automatic execution.",
-    },
-  ),
-  change(
-    "recordExperimentDecision",
-    "experiments",
-    "draft",
-    "experiments:draft",
-    {
-      retryMode: "resource-state",
-      sideEffectClass: "workspace-change",
-      rationale:
-        "Records an aggregate winner decision but never changes a campaign automatically.",
-    },
-  ),
-  change(
-    "issueAgentApprovalToken",
-    "agent_actions",
-    "admin",
-    "approvals:write",
-    {
-      retryMode: "resource-state",
-      approvalPolicy: "none",
-      sideEffectClass: "secret-change",
-      rationale:
-        "Issues one short-lived token only after the workspace owner or trusted policy approved the bound action.",
-    },
+    "Reads one privacy-conscious Subscriber activity and subscription summary without an email address.",
   ),
   read(
     "listSubscribers",
@@ -357,14 +242,19 @@ export const publicApiAgentOperationRiskCatalog = [
     rationale:
       "Changes one Subscriber profile or custom-field values without changing sending eligibility.",
   }),
+  change("deleteSubscriber", "subscribers", "delete", "subscribers:delete", {
+    retryMode: "resource-state",
+    dataScope: "subscriber",
+    rationale:
+      "Permanently removes one Subscriber and their Mailrith activity history.",
+  }),
   change(
     "updateSubscriberStatus",
     "subscribers",
     "execute",
-    "subscribers:eligibility",
+    "subscriptions:write",
     {
       retryMode: "resource-state",
-      approvalPolicy: "required",
       dataScope: "subscriber",
       rationale: "Changes whether one Subscriber can receive email.",
     },
@@ -402,7 +292,6 @@ export const publicApiAgentOperationRiskCatalog = [
       externalSideEffect: true,
       sideEffectClass: "external-email",
       retryMode: "resource-state",
-      approvalPolicy: "required",
       dataScope: "subscriber",
       rationale:
         "Enrollment can cause a running Sequence to send email to the Subscriber.",
@@ -422,6 +311,16 @@ export const publicApiAgentOperationRiskCatalog = [
   read("listTags", "tags", "tags:read", "workspace", "Reads the bounded Tag catalog."),
   change("createTag", "tags", "draft", "tags:configure", {
     rationale: "Creates targeting metadata without contacting Subscribers.",
+  }),
+  read("getTag", "tags", "tags:read", "workspace", "Reads one Tag definition."),
+  change("updateTag", "tags", "draft", "tags:configure", {
+    retryMode: "resource-state",
+    rationale: "Changes targeting metadata without contacting Subscribers.",
+  }),
+  change("deleteTag", "tags", "delete", "tags:delete", {
+    retryMode: "resource-state",
+    rationale:
+      "Permanently removes targeting metadata when no saved resource references it.",
   }),
   read(
     "listCustomFields",
@@ -461,7 +360,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "custom_fields:delete",
     {
       retryMode: "resource-state",
-      approvalPolicy: "required",
       rationale: "Permanently removes a field definition and associated values.",
     },
   ),
@@ -503,7 +401,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "email_templates:delete",
     {
       retryMode: "resource-state",
-      approvalPolicy: "required",
       rationale: "Permanently removes reusable email content.",
     },
   ),
@@ -528,7 +425,6 @@ export const publicApiAgentOperationRiskCatalog = [
   change("deleteForm", "forms", "delete", "forms:delete", {
     externalSideEffect: true,
     retryMode: "resource-state",
-    approvalPolicy: "required",
     rationale: "Removes a public Subscriber capture surface.",
   }),
   read(
@@ -581,7 +477,6 @@ export const publicApiAgentOperationRiskCatalog = [
     {
       externalSideEffect: true,
       retryMode: "resource-state",
-      approvalPolicy: "required",
       rationale: "Removes a public hosted page.",
     },
   ),
@@ -610,12 +505,10 @@ export const publicApiAgentOperationRiskCatalog = [
     externalSideEffect: true,
     sideEffectClass: "external-email",
     retryMode: "resource-state",
-    approvalPolicy: "required",
     rationale: "Starts or pauses a Sequence that can send email.",
   }),
   change("deleteSequence", "sequences", "delete", "sequences:delete", {
     retryMode: "resource-state",
-    approvalPolicy: "required",
     rationale: "Permanently removes a lifecycle workflow.",
   }),
   read(
@@ -660,7 +553,6 @@ export const publicApiAgentOperationRiskCatalog = [
       externalSideEffect: true,
       sideEffectClass: "external-email",
       retryMode: "resource-state",
-      approvalPolicy: "required",
       rationale: "Starts or pauses an Automation that can run external actions.",
     },
   ),
@@ -671,7 +563,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "automations:delete",
     {
       retryMode: "resource-state",
-      approvalPolicy: "required",
       rationale: "Permanently removes an Automation workflow.",
     },
   ),
@@ -684,7 +575,6 @@ export const publicApiAgentOperationRiskCatalog = [
   ),
   change("createMagicLink", "magic_links", "execute", "magic_links:configure", {
     externalSideEffect: true,
-    approvalPolicy: "required",
     rationale:
       "Creates a public link that can change Subscriber state when used.",
   }),
@@ -698,14 +588,12 @@ export const publicApiAgentOperationRiskCatalog = [
   change("updateMagicLink", "magic_links", "execute", "magic_links:configure", {
     externalSideEffect: true,
     retryMode: "resource-state",
-    approvalPolicy: "required",
     rationale:
       "Changes a public link that can change Subscriber state when used.",
   }),
   change("deleteMagicLink", "magic_links", "delete", "magic_links:delete", {
     externalSideEffect: true,
     retryMode: "resource-state",
-    approvalPolicy: "required",
     rationale: "Removes a public link and its configured action.",
   }),
   read(
@@ -745,7 +633,6 @@ export const publicApiAgentOperationRiskCatalog = [
   }),
   change("deleteBroadcast", "broadcasts", "delete", "broadcasts:delete", {
     retryMode: "resource-state",
-    approvalPolicy: "required",
     rationale: "Permanently removes an eligible Broadcast.",
   }),
   read(
@@ -757,7 +644,6 @@ export const publicApiAgentOperationRiskCatalog = [
   ),
   change("sendBroadcast", "broadcasts", "execute", "broadcasts:send", {
     externalSideEffect: true,
-    approvalPolicy: "required",
     rationale: "Starts durable delivery to real Subscribers.",
   }),
   change(
@@ -767,14 +653,12 @@ export const publicApiAgentOperationRiskCatalog = [
     "broadcasts:cancel",
     {
       externalSideEffect: true,
-      approvalPolicy: "none",
       rationale:
         "Stops remaining delivery work and must remain available as a safety action.",
     },
   ),
   change("testBroadcast", "broadcasts", "test", "broadcasts:test", {
     externalSideEffect: true,
-    approvalPolicy: "policy",
     rationale: "Sends one real test email to a controlled recipient.",
   }),
   read(
@@ -800,7 +684,6 @@ export const publicApiAgentOperationRiskCatalog = [
   }),
   change("deleteSegment", "segments", "delete", "segments:delete", {
     retryMode: "resource-state",
-    approvalPolicy: "required",
     rationale: "Permanently removes a saved Subscriber-selection definition.",
   }),
   read(
@@ -813,7 +696,7 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "listWebhookSubscriptions",
     "webhook_subscriptions",
-    "webhook_subscriptions:read",
+    "webhooks:read",
     "workspace",
     "Reads a bounded page of webhook destinations and delivery health.",
   ),
@@ -821,10 +704,9 @@ export const publicApiAgentOperationRiskCatalog = [
     "createWebhookSubscription",
     "webhook_subscriptions",
     "admin",
-    "webhook_subscriptions:configure",
+    "webhooks:write",
     {
       externalSideEffect: true,
-      approvalPolicy: "required",
       rationale:
         "Creates an outbound data destination and returns new secret material once.",
     },
@@ -832,7 +714,7 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "getWebhookSubscription",
     "webhook_subscriptions",
-    "webhook_subscriptions:read",
+    "webhooks:read",
     "workspace",
     "Reads one webhook destination and delivery health record.",
   ),
@@ -840,11 +722,10 @@ export const publicApiAgentOperationRiskCatalog = [
     "updateWebhookSubscription",
     "webhook_subscriptions",
     "admin",
-    "webhook_subscriptions:configure",
+    "webhooks:write",
     {
       externalSideEffect: true,
       retryMode: "resource-state",
-      approvalPolicy: "required",
       rationale: "Changes an outbound data destination or subscribed events.",
     },
   ),
@@ -852,11 +733,10 @@ export const publicApiAgentOperationRiskCatalog = [
     "deleteWebhookSubscription",
     "webhook_subscriptions",
     "delete",
-    "webhook_subscriptions:delete",
+    "webhooks:write",
     {
       externalSideEffect: true,
       retryMode: "resource-state",
-      approvalPolicy: "required",
       rationale: "Removes an outbound event destination.",
     },
   ),
@@ -864,12 +744,11 @@ export const publicApiAgentOperationRiskCatalog = [
     "rotateWebhookSubscriptionSecret",
     "webhook_subscriptions",
     "admin",
-    "webhook_subscriptions:secret_rotate",
+    "webhooks:write",
     {
       externalSideEffect: true,
       sideEffectClass: "secret-change",
       retryMode: "resource-state",
-      approvalPolicy: "required",
       rationale: "Invalidates the old webhook secret and reveals a replacement once.",
     },
   ),
@@ -880,7 +759,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "subscribers:bulk_import",
     {
       externalSideEffect: true,
-      approvalPolicy: "required",
       dataScope: "bulk-subscribers",
       rationale:
         "Changes many Subscribers and can enroll them in running Sequences.",
@@ -889,7 +767,7 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "getSubscriberImportJob",
     "jobs",
-    "jobs:read",
+    "subscribers:bulk_import",
     "workspace",
     "Reads one bounded import summary.",
   ),
@@ -899,7 +777,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "bulk",
     "subscribers:bulk_export",
     {
-      approvalPolicy: "required",
       dataScope: "bulk-subscribers",
       rationale: "Creates an export containing bulk Subscriber data.",
     },

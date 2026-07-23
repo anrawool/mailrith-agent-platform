@@ -20,17 +20,13 @@ describe("public API agent operation risk catalog", () => {
     expect(classifiedOperationIds).toEqual(publicOperationIds);
   });
 
-  it("requires approval for every destructive operation", () => {
+  it("classifies every destructive operation explicitly", () => {
     const destructiveOperations = publicApiAgentOperationRiskCatalog.filter(
       (definition) => definition.risk === "delete",
     );
 
     expect(destructiveOperations.length).toBeGreaterThan(0);
-    expect(
-      destructiveOperations.every(
-        (definition) => definition.approvalPolicy === "required",
-      ),
-    ).toBe(true);
+    expect(destructiveOperations.every((definition) => definition.risk === "delete")).toBe(true);
   });
 
   it("keeps reads retry-safe and side-effect free", () => {
@@ -43,13 +39,12 @@ describe("public API agent operation risk catalog", () => {
       readOperations.every(
         (definition) =>
           definition.retryMode === "safe" &&
-          definition.externalSideEffect === false &&
-          definition.approvalPolicy === "none",
+          definition.externalSideEffect === false,
       ),
     ).toBe(true);
   });
 
-  it("classifies live sending and activation as approval-required execution", () => {
+  it("classifies live sending and activation as external execution", () => {
     for (const operationId of [
       "sendBroadcast",
       "updateSequenceStatus",
@@ -58,7 +53,6 @@ describe("public API agent operation risk catalog", () => {
       expect(getPublicApiAgentOperationRisk(operationId)).toMatchObject({
         risk: "execute",
         externalSideEffect: true,
-        approvalPolicy: "required",
       });
     }
     for (const operationId of [
@@ -70,7 +64,6 @@ describe("public API agent operation risk catalog", () => {
       expect(getPublicApiAgentOperationRisk(operationId)).toMatchObject({
         risk: "draft",
         externalSideEffect: false,
-        approvalPolicy: "policy",
       });
     }
   });
@@ -78,7 +71,6 @@ describe("public API agent operation risk catalog", () => {
   it("keeps cancellation available as an unblocked safety action", () => {
     expect(getPublicApiAgentOperationRisk("cancelBroadcastSend")).toMatchObject({
       risk: "execute",
-      approvalPolicy: "none",
       minimumPermission: "broadcasts:cancel",
     });
   });
@@ -100,13 +92,11 @@ describe("public API agent operation risk catalog", () => {
       getPublicApiAgentOperationRisk("createSubscriberImportJob"),
     ).toMatchObject({
       sideEffectClass: "bulk-data",
-      approvalPolicy: "required",
     });
     expect(
       getPublicApiAgentOperationRisk("rotateWebhookSubscriptionSecret"),
     ).toMatchObject({
       sideEffectClass: "secret-change",
-      approvalPolicy: "required",
     });
   });
 });

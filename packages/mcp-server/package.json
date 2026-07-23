@@ -1,6 +1,6 @@
 {
   "name": "@mailrith/mcp-server",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0",
   "description": "Official local and self-hosted MCP server for Mailrith.",
   "license": "MIT",
   "homepage": "https://mailrith.com/developers/mcp",
@@ -48,11 +48,10 @@
   "dependencies": {
     "@mailrith/public-api": "workspace:^",
     "@mailrith/sdk": "workspace:^",
-    "@modelcontextprotocol/server": "2.0.0-beta.5",
-    "zod": "4.3.6"
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@modelcontextprotocol/client": "2.0.0-beta.5",
     "@types/node": "^24.5.2",
     "typescript": "5.9.3"
   }

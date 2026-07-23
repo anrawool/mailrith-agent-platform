@@ -1,4 +1,5 @@
 import {
+  generatedMailrithAgentReadQuickstartScopeKeys,
   generatedMailrithSdkContractVersion,
   generatedMailrithSdkResources,
 } from "./generated.js";
@@ -272,6 +273,8 @@ const createNamespace = (
 
 export const mailrithSdkResources = generatedMailrithSdkResources;
 export const mailrithSdkContractVersion = generatedMailrithSdkContractVersion;
+export const mailrithAgentReadQuickstartScopeKeys =
+  generatedMailrithAgentReadQuickstartScopeKeys;
 
 export const createMailrithClient = (
   options: MailrithClientOptions = {},

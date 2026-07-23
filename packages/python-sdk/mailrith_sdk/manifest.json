@@ -20,14 +20,18 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "subscriber_sync",
-          "campaign_drafting",
-          "campaign_sending",
-          "automations",
+          "data_transfer",
+          "content_and_targeting",
           "capture",
+          "broadcast_preparation",
+          "broadcast_sending",
+          "sequence_preparation",
+          "sequence_operations",
+          "automations",
+          "webhooks",
           "administration"
         ],
         "annotations": {
@@ -59,14 +63,18 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "subscriber_sync",
-          "campaign_drafting",
-          "campaign_sending",
-          "automations",
+          "data_transfer",
+          "content_and_targeting",
           "capture",
+          "broadcast_preparation",
+          "broadcast_sending",
+          "sequence_preparation",
+          "sequence_operations",
+          "automations",
+          "webhooks",
           "administration"
         ],
         "annotations": {
@@ -98,14 +106,18 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "subscriber_sync",
-          "campaign_drafting",
-          "campaign_sending",
-          "automations",
+          "data_transfer",
+          "content_and_targeting",
           "capture",
+          "broadcast_preparation",
+          "broadcast_sending",
+          "sequence_preparation",
+          "sequence_operations",
+          "automations",
+          "webhooks",
           "administration"
         ],
         "annotations": {
@@ -146,14 +158,18 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "subscriber_sync",
-          "campaign_drafting",
-          "campaign_sending",
-          "automations",
+          "data_transfer",
+          "content_and_targeting",
           "capture",
+          "broadcast_preparation",
+          "broadcast_sending",
+          "sequence_preparation",
+          "sequence_operations",
+          "automations",
+          "webhooks",
           "administration"
         ],
         "annotations": {
@@ -164,92 +180,6 @@
         },
         "risk_rationale": "Reads one authenticated workspace profile.",
         "path_params": [],
-        "query_params": [],
-        "header_params": [],
-        "has_request_body": false,
-        "request_body_required": false
-      }
-    ]
-  },
-  {
-    "namespace": "agent_actions",
-    "name": "Agent Actions",
-    "description": "Inspect an action plan and claim its one-time execution token after a workspace owner approves it.",
-    "operations": [
-      {
-        "namespace": "agent_actions",
-        "method_name": "get",
-        "operation_id": "getAgentAction",
-        "method": "GET",
-        "path": "/v1/agent-actions/{action_id}",
-        "summary": "Get an agent action plan",
-        "description": "Returns the bounded preview and current approval or execution state for an action created by this credential.",
-        "auth_required": true,
-        "required_scopes": [
-          "approvals:read"
-        ],
-        "mcp_tool_name": "agent_actions_get",
-        "risk": "read",
-        "external_side_effect": false,
-        "side_effect_class": "none",
-        "retry_mode": "safe",
-        "idempotency_policy": "safe-read",
-        "approval_policy": "none",
-        "toolsets": [
-          "reporting",
-          "campaign_sending",
-          "automations",
-          "administration"
-        ],
-        "annotations": {
-          "readOnlyHint": true,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Reads one compact action plan bound to the current credential or OAuth authorization.",
-        "path_params": [
-          "action_id"
-        ],
-        "query_params": [],
-        "header_params": [],
-        "has_request_body": false,
-        "request_body_required": false
-      },
-      {
-        "namespace": "agent_actions",
-        "method_name": "issue_approval_token",
-        "operation_id": "issueAgentApprovalToken",
-        "method": "POST",
-        "path": "/v1/agent-actions/{action_id}/approval-token",
-        "summary": "Claim an approved action token",
-        "description": "Issues the approved action's short-lived, single-use execution token once. The token is bound to this credential, operation, canonical input, and resource version.",
-        "auth_required": true,
-        "required_scopes": [
-          "approvals:write"
-        ],
-        "mcp_tool_name": "agent_actions_issue_approval_token",
-        "risk": "admin",
-        "external_side_effect": false,
-        "side_effect_class": "secret-change",
-        "retry_mode": "resource-state",
-        "idempotency_policy": "resource-state",
-        "approval_policy": "none",
-        "toolsets": [
-          "campaign_sending",
-          "automations",
-          "administration"
-        ],
-        "annotations": {
-          "readOnlyHint": false,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Issues one short-lived token only after the workspace owner or trusted policy approved the bound action.",
-        "path_params": [
-          "action_id"
-        ],
         "query_params": [],
         "header_params": [],
         "has_request_body": false,
@@ -280,7 +210,6 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "administration"
@@ -307,7 +236,7 @@
           "resource_type",
           "resource_id",
           "request_id",
-          "action_id"
+          "activity_id"
         ],
         "header_params": [],
         "has_request_body": false,
@@ -320,7 +249,7 @@
         "method": "GET",
         "path": "/v1/agent-activity/{activity_id}",
         "summary": "Get agent activity",
-        "description": "Returns one redacted activity trail with correlation, approval, retry, result, and retention metadata.",
+        "description": "Returns one redacted activity trail with correlation, retry, result, and retention metadata.",
         "auth_required": true,
         "required_scopes": [
           "activity:read"
@@ -331,7 +260,6 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "administration"
@@ -376,11 +304,13 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_drafting",
-          "campaign_sending",
+          "content_and_targeting",
+          "broadcast_preparation",
+          "broadcast_sending",
+          "sequence_preparation",
+          "sequence_operations",
           "automations",
           "administration"
         ],
@@ -415,11 +345,13 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_drafting",
-          "campaign_sending",
+          "content_and_targeting",
+          "broadcast_preparation",
+          "broadcast_sending",
+          "sequence_preparation",
+          "sequence_operations",
           "automations",
           "administration"
         ],
@@ -458,7 +390,7 @@
         "description": "Returns at most 50 recent runs with redacted errors and bounded step execution details.",
         "auth_required": true,
         "required_scopes": [
-          "diagnostics:read"
+          "automations:read"
         ],
         "mcp_tool_name": "diagnostics_list_automation_runs",
         "risk": "read",
@@ -466,10 +398,8 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_sending",
           "automations",
           "administration"
         ],
@@ -500,7 +430,7 @@
         "description": "Returns one Automation run with status, timing, retries, outcomes, and redacted step failures.",
         "auth_required": true,
         "required_scopes": [
-          "diagnostics:read"
+          "automations:read"
         ],
         "mcp_tool_name": "diagnostics_get_automation_run",
         "risk": "read",
@@ -508,10 +438,8 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_sending",
           "automations",
           "administration"
         ],
@@ -541,7 +469,7 @@
         "description": "Returns bounded Sequence failure, retry, status, and message outcome details.",
         "auth_required": true,
         "required_scopes": [
-          "diagnostics:read"
+          "sequences:read"
         ],
         "mcp_tool_name": "diagnostics_get_sequence",
         "risk": "read",
@@ -549,11 +477,10 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_sending",
-          "automations",
+          "sequence_preparation",
+          "sequence_operations",
           "administration"
         ],
         "annotations": {
@@ -583,7 +510,7 @@
         "description": "Returns selection totals, provider readiness, and the 20 most common structured delivery reasons.",
         "auth_required": true,
         "required_scopes": [
-          "diagnostics:read"
+          "broadcasts:read"
         ],
         "mcp_tool_name": "diagnostics_get_broadcast",
         "risk": "read",
@@ -591,11 +518,10 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_sending",
-          "automations",
+          "broadcast_preparation",
+          "broadcast_sending",
           "administration"
         ],
         "annotations": {
@@ -623,8 +549,8 @@
         "description": "Returns a 90-day, bounded activity view without exposing the Subscriber email address.",
         "auth_required": true,
         "required_scopes": [
-          "diagnostics:read",
-          "consent:read"
+          "subscribers:read",
+          "subscriptions:read"
         ],
         "mcp_tool_name": "diagnostics_get_subscriber",
         "risk": "read",
@@ -632,436 +558,25 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "administration"
-        ],
-        "annotations": {
-          "readOnlyHint": true,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Reads one privacy-conscious Subscriber activity and compliance summary without an email address.",
-        "path_params": [
-          "subscriber_id"
-        ],
-        "query_params": [],
-        "header_params": [],
-        "has_request_body": false,
-        "request_body_required": false
-      }
-    ]
-  },
-  {
-    "namespace": "consent",
-    "name": "Consent And Privacy Events",
-    "description": "Record minimal, reference-based Subscriber consent and privacy events without raw technical evidence.",
-    "operations": [
-      {
-        "namespace": "consent",
-        "method_name": "record_event",
-        "operation_id": "recordSubscriberComplianceEvent",
-        "method": "POST",
-        "path": "/v1/subscribers/{subscriber_id}/compliance-events",
-        "summary": "Record a Subscriber compliance event",
-        "description": "Stores a one-way subject hash and optional external evidence reference. Raw IP, user-agent, and evidence payloads are not accepted.",
-        "auth_required": true,
-        "required_scopes": [
-          "consent:write"
-        ],
-        "mcp_tool_name": "consent_record_event",
-        "risk": "execute",
-        "external_side_effect": false,
-        "side_effect_class": "workspace-change",
-        "retry_mode": "resource-state",
-        "idempotency_policy": "resource-state",
-        "approval_policy": "required",
-        "toolsets": [
           "subscriber_sync",
           "administration"
         ],
         "annotations": {
-          "readOnlyHint": false,
+          "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
           "openWorldHint": false
         },
-        "risk_rationale": "Records a legal or privacy state event that can require suppression or deletion handling.",
+        "risk_rationale": "Reads one privacy-conscious Subscriber activity and subscription summary without an email address.",
         "path_params": [
           "subscriber_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
-        "has_request_body": true,
-        "request_body_required": true
-      }
-    ]
-  },
-  {
-    "namespace": "recommendations",
-    "name": "Recommendations",
-    "description": "Create evidence-backed recommendations that cannot execute and must become a policy-checked action plan first.",
-    "operations": [
-      {
-        "namespace": "recommendations",
-        "method_name": "list",
-        "operation_id": "listRecommendations",
-        "method": "GET",
-        "path": "/v1/recommendations",
-        "summary": "List recommendations",
-        "description": "Returns the current credential's unexpired recommendations in a bounded page.",
-        "auth_required": true,
-        "required_scopes": [
-          "recommendations:read"
-        ],
-        "mcp_tool_name": "recommendations_list",
-        "risk": "read",
-        "external_side_effect": false,
-        "side_effect_class": "none",
-        "retry_mode": "safe",
-        "idempotency_policy": "safe-read",
-        "approval_policy": "none",
-        "toolsets": [
-          "reporting",
-          "campaign_drafting",
-          "campaign_sending",
-          "automations",
-          "administration"
-        ],
-        "annotations": {
-          "readOnlyHint": true,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Reads the current credential's bounded, expiring recommendations.",
-        "path_params": [],
-        "query_params": [
-          "limit",
-          "starting_after"
-        ],
-        "header_params": [],
-        "has_request_body": false,
-        "request_body_required": false
-      },
-      {
-        "namespace": "recommendations",
-        "method_name": "create",
-        "operation_id": "createRecommendation",
-        "method": "POST",
-        "path": "/v1/recommendations",
-        "summary": "Create a recommendation",
-        "description": "Stores bounded evidence and a proposed request. This endpoint cannot execute the request.",
-        "auth_required": true,
-        "required_scopes": [
-          "recommendations:draft"
-        ],
-        "mcp_tool_name": "recommendations_create",
-        "risk": "draft",
-        "external_side_effect": false,
-        "side_effect_class": "workspace-change",
-        "retry_mode": "idempotency-key",
-        "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
-        "toolsets": [
-          "campaign_drafting",
-          "campaign_sending",
-          "automations",
-          "administration"
-        ],
-        "annotations": {
-          "readOnlyHint": false,
-          "destructiveHint": false,
-          "idempotentHint": false,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Stores non-executing advice with bounded evidence and no automatic action.",
-        "path_params": [],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
-        "has_request_body": true,
-        "request_body_required": true
-      },
-      {
-        "namespace": "recommendations",
-        "method_name": "get",
-        "operation_id": "getRecommendation",
-        "method": "GET",
-        "path": "/v1/recommendations/{recommendation_id}",
-        "summary": "Get a recommendation",
-        "description": "Returns one unexpired recommendation created by the current credential.",
-        "auth_required": true,
-        "required_scopes": [
-          "recommendations:read"
-        ],
-        "mcp_tool_name": "recommendations_get",
-        "risk": "read",
-        "external_side_effect": false,
-        "side_effect_class": "none",
-        "retry_mode": "safe",
-        "idempotency_policy": "safe-read",
-        "approval_policy": "none",
-        "toolsets": [
-          "reporting",
-          "campaign_drafting",
-          "campaign_sending",
-          "automations",
-          "administration"
-        ],
-        "annotations": {
-          "readOnlyHint": true,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Reads one bounded recommendation created by the current credential.",
-        "path_params": [
-          "recommendation_id"
-        ],
         "query_params": [],
         "header_params": [],
         "has_request_body": false,
         "request_body_required": false
-      },
-      {
-        "namespace": "recommendations",
-        "method_name": "plan",
-        "operation_id": "planRecommendation",
-        "method": "POST",
-        "path": "/v1/recommendations/{recommendation_id}/plan",
-        "summary": "Create a policy-checked action plan from a recommendation",
-        "description": "Creates the normal Mailrith action preview. It does not approve or execute the proposed request.",
-        "auth_required": true,
-        "required_scopes": [
-          "recommendations:draft",
-          "approvals:read"
-        ],
-        "mcp_tool_name": "recommendations_plan",
-        "risk": "read",
-        "external_side_effect": false,
-        "side_effect_class": "none",
-        "retry_mode": "safe",
-        "idempotency_policy": "safe-read",
-        "approval_policy": "none",
-        "toolsets": [
-          "campaign_sending",
-          "automations",
-          "administration"
-        ],
-        "annotations": {
-          "readOnlyHint": true,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Creates the normal policy-checked preview for a recommendation; it cannot approve or execute it.",
-        "path_params": [
-          "recommendation_id"
-        ],
-        "query_params": [],
-        "header_params": [
-          "Idempotency-Key"
-        ],
-        "has_request_body": false,
-        "request_body_required": false
-      }
-    ]
-  },
-  {
-    "namespace": "experiments",
-    "name": "Experiments",
-    "description": "Define reference-only, recommendation-only experiments with minimum samples, duration, and fixed safeguards.",
-    "operations": [
-      {
-        "namespace": "experiments",
-        "method_name": "list",
-        "operation_id": "listExperiments",
-        "method": "GET",
-        "path": "/v1/experiments",
-        "summary": "List experiments",
-        "description": "Returns a bounded page of reference-only experiments.",
-        "auth_required": true,
-        "required_scopes": [
-          "experiments:read"
-        ],
-        "mcp_tool_name": "experiments_list",
-        "risk": "read",
-        "external_side_effect": false,
-        "side_effect_class": "none",
-        "retry_mode": "safe",
-        "idempotency_policy": "safe-read",
-        "approval_policy": "none",
-        "toolsets": [
-          "reporting",
-          "campaign_drafting",
-          "campaign_sending",
-          "automations",
-          "administration"
-        ],
-        "annotations": {
-          "readOnlyHint": true,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Reads bounded reference-only experiments.",
-        "path_params": [],
-        "query_params": [
-          "limit",
-          "starting_after"
-        ],
-        "header_params": [],
-        "has_request_body": false,
-        "request_body_required": false
-      },
-      {
-        "namespace": "experiments",
-        "method_name": "create",
-        "operation_id": "createExperiment",
-        "method": "POST",
-        "path": "/v1/experiments",
-        "summary": "Create an experiment",
-        "description": "Stores only variant references and digests under fixed safety safeguards; it never stores per-Subscriber assignments.",
-        "auth_required": true,
-        "required_scopes": [
-          "experiments:draft"
-        ],
-        "mcp_tool_name": "experiments_create",
-        "risk": "draft",
-        "external_side_effect": false,
-        "side_effect_class": "workspace-change",
-        "retry_mode": "idempotency-key",
-        "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
-        "toolsets": [
-          "campaign_drafting",
-          "campaign_sending",
-          "automations",
-          "administration"
-        ],
-        "annotations": {
-          "readOnlyHint": false,
-          "destructiveHint": false,
-          "idempotentHint": false,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Stores a recommendation-only experiment definition without per-Subscriber assignments or automatic execution.",
-        "path_params": [],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
-        "has_request_body": true,
-        "request_body_required": true
-      },
-      {
-        "namespace": "experiments",
-        "method_name": "get",
-        "operation_id": "getExperiment",
-        "method": "GET",
-        "path": "/v1/experiments/{experiment_id}",
-        "summary": "Get an experiment",
-        "description": "Returns one experiment, its fixed safeguards, and aggregate decision evidence.",
-        "auth_required": true,
-        "required_scopes": [
-          "experiments:read"
-        ],
-        "mcp_tool_name": "experiments_get",
-        "risk": "read",
-        "external_side_effect": false,
-        "side_effect_class": "none",
-        "retry_mode": "safe",
-        "idempotency_policy": "safe-read",
-        "approval_policy": "none",
-        "toolsets": [
-          "reporting",
-          "campaign_drafting",
-          "campaign_sending",
-          "automations",
-          "administration"
-        ],
-        "annotations": {
-          "readOnlyHint": true,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Reads one reference-only experiment and aggregate decision evidence.",
-        "path_params": [
-          "experiment_id"
-        ],
-        "query_params": [],
-        "header_params": [],
-        "has_request_body": false,
-        "request_body_required": false
-      },
-      {
-        "namespace": "experiments",
-        "method_name": "record_decision",
-        "operation_id": "recordExperimentDecision",
-        "method": "POST",
-        "path": "/v1/experiments/{experiment_id}/decision",
-        "summary": "Record an aggregate winner decision",
-        "description": "Validates minimum sample and duration safeguards. The decision is recorded as recommendation-only and never changes a campaign automatically.",
-        "auth_required": true,
-        "required_scopes": [
-          "experiments:draft"
-        ],
-        "mcp_tool_name": "experiments_record_decision",
-        "risk": "draft",
-        "external_side_effect": false,
-        "side_effect_class": "workspace-change",
-        "retry_mode": "resource-state",
-        "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
-        "toolsets": [
-          "campaign_drafting",
-          "campaign_sending",
-          "automations",
-          "administration"
-        ],
-        "annotations": {
-          "readOnlyHint": false,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Records an aggregate winner decision but never changes a campaign automatically.",
-        "path_params": [
-          "experiment_id"
-        ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
-        "has_request_body": true,
-        "request_body_required": true
       }
     ]
   },
@@ -1088,14 +603,17 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "subscriber_sync",
-          "campaign_drafting",
-          "campaign_sending",
-          "automations",
+          "data_transfer",
+          "content_and_targeting",
           "capture",
+          "broadcast_preparation",
+          "broadcast_sending",
+          "sequence_preparation",
+          "sequence_operations",
+          "automations",
           "administration"
         ],
         "annotations": {
@@ -1142,10 +660,8 @@
         "side_effect_class": "subscriber-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
         "toolsets": [
           "subscriber_sync",
-          "capture",
           "administration"
         ],
         "annotations": {
@@ -1156,14 +672,9 @@
         },
         "risk_rationale": "Creates or changes one Subscriber and can change sending eligibility.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true,
@@ -1171,8 +682,7 @@
           "description": "Subscriber relationship fields require their matching granular permission in addition to the operation's base permissions.",
           "required_scopes_by_field": {
             "status": [
-              "subscribers:eligibility",
-              "consent:write"
+              "subscriptions:write"
             ],
             "existing_tag_ids": [
               "subscribers:targeting"
@@ -1187,7 +697,7 @@
               "subscribers:sequence_enroll"
             ],
             "consent_evidence": [
-              "consent:write"
+              "subscriptions:write"
             ]
           }
         }
@@ -1210,10 +720,8 @@
         "side_effect_class": "subscriber-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
         "toolsets": [
           "subscriber_sync",
-          "capture",
           "administration"
         ],
         "annotations": {
@@ -1226,22 +734,15 @@
         "path_params": [
           "subscriber_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true,
         "payload_field_scope_requirements": {
           "description": "Subscriber relationship fields require their matching granular permission in addition to the operation's base permissions.",
           "required_scopes_by_field": {
             "status": [
-              "subscribers:eligibility",
-              "consent:write"
+              "subscriptions:write"
             ],
             "existing_tag_ids": [
               "subscribers:targeting"
@@ -1256,10 +757,47 @@
               "subscribers:sequence_enroll"
             ],
             "consent_evidence": [
-              "consent:write"
+              "subscriptions:write"
             ]
           }
         }
+      },
+      {
+        "namespace": "subscribers",
+        "method_name": "delete",
+        "operation_id": "deleteSubscriber",
+        "method": "DELETE",
+        "path": "/v1/subscribers/{subscriber_id}",
+        "summary": "Delete a subscriber",
+        "description": "Permanently removes one Subscriber and their Mailrith activity history from the authenticated workspace.",
+        "auth_required": true,
+        "required_scopes": [
+          "subscribers:delete"
+        ],
+        "mcp_tool_name": "subscribers_delete",
+        "risk": "delete",
+        "external_side_effect": false,
+        "side_effect_class": "deletion",
+        "retry_mode": "resource-state",
+        "idempotency_policy": "resource-state",
+        "toolsets": [
+          "subscriber_sync",
+          "administration"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Permanently removes one Subscriber and their Mailrith activity history.",
+        "path_params": [
+          "subscriber_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
       },
       {
         "namespace": "subscribers",
@@ -1271,8 +809,7 @@
         "description": "Changes the delivery status for one Subscriber without changing profile, targeting, or Sequence enrollment fields.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:eligibility",
-          "consent:write"
+          "subscriptions:write"
         ],
         "mcp_tool_name": "subscribers_update_status",
         "risk": "execute",
@@ -1280,7 +817,6 @@
         "side_effect_class": "subscriber-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
           "subscriber_sync",
           "administration"
@@ -1295,14 +831,8 @@
         "path_params": [
           "subscriber_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -1324,10 +854,8 @@
         "side_effect_class": "subscriber-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
         "toolsets": [
           "subscriber_sync",
-          "capture",
           "administration"
         ],
         "annotations": {
@@ -1341,14 +869,8 @@
           "subscriber_id",
           "tag_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       },
@@ -1370,10 +892,8 @@
         "side_effect_class": "subscriber-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
         "toolsets": [
           "subscriber_sync",
-          "capture",
           "administration"
         ],
         "annotations": {
@@ -1387,14 +907,8 @@
           "subscriber_id",
           "tag_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       },
@@ -1416,8 +930,8 @@
         "side_effect_class": "external-email",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
+          "sequence_operations",
           "administration"
         ],
         "annotations": {
@@ -1431,14 +945,8 @@
           "subscriber_id",
           "sequence_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       },
@@ -1460,8 +968,8 @@
         "side_effect_class": "subscriber-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
         "toolsets": [
+          "sequence_operations",
           "administration"
         ],
         "annotations": {
@@ -1475,14 +983,8 @@
           "subscriber_id",
           "sequence_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       }
@@ -1511,13 +1013,15 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "subscriber_sync",
-          "campaign_drafting",
-          "automations",
+          "data_transfer",
+          "content_and_targeting",
           "capture",
+          "broadcast_preparation",
+          "sequence_preparation",
+          "automations",
           "administration"
         ],
         "annotations": {
@@ -1555,9 +1059,9 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
         "toolsets": [
           "subscriber_sync",
+          "content_and_targeting",
           "administration"
         ],
         "annotations": {
@@ -1568,17 +1072,131 @@
         },
         "risk_rationale": "Creates targeting metadata without contacting Subscribers.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true
+      },
+      {
+        "namespace": "tags",
+        "method_name": "get",
+        "operation_id": "getTag",
+        "method": "GET",
+        "path": "/v1/tags/{tag_id}",
+        "summary": "Get a tag",
+        "description": "Returns one Tag from the authenticated workspace.",
+        "auth_required": true,
+        "required_scopes": [
+          "tags:read"
+        ],
+        "mcp_tool_name": "tags_get",
+        "risk": "read",
+        "external_side_effect": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "reporting",
+          "subscriber_sync",
+          "data_transfer",
+          "content_and_targeting",
+          "capture",
+          "broadcast_preparation",
+          "sequence_preparation",
+          "automations",
+          "administration"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads one Tag definition.",
+        "path_params": [
+          "tag_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "tags",
+        "method_name": "update",
+        "operation_id": "updateTag",
+        "method": "PUT",
+        "path": "/v1/tags/{tag_id}",
+        "summary": "Update a tag",
+        "description": "Changes the name and description of one Tag in the authenticated workspace.",
+        "auth_required": true,
+        "required_scopes": [
+          "tags:configure"
+        ],
+        "mcp_tool_name": "tags_update",
+        "risk": "draft",
+        "external_side_effect": false,
+        "side_effect_class": "workspace-change",
+        "retry_mode": "resource-state",
+        "idempotency_policy": "resource-state",
+        "toolsets": [
+          "subscriber_sync",
+          "content_and_targeting",
+          "administration"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Changes targeting metadata without contacting Subscribers.",
+        "path_params": [
+          "tag_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": true,
+        "request_body_required": true
+      },
+      {
+        "namespace": "tags",
+        "method_name": "delete",
+        "operation_id": "deleteTag",
+        "method": "DELETE",
+        "path": "/v1/tags/{tag_id}",
+        "summary": "Delete a tag",
+        "description": "Permanently removes one Tag when no saved Mailrith resource references it.",
+        "auth_required": true,
+        "required_scopes": [
+          "tags:delete"
+        ],
+        "mcp_tool_name": "tags_delete",
+        "risk": "delete",
+        "external_side_effect": false,
+        "side_effect_class": "deletion",
+        "retry_mode": "resource-state",
+        "idempotency_policy": "resource-state",
+        "toolsets": [
+          "content_and_targeting",
+          "administration"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Permanently removes targeting metadata when no saved resource references it.",
+        "path_params": [
+          "tag_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
       }
     ]
   },
@@ -1605,12 +1223,13 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "subscriber_sync",
-          "campaign_drafting",
+          "data_transfer",
+          "content_and_targeting",
           "capture",
+          "broadcast_preparation",
           "administration"
         ],
         "annotations": {
@@ -1647,9 +1266,9 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
         "toolsets": [
           "subscriber_sync",
+          "content_and_targeting",
           "administration"
         ],
         "annotations": {
@@ -1660,14 +1279,9 @@
         },
         "risk_rationale": "Creates a custom-field definition.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true
@@ -1690,12 +1304,13 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "subscriber_sync",
-          "campaign_drafting",
+          "data_transfer",
+          "content_and_targeting",
           "capture",
+          "broadcast_preparation",
           "administration"
         ],
         "annotations": {
@@ -1731,9 +1346,9 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
         "toolsets": [
           "subscriber_sync",
+          "content_and_targeting",
           "administration"
         ],
         "annotations": {
@@ -1746,14 +1361,8 @@
         "path_params": [
           "custom_field_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -1775,8 +1384,8 @@
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
+          "content_and_targeting",
           "administration"
         ],
         "annotations": {
@@ -1789,14 +1398,8 @@
         "path_params": [
           "custom_field_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       }
@@ -1825,10 +1428,11 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_drafting",
+          "content_and_targeting",
+          "broadcast_preparation",
+          "sequence_preparation",
           "automations",
           "administration"
         ],
@@ -1866,9 +1470,8 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
         "toolsets": [
-          "campaign_drafting",
+          "content_and_targeting",
           "administration"
         ],
         "annotations": {
@@ -1879,14 +1482,9 @@
         },
         "risk_rationale": "Creates reusable draft content without sending email.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true
@@ -1909,10 +1507,11 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_drafting",
+          "content_and_targeting",
+          "broadcast_preparation",
+          "sequence_preparation",
           "automations",
           "administration"
         ],
@@ -1949,9 +1548,8 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
         "toolsets": [
-          "campaign_drafting",
+          "content_and_targeting",
           "administration"
         ],
         "annotations": {
@@ -1964,14 +1562,8 @@
         "path_params": [
           "template_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -1993,8 +1585,8 @@
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
+          "content_and_targeting",
           "administration"
         ],
         "annotations": {
@@ -2007,14 +1599,8 @@
         "path_params": [
           "template_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       }
@@ -2043,7 +1629,6 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "capture",
@@ -2084,7 +1669,6 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
         "toolsets": [
           "capture",
           "administration"
@@ -2097,14 +1681,9 @@
         },
         "risk_rationale": "Creates a publicly reachable Subscriber capture surface.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true
@@ -2127,7 +1706,6 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "capture",
@@ -2166,7 +1744,6 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "capture",
@@ -2208,7 +1785,6 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
         "toolsets": [
           "capture",
           "administration"
@@ -2223,14 +1799,8 @@
         "path_params": [
           "form_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -2252,7 +1822,6 @@
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
           "capture",
           "administration"
@@ -2267,14 +1836,8 @@
         "path_params": [
           "form_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       }
@@ -2303,7 +1866,6 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "capture",
@@ -2344,7 +1906,6 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
         "toolsets": [
           "capture",
           "administration"
@@ -2357,14 +1918,9 @@
         },
         "risk_rationale": "Creates a publicly reachable hosted page.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true
@@ -2387,7 +1943,6 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "capture",
@@ -2426,7 +1981,6 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "capture",
@@ -2468,7 +2022,6 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
         "toolsets": [
           "capture",
           "administration"
@@ -2483,14 +2036,8 @@
         "path_params": [
           "landing_page_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -2512,7 +2059,6 @@
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
           "capture",
           "administration"
@@ -2527,14 +2073,8 @@
         "path_params": [
           "landing_page_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       }
@@ -2563,10 +2103,10 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "automations",
+          "sequence_preparation",
+          "sequence_operations",
           "administration"
         ],
         "annotations": {
@@ -2604,9 +2144,8 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
         "toolsets": [
-          "automations",
+          "sequence_preparation",
           "administration"
         ],
         "annotations": {
@@ -2617,14 +2156,9 @@
         },
         "risk_rationale": "Creates a paused Sequence without starting delivery.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true
@@ -2647,10 +2181,10 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "automations",
+          "sequence_preparation",
+          "sequence_operations",
           "administration"
         ],
         "annotations": {
@@ -2686,9 +2220,8 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
         "toolsets": [
-          "automations",
+          "sequence_preparation",
           "administration"
         ],
         "annotations": {
@@ -2701,14 +2234,8 @@
         "path_params": [
           "sequence_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -2730,9 +2257,8 @@
         "side_effect_class": "external-email",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
-          "automations",
+          "sequence_operations",
           "administration"
         ],
         "annotations": {
@@ -2745,14 +2271,8 @@
         "path_params": [
           "sequence_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -2774,8 +2294,8 @@
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
+          "sequence_preparation",
           "administration"
         ],
         "annotations": {
@@ -2788,14 +2308,8 @@
         "path_params": [
           "sequence_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       }
@@ -2824,7 +2338,6 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "automations",
@@ -2864,7 +2377,6 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
         "toolsets": [
           "automations",
           "administration"
@@ -2877,14 +2389,9 @@
         },
         "risk_rationale": "Creates an inactive Automation without running actions.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true
@@ -2907,7 +2414,6 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "automations",
@@ -2946,7 +2452,6 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
         "toolsets": [
           "automations",
           "administration"
@@ -2961,14 +2466,8 @@
         "path_params": [
           "automation_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -2990,7 +2489,6 @@
         "side_effect_class": "external-email",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
           "automations",
           "administration"
@@ -3005,14 +2503,8 @@
         "path_params": [
           "automation_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -3034,8 +2526,8 @@
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
+          "automations",
           "administration"
         ],
         "annotations": {
@@ -3048,14 +2540,8 @@
         "path_params": [
           "automation_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       }
@@ -3084,7 +2570,6 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "capture",
@@ -3124,7 +2609,6 @@
         "side_effect_class": "public-resource",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "required",
         "toolsets": [
           "capture",
           "administration"
@@ -3137,14 +2621,9 @@
         },
         "risk_rationale": "Creates a public link that can change Subscriber state when used.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true
@@ -3167,7 +2646,6 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
           "capture",
@@ -3206,7 +2684,6 @@
         "side_effect_class": "public-resource",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
           "capture",
           "administration"
@@ -3221,14 +2698,8 @@
         "path_params": [
           "magic_link_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -3250,7 +2721,6 @@
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
           "capture",
           "administration"
@@ -3265,14 +2735,8 @@
         "path_params": [
           "magic_link_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       }
@@ -3301,11 +2765,10 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_drafting",
-          "campaign_sending",
+          "broadcast_preparation",
+          "broadcast_sending",
           "administration"
         ],
         "annotations": {
@@ -3342,9 +2805,8 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
         "toolsets": [
-          "campaign_drafting",
+          "broadcast_preparation",
           "administration"
         ],
         "annotations": {
@@ -3355,14 +2817,9 @@
         },
         "risk_rationale": "Creates a Broadcast draft without scheduling or sending it.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true
@@ -3385,11 +2842,10 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_drafting",
-          "campaign_sending",
+          "broadcast_preparation",
+          "broadcast_sending",
           "administration"
         ],
         "annotations": {
@@ -3425,11 +2881,10 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_drafting",
-          "campaign_sending",
+          "broadcast_preparation",
+          "broadcast_sending",
           "administration"
         ],
         "annotations": {
@@ -3468,11 +2923,10 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_drafting",
-          "campaign_sending",
+          "broadcast_preparation",
+          "broadcast_sending",
           "administration"
         ],
         "annotations": {
@@ -3508,9 +2962,8 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
         "toolsets": [
-          "campaign_drafting",
+          "broadcast_preparation",
           "administration"
         ],
         "annotations": {
@@ -3523,14 +2976,8 @@
         "path_params": [
           "broadcast_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -3552,8 +2999,8 @@
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
+          "broadcast_preparation",
           "administration"
         ],
         "annotations": {
@@ -3566,14 +3013,8 @@
         "path_params": [
           "broadcast_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       },
@@ -3595,11 +3036,10 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_drafting",
-          "campaign_sending",
+          "broadcast_preparation",
+          "broadcast_sending",
           "administration"
         ],
         "annotations": {
@@ -3635,9 +3075,8 @@
         "side_effect_class": "external-email",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "required",
         "toolsets": [
-          "campaign_sending",
+          "broadcast_sending",
           "administration"
         ],
         "annotations": {
@@ -3650,14 +3089,9 @@
         "path_params": [
           "broadcast_id"
         ],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": false
@@ -3680,9 +3114,8 @@
         "side_effect_class": "external-email",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "none",
         "toolsets": [
-          "campaign_sending",
+          "broadcast_sending",
           "administration"
         ],
         "annotations": {
@@ -3695,14 +3128,9 @@
         "path_params": [
           "broadcast_id"
         ],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": false,
         "request_body_required": false
@@ -3725,9 +3153,8 @@
         "side_effect_class": "external-email",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
         "toolsets": [
-          "campaign_sending",
+          "broadcast_sending",
           "administration"
         ],
         "annotations": {
@@ -3740,14 +3167,9 @@
         "path_params": [
           "broadcast_id"
         ],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true
@@ -3777,11 +3199,11 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_drafting",
-          "campaign_sending",
+          "content_and_targeting",
+          "broadcast_preparation",
+          "broadcast_sending",
           "administration"
         ],
         "annotations": {
@@ -3818,9 +3240,9 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "policy",
         "toolsets": [
-          "campaign_drafting",
+          "content_and_targeting",
+          "broadcast_preparation",
           "administration"
         ],
         "annotations": {
@@ -3831,14 +3253,9 @@
         },
         "risk_rationale": "Creates a saved Subscriber-selection definition.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true
@@ -3861,11 +3278,11 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_drafting",
-          "campaign_sending",
+          "content_and_targeting",
+          "broadcast_preparation",
+          "broadcast_sending",
           "administration"
         ],
         "annotations": {
@@ -3901,9 +3318,9 @@
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "policy",
         "toolsets": [
-          "campaign_drafting",
+          "content_and_targeting",
+          "broadcast_preparation",
           "administration"
         ],
         "annotations": {
@@ -3916,14 +3333,8 @@
         "path_params": [
           "segment_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -3945,8 +3356,8 @@
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
+          "content_and_targeting",
           "administration"
         ],
         "annotations": {
@@ -3959,14 +3370,8 @@
         "path_params": [
           "segment_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       },
@@ -3988,11 +3393,11 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
-          "campaign_drafting",
-          "campaign_sending",
+          "content_and_targeting",
+          "broadcast_preparation",
+          "broadcast_sending",
           "administration"
         ],
         "annotations": {
@@ -4025,7 +3430,7 @@
         "description": "Returns the outbound webhook subscriptions configured for the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "webhook_subscriptions:read"
+          "webhooks:read"
         ],
         "mcp_tool_name": "webhook_subscriptions_list",
         "risk": "read",
@@ -4033,9 +3438,9 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
+          "webhooks",
           "administration"
         ],
         "annotations": {
@@ -4058,10 +3463,10 @@
         "method": "POST",
         "path": "/v1/webhook-subscriptions",
         "summary": "Create a webhook subscription",
-        "description": "Creates a signed outbound webhook subscription and returns the signing secret once. The caller must also have read scopes for the selected event families.",
+        "description": "Creates a signed outbound webhook subscription and returns the signing secret once. The caller must also have read scopes for the selected event families. A workspace can have up to 20 webhook subscriptions, including disabled subscriptions.",
         "auth_required": true,
         "required_scopes": [
-          "webhook_subscriptions:configure"
+          "webhooks:write"
         ],
         "mcp_tool_name": "webhook_subscriptions_create",
         "risk": "admin",
@@ -4069,8 +3474,8 @@
         "side_effect_class": "external-webhook",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "required",
         "toolsets": [
+          "webhooks",
           "administration"
         ],
         "annotations": {
@@ -4081,32 +3486,27 @@
         },
         "risk_rationale": "Creates an outbound data destination and returns new secret material once.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true,
         "event_pattern_scope_requirements": {
           "request_field": "event_patterns",
-          "description": "When creating or updating a webhook subscription, each selected event pattern requires these read scopes in addition to `webhook_subscriptions:configure`.",
+          "description": "When creating or updating a webhook subscription, each selected event pattern requires these read scopes in addition to `webhooks:write`.",
           "required_scopes_by_event_pattern": {
             "*": [
-              "consent:read",
               "subscribers:read",
+              "subscriptions:read",
               "forms:read",
               "landing_pages:read",
-              "automations:read",
-              "broadcasts:read"
+              "broadcasts:read",
+              "automations:read"
             ],
             "subscriber.*": [
-              "consent:read",
-              "subscribers:read"
+              "subscribers:read",
+              "subscriptions:read"
             ],
             "form.*": [
               "subscribers:read",
@@ -4130,25 +3530,7 @@
               "subscribers:read"
             ],
             "subscriber.status_changed": [
-              "subscribers:read"
-            ],
-            "subscriber.consent_withdrawn": [
-              "consent:read"
-            ],
-            "subscriber.erasure_requested": [
-              "consent:read"
-            ],
-            "subscriber.erasure_completed": [
-              "consent:read"
-            ],
-            "subscriber.processing_restricted": [
-              "consent:read"
-            ],
-            "subscriber.objection_recorded": [
-              "consent:read"
-            ],
-            "subscriber.privacy_request_completed": [
-              "consent:read"
+              "subscriptions:read"
             ],
             "form.submitted": [
               "subscribers:read",
@@ -4186,7 +3568,7 @@
         "description": "Returns one outbound webhook subscription configured for the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "webhook_subscriptions:read"
+          "webhooks:read"
         ],
         "mcp_tool_name": "webhook_subscriptions_get",
         "risk": "read",
@@ -4194,9 +3576,9 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
           "reporting",
+          "webhooks",
           "administration"
         ],
         "annotations": {
@@ -4224,7 +3606,7 @@
         "description": "Updates the destination URL, status, or event pattern set for an existing webhook subscription. The caller must also have read scopes for the subscription's event families.",
         "auth_required": true,
         "required_scopes": [
-          "webhook_subscriptions:configure"
+          "webhooks:write"
         ],
         "mcp_tool_name": "webhook_subscriptions_update",
         "risk": "admin",
@@ -4232,8 +3614,8 @@
         "side_effect_class": "external-webhook",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
+          "webhooks",
           "administration"
         ],
         "annotations": {
@@ -4246,31 +3628,25 @@
         "path_params": [
           "webhook_subscription_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": true,
         "request_body_required": true,
         "event_pattern_scope_requirements": {
           "request_field": "event_patterns",
-          "description": "When creating or updating a webhook subscription, each selected event pattern requires these read scopes in addition to `webhook_subscriptions:configure`.",
+          "description": "When creating or updating a webhook subscription, each selected event pattern requires these read scopes in addition to `webhooks:write`.",
           "required_scopes_by_event_pattern": {
             "*": [
-              "consent:read",
               "subscribers:read",
+              "subscriptions:read",
               "forms:read",
               "landing_pages:read",
-              "automations:read",
-              "broadcasts:read"
+              "broadcasts:read",
+              "automations:read"
             ],
             "subscriber.*": [
-              "consent:read",
-              "subscribers:read"
+              "subscribers:read",
+              "subscriptions:read"
             ],
             "form.*": [
               "subscribers:read",
@@ -4294,25 +3670,7 @@
               "subscribers:read"
             ],
             "subscriber.status_changed": [
-              "subscribers:read"
-            ],
-            "subscriber.consent_withdrawn": [
-              "consent:read"
-            ],
-            "subscriber.erasure_requested": [
-              "consent:read"
-            ],
-            "subscriber.erasure_completed": [
-              "consent:read"
-            ],
-            "subscriber.processing_restricted": [
-              "consent:read"
-            ],
-            "subscriber.objection_recorded": [
-              "consent:read"
-            ],
-            "subscriber.privacy_request_completed": [
-              "consent:read"
+              "subscriptions:read"
             ],
             "form.submitted": [
               "subscribers:read",
@@ -4350,7 +3708,7 @@
         "description": "Deletes an existing outbound webhook subscription from the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "webhook_subscriptions:delete"
+          "webhooks:write"
         ],
         "mcp_tool_name": "webhook_subscriptions_delete",
         "risk": "delete",
@@ -4358,8 +3716,8 @@
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
+          "webhooks",
           "administration"
         ],
         "annotations": {
@@ -4372,14 +3730,8 @@
         "path_params": [
           "webhook_subscription_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       },
@@ -4393,7 +3745,7 @@
         "description": "Invalidates the existing webhook signing secret and returns a replacement once.",
         "auth_required": true,
         "required_scopes": [
-          "webhook_subscriptions:secret_rotate"
+          "webhooks:write"
         ],
         "mcp_tool_name": "webhook_subscriptions_rotate_secret",
         "risk": "admin",
@@ -4401,8 +3753,8 @@
         "side_effect_class": "secret-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
-        "approval_policy": "required",
         "toolsets": [
+          "webhooks",
           "administration"
         ],
         "annotations": {
@@ -4415,14 +3767,8 @@
         "path_params": [
           "webhook_subscription_id"
         ],
-        "query_params": [
-          "mode"
-        ],
-        "header_params": [
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
-        ],
+        "query_params": [],
+        "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       }
@@ -4451,8 +3797,8 @@
         "side_effect_class": "bulk-data",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "required",
         "toolsets": [
+          "data_transfer",
           "administration"
         ],
         "annotations": {
@@ -4463,14 +3809,9 @@
         },
         "risk_rationale": "Changes many Subscribers and can enroll them in running Sequences.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": true
@@ -4485,7 +3826,7 @@
         "description": "Returns the current state of a previously created import job.",
         "auth_required": true,
         "required_scopes": [
-          "jobs:read"
+          "subscribers:bulk_import"
         ],
         "mcp_tool_name": "jobs_get_import",
         "risk": "read",
@@ -4493,10 +3834,8 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
-          "reporting",
-          "subscriber_sync",
+          "data_transfer",
           "administration"
         ],
         "annotations": {
@@ -4532,8 +3871,8 @@
         "side_effect_class": "bulk-data",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
-        "approval_policy": "required",
         "toolsets": [
+          "data_transfer",
           "administration"
         ],
         "annotations": {
@@ -4544,14 +3883,9 @@
         },
         "risk_rationale": "Creates an export containing bulk Subscriber data.",
         "path_params": [],
-        "query_params": [
-          "mode"
-        ],
+        "query_params": [],
         "header_params": [
-          "Idempotency-Key",
-          "X-Mailrith-Action-Id",
-          "X-Mailrith-Approval-Token",
-          "X-Mailrith-Approval-Return-Url"
+          "Idempotency-Key"
         ],
         "has_request_body": true,
         "request_body_required": false
@@ -4574,8 +3908,8 @@
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
-        "approval_policy": "none",
         "toolsets": [
+          "data_transfer",
           "administration"
         ],
         "annotations": {

@@ -5,12 +5,11 @@ export const generatedMailrithMcpToolManifest = {
   "name": "mailrith",
   "manifestVersion": "1",
   "contractVersion": "v1",
-  "schemaDigest": "sha256:0c46cd26560b89162ae17cda1790d8fe878fcee949604eb423dd8ee6aec12b01",
+  "schemaDigest": "sha256:abe512f7c2fe9621abc06c8af89b8d1d91070e5701a6c094fb33b9257e0d54e2",
   "errorCategories": [
     "validation",
     "authentication",
     "permission",
-    "approval",
     "conflict",
     "rate_limit",
     "transient",
@@ -22,134 +21,87 @@ export const generatedMailrithMcpToolManifest = {
       "label": "Reporting",
       "description": "Read workspace, Subscriber, content, workflow, and delivery information without changing it.",
       "scopeKeys": [
-        "workspace:read",
-        "approvals:read",
-        "activity:read",
         "analytics:read",
-        "diagnostics:read",
-        "consent:read",
-        "recommendations:read",
-        "experiments:read",
         "subscribers:read",
+        "subscriptions:read",
+        "segments:read",
         "tags:read",
-        "custom_fields:read",
-        "email_templates:read",
         "forms:read",
         "forms:submissions_read",
         "landing_pages:read",
         "landing_pages:submissions_read",
-        "sequences:read",
-        "automations:read",
-        "magic_links:read",
         "broadcasts:read",
         "broadcasts:preflight",
-        "segments:read",
-        "jobs:read",
-        "webhook_subscriptions:read"
+        "sequences:read",
+        "magic_links:read",
+        "automations:read",
+        "workspace:read",
+        "email_templates:read",
+        "custom_fields:read",
+        "activity:read",
+        "webhooks:read"
       ]
     },
     {
       "key": "subscriber_sync",
       "label": "Subscriber Sync",
-      "description": "Sync individual Subscriber profiles, eligibility, targeting, Tags, and custom fields.",
+      "description": "Manage individual Subscriber profiles, status, Tags, deletion, and custom fields.",
       "scopeKeys": [
-        "workspace:read",
         "subscribers:read",
         "subscribers:profile",
-        "subscribers:eligibility",
-        "consent:read",
-        "consent:write",
         "subscribers:targeting",
+        "subscribers:delete",
+        "subscriptions:read",
+        "subscriptions:write",
         "tags:read",
         "tags:configure",
+        "workspace:read",
         "custom_fields:read",
-        "custom_fields:configure",
-        "jobs:read"
+        "custom_fields:configure"
       ]
     },
     {
-      "key": "campaign_drafting",
-      "label": "Campaign Drafting",
-      "description": "Create email content, Segments, and Broadcast drafts without sending email.",
+      "key": "data_transfer",
+      "label": "Subscriber Import & Export",
+      "description": "Run bounded Subscriber imports and exports and monitor their jobs.",
       "scopeKeys": [
-        "workspace:read",
         "subscribers:read",
+        "subscribers:bulk_import",
+        "subscribers:bulk_export",
         "tags:read",
-        "custom_fields:read",
-        "email_templates:read",
-        "email_templates:draft",
-        "broadcasts:read",
-        "broadcasts:draft",
-        "broadcasts:preflight",
+        "workspace:read",
+        "custom_fields:read"
+      ]
+    },
+    {
+      "key": "content_and_targeting",
+      "label": "Templates, Tags, Fields & Segments",
+      "description": "Manage email templates, Tags, custom fields, and Segments.",
+      "scopeKeys": [
+        "analytics:read",
+        "subscribers:read",
         "segments:read",
         "segments:configure",
-        "analytics:read",
-        "recommendations:read",
-        "recommendations:draft",
-        "experiments:read",
-        "experiments:draft"
-      ]
-    },
-    {
-      "key": "campaign_sending",
-      "label": "Campaign Sending",
-      "description": "Review, test, send, monitor, and stop Broadcasts.",
-      "scopeKeys": [
-        "workspace:read",
-        "subscribers:read",
-        "broadcasts:read",
-        "broadcasts:preflight",
-        "broadcasts:test",
-        "broadcasts:send",
-        "broadcasts:cancel",
-        "segments:read",
-        "approvals:read",
-        "approvals:write",
-        "analytics:read",
-        "diagnostics:read",
-        "recommendations:read",
-        "recommendations:draft",
-        "experiments:read",
-        "experiments:draft"
-      ]
-    },
-    {
-      "key": "automations",
-      "label": "Automations",
-      "description": "Draft, activate, pause, and inspect Sequences and Automations.",
-      "scopeKeys": [
-        "workspace:read",
-        "subscribers:read",
+        "segments:delete",
         "tags:read",
+        "tags:configure",
+        "tags:delete",
+        "workspace:read",
         "email_templates:read",
-        "sequences:read",
-        "sequences:draft",
-        "sequences:activate",
-        "automations:read",
-        "automations:draft",
-        "automations:activate",
-        "approvals:read",
-        "approvals:write",
-        "analytics:read",
-        "diagnostics:read",
-        "recommendations:read",
-        "recommendations:draft",
-        "experiments:read",
-        "experiments:draft"
+        "email_templates:draft",
+        "email_templates:delete",
+        "custom_fields:read",
+        "custom_fields:configure",
+        "custom_fields:delete"
       ]
     },
     {
       "key": "capture",
-      "label": "Capture",
+      "label": "Forms, Landing Pages & Magic Links",
       "description": "Manage Forms, Landing Pages, Magic Links, and their Subscriber capture data.",
       "scopeKeys": [
-        "workspace:read",
         "subscribers:read",
-        "subscribers:profile",
-        "subscribers:eligibility",
-        "subscribers:targeting",
         "tags:read",
-        "custom_fields:read",
         "forms:read",
         "forms:submissions_read",
         "forms:configure",
@@ -160,7 +112,98 @@ export const generatedMailrithMcpToolManifest = {
         "landing_pages:delete",
         "magic_links:read",
         "magic_links:configure",
-        "magic_links:delete"
+        "magic_links:delete",
+        "workspace:read",
+        "custom_fields:read"
+      ]
+    },
+    {
+      "key": "broadcast_preparation",
+      "label": "Broadcast Preparation",
+      "description": "Create, change, check, and delete Broadcast drafts without sending email.",
+      "scopeKeys": [
+        "analytics:read",
+        "subscribers:read",
+        "segments:read",
+        "segments:configure",
+        "tags:read",
+        "broadcasts:read",
+        "broadcasts:draft",
+        "broadcasts:preflight",
+        "broadcasts:delete",
+        "workspace:read",
+        "email_templates:read",
+        "custom_fields:read"
+      ]
+    },
+    {
+      "key": "broadcast_sending",
+      "label": "Broadcast Sending",
+      "description": "Review, test, send, monitor, and stop Broadcasts.",
+      "scopeKeys": [
+        "analytics:read",
+        "subscribers:read",
+        "segments:read",
+        "broadcasts:read",
+        "broadcasts:preflight",
+        "broadcasts:test",
+        "broadcasts:send",
+        "broadcasts:cancel",
+        "workspace:read"
+      ]
+    },
+    {
+      "key": "sequence_preparation",
+      "label": "Sequence Preparation",
+      "description": "Create, change, and delete paused Sequences without activating them or enrolling Subscribers.",
+      "scopeKeys": [
+        "analytics:read",
+        "subscribers:read",
+        "tags:read",
+        "sequences:read",
+        "sequences:draft",
+        "sequences:delete",
+        "workspace:read",
+        "email_templates:read"
+      ]
+    },
+    {
+      "key": "sequence_operations",
+      "label": "Sequence Operations",
+      "description": "Activate or pause Sequences and add or remove individual Subscribers.",
+      "scopeKeys": [
+        "analytics:read",
+        "subscribers:read",
+        "subscribers:sequence_enroll",
+        "sequences:read",
+        "sequences:activate",
+        "workspace:read"
+      ]
+    },
+    {
+      "key": "automations",
+      "label": "Automations",
+      "description": "Create, change, activate, pause, delete, and inspect Automations.",
+      "scopeKeys": [
+        "analytics:read",
+        "subscribers:read",
+        "tags:read",
+        "automations:read",
+        "automations:draft",
+        "automations:activate",
+        "automations:delete",
+        "workspace:read",
+        "email_templates:read"
+      ]
+    },
+    {
+      "key": "webhooks",
+      "label": "Outbound Webhook Setup",
+      "description": "Create, change, rotate secrets for, and delete outbound webhook subscriptions.",
+      "scopeKeys": [
+        "workspace:read",
+        "webhooks:read",
+        "webhooks:write"
       ]
     },
     {
@@ -168,33 +211,22 @@ export const generatedMailrithMcpToolManifest = {
       "label": "Administration",
       "description": "Use the complete public API surface, including bulk, deletion, and webhook administration.",
       "scopeKeys": [
-        "workspace:read",
-        "approvals:read",
-        "approvals:write",
-        "activity:read",
         "analytics:read",
-        "diagnostics:read",
-        "consent:read",
-        "consent:write",
-        "recommendations:read",
-        "recommendations:draft",
-        "experiments:read",
-        "experiments:draft",
         "subscribers:read",
         "subscribers:profile",
-        "subscribers:eligibility",
         "subscribers:targeting",
         "subscribers:sequence_enroll",
+        "subscribers:delete",
         "subscribers:bulk_import",
         "subscribers:bulk_export",
+        "subscriptions:read",
+        "subscriptions:write",
+        "segments:read",
+        "segments:configure",
+        "segments:delete",
         "tags:read",
         "tags:configure",
-        "custom_fields:read",
-        "custom_fields:configure",
-        "custom_fields:delete",
-        "email_templates:read",
-        "email_templates:draft",
-        "email_templates:delete",
+        "tags:delete",
         "forms:read",
         "forms:submissions_read",
         "forms:configure",
@@ -203,17 +235,6 @@ export const generatedMailrithMcpToolManifest = {
         "landing_pages:submissions_read",
         "landing_pages:configure",
         "landing_pages:delete",
-        "sequences:read",
-        "sequences:draft",
-        "sequences:activate",
-        "sequences:delete",
-        "automations:read",
-        "automations:draft",
-        "automations:activate",
-        "automations:delete",
-        "magic_links:read",
-        "magic_links:configure",
-        "magic_links:delete",
         "broadcasts:read",
         "broadcasts:draft",
         "broadcasts:preflight",
@@ -221,14 +242,27 @@ export const generatedMailrithMcpToolManifest = {
         "broadcasts:send",
         "broadcasts:cancel",
         "broadcasts:delete",
-        "segments:read",
-        "segments:configure",
-        "segments:delete",
-        "jobs:read",
-        "webhook_subscriptions:read",
-        "webhook_subscriptions:configure",
-        "webhook_subscriptions:secret_rotate",
-        "webhook_subscriptions:delete"
+        "sequences:read",
+        "sequences:draft",
+        "sequences:activate",
+        "sequences:delete",
+        "magic_links:read",
+        "magic_links:configure",
+        "magic_links:delete",
+        "automations:read",
+        "automations:draft",
+        "automations:activate",
+        "automations:delete",
+        "workspace:read",
+        "email_templates:read",
+        "email_templates:draft",
+        "email_templates:delete",
+        "custom_fields:read",
+        "custom_fields:configure",
+        "custom_fields:delete",
+        "activity:read",
+        "webhooks:read",
+        "webhooks:write"
       ]
     }
   ],
@@ -246,14 +280,18 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "subscriber_sync",
-        "campaign_drafting",
-        "campaign_sending",
-        "automations",
+        "data_transfer",
+        "content_and_targeting",
         "capture",
+        "broadcast_preparation",
+        "broadcast_sending",
+        "sequence_preparation",
+        "sequence_operations",
+        "automations",
+        "webhooks",
         "administration"
       ],
       "annotations": {
@@ -319,7 +357,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -456,14 +493,18 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "subscriber_sync",
-        "campaign_drafting",
-        "campaign_sending",
-        "automations",
+        "data_transfer",
+        "content_and_targeting",
         "capture",
+        "broadcast_preparation",
+        "broadcast_sending",
+        "sequence_preparation",
+        "sequence_operations",
+        "automations",
+        "webhooks",
         "administration"
       ],
       "annotations": {
@@ -537,7 +578,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -1233,14 +1273,18 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "subscriber_sync",
-        "campaign_drafting",
-        "campaign_sending",
-        "automations",
+        "data_transfer",
+        "content_and_targeting",
         "capture",
+        "broadcast_preparation",
+        "broadcast_sending",
+        "sequence_preparation",
+        "sequence_operations",
+        "automations",
+        "webhooks",
         "administration"
       ],
       "annotations": {
@@ -1306,7 +1350,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -1376,14 +1419,18 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "subscriber_sync",
-        "campaign_drafting",
-        "campaign_sending",
-        "automations",
+        "data_transfer",
+        "content_and_targeting",
         "capture",
+        "broadcast_preparation",
+        "broadcast_sending",
+        "sequence_preparation",
+        "sequence_operations",
+        "automations",
+        "webhooks",
         "administration"
       ],
       "annotations": {
@@ -1457,7 +1504,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -1620,686 +1666,6 @@ export const generatedMailrithMcpToolManifest = {
       }
     },
     {
-      "name": "agent_actions_get",
-      "operationId": "getAgentAction",
-      "summary": "Get an agent action plan",
-      "description": "Returns the bounded preview and current approval or execution state for an action created by this credential.",
-      "method": "GET",
-      "path": "/v1/agent-actions/{action_id}",
-      "requiredScopes": [
-        "approvals:read"
-      ],
-      "risk": "read",
-      "externalSideEffect": false,
-      "sideEffectClass": "none",
-      "retryMode": "safe",
-      "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
-      "toolsets": [
-        "reporting",
-        "campaign_sending",
-        "automations",
-        "administration"
-      ],
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": false
-      },
-      "riskRationale": "Reads one compact action plan bound to the current credential or OAuth authorization.",
-      "requestBodyRequired": false,
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "action_id": {
-            "type": "string",
-            "description": "The action plan identifier."
-          }
-        },
-        "required": [
-          "action_id"
-        ]
-      },
-      "outputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "operation_id",
-          "request_id"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "response"
-            ]
-          },
-          {
-            "required": [
-              "error"
-            ]
-          }
-        ],
-        "properties": {
-          "operation_id": {
-            "type": "string",
-            "const": "getAgentAction",
-            "description": "The stable Mailrith public API operation ID."
-          },
-          "request_id": {
-            "type": "string",
-            "pattern": "^mcp_[0-9a-f-]{36}$",
-            "description": "The stable correlation ID for this MCP tool invocation."
-          },
-          "response": {
-            "$ref": "#/$defs/AgentActionResponse"
-          },
-          "error": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "category",
-              "status",
-              "code",
-              "message",
-              "retryable"
-            ],
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "validation",
-                  "authentication",
-                  "permission",
-                  "approval",
-                  "conflict",
-                  "rate_limit",
-                  "transient",
-                  "unknown"
-                ]
-              },
-              "status": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "code": {
-                "type": "string"
-              },
-              "message": {
-                "type": "string"
-              },
-              "retryable": {
-                "type": "boolean"
-              },
-              "issues": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "path",
-                    "code",
-                    "message"
-                  ],
-                  "properties": {
-                    "path": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "$defs": {
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "agent_actions_issue_approval_token",
-      "operationId": "issueAgentApprovalToken",
-      "summary": "Claim an approved action token",
-      "description": "Issues the approved action's short-lived, single-use execution token once. The token is bound to this credential, operation, canonical input, and resource version.",
-      "method": "POST",
-      "path": "/v1/agent-actions/{action_id}/approval-token",
-      "requiredScopes": [
-        "approvals:write"
-      ],
-      "risk": "admin",
-      "externalSideEffect": false,
-      "sideEffectClass": "secret-change",
-      "retryMode": "resource-state",
-      "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "none",
-      "toolsets": [
-        "campaign_sending",
-        "automations",
-        "administration"
-      ],
-      "annotations": {
-        "readOnlyHint": false,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": false
-      },
-      "riskRationale": "Issues one short-lived token only after the workspace owner or trusted policy approved the bound action.",
-      "requestBodyRequired": false,
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "action_id": {
-            "type": "string",
-            "description": "The approved action plan identifier."
-          }
-        },
-        "required": [
-          "action_id"
-        ]
-      },
-      "outputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "operation_id",
-          "request_id"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "response"
-            ]
-          },
-          {
-            "required": [
-              "error"
-            ]
-          }
-        ],
-        "properties": {
-          "operation_id": {
-            "type": "string",
-            "const": "issueAgentApprovalToken",
-            "description": "The stable Mailrith public API operation ID."
-          },
-          "request_id": {
-            "type": "string",
-            "pattern": "^mcp_[0-9a-f-]{36}$",
-            "description": "The stable correlation ID for this MCP tool invocation."
-          },
-          "response": {
-            "$ref": "#/$defs/AgentApprovalTokenResponse"
-          },
-          "error": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "category",
-              "status",
-              "code",
-              "message",
-              "retryable"
-            ],
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "validation",
-                  "authentication",
-                  "permission",
-                  "approval",
-                  "conflict",
-                  "rate_limit",
-                  "transient",
-                  "unknown"
-                ]
-              },
-              "status": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "code": {
-                "type": "string"
-              },
-              "message": {
-                "type": "string"
-              },
-              "retryable": {
-                "type": "boolean"
-              },
-              "issues": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "path",
-                    "code",
-                    "message"
-                  ],
-                  "properties": {
-                    "path": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "$defs": {
-          "AgentApprovalTokenResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "action_id",
-                  "approval_token",
-                  "expires_at"
-                ],
-                "properties": {
-                  "action_id": {
-                    "type": "string"
-                  },
-                  "approval_token": {
-                    "type": "string"
-                  },
-                  "expires_at": {
-                    "type": "string",
-                    "format": "date-time"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    {
       "name": "agent_activity_list",
       "operationId": "listAgentActivity",
       "summary": "List agent activity",
@@ -2314,7 +1680,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "administration"
@@ -2387,9 +1752,9 @@ export const generatedMailrithMcpToolManifest = {
             "type": "string",
             "description": "Exact request correlation identifier."
           },
-          "action_id": {
+          "activity_id": {
             "type": "string",
-            "description": "Exact action identifier."
+            "description": "Exact activity identifier."
           }
         }
       },
@@ -2443,7 +1808,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -2559,9 +1923,7 @@ export const generatedMailrithMcpToolManifest = {
               "id",
               "workspace_id",
               "request_id",
-              "action_id",
-              "plan_id",
-              "approval_id",
+              "activity_id",
               "operation_id",
               "risk",
               "outcome",
@@ -2573,7 +1935,6 @@ export const generatedMailrithMcpToolManifest = {
               "targets",
               "primary_target",
               "changed_fields",
-              "approval",
               "result",
               "attempts",
               "duration_ms",
@@ -2592,20 +1953,8 @@ export const generatedMailrithMcpToolManifest = {
               "request_id": {
                 "type": "string"
               },
-              "action_id": {
+              "activity_id": {
                 "type": "string"
-              },
-              "plan_id": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "approval_id": {
-                "type": [
-                  "string",
-                  "null"
-                ]
               },
               "operation_id": {
                 "type": "string"
@@ -2632,7 +1981,13 @@ export const generatedMailrithMcpToolManifest = {
                 ]
               },
               "state": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "executing",
+                  "completed",
+                  "failed",
+                  "uncertain"
+                ]
               },
               "error_code": {
                 "type": [
@@ -2737,52 +2092,6 @@ export const generatedMailrithMcpToolManifest = {
                 "maxItems": 24,
                 "items": {
                   "type": "string"
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
                 }
               },
               "result": {
@@ -2912,7 +2221,7 @@ export const generatedMailrithMcpToolManifest = {
       "name": "agent_activity_get",
       "operationId": "getAgentActivity",
       "summary": "Get agent activity",
-      "description": "Returns one redacted activity trail with correlation, approval, retry, result, and retention metadata.",
+      "description": "Returns one redacted activity trail with correlation, retry, result, and retention metadata.",
       "method": "GET",
       "path": "/v1/agent-activity/{activity_id}",
       "requiredScopes": [
@@ -2923,7 +2232,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "administration"
@@ -2942,7 +2250,7 @@ export const generatedMailrithMcpToolManifest = {
         "properties": {
           "activity_id": {
             "type": "string",
-            "description": "The activity or action identifier."
+            "description": "The activity identifier."
           }
         },
         "required": [
@@ -2999,7 +2307,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -3072,9 +2379,7 @@ export const generatedMailrithMcpToolManifest = {
               "id",
               "workspace_id",
               "request_id",
-              "action_id",
-              "plan_id",
-              "approval_id",
+              "activity_id",
               "operation_id",
               "risk",
               "outcome",
@@ -3086,7 +2391,6 @@ export const generatedMailrithMcpToolManifest = {
               "targets",
               "primary_target",
               "changed_fields",
-              "approval",
               "result",
               "attempts",
               "duration_ms",
@@ -3105,20 +2409,8 @@ export const generatedMailrithMcpToolManifest = {
               "request_id": {
                 "type": "string"
               },
-              "action_id": {
+              "activity_id": {
                 "type": "string"
-              },
-              "plan_id": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "approval_id": {
-                "type": [
-                  "string",
-                  "null"
-                ]
               },
               "operation_id": {
                 "type": "string"
@@ -3145,7 +2437,13 @@ export const generatedMailrithMcpToolManifest = {
                 ]
               },
               "state": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "executing",
+                  "completed",
+                  "failed",
+                  "uncertain"
+                ]
               },
               "error_code": {
                 "type": [
@@ -3250,52 +2548,6 @@ export const generatedMailrithMcpToolManifest = {
                 "maxItems": 24,
                 "items": {
                   "type": "string"
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
                 }
               },
               "result": {
@@ -3436,11 +2688,13 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_drafting",
-        "campaign_sending",
+        "content_and_targeting",
+        "broadcast_preparation",
+        "broadcast_sending",
+        "sequence_preparation",
+        "sequence_operations",
         "automations",
         "administration"
       ],
@@ -3507,7 +2761,7 @@ export const generatedMailrithMcpToolManifest = {
                   "type": "string",
                   "enum": [
                     "source_type",
-                    "campaign",
+                    "source",
                     "message",
                     "provider",
                     "day"
@@ -3595,7 +2849,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -3672,11 +2925,13 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_drafting",
-        "campaign_sending",
+        "content_and_targeting",
+        "broadcast_preparation",
+        "broadcast_sending",
+        "sequence_preparation",
+        "sequence_operations",
         "automations",
         "administration"
       ],
@@ -3769,7 +3024,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -3839,17 +3093,15 @@ export const generatedMailrithMcpToolManifest = {
       "method": "GET",
       "path": "/v1/diagnostics/automations/{automation_id}/runs",
       "requiredScopes": [
-        "diagnostics:read"
+        "automations:read"
       ],
       "risk": "read",
       "externalSideEffect": false,
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_sending",
         "automations",
         "administration"
       ],
@@ -3938,7 +3190,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -4008,17 +3259,15 @@ export const generatedMailrithMcpToolManifest = {
       "method": "GET",
       "path": "/v1/diagnostics/automations/{automation_id}/runs/{run_id}",
       "requiredScopes": [
-        "diagnostics:read"
+        "automations:read"
       ],
       "risk": "read",
       "externalSideEffect": false,
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_sending",
         "automations",
         "administration"
       ],
@@ -4106,7 +3355,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -4176,18 +3424,17 @@ export const generatedMailrithMcpToolManifest = {
       "method": "GET",
       "path": "/v1/diagnostics/sequences/{sequence_id}",
       "requiredScopes": [
-        "diagnostics:read"
+        "sequences:read"
       ],
       "risk": "read",
       "externalSideEffect": false,
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_sending",
-        "automations",
+        "sequence_preparation",
+        "sequence_operations",
         "administration"
       ],
       "annotations": {
@@ -4275,7 +3522,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -4345,18 +3591,17 @@ export const generatedMailrithMcpToolManifest = {
       "method": "GET",
       "path": "/v1/diagnostics/broadcasts/{broadcast_id}",
       "requiredScopes": [
-        "diagnostics:read"
+        "broadcasts:read"
       ],
       "risk": "read",
       "externalSideEffect": false,
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_sending",
-        "automations",
+        "broadcast_preparation",
+        "broadcast_sending",
         "administration"
       ],
       "annotations": {
@@ -4438,7 +3683,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -4508,17 +3752,17 @@ export const generatedMailrithMcpToolManifest = {
       "method": "GET",
       "path": "/v1/diagnostics/subscribers/{subscriber_id}",
       "requiredScopes": [
-        "diagnostics:read",
-        "consent:read"
+        "subscribers:read",
+        "subscriptions:read"
       ],
       "risk": "read",
       "externalSideEffect": false,
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
+        "subscriber_sync",
         "administration"
       ],
       "annotations": {
@@ -4527,7 +3771,7 @@ export const generatedMailrithMcpToolManifest = {
         "idempotentHint": true,
         "openWorldHint": false
       },
-      "riskRationale": "Reads one privacy-conscious Subscriber activity and compliance summary without an email address.",
+      "riskRationale": "Reads one privacy-conscious Subscriber activity and subscription summary without an email address.",
       "requestBodyRequired": false,
       "inputSchema": {
         "type": "object",
@@ -4600,7 +3844,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -4658,3616 +3901,6 @@ export const generatedMailrithMcpToolManifest = {
             "type": "object",
             "additionalProperties": true,
             "description": "A bounded diagnostic result. Subscriber email addresses and Automation input/output snapshots are omitted."
-          }
-        }
-      }
-    },
-    {
-      "name": "consent_record_event",
-      "operationId": "recordSubscriberComplianceEvent",
-      "summary": "Record a Subscriber compliance event",
-      "description": "Stores a one-way subject hash and optional external evidence reference. Raw IP, user-agent, and evidence payloads are not accepted.",
-      "method": "POST",
-      "path": "/v1/subscribers/{subscriber_id}/compliance-events",
-      "requiredScopes": [
-        "consent:write"
-      ],
-      "risk": "execute",
-      "externalSideEffect": false,
-      "sideEffectClass": "workspace-change",
-      "retryMode": "resource-state",
-      "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
-      "toolsets": [
-        "subscriber_sync",
-        "administration"
-      ],
-      "annotations": {
-        "readOnlyHint": false,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": false
-      },
-      "riskRationale": "Records a legal or privacy state event that can require suppression or deletion handling.",
-      "requestBodyRequired": true,
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "subscriber_id": {
-            "type": "string",
-            "description": "Subscriber identifier."
-          },
-          "idempotency_key": {
-            "type": "string",
-            "description": "Optional idempotency key to retry the request safely."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
-          },
-          "body": {
-            "$ref": "#/$defs/ComplianceEventCreateRequest",
-            "description": "The exact JSON request body defined by the Mailrith public API contract."
-          }
-        },
-        "required": [
-          "subscriber_id",
-          "body"
-        ],
-        "$defs": {
-          "ComplianceEventCreateRequest": {
-            "type": "object",
-            "required": [
-              "type"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": [
-                  "consent_withdrawn",
-                  "erasure_requested",
-                  "erasure_completed",
-                  "processing_restricted",
-                  "objection_recorded",
-                  "privacy_request_completed"
-                ]
-              },
-              "evidence_reference": {
-                "anyOf": [
-                  {
-                    "type": "string",
-                    "maxLength": 512
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "occurred_at": {
-                "anyOf": [
-                  {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              }
-            }
-          }
-        }
-      },
-      "outputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "operation_id",
-          "request_id"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "response"
-            ]
-          },
-          {
-            "required": [
-              "error"
-            ]
-          }
-        ],
-        "properties": {
-          "operation_id": {
-            "type": "string",
-            "const": "recordSubscriberComplianceEvent",
-            "description": "The stable Mailrith public API operation ID."
-          },
-          "request_id": {
-            "type": "string",
-            "pattern": "^mcp_[0-9a-f-]{36}$",
-            "description": "The stable correlation ID for this MCP tool invocation."
-          },
-          "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/DiagnosticResult"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              }
-            ]
-          },
-          "error": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "category",
-              "status",
-              "code",
-              "message",
-              "retryable"
-            ],
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "validation",
-                  "authentication",
-                  "permission",
-                  "approval",
-                  "conflict",
-                  "rate_limit",
-                  "transient",
-                  "unknown"
-                ]
-              },
-              "status": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "code": {
-                "type": "string"
-              },
-              "message": {
-                "type": "string"
-              },
-              "retryable": {
-                "type": "boolean"
-              },
-              "issues": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "path",
-                    "code",
-                    "message"
-                  ],
-                  "properties": {
-                    "path": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "$defs": {
-          "DiagnosticResult": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "A bounded diagnostic result. Subscriber email addresses and Automation input/output snapshots are omitted."
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "recommendations_list",
-      "operationId": "listRecommendations",
-      "summary": "List recommendations",
-      "description": "Returns the current credential's unexpired recommendations in a bounded page.",
-      "method": "GET",
-      "path": "/v1/recommendations",
-      "requiredScopes": [
-        "recommendations:read"
-      ],
-      "risk": "read",
-      "externalSideEffect": false,
-      "sideEffectClass": "none",
-      "retryMode": "safe",
-      "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
-      "toolsets": [
-        "reporting",
-        "campaign_drafting",
-        "campaign_sending",
-        "automations",
-        "administration"
-      ],
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": false
-      },
-      "riskRationale": "Reads the current credential's bounded, expiring recommendations.",
-      "requestBodyRequired": false,
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "limit": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 50,
-            "description": "Maximum recommendation count, from 1 to 50."
-          },
-          "starting_after": {
-            "type": "string",
-            "description": "Opaque next_cursor returned by the previous page."
-          }
-        }
-      },
-      "outputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "operation_id",
-          "request_id"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "response"
-            ]
-          },
-          {
-            "required": [
-              "error"
-            ]
-          }
-        ],
-        "properties": {
-          "operation_id": {
-            "type": "string",
-            "const": "listRecommendations",
-            "description": "The stable Mailrith public API operation ID."
-          },
-          "request_id": {
-            "type": "string",
-            "pattern": "^mcp_[0-9a-f-]{36}$",
-            "description": "The stable correlation ID for this MCP tool invocation."
-          },
-          "response": {
-            "type": "object",
-            "required": [
-              "data",
-              "pagination"
-            ],
-            "properties": {
-              "data": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/Recommendation"
-                }
-              },
-              "pagination": {
-                "$ref": "#/$defs/Pagination"
-              }
-            }
-          },
-          "error": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "category",
-              "status",
-              "code",
-              "message",
-              "retryable"
-            ],
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "validation",
-                  "authentication",
-                  "permission",
-                  "approval",
-                  "conflict",
-                  "rate_limit",
-                  "transient",
-                  "unknown"
-                ]
-              },
-              "status": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "code": {
-                "type": "string"
-              },
-              "message": {
-                "type": "string"
-              },
-              "retryable": {
-                "type": "boolean"
-              },
-              "issues": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "path",
-                    "code",
-                    "message"
-                  ],
-                  "properties": {
-                    "path": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "$defs": {
-          "Recommendation": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Evidence-backed advice only. A recommendation has no execution endpoint and must create a separate action plan before any mutation can run."
-          },
-          "Pagination": {
-            "type": "object",
-            "required": [
-              "has_more",
-              "next_cursor"
-            ],
-            "properties": {
-              "has_more": {
-                "type": "boolean"
-              },
-              "next_cursor": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "recommendations_create",
-      "operationId": "createRecommendation",
-      "summary": "Create a recommendation",
-      "description": "Stores bounded evidence and a proposed request. This endpoint cannot execute the request.",
-      "method": "POST",
-      "path": "/v1/recommendations",
-      "requiredScopes": [
-        "recommendations:draft"
-      ],
-      "risk": "draft",
-      "externalSideEffect": false,
-      "sideEffectClass": "workspace-change",
-      "retryMode": "idempotency-key",
-      "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
-      "toolsets": [
-        "campaign_drafting",
-        "campaign_sending",
-        "automations",
-        "administration"
-      ],
-      "annotations": {
-        "readOnlyHint": false,
-        "destructiveHint": false,
-        "idempotentHint": false,
-        "openWorldHint": false
-      },
-      "riskRationale": "Stores non-executing advice with bounded evidence and no automatic action.",
-      "requestBodyRequired": true,
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "idempotency_key": {
-            "type": "string",
-            "description": "Optional idempotency key to retry the request safely."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
-          },
-          "body": {
-            "$ref": "#/$defs/RecommendationCreateRequest",
-            "description": "The exact JSON request body defined by the Mailrith public API contract."
-          }
-        },
-        "required": [
-          "body"
-        ],
-        "$defs": {
-          "RecommendationCreateRequest": {
-            "type": "object",
-            "required": [
-              "proposed_operation_id",
-              "proposed_request",
-              "evidence",
-              "confidence",
-              "expected_effect",
-              "risk_class"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "proposed_operation_id": {
-                "type": "string",
-                "maxLength": 128
-              },
-              "proposed_request": {
-                "type": "object",
-                "additionalProperties": true
-              },
-              "evidence": {
-                "type": "array",
-                "minItems": 1,
-                "maxItems": 10,
-                "items": {
-                  "type": "object"
-                }
-              },
-              "confidence": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 1
-              },
-              "expected_effect": {
-                "type": "object",
-                "additionalProperties": true
-              },
-              "risk_class": {
-                "type": "string",
-                "maxLength": 64
-              }
-            }
-          }
-        }
-      },
-      "outputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "operation_id",
-          "request_id"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "response"
-            ]
-          },
-          {
-            "required": [
-              "error"
-            ]
-          }
-        ],
-        "properties": {
-          "operation_id": {
-            "type": "string",
-            "const": "createRecommendation",
-            "description": "The stable Mailrith public API operation ID."
-          },
-          "request_id": {
-            "type": "string",
-            "pattern": "^mcp_[0-9a-f-]{36}$",
-            "description": "The stable correlation ID for this MCP tool invocation."
-          },
-          "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Recommendation"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              }
-            ]
-          },
-          "error": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "category",
-              "status",
-              "code",
-              "message",
-              "retryable"
-            ],
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "validation",
-                  "authentication",
-                  "permission",
-                  "approval",
-                  "conflict",
-                  "rate_limit",
-                  "transient",
-                  "unknown"
-                ]
-              },
-              "status": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "code": {
-                "type": "string"
-              },
-              "message": {
-                "type": "string"
-              },
-              "retryable": {
-                "type": "boolean"
-              },
-              "issues": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "path",
-                    "code",
-                    "message"
-                  ],
-                  "properties": {
-                    "path": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "$defs": {
-          "Recommendation": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Evidence-backed advice only. A recommendation has no execution endpoint and must create a separate action plan before any mutation can run."
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "recommendations_get",
-      "operationId": "getRecommendation",
-      "summary": "Get a recommendation",
-      "description": "Returns one unexpired recommendation created by the current credential.",
-      "method": "GET",
-      "path": "/v1/recommendations/{recommendation_id}",
-      "requiredScopes": [
-        "recommendations:read"
-      ],
-      "risk": "read",
-      "externalSideEffect": false,
-      "sideEffectClass": "none",
-      "retryMode": "safe",
-      "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
-      "toolsets": [
-        "reporting",
-        "campaign_drafting",
-        "campaign_sending",
-        "automations",
-        "administration"
-      ],
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": false
-      },
-      "riskRationale": "Reads one bounded recommendation created by the current credential.",
-      "requestBodyRequired": false,
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "recommendation_id": {
-            "type": "string",
-            "description": "Recommendation identifier."
-          }
-        },
-        "required": [
-          "recommendation_id"
-        ]
-      },
-      "outputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "operation_id",
-          "request_id"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "response"
-            ]
-          },
-          {
-            "required": [
-              "error"
-            ]
-          }
-        ],
-        "properties": {
-          "operation_id": {
-            "type": "string",
-            "const": "getRecommendation",
-            "description": "The stable Mailrith public API operation ID."
-          },
-          "request_id": {
-            "type": "string",
-            "pattern": "^mcp_[0-9a-f-]{36}$",
-            "description": "The stable correlation ID for this MCP tool invocation."
-          },
-          "response": {
-            "type": "object",
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/Recommendation"
-              }
-            }
-          },
-          "error": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "category",
-              "status",
-              "code",
-              "message",
-              "retryable"
-            ],
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "validation",
-                  "authentication",
-                  "permission",
-                  "approval",
-                  "conflict",
-                  "rate_limit",
-                  "transient",
-                  "unknown"
-                ]
-              },
-              "status": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "code": {
-                "type": "string"
-              },
-              "message": {
-                "type": "string"
-              },
-              "retryable": {
-                "type": "boolean"
-              },
-              "issues": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "path",
-                    "code",
-                    "message"
-                  ],
-                  "properties": {
-                    "path": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "$defs": {
-          "Recommendation": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Evidence-backed advice only. A recommendation has no execution endpoint and must create a separate action plan before any mutation can run."
-          }
-        }
-      }
-    },
-    {
-      "name": "recommendations_plan",
-      "operationId": "planRecommendation",
-      "summary": "Create a policy-checked action plan from a recommendation",
-      "description": "Creates the normal Mailrith action preview. It does not approve or execute the proposed request.",
-      "method": "POST",
-      "path": "/v1/recommendations/{recommendation_id}/plan",
-      "requiredScopes": [
-        "recommendations:draft",
-        "approvals:read"
-      ],
-      "risk": "read",
-      "externalSideEffect": false,
-      "sideEffectClass": "none",
-      "retryMode": "safe",
-      "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
-      "toolsets": [
-        "campaign_sending",
-        "automations",
-        "administration"
-      ],
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": false
-      },
-      "riskRationale": "Creates the normal policy-checked preview for a recommendation; it cannot approve or execute it.",
-      "requestBodyRequired": false,
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "recommendation_id": {
-            "type": "string",
-            "description": "Recommendation identifier."
-          },
-          "idempotency_key": {
-            "type": "string",
-            "description": "Optional idempotency key to retry the request safely."
-          }
-        },
-        "required": [
-          "recommendation_id"
-        ]
-      },
-      "outputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "operation_id",
-          "request_id"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "response"
-            ]
-          },
-          {
-            "required": [
-              "error"
-            ]
-          }
-        ],
-        "properties": {
-          "operation_id": {
-            "type": "string",
-            "const": "planRecommendation",
-            "description": "The stable Mailrith public API operation ID."
-          },
-          "request_id": {
-            "type": "string",
-            "pattern": "^mcp_[0-9a-f-]{36}$",
-            "description": "The stable correlation ID for this MCP tool invocation."
-          },
-          "response": {
-            "type": "object",
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "error": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "category",
-              "status",
-              "code",
-              "message",
-              "retryable"
-            ],
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "validation",
-                  "authentication",
-                  "permission",
-                  "approval",
-                  "conflict",
-                  "rate_limit",
-                  "transient",
-                  "unknown"
-                ]
-              },
-              "status": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "code": {
-                "type": "string"
-              },
-              "message": {
-                "type": "string"
-              },
-              "retryable": {
-                "type": "boolean"
-              },
-              "issues": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "path",
-                    "code",
-                    "message"
-                  ],
-                  "properties": {
-                    "path": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "$defs": {
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "experiments_list",
-      "operationId": "listExperiments",
-      "summary": "List experiments",
-      "description": "Returns a bounded page of reference-only experiments.",
-      "method": "GET",
-      "path": "/v1/experiments",
-      "requiredScopes": [
-        "experiments:read"
-      ],
-      "risk": "read",
-      "externalSideEffect": false,
-      "sideEffectClass": "none",
-      "retryMode": "safe",
-      "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
-      "toolsets": [
-        "reporting",
-        "campaign_drafting",
-        "campaign_sending",
-        "automations",
-        "administration"
-      ],
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": false
-      },
-      "riskRationale": "Reads bounded reference-only experiments.",
-      "requestBodyRequired": false,
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "limit": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 50,
-            "description": "Maximum experiment count, from 1 to 50."
-          },
-          "starting_after": {
-            "type": "string",
-            "description": "Opaque next_cursor returned by the previous page."
-          }
-        }
-      },
-      "outputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "operation_id",
-          "request_id"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "response"
-            ]
-          },
-          {
-            "required": [
-              "error"
-            ]
-          }
-        ],
-        "properties": {
-          "operation_id": {
-            "type": "string",
-            "const": "listExperiments",
-            "description": "The stable Mailrith public API operation ID."
-          },
-          "request_id": {
-            "type": "string",
-            "pattern": "^mcp_[0-9a-f-]{36}$",
-            "description": "The stable correlation ID for this MCP tool invocation."
-          },
-          "response": {
-            "type": "object",
-            "required": [
-              "data",
-              "pagination"
-            ],
-            "properties": {
-              "data": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/Experiment"
-                }
-              },
-              "pagination": {
-                "$ref": "#/$defs/Pagination"
-              }
-            }
-          },
-          "error": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "category",
-              "status",
-              "code",
-              "message",
-              "retryable"
-            ],
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "validation",
-                  "authentication",
-                  "permission",
-                  "approval",
-                  "conflict",
-                  "rate_limit",
-                  "transient",
-                  "unknown"
-                ]
-              },
-              "status": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "code": {
-                "type": "string"
-              },
-              "message": {
-                "type": "string"
-              },
-              "retryable": {
-                "type": "boolean"
-              },
-              "issues": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "path",
-                    "code",
-                    "message"
-                  ],
-                  "properties": {
-                    "path": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "$defs": {
-          "Experiment": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "A reference-only experiment with fixed safety limits and recommendation-only winner behavior."
-          },
-          "Pagination": {
-            "type": "object",
-            "required": [
-              "has_more",
-              "next_cursor"
-            ],
-            "properties": {
-              "has_more": {
-                "type": "boolean"
-              },
-              "next_cursor": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "experiments_create",
-      "operationId": "createExperiment",
-      "summary": "Create an experiment",
-      "description": "Stores only variant references and digests under fixed safety safeguards; it never stores per-Subscriber assignments.",
-      "method": "POST",
-      "path": "/v1/experiments",
-      "requiredScopes": [
-        "experiments:draft"
-      ],
-      "risk": "draft",
-      "externalSideEffect": false,
-      "sideEffectClass": "workspace-change",
-      "retryMode": "idempotency-key",
-      "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
-      "toolsets": [
-        "campaign_drafting",
-        "campaign_sending",
-        "automations",
-        "administration"
-      ],
-      "annotations": {
-        "readOnlyHint": false,
-        "destructiveHint": false,
-        "idempotentHint": false,
-        "openWorldHint": false
-      },
-      "riskRationale": "Stores a recommendation-only experiment definition without per-Subscriber assignments or automatic execution.",
-      "requestBodyRequired": true,
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "idempotency_key": {
-            "type": "string",
-            "description": "Optional idempotency key to retry the request safely."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
-          },
-          "body": {
-            "$ref": "#/$defs/ExperimentCreateRequest",
-            "description": "The exact JSON request body defined by the Mailrith public API contract."
-          }
-        },
-        "required": [
-          "body"
-        ],
-        "$defs": {
-          "ExperimentCreateRequest": {
-            "type": "object",
-            "required": [
-              "type",
-              "source_type",
-              "source_id",
-              "metric",
-              "minimum_sample_size",
-              "minimum_duration_hours",
-              "variants"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": [
-                  "subject",
-                  "content",
-                  "timing",
-                  "segment"
-                ]
-              },
-              "source_type": {
-                "type": "string",
-                "enum": [
-                  "broadcast",
-                  "sequence",
-                  "automation"
-                ]
-              },
-              "source_id": {
-                "type": "string"
-              },
-              "metric": {
-                "type": "string",
-                "enum": [
-                  "opened",
-                  "clicked",
-                  "unsubscribed",
-                  "complained"
-                ]
-              },
-              "minimum_sample_size": {
-                "type": "integer",
-                "minimum": 100,
-                "maximum": 1000000
-              },
-              "minimum_duration_hours": {
-                "type": "integer",
-                "minimum": 1,
-                "maximum": 2160
-              },
-              "status": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "running"
-                ],
-                "default": "draft"
-              },
-              "variants": {
-                "type": "array",
-                "minItems": 2,
-                "maxItems": 5,
-                "items": {
-                  "type": "object",
-                  "required": [
-                    "id",
-                    "label",
-                    "source_reference",
-                    "digest"
-                  ],
-                  "additionalProperties": false,
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "label": {
-                      "type": "string"
-                    },
-                    "source_reference": {
-                      "type": "string"
-                    },
-                    "digest": {
-                      "type": "string",
-                      "pattern": "^[a-f0-9]{64}$"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "outputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "operation_id",
-          "request_id"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "response"
-            ]
-          },
-          {
-            "required": [
-              "error"
-            ]
-          }
-        ],
-        "properties": {
-          "operation_id": {
-            "type": "string",
-            "const": "createExperiment",
-            "description": "The stable Mailrith public API operation ID."
-          },
-          "request_id": {
-            "type": "string",
-            "pattern": "^mcp_[0-9a-f-]{36}$",
-            "description": "The stable correlation ID for this MCP tool invocation."
-          },
-          "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Experiment"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              }
-            ]
-          },
-          "error": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "category",
-              "status",
-              "code",
-              "message",
-              "retryable"
-            ],
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "validation",
-                  "authentication",
-                  "permission",
-                  "approval",
-                  "conflict",
-                  "rate_limit",
-                  "transient",
-                  "unknown"
-                ]
-              },
-              "status": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "code": {
-                "type": "string"
-              },
-              "message": {
-                "type": "string"
-              },
-              "retryable": {
-                "type": "boolean"
-              },
-              "issues": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "path",
-                    "code",
-                    "message"
-                  ],
-                  "properties": {
-                    "path": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "$defs": {
-          "Experiment": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "A reference-only experiment with fixed safety limits and recommendation-only winner behavior."
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "experiments_get",
-      "operationId": "getExperiment",
-      "summary": "Get an experiment",
-      "description": "Returns one experiment, its fixed safeguards, and aggregate decision evidence.",
-      "method": "GET",
-      "path": "/v1/experiments/{experiment_id}",
-      "requiredScopes": [
-        "experiments:read"
-      ],
-      "risk": "read",
-      "externalSideEffect": false,
-      "sideEffectClass": "none",
-      "retryMode": "safe",
-      "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
-      "toolsets": [
-        "reporting",
-        "campaign_drafting",
-        "campaign_sending",
-        "automations",
-        "administration"
-      ],
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": false
-      },
-      "riskRationale": "Reads one reference-only experiment and aggregate decision evidence.",
-      "requestBodyRequired": false,
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "experiment_id": {
-            "type": "string",
-            "description": "Experiment identifier."
-          }
-        },
-        "required": [
-          "experiment_id"
-        ]
-      },
-      "outputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "operation_id",
-          "request_id"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "response"
-            ]
-          },
-          {
-            "required": [
-              "error"
-            ]
-          }
-        ],
-        "properties": {
-          "operation_id": {
-            "type": "string",
-            "const": "getExperiment",
-            "description": "The stable Mailrith public API operation ID."
-          },
-          "request_id": {
-            "type": "string",
-            "pattern": "^mcp_[0-9a-f-]{36}$",
-            "description": "The stable correlation ID for this MCP tool invocation."
-          },
-          "response": {
-            "type": "object",
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/Experiment"
-              }
-            }
-          },
-          "error": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "category",
-              "status",
-              "code",
-              "message",
-              "retryable"
-            ],
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "validation",
-                  "authentication",
-                  "permission",
-                  "approval",
-                  "conflict",
-                  "rate_limit",
-                  "transient",
-                  "unknown"
-                ]
-              },
-              "status": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "code": {
-                "type": "string"
-              },
-              "message": {
-                "type": "string"
-              },
-              "retryable": {
-                "type": "boolean"
-              },
-              "issues": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "path",
-                    "code",
-                    "message"
-                  ],
-                  "properties": {
-                    "path": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "$defs": {
-          "Experiment": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "A reference-only experiment with fixed safety limits and recommendation-only winner behavior."
-          }
-        }
-      }
-    },
-    {
-      "name": "experiments_record_decision",
-      "operationId": "recordExperimentDecision",
-      "summary": "Record an aggregate winner decision",
-      "description": "Validates minimum sample and duration safeguards. The decision is recorded as recommendation-only and never changes a campaign automatically.",
-      "method": "POST",
-      "path": "/v1/experiments/{experiment_id}/decision",
-      "requiredScopes": [
-        "experiments:draft"
-      ],
-      "risk": "draft",
-      "externalSideEffect": false,
-      "sideEffectClass": "workspace-change",
-      "retryMode": "resource-state",
-      "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
-      "toolsets": [
-        "campaign_drafting",
-        "campaign_sending",
-        "automations",
-        "administration"
-      ],
-      "annotations": {
-        "readOnlyHint": false,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": false
-      },
-      "riskRationale": "Records an aggregate winner decision but never changes a campaign automatically.",
-      "requestBodyRequired": true,
-      "inputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "experiment_id": {
-            "type": "string",
-            "description": "Experiment identifier."
-          },
-          "idempotency_key": {
-            "type": "string",
-            "description": "Optional idempotency key to retry the request safely."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
-          },
-          "body": {
-            "$ref": "#/$defs/ExperimentDecisionRequest",
-            "description": "The exact JSON request body defined by the Mailrith public API contract."
-          }
-        },
-        "required": [
-          "experiment_id",
-          "body"
-        ],
-        "$defs": {
-          "ExperimentDecisionRequest": {
-            "type": "object",
-            "required": [
-              "winner_variant_id",
-              "evidence"
-            ],
-            "properties": {
-              "winner_variant_id": {
-                "type": "string"
-              },
-              "evidence": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      },
-      "outputSchema": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "operation_id",
-          "request_id"
-        ],
-        "anyOf": [
-          {
-            "required": [
-              "response"
-            ]
-          },
-          {
-            "required": [
-              "error"
-            ]
-          }
-        ],
-        "properties": {
-          "operation_id": {
-            "type": "string",
-            "const": "recordExperimentDecision",
-            "description": "The stable Mailrith public API operation ID."
-          },
-          "request_id": {
-            "type": "string",
-            "pattern": "^mcp_[0-9a-f-]{36}$",
-            "description": "The stable correlation ID for this MCP tool invocation."
-          },
-          "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Experiment"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              }
-            ]
-          },
-          "error": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "category",
-              "status",
-              "code",
-              "message",
-              "retryable"
-            ],
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "validation",
-                  "authentication",
-                  "permission",
-                  "approval",
-                  "conflict",
-                  "rate_limit",
-                  "transient",
-                  "unknown"
-                ]
-              },
-              "status": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "code": {
-                "type": "string"
-              },
-              "message": {
-                "type": "string"
-              },
-              "retryable": {
-                "type": "boolean"
-              },
-              "issues": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "path",
-                    "code",
-                    "message"
-                  ],
-                  "properties": {
-                    "path": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "$defs": {
-          "Experiment": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "A reference-only experiment with fixed safety limits and recommendation-only winner behavior."
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -8287,14 +3920,17 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "subscriber_sync",
-        "campaign_drafting",
-        "campaign_sending",
-        "automations",
+        "data_transfer",
+        "content_and_targeting",
         "capture",
+        "broadcast_preparation",
+        "broadcast_sending",
+        "sequence_preparation",
+        "sequence_operations",
+        "automations",
         "administration"
       ],
       "annotations": {
@@ -8449,7 +4085,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -8647,10 +4282,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "subscriber-change",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
       "toolsets": [
         "subscriber_sync",
-        "capture",
         "administration"
       ],
       "annotations": {
@@ -8668,26 +4301,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to retry the request safely."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/SubscriberUpsertRequest",
@@ -8888,9 +4501,6 @@ export const generatedMailrithMcpToolManifest = {
                     "$ref": "#/$defs/Subscriber"
                   }
                 }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
               }
             ]
           },
@@ -8911,7 +4521,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -9068,357 +4677,6 @@ export const generatedMailrithMcpToolManifest = {
                 "type": "string"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -9438,10 +4696,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "subscriber-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
       "toolsets": [
         "subscriber_sync",
-        "capture",
         "administration"
       ],
       "annotations": {
@@ -9459,26 +4715,6 @@ export const generatedMailrithMcpToolManifest = {
           "subscriber_id": {
             "type": "string",
             "description": "The subscriber identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/SubscriberUpdateRequest",
@@ -9575,22 +4811,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Subscriber"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Subscriber"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -9609,7 +4838,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -9766,355 +4994,148 @@ export const generatedMailrithMcpToolManifest = {
                 "type": "string"
               }
             }
+          }
+        }
+      }
+    },
+    {
+      "name": "subscribers_delete",
+      "operationId": "deleteSubscriber",
+      "summary": "Delete a subscriber",
+      "description": "Permanently removes one Subscriber and their Mailrith activity history from the authenticated workspace.",
+      "method": "DELETE",
+      "path": "/v1/subscribers/{subscriber_id}",
+      "requiredScopes": [
+        "subscribers:delete"
+      ],
+      "risk": "delete",
+      "externalSideEffect": false,
+      "sideEffectClass": "deletion",
+      "retryMode": "resource-state",
+      "idempotencyPolicy": "resource-state",
+      "toolsets": [
+        "subscriber_sync",
+        "administration"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "riskRationale": "Permanently removes one Subscriber and their Mailrith activity history.",
+      "requestBodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subscriber_id": {
+            "type": "string",
+            "description": "The Subscriber identifier."
+          }
+        },
+        "required": [
+          "subscriber_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "request_id"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "response"
+            ]
           },
-          "AgentActionResponse": {
+          {
+            "required": [
+              "error"
+            ]
+          }
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "const": "deleteSubscriber",
+            "description": "The stable Mailrith public API operation ID."
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^mcp_[0-9a-f-]{36}$",
+            "description": "The stable correlation ID for this MCP tool invocation."
+          },
+          "response": {
+            "type": "null"
+          },
+          "error": {
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "data"
+              "category",
+              "status",
+              "code",
+              "message",
+              "retryable"
             ],
             "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
+              "category": {
                 "type": "string",
                 "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
+                  "validation",
+                  "authentication",
+                  "permission",
+                  "conflict",
+                  "rate_limit",
+                  "transient",
+                  "unknown"
                 ]
               },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "integer"
                   },
-                  "id": {
-                    "type": "string"
+                  {
+                    "type": "null"
                   }
-                }
+                ]
               },
-              "targets": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "issues": {
                 "type": "array",
                 "maxItems": 20,
                 "items": {
                   "type": "object",
                   "additionalProperties": false,
                   "required": [
-                    "type",
-                    "id"
+                    "path",
+                    "code",
+                    "message"
                   ],
                   "properties": {
-                    "type": {
+                    "path": {
                       "type": "string"
                     },
-                    "id": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
                       "type": "string"
                     }
                   }
                 }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
               }
             }
           }
@@ -10129,15 +5150,13 @@ export const generatedMailrithMcpToolManifest = {
       "method": "PUT",
       "path": "/v1/subscribers/{subscriber_id}/status",
       "requiredScopes": [
-        "subscribers:eligibility",
-        "consent:write"
+        "subscriptions:write"
       ],
       "risk": "execute",
       "externalSideEffect": false,
       "sideEffectClass": "subscriber-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
         "subscriber_sync",
         "administration"
@@ -10157,26 +5176,6 @@ export const generatedMailrithMcpToolManifest = {
           "subscriber_id": {
             "type": "string",
             "description": "The Subscriber identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/SubscriberStatusRequest",
@@ -10301,22 +5300,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Subscriber"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Subscriber"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -10335,7 +5327,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -10492,357 +5483,6 @@ export const generatedMailrithMcpToolManifest = {
                 "type": "string"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -10862,10 +5502,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "subscriber-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
       "toolsets": [
         "subscriber_sync",
-        "capture",
         "administration"
       ],
       "annotations": {
@@ -10887,26 +5525,6 @@ export const generatedMailrithMcpToolManifest = {
           "tag_id": {
             "type": "string",
             "description": "The Tag identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -10945,22 +5563,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Subscriber"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Subscriber"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -10979,7 +5590,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -11136,357 +5746,6 @@ export const generatedMailrithMcpToolManifest = {
                 "type": "string"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -11506,10 +5765,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "subscriber-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
       "toolsets": [
         "subscriber_sync",
-        "capture",
         "administration"
       ],
       "annotations": {
@@ -11531,26 +5788,6 @@ export const generatedMailrithMcpToolManifest = {
           "tag_id": {
             "type": "string",
             "description": "The tag identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -11589,22 +5826,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Subscriber"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Subscriber"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -11623,7 +5853,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -11780,357 +6009,6 @@ export const generatedMailrithMcpToolManifest = {
                 "type": "string"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -12150,8 +6028,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "external-email",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
+        "sequence_operations",
         "administration"
       ],
       "annotations": {
@@ -12173,26 +6051,6 @@ export const generatedMailrithMcpToolManifest = {
           "sequence_id": {
             "type": "string",
             "description": "The sequence identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -12231,22 +6089,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Subscriber"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Subscriber"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -12265,7 +6116,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -12422,357 +6272,6 @@ export const generatedMailrithMcpToolManifest = {
                 "type": "string"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -12792,8 +6291,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "subscriber-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
       "toolsets": [
+        "sequence_operations",
         "administration"
       ],
       "annotations": {
@@ -12815,26 +6314,6 @@ export const generatedMailrithMcpToolManifest = {
           "sequence_id": {
             "type": "string",
             "description": "The sequence identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -12873,22 +6352,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Subscriber"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Subscriber"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -12907,7 +6379,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -13064,357 +6535,6 @@ export const generatedMailrithMcpToolManifest = {
                 "type": "string"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -13434,13 +6554,15 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "subscriber_sync",
-        "campaign_drafting",
-        "automations",
+        "data_transfer",
+        "content_and_targeting",
         "capture",
+        "broadcast_preparation",
+        "sequence_preparation",
+        "automations",
         "administration"
       ],
       "annotations": {
@@ -13536,7 +6658,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -13686,9 +6807,9 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
       "toolsets": [
         "subscriber_sync",
+        "content_and_targeting",
         "administration"
       ],
       "annotations": {
@@ -13706,26 +6827,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to retry the request safely."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/TagCreateRequest",
@@ -13791,22 +6892,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Tag"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Tag"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -13825,7 +6919,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -13934,39 +7027,176 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
+          }
+        }
+      }
+    },
+    {
+      "name": "tags_get",
+      "operationId": "getTag",
+      "summary": "Get a tag",
+      "description": "Returns one Tag from the authenticated workspace.",
+      "method": "GET",
+      "path": "/v1/tags/{tag_id}",
+      "requiredScopes": [
+        "tags:read"
+      ],
+      "risk": "read",
+      "externalSideEffect": false,
+      "sideEffectClass": "none",
+      "retryMode": "safe",
+      "idempotencyPolicy": "safe-read",
+      "toolsets": [
+        "reporting",
+        "subscriber_sync",
+        "data_transfer",
+        "content_and_targeting",
+        "capture",
+        "broadcast_preparation",
+        "sequence_preparation",
+        "automations",
+        "administration"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "riskRationale": "Reads one Tag definition.",
+      "requestBodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tag_id": {
+            "type": "string",
+            "description": "The Tag identifier."
+          }
+        },
+        "required": [
+          "tag_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "request_id"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "response"
+            ]
           },
-          "AgentActionResponse": {
+          {
+            "required": [
+              "error"
+            ]
+          }
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "const": "getTag",
+            "description": "The stable Mailrith public API operation ID."
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^mcp_[0-9a-f-]{36}$",
+            "description": "The stable correlation ID for this MCP tool invocation."
+          },
+          "response": {
             "type": "object",
-            "additionalProperties": false,
             "required": [
               "data"
             ],
             "properties": {
               "data": {
-                "$ref": "#/$defs/AgentAction"
+                "$ref": "#/$defs/Tag"
               }
             }
           },
-          "AgentAction": {
+          "error": {
             "type": "object",
             "additionalProperties": false,
             "required": [
+              "category",
+              "status",
+              "code",
+              "message",
+              "retryable"
+            ],
+            "properties": {
+              "category": {
+                "type": "string",
+                "enum": [
+                  "validation",
+                  "authentication",
+                  "permission",
+                  "conflict",
+                  "rate_limit",
+                  "transient",
+                  "unknown"
+                ]
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "issues": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "$defs": {
+          "Tag": {
+            "type": "object",
+            "required": [
               "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
+              "name",
+              "description",
+              "gdpr_consent_purpose",
+              "subscriber_count",
               "created_at",
               "updated_at"
             ],
@@ -13974,307 +7204,36 @@ export const generatedMailrithMcpToolManifest = {
               "id": {
                 "type": "string"
               },
-              "workspace_id": {
+              "name": {
                 "type": "string"
               },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
                 ]
               },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
+              "gdpr_consent_purpose": {
+                "anyOf": [
+                  {
                     "type": "string",
                     "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
+                      "email_marketing",
+                      "ads_personalization"
+                    ],
+                    "description": "Read-only GDPR consent purpose for Mailrith consent tags. Null for ordinary tags."
                   },
-                  "id": {
-                    "type": "string"
+                  {
+                    "type": "null"
                   }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
                 ]
               },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
+              "subscriber_count": {
+                "type": "integer"
               },
               "created_at": {
                 "type": "string",
@@ -14283,6 +7242,390 @@ export const generatedMailrithMcpToolManifest = {
               "updated_at": {
                 "type": "string",
                 "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "tags_update",
+      "operationId": "updateTag",
+      "summary": "Update a tag",
+      "description": "Changes the name and description of one Tag in the authenticated workspace.",
+      "method": "PUT",
+      "path": "/v1/tags/{tag_id}",
+      "requiredScopes": [
+        "tags:configure"
+      ],
+      "risk": "draft",
+      "externalSideEffect": false,
+      "sideEffectClass": "workspace-change",
+      "retryMode": "resource-state",
+      "idempotencyPolicy": "resource-state",
+      "toolsets": [
+        "subscriber_sync",
+        "content_and_targeting",
+        "administration"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "riskRationale": "Changes targeting metadata without contacting Subscribers.",
+      "requestBodyRequired": true,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tag_id": {
+            "type": "string",
+            "description": "The Tag identifier."
+          },
+          "body": {
+            "$ref": "#/$defs/TagCreateRequest",
+            "description": "The exact JSON request body defined by the Mailrith public API contract."
+          }
+        },
+        "required": [
+          "tag_id",
+          "body"
+        ],
+        "$defs": {
+          "TagCreateRequest": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Tag name to create. You can also create the GDPR consent tag names when you need to apply consent collected outside Mailrith."
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "request_id"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "response"
+            ]
+          },
+          {
+            "required": [
+              "error"
+            ]
+          }
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "const": "updateTag",
+            "description": "The stable Mailrith public API operation ID."
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^mcp_[0-9a-f-]{36}$",
+            "description": "The stable correlation ID for this MCP tool invocation."
+          },
+          "response": {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Tag"
+              }
+            }
+          },
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "category",
+              "status",
+              "code",
+              "message",
+              "retryable"
+            ],
+            "properties": {
+              "category": {
+                "type": "string",
+                "enum": [
+                  "validation",
+                  "authentication",
+                  "permission",
+                  "conflict",
+                  "rate_limit",
+                  "transient",
+                  "unknown"
+                ]
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "issues": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "$defs": {
+          "Tag": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "gdpr_consent_purpose",
+              "subscriber_count",
+              "created_at",
+              "updated_at"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "gdpr_consent_purpose": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "email_marketing",
+                      "ads_personalization"
+                    ],
+                    "description": "Read-only GDPR consent purpose for Mailrith consent tags. Null for ordinary tags."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "subscriber_count": {
+                "type": "integer"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "tags_delete",
+      "operationId": "deleteTag",
+      "summary": "Delete a tag",
+      "description": "Permanently removes one Tag when no saved Mailrith resource references it.",
+      "method": "DELETE",
+      "path": "/v1/tags/{tag_id}",
+      "requiredScopes": [
+        "tags:delete"
+      ],
+      "risk": "delete",
+      "externalSideEffect": false,
+      "sideEffectClass": "deletion",
+      "retryMode": "resource-state",
+      "idempotencyPolicy": "resource-state",
+      "toolsets": [
+        "content_and_targeting",
+        "administration"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "riskRationale": "Permanently removes targeting metadata when no saved resource references it.",
+      "requestBodyRequired": false,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tag_id": {
+            "type": "string",
+            "description": "The Tag identifier."
+          }
+        },
+        "required": [
+          "tag_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "request_id"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "response"
+            ]
+          },
+          {
+            "required": [
+              "error"
+            ]
+          }
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "const": "deleteTag",
+            "description": "The stable Mailrith public API operation ID."
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^mcp_[0-9a-f-]{36}$",
+            "description": "The stable correlation ID for this MCP tool invocation."
+          },
+          "response": {
+            "type": "null"
+          },
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "category",
+              "status",
+              "code",
+              "message",
+              "retryable"
+            ],
+            "properties": {
+              "category": {
+                "type": "string",
+                "enum": [
+                  "validation",
+                  "authentication",
+                  "permission",
+                  "conflict",
+                  "rate_limit",
+                  "transient",
+                  "unknown"
+                ]
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "issues": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
               }
             }
           }
@@ -14304,12 +7647,13 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "subscriber_sync",
-        "campaign_drafting",
+        "data_transfer",
+        "content_and_targeting",
         "capture",
+        "broadcast_preparation",
         "administration"
       ],
       "annotations": {
@@ -14401,7 +7745,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -14539,9 +7882,9 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
       "toolsets": [
         "subscriber_sync",
+        "content_and_targeting",
         "administration"
       ],
       "annotations": {
@@ -14559,26 +7902,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to make retries safe."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/CustomFieldUpsertRequest",
@@ -14659,22 +7982,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/CustomField"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/CustomField"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -14693,7 +8009,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -14790,357 +8105,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -15160,12 +8124,13 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "subscriber_sync",
-        "campaign_drafting",
+        "data_transfer",
+        "content_and_targeting",
         "capture",
+        "broadcast_preparation",
         "administration"
       ],
       "annotations": {
@@ -15247,7 +8212,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -15363,9 +8327,9 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
       "toolsets": [
         "subscriber_sync",
+        "content_and_targeting",
         "administration"
       ],
       "annotations": {
@@ -15383,26 +8347,6 @@ export const generatedMailrithMcpToolManifest = {
           "custom_field_id": {
             "type": "string",
             "description": "The identifier of the custom field to update."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/CustomFieldUpsertRequest",
@@ -15484,22 +8428,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/CustomField"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/CustomField"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -15518,7 +8455,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -15615,357 +8551,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -15985,8 +8570,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "deletion",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
+        "content_and_targeting",
         "administration"
       ],
       "annotations": {
@@ -16004,26 +8589,6 @@ export const generatedMailrithMcpToolManifest = {
           "custom_field_id": {
             "type": "string",
             "description": "The identifier of the custom field to delete."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -16061,14 +8626,7 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "null"
           },
           "error": {
             "type": "object",
@@ -16087,7 +8645,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -16139,359 +8696,6 @@ export const generatedMailrithMcpToolManifest = {
               }
             }
           }
-        },
-        "$defs": {
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
         }
       }
     },
@@ -16510,10 +8714,11 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_drafting",
+        "content_and_targeting",
+        "broadcast_preparation",
+        "sequence_preparation",
         "automations",
         "administration"
       ],
@@ -16606,7 +8811,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -16762,9 +8966,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
       "toolsets": [
-        "campaign_drafting",
+        "content_and_targeting",
         "administration"
       ],
       "annotations": {
@@ -16782,26 +8985,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key for safe retries."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/EmailTemplateUpsertRequest",
@@ -16866,22 +9049,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/EmailTemplate"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/EmailTemplate"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -16900,7 +9076,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -17015,357 +9190,6 @@ export const generatedMailrithMcpToolManifest = {
                 "type": "string"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -17385,10 +9209,11 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_drafting",
+        "content_and_targeting",
+        "broadcast_preparation",
+        "sequence_preparation",
         "automations",
         "administration"
       ],
@@ -17471,7 +9296,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -17605,9 +9429,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
       "toolsets": [
-        "campaign_drafting",
+        "content_and_targeting",
         "administration"
       ],
       "annotations": {
@@ -17625,26 +9448,6 @@ export const generatedMailrithMcpToolManifest = {
           "template_id": {
             "type": "string",
             "description": "The email template identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/EmailTemplateUpsertRequest",
@@ -17710,22 +9513,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/EmailTemplate"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/EmailTemplate"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -17744,7 +9540,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -17859,357 +9654,6 @@ export const generatedMailrithMcpToolManifest = {
                 "type": "string"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -18229,8 +9673,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "deletion",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
+        "content_and_targeting",
         "administration"
       ],
       "annotations": {
@@ -18248,26 +9692,6 @@ export const generatedMailrithMcpToolManifest = {
           "template_id": {
             "type": "string",
             "description": "The email template identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -18305,14 +9729,7 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "null"
           },
           "error": {
             "type": "object",
@@ -18331,7 +9748,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -18383,359 +9799,6 @@ export const generatedMailrithMcpToolManifest = {
               }
             }
           }
-        },
-        "$defs": {
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
         }
       }
     },
@@ -18754,7 +9817,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "capture",
@@ -18853,7 +9915,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -19019,7 +10080,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
       "toolsets": [
         "capture",
         "administration"
@@ -19039,26 +10099,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to retry the request safely."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/FormUpsertRequest",
@@ -19133,22 +10173,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Form"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Form"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -19167,7 +10200,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -19292,357 +10324,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -19662,7 +10343,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "capture",
@@ -19747,7 +10427,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -19891,7 +10570,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "capture",
@@ -19993,7 +10671,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -20219,7 +10896,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
       "toolsets": [
         "capture",
         "administration"
@@ -20239,26 +10915,6 @@ export const generatedMailrithMcpToolManifest = {
           "form_id": {
             "type": "string",
             "description": "The identifier of the form to update."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/FormUpsertRequest",
@@ -20334,22 +10990,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Form"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Form"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -20368,7 +11017,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -20493,357 +11141,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -20863,7 +11160,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "deletion",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
         "capture",
         "administration"
@@ -20883,26 +11179,6 @@ export const generatedMailrithMcpToolManifest = {
           "form_id": {
             "type": "string",
             "description": "The identifier of the form to delete."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -20940,14 +11216,7 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "null"
           },
           "error": {
             "type": "object",
@@ -20966,7 +11235,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -21018,359 +11286,6 @@ export const generatedMailrithMcpToolManifest = {
               }
             }
           }
-        },
-        "$defs": {
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
         }
       }
     },
@@ -21389,7 +11304,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "capture",
@@ -21488,7 +11402,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -21670,7 +11583,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
       "toolsets": [
         "capture",
         "administration"
@@ -21690,26 +11602,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to retry the request safely."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/LandingPageUpsertRequest",
@@ -21803,22 +11695,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/LandingPage"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/LandingPage"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -21837,7 +11722,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -21978,357 +11862,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -22348,7 +11881,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "capture",
@@ -22433,7 +11965,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -22593,7 +12124,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "capture",
@@ -22695,7 +12225,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -22933,7 +12462,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
       "toolsets": [
         "capture",
         "administration"
@@ -22953,26 +12481,6 @@ export const generatedMailrithMcpToolManifest = {
           "landing_page_id": {
             "type": "string",
             "description": "The identifier of the landing page to update."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/LandingPageUpsertRequest",
@@ -23067,22 +12575,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/LandingPage"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/LandingPage"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -23101,7 +12602,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -23242,357 +12742,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -23612,7 +12761,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "deletion",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
         "capture",
         "administration"
@@ -23632,26 +12780,6 @@ export const generatedMailrithMcpToolManifest = {
           "landing_page_id": {
             "type": "string",
             "description": "The identifier of the landing page to delete."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -23689,14 +12817,7 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "null"
           },
           "error": {
             "type": "object",
@@ -23715,7 +12836,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -23767,359 +12887,6 @@ export const generatedMailrithMcpToolManifest = {
               }
             }
           }
-        },
-        "$defs": {
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
         }
       }
     },
@@ -24138,10 +12905,10 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "automations",
+        "sequence_preparation",
+        "sequence_operations",
         "administration"
       ],
       "annotations": {
@@ -24237,7 +13004,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -24701,9 +13467,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
       "toolsets": [
-        "automations",
+        "sequence_preparation",
         "administration"
       ],
       "annotations": {
@@ -24721,26 +13486,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to make retries safe."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/SequenceUpsertRequest",
@@ -24876,22 +13621,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Sequence"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Sequence"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -24910,7 +13648,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -25333,357 +14070,6 @@ export const generatedMailrithMcpToolManifest = {
                 "type": "boolean"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -25703,10 +14089,10 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "automations",
+        "sequence_preparation",
+        "sequence_operations",
         "administration"
       ],
       "annotations": {
@@ -25788,7 +14174,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -26230,9 +14615,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
       "toolsets": [
-        "automations",
+        "sequence_preparation",
         "administration"
       ],
       "annotations": {
@@ -26250,26 +14634,6 @@ export const generatedMailrithMcpToolManifest = {
           "sequence_id": {
             "type": "string",
             "description": "The sequence identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/SequenceUpsertRequest",
@@ -26406,22 +14770,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Sequence"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Sequence"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -26440,7 +14797,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -26863,357 +15219,6 @@ export const generatedMailrithMcpToolManifest = {
                 "type": "boolean"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -27233,9 +15238,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "external-email",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
-        "automations",
+        "sequence_operations",
         "administration"
       ],
       "annotations": {
@@ -27253,26 +15257,6 @@ export const generatedMailrithMcpToolManifest = {
           "sequence_id": {
             "type": "string",
             "description": "The Sequence identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/SequenceStatusRequest",
@@ -27332,22 +15316,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Sequence"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Sequence"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -27366,7 +15343,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -27789,357 +15765,6 @@ export const generatedMailrithMcpToolManifest = {
                 "type": "boolean"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -28159,8 +15784,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "deletion",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
+        "sequence_preparation",
         "administration"
       ],
       "annotations": {
@@ -28178,26 +15803,6 @@ export const generatedMailrithMcpToolManifest = {
           "sequence_id": {
             "type": "string",
             "description": "The sequence identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -28235,14 +15840,7 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "null"
           },
           "error": {
             "type": "object",
@@ -28261,7 +15859,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -28313,359 +15910,6 @@ export const generatedMailrithMcpToolManifest = {
               }
             }
           }
-        },
-        "$defs": {
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
         }
       }
     },
@@ -28684,7 +15928,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "automations",
@@ -28779,7 +16022,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -28921,7 +16163,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
       "toolsets": [
         "automations",
         "administration"
@@ -28941,26 +16182,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to make retries safe."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/AutomationUpsertRequest",
@@ -29020,22 +16241,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Automation"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Automation"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -29054,7 +16268,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -29155,357 +16368,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -29525,7 +16387,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "automations",
@@ -29610,7 +16471,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -29730,7 +16590,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
       "toolsets": [
         "automations",
         "administration"
@@ -29750,26 +16609,6 @@ export const generatedMailrithMcpToolManifest = {
           "automation_id": {
             "type": "string",
             "description": "The automation identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/AutomationUpsertRequest",
@@ -29830,22 +16669,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Automation"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Automation"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -29864,7 +16696,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -29965,357 +16796,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -30335,7 +16815,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "external-email",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
         "automations",
         "administration"
@@ -30355,26 +16834,6 @@ export const generatedMailrithMcpToolManifest = {
           "automation_id": {
             "type": "string",
             "description": "The Automation identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/AutomationStatusRequest",
@@ -30434,22 +16893,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Automation"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Automation"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -30468,7 +16920,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -30569,357 +17020,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -30939,8 +17039,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "deletion",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
+        "automations",
         "administration"
       ],
       "annotations": {
@@ -30958,26 +17058,6 @@ export const generatedMailrithMcpToolManifest = {
           "automation_id": {
             "type": "string",
             "description": "The automation identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -31015,14 +17095,7 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "null"
           },
           "error": {
             "type": "object",
@@ -31041,7 +17114,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -31093,359 +17165,6 @@ export const generatedMailrithMcpToolManifest = {
               }
             }
           }
-        },
-        "$defs": {
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
         }
       }
     },
@@ -31464,7 +17183,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "capture",
@@ -31559,7 +17277,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -31730,7 +17447,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "public-resource",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "required",
       "toolsets": [
         "capture",
         "administration"
@@ -31750,26 +17466,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to make retries safe."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/MagicLinkUpsertRequest",
@@ -31876,22 +17572,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/MagicLink"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/MagicLink"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -31910,7 +17599,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -32040,357 +17728,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -32410,7 +17747,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
         "capture",
@@ -32495,7 +17831,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -32644,7 +17979,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "public-resource",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
         "capture",
         "administration"
@@ -32664,26 +17998,6 @@ export const generatedMailrithMcpToolManifest = {
           "magic_link_id": {
             "type": "string",
             "description": "The magic link identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/MagicLinkUpsertRequest",
@@ -32791,22 +18105,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/MagicLink"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/MagicLink"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -32825,7 +18132,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -32955,357 +18261,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -33325,7 +18280,6 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "deletion",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
         "capture",
         "administration"
@@ -33345,26 +18299,6 @@ export const generatedMailrithMcpToolManifest = {
           "magic_link_id": {
             "type": "string",
             "description": "The magic link identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -33402,14 +18336,7 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "null"
           },
           "error": {
             "type": "object",
@@ -33428,7 +18355,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -33480,359 +18406,6 @@ export const generatedMailrithMcpToolManifest = {
               }
             }
           }
-        },
-        "$defs": {
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
         }
       }
     },
@@ -33851,11 +18424,10 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_drafting",
-        "campaign_sending",
+        "broadcast_preparation",
+        "broadcast_sending",
         "administration"
       ],
       "annotations": {
@@ -33947,7 +18519,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -34264,9 +18835,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
       "toolsets": [
-        "campaign_drafting",
+        "broadcast_preparation",
         "administration"
       ],
       "annotations": {
@@ -34284,26 +18854,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key for safe retries."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/BroadcastUpsertRequest",
@@ -34460,22 +19010,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Broadcast"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Broadcast"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -34494,7 +19037,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -34770,357 +19312,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -35140,11 +19331,10 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_drafting",
-        "campaign_sending",
+        "broadcast_preparation",
+        "broadcast_sending",
         "administration"
       ],
       "annotations": {
@@ -35226,7 +19416,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -35480,11 +19669,10 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_drafting",
-        "campaign_sending",
+        "broadcast_preparation",
+        "broadcast_sending",
         "administration"
       ],
       "annotations": {
@@ -35598,7 +19786,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -35715,11 +19902,10 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_drafting",
-        "campaign_sending",
+        "broadcast_preparation",
+        "broadcast_sending",
         "administration"
       ],
       "annotations": {
@@ -35801,7 +19987,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -36096,9 +20281,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
       "toolsets": [
-        "campaign_drafting",
+        "broadcast_preparation",
         "administration"
       ],
       "annotations": {
@@ -36116,26 +20300,6 @@ export const generatedMailrithMcpToolManifest = {
           "broadcast_id": {
             "type": "string",
             "description": "The broadcast identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/BroadcastUpsertRequest",
@@ -36293,22 +20457,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Broadcast"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Broadcast"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -36327,7 +20484,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -36603,357 +20759,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -36973,8 +20778,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "deletion",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
+        "broadcast_preparation",
         "administration"
       ],
       "annotations": {
@@ -36992,26 +20797,6 @@ export const generatedMailrithMcpToolManifest = {
           "broadcast_id": {
             "type": "string",
             "description": "The broadcast identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -37049,14 +20834,7 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "null"
           },
           "error": {
             "type": "object",
@@ -37075,7 +20853,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -37127,359 +20904,6 @@ export const generatedMailrithMcpToolManifest = {
               }
             }
           }
-        },
-        "$defs": {
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
         }
       }
     },
@@ -37498,11 +20922,10 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_drafting",
-        "campaign_sending",
+        "broadcast_preparation",
+        "broadcast_sending",
         "administration"
       ],
       "annotations": {
@@ -37584,7 +21007,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -37850,9 +21272,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "external-email",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "required",
       "toolsets": [
-        "campaign_sending",
+        "broadcast_sending",
         "administration"
       ],
       "annotations": {
@@ -37874,26 +21295,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to make retries safe."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "type": "object",
@@ -37941,43 +21342,36 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
                 "type": "object",
                 "required": [
-                  "data"
+                  "status",
+                  "run_id",
+                  "resource"
                 ],
                 "properties": {
-                  "data": {
-                    "type": "object",
-                    "required": [
-                      "status",
-                      "run_id",
-                      "resource"
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "running",
+                      "queued"
                     ],
-                    "properties": {
-                      "status": {
-                        "type": "string",
-                        "enum": [
-                          "running",
-                          "queued"
-                        ],
-                        "description": "Queued means Mailrith accepted the send and will start it automatically when a sending slot is available."
-                      },
-                      "run_id": {
-                        "type": "string"
-                      },
-                      "resource": {
-                        "$ref": "#/$defs/Broadcast"
-                      }
-                    }
+                    "description": "Queued means Mailrith accepted the send and will start it automatically when a sending slot is available."
+                  },
+                  "run_id": {
+                    "type": "string"
+                  },
+                  "resource": {
+                    "$ref": "#/$defs/Broadcast"
                   }
                 }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -37996,7 +21390,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -38272,357 +21665,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -38642,9 +21684,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "external-email",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "none",
       "toolsets": [
-        "campaign_sending",
+        "broadcast_sending",
         "administration"
       ],
       "annotations": {
@@ -38666,26 +21707,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to make retries safe."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -38723,51 +21744,44 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
                 "type": "object",
                 "required": [
-                  "data"
+                  "status",
+                  "run_id",
+                  "changed",
+                  "recovery_pending",
+                  "message"
                 ],
                 "properties": {
-                  "data": {
-                    "type": "object",
-                    "required": [
-                      "status",
-                      "run_id",
-                      "changed",
-                      "recovery_pending",
-                      "message"
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "canceling",
+                      "canceled"
                     ],
-                    "properties": {
-                      "status": {
-                        "type": "string",
-                        "enum": [
-                          "canceling",
-                          "canceled"
-                        ],
-                        "description": "canceling while remaining work is stopping, or canceled when cancellation already finished."
-                      },
-                      "run_id": {
-                        "type": "string"
-                      },
-                      "changed": {
-                        "type": "boolean"
-                      },
-                      "recovery_pending": {
-                        "type": "boolean"
-                      },
-                      "message": {
-                        "type": "string"
-                      }
-                    }
+                    "description": "canceling while remaining work is stopping, or canceled when cancellation already finished."
+                  },
+                  "run_id": {
+                    "type": "string"
+                  },
+                  "changed": {
+                    "type": "boolean"
+                  },
+                  "recovery_pending": {
+                    "type": "boolean"
+                  },
+                  "message": {
+                    "type": "string"
                   }
                 }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -38786,7 +21800,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -38838,359 +21851,6 @@ export const generatedMailrithMcpToolManifest = {
               }
             }
           }
-        },
-        "$defs": {
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
         }
       }
     },
@@ -39209,9 +21869,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "external-email",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
       "toolsets": [
-        "campaign_sending",
+        "broadcast_sending",
         "administration"
       ],
       "annotations": {
@@ -39233,26 +21892,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to make retries safe."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/BroadcastTestRequest",
@@ -39309,22 +21948,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/ActionResult"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/ActionResult"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -39343,7 +21975,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -39410,357 +22041,6 @@ export const generatedMailrithMcpToolManifest = {
                 ]
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -39780,11 +22060,11 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_drafting",
-        "campaign_sending",
+        "content_and_targeting",
+        "broadcast_preparation",
+        "broadcast_sending",
         "administration"
       ],
       "annotations": {
@@ -39876,7 +22156,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -40019,9 +22298,9 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "policy",
       "toolsets": [
-        "campaign_drafting",
+        "content_and_targeting",
+        "broadcast_preparation",
         "administration"
       ],
       "annotations": {
@@ -40039,26 +22318,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to retry the request safely."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/SegmentUpsertRequest",
@@ -40129,22 +22388,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Segment"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Segment"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -40163,7 +22415,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -40265,357 +22516,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -40635,11 +22535,11 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_drafting",
-        "campaign_sending",
+        "content_and_targeting",
+        "broadcast_preparation",
+        "broadcast_sending",
         "administration"
       ],
       "annotations": {
@@ -40721,7 +22621,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -40842,9 +22741,9 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "workspace-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "policy",
       "toolsets": [
-        "campaign_drafting",
+        "content_and_targeting",
+        "broadcast_preparation",
         "administration"
       ],
       "annotations": {
@@ -40862,26 +22761,6 @@ export const generatedMailrithMcpToolManifest = {
           "segment_id": {
             "type": "string",
             "description": "The identifier of the segment to update."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/SegmentUpsertRequest",
@@ -40953,22 +22832,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/Segment"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Segment"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -40987,7 +22859,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -41089,357 +22960,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -41459,8 +22979,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "deletion",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
+        "content_and_targeting",
         "administration"
       ],
       "annotations": {
@@ -41478,26 +22998,6 @@ export const generatedMailrithMcpToolManifest = {
           "segment_id": {
             "type": "string",
             "description": "The identifier of the segment to delete."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -41535,14 +23035,7 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "$ref": "#/$defs/AgentActionResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "null"
           },
           "error": {
             "type": "object",
@@ -41561,7 +23054,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -41613,359 +23105,6 @@ export const generatedMailrithMcpToolManifest = {
               }
             }
           }
-        },
-        "$defs": {
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
         }
       }
     },
@@ -41984,11 +23123,11 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
-        "campaign_drafting",
-        "campaign_sending",
+        "content_and_targeting",
+        "broadcast_preparation",
+        "broadcast_sending",
         "administration"
       ],
       "annotations": {
@@ -42096,7 +23235,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -42176,16 +23314,16 @@ export const generatedMailrithMcpToolManifest = {
       "method": "GET",
       "path": "/v1/webhook-subscriptions",
       "requiredScopes": [
-        "webhook_subscriptions:read"
+        "webhooks:read"
       ],
       "risk": "read",
       "externalSideEffect": false,
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
+        "webhooks",
         "administration"
       ],
       "annotations": {
@@ -42266,7 +23404,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -42349,7 +23486,7 @@ export const generatedMailrithMcpToolManifest = {
               },
               "status": {
                 "type": "string",
-                "description": "New direct API Subscribers default to Unconfirmed when status is omitted. Active requires consent_evidence.",
+                "description": "Whether Mailrith currently delivers matching events to this destination.",
                 "enum": [
                   "active",
                   "disabled"
@@ -42455,19 +23592,19 @@ export const generatedMailrithMcpToolManifest = {
       "name": "webhook_subscriptions_create",
       "operationId": "createWebhookSubscription",
       "summary": "Create a webhook subscription",
-      "description": "Creates a signed outbound webhook subscription and returns the signing secret once. The caller must also have read scopes for the selected event families.",
+      "description": "Creates a signed outbound webhook subscription and returns the signing secret once. The caller must also have read scopes for the selected event families. A workspace can have up to 20 webhook subscriptions, including disabled subscriptions.",
       "method": "POST",
       "path": "/v1/webhook-subscriptions",
       "requiredScopes": [
-        "webhook_subscriptions:configure"
+        "webhooks:write"
       ],
       "risk": "admin",
       "externalSideEffect": true,
       "sideEffectClass": "external-webhook",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "required",
       "toolsets": [
+        "webhooks",
         "administration"
       ],
       "annotations": {
@@ -42485,26 +23622,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to retry the request safely."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/WebhookSubscriptionCreateRequest",
@@ -42579,22 +23696,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/WebhookSubscriptionCreateResult"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/WebhookSubscriptionCreateResult"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -42613,7 +23723,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -42711,7 +23820,7 @@ export const generatedMailrithMcpToolManifest = {
               },
               "status": {
                 "type": "string",
-                "description": "New direct API Subscribers default to Unconfirmed when status is omitted. Active requires consent_evidence.",
+                "description": "Whether Mailrith currently delivers matching events to this destination.",
                 "enum": [
                   "active",
                   "disabled"
@@ -42787,357 +23896,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -43150,16 +23908,16 @@ export const generatedMailrithMcpToolManifest = {
       "method": "GET",
       "path": "/v1/webhook-subscriptions/{webhook_subscription_id}",
       "requiredScopes": [
-        "webhook_subscriptions:read"
+        "webhooks:read"
       ],
       "risk": "read",
       "externalSideEffect": false,
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
         "reporting",
+        "webhooks",
         "administration"
       ],
       "annotations": {
@@ -43241,7 +23999,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -43324,7 +24081,7 @@ export const generatedMailrithMcpToolManifest = {
               },
               "status": {
                 "type": "string",
-                "description": "New direct API Subscribers default to Unconfirmed when status is omitted. Active requires consent_evidence.",
+                "description": "Whether Mailrith currently delivers matching events to this destination.",
                 "enum": [
                   "active",
                   "disabled"
@@ -43412,15 +24169,15 @@ export const generatedMailrithMcpToolManifest = {
       "method": "PUT",
       "path": "/v1/webhook-subscriptions/{webhook_subscription_id}",
       "requiredScopes": [
-        "webhook_subscriptions:configure"
+        "webhooks:write"
       ],
       "risk": "admin",
       "externalSideEffect": true,
       "sideEffectClass": "external-webhook",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
+        "webhooks",
         "administration"
       ],
       "annotations": {
@@ -43438,26 +24195,6 @@ export const generatedMailrithMcpToolManifest = {
           "webhook_subscription_id": {
             "type": "string",
             "description": "The webhook subscription identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/WebhookSubscriptionUpdateRequest",
@@ -43527,22 +24264,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/WebhookSubscription"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/WebhookSubscription"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -43561,7 +24291,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -43644,7 +24373,7 @@ export const generatedMailrithMcpToolManifest = {
               },
               "status": {
                 "type": "string",
-                "description": "New direct API Subscribers default to Unconfirmed when status is omitted. Active requires consent_evidence.",
+                "description": "Whether Mailrith currently delivers matching events to this destination.",
                 "enum": [
                   "active",
                   "disabled"
@@ -43720,357 +24449,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -44083,15 +24461,15 @@ export const generatedMailrithMcpToolManifest = {
       "method": "DELETE",
       "path": "/v1/webhook-subscriptions/{webhook_subscription_id}",
       "requiredScopes": [
-        "webhook_subscriptions:delete"
+        "webhooks:write"
       ],
       "risk": "delete",
       "externalSideEffect": true,
       "sideEffectClass": "deletion",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
+        "webhooks",
         "administration"
       ],
       "annotations": {
@@ -44109,26 +24487,6 @@ export const generatedMailrithMcpToolManifest = {
           "webhook_subscription_id": {
             "type": "string",
             "description": "The webhook subscription identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -44166,37 +24524,30 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
                 "type": "object",
                 "required": [
-                  "data"
+                  "id",
+                  "deleted"
                 ],
                 "properties": {
-                  "data": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "deleted"
-                    ],
-                    "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "deleted": {
-                        "type": "boolean",
-                        "enum": [
-                          true
-                        ]
-                      }
-                    }
+                  "id": {
+                    "type": "string"
+                  },
+                  "deleted": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ]
                   }
                 }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -44215,7 +24566,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -44267,359 +24617,6 @@ export const generatedMailrithMcpToolManifest = {
               }
             }
           }
-        },
-        "$defs": {
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
-          }
         }
       }
     },
@@ -44631,15 +24628,15 @@ export const generatedMailrithMcpToolManifest = {
       "method": "POST",
       "path": "/v1/webhook-subscriptions/{webhook_subscription_id}/rotate-secret",
       "requiredScopes": [
-        "webhook_subscriptions:secret_rotate"
+        "webhooks:write"
       ],
       "risk": "admin",
       "externalSideEffect": true,
       "sideEffectClass": "secret-change",
       "retryMode": "resource-state",
       "idempotencyPolicy": "resource-state",
-      "approvalPolicy": "required",
       "toolsets": [
+        "webhooks",
         "administration"
       ],
       "annotations": {
@@ -44657,26 +24654,6 @@ export const generatedMailrithMcpToolManifest = {
           "webhook_subscription_id": {
             "type": "string",
             "description": "The webhook subscription identifier."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           }
         },
         "required": [
@@ -44714,22 +24691,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/WebhookSubscriptionCreateResult"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/WebhookSubscriptionCreateResult"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -44748,7 +24718,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -44846,7 +24815,7 @@ export const generatedMailrithMcpToolManifest = {
               },
               "status": {
                 "type": "string",
-                "description": "New direct API Subscribers default to Unconfirmed when status is omitted. Active requires consent_evidence.",
+                "description": "Whether Mailrith currently delivers matching events to this destination.",
                 "enum": [
                   "active",
                   "disabled"
@@ -44922,357 +24891,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -45292,8 +24910,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "bulk-data",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "required",
       "toolsets": [
+        "data_transfer",
         "administration"
       ],
       "annotations": {
@@ -45311,26 +24929,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to retry the request safely."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/SubscriberImportJobCreateRequest",
@@ -45452,22 +25050,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/SubscriberImportJob"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/SubscriberImportJob"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -45486,7 +25077,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -45616,357 +25206,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -45979,17 +25218,15 @@ export const generatedMailrithMcpToolManifest = {
       "method": "GET",
       "path": "/v1/jobs/subscriber-imports/{job_id}",
       "requiredScopes": [
-        "jobs:read"
+        "subscribers:bulk_import"
       ],
       "risk": "read",
       "externalSideEffect": false,
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
-        "reporting",
-        "subscriber_sync",
+        "data_transfer",
         "administration"
       ],
       "annotations": {
@@ -46071,7 +25308,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -46220,8 +25456,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "bulk-data",
       "retryMode": "idempotency-key",
       "idempotencyPolicy": "idempotency-key",
-      "approvalPolicy": "required",
       "toolsets": [
+        "data_transfer",
         "administration"
       ],
       "annotations": {
@@ -46239,26 +25475,6 @@ export const generatedMailrithMcpToolManifest = {
           "idempotency_key": {
             "type": "string",
             "description": "Optional idempotency key to retry the request safely."
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "plan"
-            ],
-            "description": "Use `plan` to create a bounded, non-executing action preview."
-          },
-          "action_id": {
-            "type": "string",
-            "description": "The approved action identifier returned by the planning request."
-          },
-          "approval_token": {
-            "type": "string",
-            "description": "The short-lived, single-use token claimed after approval."
-          },
-          "approval_return_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included."
           },
           "body": {
             "$ref": "#/$defs/SubscriberExportJobCreateRequest",
@@ -46336,22 +25552,15 @@ export const generatedMailrithMcpToolManifest = {
             "description": "The stable correlation ID for this MCP tool invocation."
           },
           "response": {
-            "anyOf": [
-              {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/$defs/SubscriberExportJob"
-                  }
-                }
-              },
-              {
-                "$ref": "#/$defs/AgentActionResponse"
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/SubscriberExportJob"
               }
-            ]
+            }
           },
           "error": {
             "type": "object",
@@ -46370,7 +25579,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",
@@ -46577,357 +25785,6 @@ export const generatedMailrithMcpToolManifest = {
                 "format": "date-time"
               }
             }
-          },
-          "AgentActionResponse": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "data"
-            ],
-            "properties": {
-              "data": {
-                "$ref": "#/$defs/AgentAction"
-              }
-            }
-          },
-          "AgentAction": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "workspace_id",
-              "operation_id",
-              "risk",
-              "state",
-              "policy_decision",
-              "credential",
-              "targets",
-              "input_digest",
-              "resource_version",
-              "preview",
-              "approval",
-              "result",
-              "approval_url",
-              "return_url",
-              "expires_at",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "workspace_id": {
-                "type": "string"
-              },
-              "operation_id": {
-                "type": "string"
-              },
-              "risk": {
-                "type": "string",
-                "enum": [
-                  "draft",
-                  "test",
-                  "execute",
-                  "bulk",
-                  "delete",
-                  "admin"
-                ]
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "pending",
-                  "blocked",
-                  "approved",
-                  "executing",
-                  "completed",
-                  "failed",
-                  "uncertain",
-                  "denied",
-                  "expired"
-                ]
-              },
-              "policy_decision": {
-                "type": "string",
-                "enum": [
-                  "human_required",
-                  "policy_approved",
-                  "blocked"
-                ]
-              },
-              "credential": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "workspace_api_key",
-                      "oauth_authorization"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              },
-              "targets": {
-                "type": "array",
-                "maxItems": 20,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "type",
-                    "id"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "input_digest": {
-                "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
-              },
-              "resource_version": {
-                "type": "string"
-              },
-              "preview": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "affected_subscriber_count",
-                  "expected_side_effects",
-                  "warnings",
-                  "blocking_issues",
-                  "summary"
-                ],
-                "properties": {
-                  "affected_subscriber_count": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "expected_side_effects": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "code",
-                        "description"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "warnings": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "blocking_issues": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "summary": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "sandbox": {
-                        "type": "boolean"
-                      },
-                      "active_subscriber_count": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "current_status": {
-                        "type": "string"
-                      },
-                      "currently_enabled": {
-                        "type": "boolean"
-                      },
-                      "delivery_connection_configured": {
-                        "type": "boolean"
-                      },
-                      "provider_readiness": {
-                        "type": "string"
-                      },
-                      "sender_verification": {
-                        "type": "string"
-                      },
-                      "event_webhook_health": {
-                        "type": "string"
-                      },
-                      "estimated_duration_seconds": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "expected_provider_cost": {
-                        "type": "null"
-                      },
-                      "truncated": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              },
-              "approval": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "approved_by_user_id",
-                  "approved_by_policy",
-                  "approved_at",
-                  "denied_at",
-                  "denial_code",
-                  "token_expires_at"
-                ],
-                "properties": {
-                  "approved_by_user_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_by_policy": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "approved_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denied_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "denial_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "token_expires_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                }
-              },
-              "result": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "resource_type",
-                  "resource_id",
-                  "outcome_code"
-                ],
-                "properties": {
-                  "resource_type": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "resource_id": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "outcome_code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "approval_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "return_url": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "expires_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
           }
         }
       }
@@ -46947,8 +25804,8 @@ export const generatedMailrithMcpToolManifest = {
       "sideEffectClass": "none",
       "retryMode": "safe",
       "idempotencyPolicy": "safe-read",
-      "approvalPolicy": "none",
       "toolsets": [
+        "data_transfer",
         "administration"
       ],
       "annotations": {
@@ -47030,7 +25887,6 @@ export const generatedMailrithMcpToolManifest = {
                   "validation",
                   "authentication",
                   "permission",
-                  "approval",
                   "conflict",
                   "rate_limit",
                   "transient",

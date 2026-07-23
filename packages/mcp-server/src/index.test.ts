@@ -1,4 +1,5 @@
-import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { publicApiScopeKeys } from "@mailrith/public-api";
 import { MailrithApiError } from "@mailrith/sdk";
 import { describe, expect, it, vi } from "vitest";
@@ -81,7 +82,9 @@ describe("@mailrith/mcp-server", () => {
       "Calls PUT /v1/subscribers/{subscriber_id}/sequences/{sequence_id}.",
     );
     expect(updateTool).toBeDefined();
-    expect(updateTool?.description).toContain("call this tool with mode=plan");
+    expect(updateTool?.description).toContain(
+      "Calls PUT /v1/broadcasts/{broadcast_id}.",
+    );
     expect(landingPageCreateTool?.description).toContain(
       "landing_pages:configure",
     );
@@ -99,10 +102,6 @@ describe("@mailrith/mcp-server", () => {
 
     const result = await updateTool?.invoke({
       broadcast_id: "broadcast-123",
-      mode: "plan",
-      action_id: "act_123",
-      approval_token: "mat_secret",
-      approval_return_url: "https://agent.example/done",
       body: {
         subject: "Updated subject",
         body_document: { type: "doc" },
@@ -152,15 +151,10 @@ describe("@mailrith/mcp-server", () => {
       }),
       {
         path: { broadcast_id: "broadcast-123" },
-        query: { mode: "plan" },
+        query: undefined,
         body: {
           subject: "Updated subject",
           body_document: { type: "doc" },
-        },
-        headers: {
-          "X-Mailrith-Action-Id": "act_123",
-          "X-Mailrith-Approval-Return-Url": "https://agent.example/done",
-          "X-Mailrith-Approval-Token": "mat_secret",
         },
         idempotencyKey: undefined,
       },
@@ -260,23 +254,23 @@ describe("@mailrith/mcp-server", () => {
       ]),
     );
 
-    const campaignSendTools = createMailrithMcpToolDefinitions(client, {
+    const broadcastSendTools = createMailrithMcpToolDefinitions(client, {
       grantedScopes: [
         "workspace:read",
         "broadcasts:read",
         "broadcasts:test",
         "broadcasts:send",
       ],
-      enabledToolsets: ["campaign_sending"],
+      enabledToolsets: ["broadcast_sending"],
     }).map((tool) => tool.name);
-    expect(campaignSendTools).toEqual(
+    expect(broadcastSendTools).toEqual(
       expect.arrayContaining([
         "broadcasts_list",
         "broadcasts_send_test",
         "broadcasts_send",
       ]),
     );
-    expect(campaignSendTools).not.toContain("broadcasts_create");
+    expect(broadcastSendTools).not.toContain("broadcasts_create");
   });
 
   it("returns stable machine-readable errors with request correlation", async () => {
@@ -321,20 +315,6 @@ describe("@mailrith/mcp-server", () => {
       expect(result?.content[0]?.text).not.toContain("intentionally");
     }
 
-    const approvalTool = createMailrithMcpToolDefinitions({
-      request: vi.fn().mockRejectedValue(
-        new MailrithApiError({
-          status: 403,
-          message: "Approval required",
-          code: "approval_required",
-          responseBody: null,
-        }),
-      ),
-    } as never).find((candidate) => candidate.name === "broadcasts_send");
-    await expect(approvalTool?.invoke({ broadcast_id: "broadcast-1" })).resolves
-      .toMatchObject({
-        structuredContent: { error: { category: "approval" } },
-      });
   });
 
   it("keeps durable GA tool names and operation-specific annotations", () => {
@@ -516,7 +496,7 @@ describe("@mailrith/mcp-server", () => {
       request.headers.set("authorization", "Bearer mrk_secret");
       request.headers.set(
         "mailrith-mcp-toolsets",
-        "subscriber_sync,campaign_drafting",
+        "subscriber_sync,broadcast_preparation",
       );
       mcpSessionHeaders.push(request.headers.get("mcp-session-id"));
       return handleMailrithMcpHttpRequest(request, {
@@ -568,7 +548,6 @@ describe("@mailrith/mcp-server", () => {
     expect(broadcastCreate?._meta).toMatchObject({
       "mailrith/operationId": "createBroadcast",
       "mailrith/risk": "draft",
-      "mailrith/approvalPolicy": "policy",
     });
 
     const result = await client.callTool({
@@ -785,7 +764,7 @@ describe("@mailrith/mcp-server", () => {
       ?.match(/scope="([^"]+)"/)?.[1]
       ?.split(" ");
     expect(scope).toEqual(mailrithMcpDefaultOAuthScopes);
-    expect(scope).toEqual(["workspace:read"]);
+    expect(scope).toEqual(["workspace:read", "subscribers:read"]);
   });
 
   it("rejects unknown hosted MCP toolsets before creating a server", async () => {
@@ -939,7 +918,7 @@ describe("@mailrith/mcp-server", () => {
 
     expect(response.status).toBe(403);
     expect(response.headers.get("www-authenticate")).toContain(
-      'scope="subscribers:eligibility consent:write subscribers:targeting"',
+      'scope="subscriptions:write subscribers:targeting"',
     );
     expect(mailrithApiFetch).toHaveBeenCalledTimes(1);
   });
@@ -954,7 +933,7 @@ describe("@mailrith/mcp-server", () => {
           JSON.stringify({
             data: {
               credential: {
-                scopes: ["webhook_subscriptions:configure"],
+                scopes: ["webhooks:write"],
               },
             },
           }),
@@ -1017,7 +996,7 @@ describe("@mailrith/mcp-server", () => {
           JSON.stringify({
             data: {
               credential: {
-                scopes: ["webhook_subscriptions:configure"],
+                scopes: ["webhooks:write"],
               },
             },
           }),

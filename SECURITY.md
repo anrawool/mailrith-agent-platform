@@ -8,4 +8,4 @@ Email `security@mailrith.com` with a concise description, affected package and v
 
 ## Supported Versions
 
-Only the latest published beta or stable version listed in `packages/agent-release-manifest.json` is supported. Pre-release APIs may change before GA, but security fixes will not intentionally weaken workspace isolation, permission checks, approvals, or Subscriber protections.
+Only the latest stable version listed in `packages/agent-release-manifest.json` is supported. Security fixes will not intentionally weaken workspace isolation, permission checks, resource safeguards, or Subscriber protections.

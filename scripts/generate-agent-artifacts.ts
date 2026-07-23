@@ -6,9 +6,10 @@ import {
   publicApiMcpErrorCategories,
   publicApiMcpOperationContractMap,
   publicApiMcpToolsets,
+  publicApiAgentReadQuickstartScopeKeys,
   publicApiSdkResources,
   publicApiVersion,
-} from "@mailrith/public-api";
+} from "../packages/public-api/src/index.js";
 
 export const generatedAgentArtifactsNotice =
   "// This file is generated from packages/public-api/src/index.ts.\n" +
@@ -85,7 +86,6 @@ export const buildPythonSdkManifest = () =>
         side_effect_class: operation.sideEffectClass,
         retry_mode: operation.retryMode,
         idempotency_policy: operation.idempotencyPolicy,
-        approval_policy: operation.approvalPolicy,
         toolsets: operation.toolsets,
         annotations: operation.annotations,
         risk_rationale: operation.riskRationale,
@@ -106,6 +106,12 @@ export const buildPythonSdkManifest = () =>
 
 export const buildTypeScriptSdkManifest = () => `${generatedAgentArtifactsNotice}
 export const generatedMailrithSdkContractVersion = ${JSON.stringify(publicApiVersion)};
+
+export const generatedMailrithAgentReadQuickstartScopeKeys = ${JSON.stringify(
+  publicApiAgentReadQuickstartScopeKeys,
+  null,
+  2,
+)} as const;
 
 export const generatedMailrithSdkResources = ${JSON.stringify(
   publicApiSdkResources,
@@ -158,7 +164,6 @@ export const buildMcpToolManifest = () => {
         sideEffectClass: operation.sideEffectClass,
         retryMode: operation.retryMode,
         idempotencyPolicy: operation.idempotencyPolicy,
-        approvalPolicy: operation.approvalPolicy,
         toolsets: operation.toolsets,
         annotations: operation.annotations,
         riskRationale: operation.riskRationale,

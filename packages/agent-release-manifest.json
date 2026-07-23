@@ -1,37 +1,37 @@
 {
   "schema_version": 1,
-  "release_version": "0.1.0-beta.1",
-  "channel": "beta",
-  "status": "published",
+  "release_version": "0.1.0",
+  "channel": "ga",
+  "status": "prepared_not_published",
   "contract_version": "v1",
-  "documentation_revision": "2026-07-23",
+  "documentation_revision": "2026-07-24",
   "packages": {
     "npm": {
-      "@mailrith/public-api": "0.1.0-beta.1",
-      "@mailrith/sdk": "0.1.0-beta.1",
-      "@mailrith/mcp-server": "0.1.0-beta.1",
-      "@mailrith/cli": "0.1.0-beta.1",
-      "@mailrith/agent-skill": "0.1.0-beta.1"
+      "@mailrith/public-api": "0.1.0",
+      "@mailrith/sdk": "0.1.0",
+      "@mailrith/mcp-server": "0.1.0",
+      "@mailrith/cli": "0.1.0",
+      "@mailrith/agent-skill": "0.1.0"
     },
     "pypi": {
-      "mailrith-sdk": "0.1.0b1"
+      "mailrith-sdk": "0.1.0"
     }
   },
   "digests": {
-    "public_contract_sha256": "3aff486573db3634e0701e2745b90cec8977c194dd762d7654cc9c8d65bbef27",
-    "risk_catalog_sha256": "7c01e7df8ddba82a32e9870e4ca32f95d4eab1c11c5851a7afa7cbf775ac2b65",
-    "typescript_sdk_manifest_sha256": "ce452f1aca357d66d2e75a4a2f4b687f7eff0cf4b339936b627392e1cc012c0f",
-    "python_sdk_manifest_sha256": "b8966b65dad13ffa62c8d6933dc49911cbd0998ada0ac47393142dce674722d0",
-    "mcp_manifest_sha256": "63529854a3a1f8f88e8ba9ff60b688b08abdcafbc77294dd577e551a41b9d477",
-    "agent_skill_sha256": "eddec1b4479c5606deb96dc3f12205eb53e8c73aa07536b88a77e3dd213a2641",
-    "connector_templates_sha256": "0dd71ab54829cf94555e458c49a8923075dd8f086023bb41bca393a1379bd5fd"
+    "public_contract_sha256": "dbd73177437a6d653d85f038d1191afa86c0f594bbbf465a04486235a2460340",
+    "risk_catalog_sha256": "5632a16d912735ba9048c7b2a58c16fa18763e0fdf4a3da00fe4cf0717deef41",
+    "typescript_sdk_manifest_sha256": "511ffe3ec36739ce1392eab7b23ee895797246a90ddda916920f30ae6e607006",
+    "python_sdk_manifest_sha256": "99de1e89d298f3464a961e3ea241dcdfa7c3dcef2fed18f57dba87a3a69522cf",
+    "mcp_manifest_sha256": "fa06816b28cc64f82d917b3962732b5279237380b6dc92d7d5a2a7337c279215",
+    "agent_skill_sha256": "98d27331ccf0095693e418da1b7b2790da186ebed6d176deb40762e46f056ef8",
+    "connector_templates_sha256": "4bbe21a154d2c4299fb6bd78dc7d6946105e043d3b24fdd7db702e8961c1a72f"
   },
   "compatibility": {
     "node": ">=20",
     "python": ">=3.10",
     "mcp_transport": "streamable_http",
-    "mcp_typescript_server": "2.0.0-beta.5",
-    "claude_mcp_beta": "mcp-client-2025-11-20",
+    "mcp_typescript_sdk": "1.29.0",
+    "claude_mcp_protocol": "mcp-client-2025-11-20",
     "supported_clients": [
       "openai_responses",
       "claude_messages",

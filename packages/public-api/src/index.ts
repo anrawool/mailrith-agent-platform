@@ -7,7 +7,6 @@ import {
   resolvePublicApiMcpToolsets,
 } from "./mcp-contract.js";
 import type {
-  PublicApiAgentApprovalPolicy,
   PublicApiAgentIdempotencyPolicy,
   PublicApiAgentRetryMode,
   PublicApiAgentRiskClass,
@@ -20,7 +19,6 @@ import type {
 
 export {
   getPublicApiAgentOperationRisk,
-  publicApiAgentApprovalPolicies,
   publicApiAgentDataScopes,
   publicApiAgentIdempotencyPolicies,
   publicApiAgentOperationRiskCatalog,
@@ -29,7 +27,6 @@ export {
   publicApiAgentSideEffectClasses,
 } from "./agent-risk.js";
 export type {
-  PublicApiAgentApprovalPolicy,
   PublicApiAgentDataScope,
   PublicApiAgentIdempotencyPolicy,
   PublicApiAgentOperationRisk,
@@ -56,17 +53,20 @@ export type {
 } from "./mcp-contract.js";
 
 export {
-  hasHighImpactPublicApiScope,
   isPublicApiScopeKey,
   normalizePublicApiScopeKeys,
   validatePublicApiScopeKeys,
+  publicApiAgentReadQuickstartScopeKeys,
   publicApiDefaultScopeKeys,
   publicApiReadScopeKeys,
   publicApiScopeDefinitionByKey,
   publicApiScopeDefinitions,
+  publicApiScopeDisplaySections,
   publicApiScopeKeys,
   publicApiScopePresetByKey,
+  publicApiScopePresetDisplaySections,
   publicApiScopePresets,
+  publicApiScopeResourceOrder,
 } from "./scopes.js";
 export type {
   PublicApiScopeAction,
@@ -152,12 +152,12 @@ export const publicApiSubscriberPayloadFieldScopeRequirements = {
   description:
     "Subscriber relationship fields require their matching granular permission in addition to the operation's base permissions.",
   requiredScopesByField: {
-    status: ["subscribers:eligibility", "consent:write"],
+    status: ["subscriptions:write"],
     existing_tag_ids: ["subscribers:targeting"],
     new_tags: ["subscribers:targeting"],
     form_id: ["subscribers:targeting"],
     sequence_ids: ["subscribers:sequence_enroll"],
-    consent_evidence: ["consent:write"],
+    consent_evidence: ["subscriptions:write"],
   },
 } as const satisfies PublicApiPayloadFieldScopeRequirements;
 
@@ -327,7 +327,7 @@ export const publicApiGuides: PublicApiSection[] = [
       "Create `v1` webhook subscriptions to receive signed events for subscriber changes, form submissions, landing page submissions, broadcast state changes, and automation lifecycle activity.",
       "Mailrith signs every webhook delivery with `webhook-id`, `webhook-timestamp`, and `webhook-signature` headers. The signature uses an HMAC-SHA256 signing secret that Mailrith returns once when the subscription is created.",
       "Current webhook events include subscriber.created, subscriber.updated, subscriber.status_changed, form.submitted, landing_page.submitted, broadcast state changes, and automation lifecycle events.",
-      "Dedicated Subscriber compliance events are subscriber.consent_withdrawn, subscriber.erasure_requested, subscriber.erasure_completed, subscriber.processing_restricted, subscriber.objection_recorded, and subscriber.privacy_request_completed. These payloads contain stable IDs and compact references, not email addresses or raw technical evidence.",
+      "Subscriber lifecycle payloads contain stable IDs and compact references, not email addresses or raw technical evidence.",
     ],
   },
   {
@@ -344,12 +344,6 @@ export const publicApiWebhookEventTypes = [
   "subscriber.created",
   "subscriber.updated",
   "subscriber.status_changed",
-  "subscriber.consent_withdrawn",
-  "subscriber.erasure_requested",
-  "subscriber.erasure_completed",
-  "subscriber.processing_restricted",
-  "subscriber.objection_recorded",
-  "subscriber.privacy_request_completed",
   "form.submitted",
   "landing_page.submitted",
   "broadcast.state_changed",
@@ -394,13 +388,7 @@ export const isPublicApiWebhookEventPattern = (
 const publicApiWebhookEventRequiredScopes = {
   "subscriber.created": ["subscribers:read"],
   "subscriber.updated": ["subscribers:read"],
-  "subscriber.status_changed": ["subscribers:read"],
-  "subscriber.consent_withdrawn": ["consent:read"],
-  "subscriber.erasure_requested": ["consent:read"],
-  "subscriber.erasure_completed": ["consent:read"],
-  "subscriber.processing_restricted": ["consent:read"],
-  "subscriber.objection_recorded": ["consent:read"],
-  "subscriber.privacy_request_completed": ["consent:read"],
+  "subscriber.status_changed": ["subscriptions:read"],
   "form.submitted": ["forms:read", "subscribers:read"],
   "landing_page.submitted": ["landing_pages:read", "subscribers:read"],
   "broadcast.state_changed": ["broadcasts:read"],
@@ -439,7 +427,7 @@ export const getPublicApiWebhookEventPatternRequiredScopes = (
 export const publicApiWebhookEventPatternScopeRequirements = {
   requestField: "event_patterns",
   description:
-    "When creating or updating a webhook subscription, each selected event pattern requires these read scopes in addition to `webhook_subscriptions:configure`.",
+    "When creating or updating a webhook subscription, each selected event pattern requires these read scopes in addition to `webhooks:write`.",
   requiredScopesByEventPattern: Object.fromEntries(
     publicApiWebhookEventPatternValues.map((eventPattern) => [
       eventPattern,
@@ -467,29 +455,12 @@ export const publicApiTags: PublicApiTagDefinition[] = [
       "Read the current authenticated workspace profile and execution context.",
   },
   {
-    name: "Agent Actions",
-    description:
-      "Inspect server-enforced action plans and claim one-time execution tokens after human approval.",
-  },
-  {
     name: "Analytics",
     description: "Run bounded aggregate delivery and engagement reports.",
   },
   {
     name: "Diagnostics",
     description: "Inspect bounded workflow and delivery diagnostics.",
-  },
-  {
-    name: "Consent And Privacy Events",
-    description: "Record minimal Subscriber consent and privacy evidence.",
-  },
-  {
-    name: "Recommendations",
-    description: "Create evidence-backed, non-executing recommendations.",
-  },
-  {
-    name: "Experiments",
-    description: "Define safeguarded, recommendation-only experiments.",
   },
   {
     name: "Subscribers",
@@ -574,28 +545,6 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
     ],
   },
   {
-    key: "agent_actions",
-    name: "Agent Actions",
-    description:
-      "Inspect an action plan and claim its one-time execution token after a workspace owner approves it.",
-    operations: [
-      {
-        method: "GET",
-        path: "/v1/agent-actions/{action_id}",
-        operationId: "getAgentAction",
-        summary: "Get an agent action plan",
-        requiredScopes: ["approvals:read"],
-      },
-      {
-        method: "POST",
-        path: "/v1/agent-actions/{action_id}/approval-token",
-        operationId: "issueAgentApprovalToken",
-        summary: "Claim an approved action token",
-        requiredScopes: ["approvals:write"],
-      },
-    ],
-  },
-  {
     key: "agent_activity",
     name: "Agent Activity",
     description:
@@ -653,7 +602,7 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         summary: "List Automation run diagnostics",
         description:
           "Returns at most 50 recent runs with redacted errors and bounded step execution details.",
-        requiredScopes: ["diagnostics:read"],
+        requiredScopes: ["automations:read"],
       },
       {
         method: "GET",
@@ -662,7 +611,7 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         summary: "Get Automation run diagnostics",
         description:
           "Returns one Automation run with status, timing, retries, outcomes, and redacted step failures.",
-        requiredScopes: ["diagnostics:read"],
+        requiredScopes: ["automations:read"],
       },
       {
         method: "GET",
@@ -671,7 +620,7 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         summary: "Get Sequence diagnostics",
         description:
           "Returns bounded Sequence failure, retry, status, and message outcome details.",
-        requiredScopes: ["diagnostics:read"],
+        requiredScopes: ["sequences:read"],
       },
       {
         method: "GET",
@@ -680,7 +629,7 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         summary: "Get Broadcast diagnostics",
         description:
           "Returns selection totals, provider readiness, and the 20 most common structured delivery reasons.",
-        requiredScopes: ["diagnostics:read"],
+        requiredScopes: ["broadcasts:read"],
       },
       {
         method: "GET",
@@ -689,101 +638,7 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         summary: "Get privacy-conscious Subscriber diagnostics",
         description:
           "Returns a 90-day, bounded activity view without exposing the Subscriber email address.",
-        requiredScopes: ["diagnostics:read", "consent:read"],
-      },
-    ],
-  },
-  {
-    key: "consent",
-    name: "Consent And Privacy Events",
-    description:
-      "Record minimal, reference-based Subscriber consent and privacy events without raw technical evidence.",
-    operations: [
-      {
-        method: "POST",
-        path: "/v1/subscribers/{subscriber_id}/compliance-events",
-        operationId: "recordSubscriberComplianceEvent",
-        summary: "Record a Subscriber compliance event",
-        requiredScopes: ["consent:write"],
-      },
-    ],
-  },
-  {
-    key: "recommendations",
-    name: "Recommendations",
-    description:
-      "Create evidence-backed recommendations that cannot execute and must become a policy-checked action plan first.",
-    operations: [
-      {
-        method: "GET",
-        path: "/v1/recommendations",
-        operationId: "listRecommendations",
-        summary: "List recommendations",
-        description:
-          "Returns the current credential's unexpired recommendations in a bounded page.",
-        requiredScopes: ["recommendations:read"],
-      },
-      {
-        method: "POST",
-        path: "/v1/recommendations",
-        operationId: "createRecommendation",
-        summary: "Create a recommendation",
-        requiredScopes: ["recommendations:draft"],
-      },
-      {
-        method: "GET",
-        path: "/v1/recommendations/{recommendation_id}",
-        operationId: "getRecommendation",
-        summary: "Get a recommendation",
-        description:
-          "Returns one unexpired recommendation created by the current credential.",
-        requiredScopes: ["recommendations:read"],
-      },
-      {
-        method: "POST",
-        path: "/v1/recommendations/{recommendation_id}/plan",
-        operationId: "planRecommendation",
-        summary: "Create a policy-checked action plan from a recommendation",
-        requiredScopes: ["recommendations:draft", "approvals:read"],
-      },
-    ],
-  },
-  {
-    key: "experiments",
-    name: "Experiments",
-    description:
-      "Define reference-only, recommendation-only experiments with minimum samples, duration, and fixed safeguards.",
-    operations: [
-      {
-        method: "GET",
-        path: "/v1/experiments",
-        operationId: "listExperiments",
-        summary: "List experiments",
-        description: "Returns a bounded page of reference-only experiments.",
-        requiredScopes: ["experiments:read"],
-      },
-      {
-        method: "POST",
-        path: "/v1/experiments",
-        operationId: "createExperiment",
-        summary: "Create an experiment",
-        requiredScopes: ["experiments:draft"],
-      },
-      {
-        method: "GET",
-        path: "/v1/experiments/{experiment_id}",
-        operationId: "getExperiment",
-        summary: "Get an experiment",
-        description:
-          "Returns one experiment, its fixed safeguards, and aggregate decision evidence.",
-        requiredScopes: ["experiments:read"],
-      },
-      {
-        method: "POST",
-        path: "/v1/experiments/{experiment_id}/decision",
-        operationId: "recordExperimentDecision",
-        summary: "Record an aggregate winner decision",
-        requiredScopes: ["experiments:draft"],
+        requiredScopes: ["subscribers:read", "subscriptions:read"],
       },
     ],
   },
@@ -819,11 +674,18 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
           publicApiSubscriberPayloadFieldScopeRequirements,
       },
       {
+        method: "DELETE",
+        path: "/v1/subscribers/{subscriber_id}",
+        operationId: "deleteSubscriber",
+        summary: "Delete a subscriber",
+        requiredScopes: ["subscribers:delete"],
+      },
+      {
         method: "PUT",
         path: "/v1/subscribers/{subscriber_id}/status",
         operationId: "updateSubscriberStatus",
         summary: "Change Subscriber sending eligibility",
-        requiredScopes: ["subscribers:eligibility", "consent:write"],
+        requiredScopes: ["subscriptions:write"],
       },
       {
         method: "PUT",
@@ -874,6 +736,27 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         operationId: "createTag",
         summary: "Create a tag",
         requiredScopes: ["tags:configure"],
+      },
+      {
+        method: "GET",
+        path: "/v1/tags/{tag_id}",
+        operationId: "getTag",
+        summary: "Get a tag",
+        requiredScopes: ["tags:read"],
+      },
+      {
+        method: "PUT",
+        path: "/v1/tags/{tag_id}",
+        operationId: "updateTag",
+        summary: "Update a tag",
+        requiredScopes: ["tags:configure"],
+      },
+      {
+        method: "DELETE",
+        path: "/v1/tags/{tag_id}",
+        operationId: "deleteTag",
+        summary: "Delete a tag",
+        requiredScopes: ["tags:delete"],
       },
     ],
   },
@@ -1356,14 +1239,14 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/webhook-subscriptions",
         operationId: "listWebhookSubscriptions",
         summary: "List webhook subscriptions",
-        requiredScopes: ["webhook_subscriptions:read"],
+        requiredScopes: ["webhooks:read"],
       },
       {
         method: "POST",
         path: "/v1/webhook-subscriptions",
         operationId: "createWebhookSubscription",
         summary: "Create a webhook subscription",
-        requiredScopes: ["webhook_subscriptions:configure"],
+        requiredScopes: ["webhooks:write"],
         eventPatternScopeRequirements:
           publicApiWebhookEventPatternScopeRequirements,
       },
@@ -1372,14 +1255,14 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/webhook-subscriptions/{webhook_subscription_id}",
         operationId: "getWebhookSubscription",
         summary: "Get a webhook subscription",
-        requiredScopes: ["webhook_subscriptions:read"],
+        requiredScopes: ["webhooks:read"],
       },
       {
         method: "PUT",
         path: "/v1/webhook-subscriptions/{webhook_subscription_id}",
         operationId: "updateWebhookSubscription",
         summary: "Update a webhook subscription",
-        requiredScopes: ["webhook_subscriptions:configure"],
+        requiredScopes: ["webhooks:write"],
         eventPatternScopeRequirements:
           publicApiWebhookEventPatternScopeRequirements,
       },
@@ -1388,14 +1271,14 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/webhook-subscriptions/{webhook_subscription_id}",
         operationId: "deleteWebhookSubscription",
         summary: "Delete a webhook subscription",
-        requiredScopes: ["webhook_subscriptions:delete"],
+        requiredScopes: ["webhooks:write"],
       },
       {
         method: "POST",
         path: "/v1/webhook-subscriptions/{webhook_subscription_id}/rotate-secret",
         operationId: "rotateWebhookSubscriptionSecret",
         summary: "Rotate a webhook signing secret",
-        requiredScopes: ["webhook_subscriptions:secret_rotate"],
+        requiredScopes: ["webhooks:write"],
       },
     ],
   },
@@ -1417,7 +1300,7 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/jobs/subscriber-imports/{job_id}",
         operationId: "getSubscriberImportJob",
         summary: "Get a subscriber import job",
-        requiredScopes: ["jobs:read"],
+        requiredScopes: ["subscribers:bulk_import"],
       },
       {
         method: "POST",
@@ -1463,176 +1346,6 @@ const schemas = {
       },
     },
   },
-  AgentAction: {
-    type: "object",
-    additionalProperties: false,
-    required: [
-      "id",
-      "workspace_id",
-      "operation_id",
-      "risk",
-      "state",
-      "policy_decision",
-      "credential",
-      "targets",
-      "input_digest",
-      "resource_version",
-      "preview",
-      "approval",
-      "result",
-      "approval_url",
-      "return_url",
-      "expires_at",
-      "created_at",
-      "updated_at",
-    ],
-    properties: {
-      id: { type: "string" },
-      workspace_id: { type: "string" },
-      operation_id: { type: "string" },
-      risk: {
-        type: "string",
-        enum: ["draft", "test", "execute", "bulk", "delete", "admin"],
-      },
-      state: {
-        type: "string",
-        enum: [
-          "pending",
-          "blocked",
-          "approved",
-          "executing",
-          "completed",
-          "failed",
-          "uncertain",
-          "denied",
-          "expired",
-        ],
-      },
-      policy_decision: {
-        type: "string",
-        enum: ["human_required", "policy_approved", "blocked"],
-      },
-      credential: {
-        type: "object",
-        additionalProperties: false,
-        required: ["type", "id"],
-        properties: {
-          type: {
-            type: "string",
-            enum: ["workspace_api_key", "oauth_authorization"],
-          },
-          id: { type: "string" },
-        },
-      },
-      targets: {
-        type: "array",
-        maxItems: 20,
-        items: {
-          type: "object",
-          additionalProperties: false,
-          required: ["type", "id"],
-          properties: { type: { type: "string" }, id: { type: "string" } },
-        },
-      },
-      input_digest: { type: "string", pattern: "^[0-9a-f]{64}$" },
-      resource_version: { type: "string" },
-      preview: {
-        type: "object",
-        additionalProperties: false,
-        required: [
-          "affected_subscriber_count",
-          "expected_side_effects",
-          "warnings",
-          "blocking_issues",
-          "summary",
-        ],
-        properties: {
-          affected_subscriber_count: {
-            anyOf: [{ type: "integer", minimum: 0 }, { type: "null" }],
-          },
-          expected_side_effects: {
-            type: "array",
-            maxItems: 20,
-            items: {
-              type: "object",
-              additionalProperties: false,
-              required: ["code", "description"],
-              properties: {
-                code: { type: "string" },
-                description: { type: "string" },
-              },
-            },
-          },
-          warnings: { type: "array", maxItems: 20, items: { type: "string" } },
-          blocking_issues: {
-            type: "array",
-            maxItems: 20,
-            items: { type: "string" },
-          },
-          summary: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              sandbox: { type: "boolean" },
-              active_subscriber_count: { type: "integer", minimum: 0 },
-              current_status: { type: "string" },
-              currently_enabled: { type: "boolean" },
-              delivery_connection_configured: { type: "boolean" },
-              provider_readiness: { type: "string" },
-              sender_verification: { type: "string" },
-              event_webhook_health: { type: "string" },
-              estimated_duration_seconds: {
-                anyOf: [{ type: "integer", minimum: 0 }, { type: "null" }],
-              },
-              expected_provider_cost: { type: "null" },
-              truncated: { type: "boolean" },
-            },
-          },
-        },
-      },
-      approval: {
-        type: "object",
-        additionalProperties: false,
-        required: [
-          "approved_by_user_id",
-          "approved_by_policy",
-          "approved_at",
-          "denied_at",
-          "denial_code",
-          "token_expires_at",
-        ],
-        properties: {
-          approved_by_user_id: { type: ["string", "null"] },
-          approved_by_policy: { type: ["string", "null"] },
-          approved_at: { anyOf: [{ type: "string", format: "date-time" }, { type: "null" }] },
-          denied_at: { anyOf: [{ type: "string", format: "date-time" }, { type: "null" }] },
-          denial_code: { type: ["string", "null"] },
-          token_expires_at: { anyOf: [{ type: "string", format: "date-time" }, { type: "null" }] },
-        },
-      },
-      result: {
-        type: "object",
-        additionalProperties: false,
-        required: ["resource_type", "resource_id", "outcome_code"],
-        properties: {
-          resource_type: { type: ["string", "null"] },
-          resource_id: { type: ["string", "null"] },
-          outcome_code: { type: ["string", "null"] },
-        },
-      },
-      approval_url: { type: ["string", "null"] },
-      return_url: { type: ["string", "null"] },
-      expires_at: { type: "string", format: "date-time" },
-      created_at: { type: "string", format: "date-time" },
-      updated_at: { type: "string", format: "date-time" },
-    },
-  },
-  AgentActionResponse: {
-    type: "object",
-    additionalProperties: false,
-    required: ["data"],
-    properties: { data: { $ref: "#/components/schemas/AgentAction" } },
-  },
   AgentActivity: {
     type: "object",
     additionalProperties: false,
@@ -1640,9 +1353,7 @@ const schemas = {
       "id",
       "workspace_id",
       "request_id",
-      "action_id",
-      "plan_id",
-      "approval_id",
+      "activity_id",
       "operation_id",
       "risk",
       "outcome",
@@ -1654,7 +1365,6 @@ const schemas = {
       "targets",
       "primary_target",
       "changed_fields",
-      "approval",
       "result",
       "attempts",
       "duration_ms",
@@ -1667,9 +1377,7 @@ const schemas = {
       id: { type: "string" },
       workspace_id: { type: "string" },
       request_id: { type: "string" },
-      action_id: { type: "string" },
-      plan_id: { type: ["string", "null"] },
-      approval_id: { type: ["string", "null"] },
+      activity_id: { type: "string" },
       operation_id: { type: "string" },
       risk: {
         type: "string",
@@ -1679,7 +1387,10 @@ const schemas = {
         type: "string",
         enum: ["allowed", "denied", "failed", "canceled", "completed"],
       },
-      state: { type: "string" },
+      state: {
+        type: "string",
+        enum: ["executing", "completed", "failed", "uncertain"],
+      },
       error_code: { type: ["string", "null"] },
       credential: {
         type: "object",
@@ -1730,26 +1441,6 @@ const schemas = {
         type: "array",
         maxItems: 24,
         items: { type: "string" },
-      },
-      approval: {
-        type: "object",
-        additionalProperties: false,
-        required: [
-          "approved_by_user_id",
-          "approved_by_policy",
-          "approved_at",
-          "denied_at",
-        ],
-        properties: {
-          approved_by_user_id: { type: ["string", "null"] },
-          approved_by_policy: { type: ["string", "null"] },
-          approved_at: {
-            anyOf: [{ type: "string", format: "date-time" }, { type: "null" }],
-          },
-          denied_at: {
-            anyOf: [{ type: "string", format: "date-time" }, { type: "null" }],
-          },
-        },
       },
       result: {
         type: "object",
@@ -1827,23 +1518,6 @@ const schemas = {
               to: { type: "string", format: "date-time" },
             },
           },
-        },
-      },
-    },
-  },
-  AgentApprovalTokenResponse: {
-    type: "object",
-    additionalProperties: false,
-    required: ["data"],
-    properties: {
-      data: {
-        type: "object",
-        additionalProperties: false,
-        required: ["action_id", "approval_token", "expires_at"],
-        properties: {
-          action_id: { type: "string" },
-          approval_token: { type: "string" },
-          expires_at: { type: "string", format: "date-time" },
         },
       },
     },
@@ -2259,7 +1933,7 @@ const schemas = {
       status: {
         type: "string",
         description:
-          "New direct API Subscribers default to Unconfirmed when status is omitted. Active requires consent_evidence.",
+          "Whether Mailrith currently delivers matching events to this destination.",
         enum: ["active", "disabled"],
       },
       event_patterns: {
@@ -3557,7 +3231,7 @@ const schemas = {
         maxItems: 2,
         items: {
           type: "string",
-          enum: ["source_type", "campaign", "message", "provider", "day"],
+          enum: ["source_type", "source", "message", "provider", "day"],
         },
       },
       compare_previous: { type: "boolean", default: true },
@@ -3568,104 +3242,6 @@ const schemas = {
     additionalProperties: true,
     description:
       "A bounded diagnostic result. Subscriber email addresses and Automation input/output snapshots are omitted.",
-  },
-  ComplianceEventCreateRequest: {
-    type: "object",
-    required: ["type"],
-    additionalProperties: false,
-    properties: {
-      type: {
-        type: "string",
-        enum: [
-          "consent_withdrawn",
-          "erasure_requested",
-          "erasure_completed",
-          "processing_restricted",
-          "objection_recorded",
-          "privacy_request_completed",
-        ],
-      },
-      evidence_reference: { type: "string", maxLength: 512, nullable: true },
-      occurred_at: nullableDateTimeSchema,
-    },
-  },
-  Recommendation: {
-    type: "object",
-    additionalProperties: true,
-    description:
-      "Evidence-backed advice only. A recommendation has no execution endpoint and must create a separate action plan before any mutation can run.",
-  },
-  RecommendationCreateRequest: {
-    type: "object",
-    required: [
-      "proposed_operation_id",
-      "proposed_request",
-      "evidence",
-      "confidence",
-      "expected_effect",
-      "risk_class",
-    ],
-    additionalProperties: false,
-    properties: {
-      proposed_operation_id: { type: "string", maxLength: 128 },
-      proposed_request: { type: "object", additionalProperties: true },
-      evidence: { type: "array", minItems: 1, maxItems: 10, items: { type: "object" } },
-      confidence: { type: "number", minimum: 0, maximum: 1 },
-      expected_effect: { type: "object", additionalProperties: true },
-      risk_class: { type: "string", maxLength: 64 },
-    },
-  },
-  Experiment: {
-    type: "object",
-    additionalProperties: true,
-    description:
-      "A reference-only experiment with fixed safety limits and recommendation-only winner behavior.",
-  },
-  ExperimentCreateRequest: {
-    type: "object",
-    required: [
-      "type",
-      "source_type",
-      "source_id",
-      "metric",
-      "minimum_sample_size",
-      "minimum_duration_hours",
-      "variants",
-    ],
-    additionalProperties: false,
-    properties: {
-      type: { type: "string", enum: ["subject", "content", "timing", "segment"] },
-      source_type: { type: "string", enum: ["broadcast", "sequence", "automation"] },
-      source_id: { type: "string" },
-      metric: { type: "string", enum: ["opened", "clicked", "unsubscribed", "complained"] },
-      minimum_sample_size: { type: "integer", minimum: 100, maximum: 1000000 },
-      minimum_duration_hours: { type: "integer", minimum: 1, maximum: 2160 },
-      status: { type: "string", enum: ["draft", "running"], default: "draft" },
-      variants: {
-        type: "array",
-        minItems: 2,
-        maxItems: 5,
-        items: {
-          type: "object",
-          required: ["id", "label", "source_reference", "digest"],
-          additionalProperties: false,
-          properties: {
-            id: { type: "string" },
-            label: { type: "string" },
-            source_reference: { type: "string" },
-            digest: { type: "string", pattern: "^[a-f0-9]{64}$" },
-          },
-        },
-      },
-    },
-  },
-  ExperimentDecisionRequest: {
-    type: "object",
-    required: ["winner_variant_id", "evidence"],
-    properties: {
-      winner_variant_id: { type: "string" },
-      evidence: { type: "object", additionalProperties: true },
-    },
   },
 };
 
@@ -3958,196 +3534,6 @@ export const publicApiSpec: PublicApiSpec = {
         },
       },
     },
-    "/v1/subscribers/{subscriber_id}/compliance-events": {
-      post: {
-        method: "POST",
-        path: "/v1/subscribers/{subscriber_id}/compliance-events",
-        summary: "Record a Subscriber compliance event",
-        description:
-          "Stores a one-way subject hash and optional external evidence reference. Raw IP, user-agent, and evidence payloads are not accepted.",
-        tags: ["Consent And Privacy Events"],
-        operationId: "recordSubscriberComplianceEvent",
-        security,
-        parameters: [
-          { name: "subscriber_id", in: "path", required: true, description: "Subscriber identifier.", schema: { type: "string" } },
-          idempotencyKeyParameter,
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/ComplianceEventCreateRequest" },
-            },
-          },
-        },
-        responses: {
-          "201": itemOperationResponse("#/components/schemas/DiagnosticResult"),
-        },
-      },
-    },
-    "/v1/recommendations": {
-      get: {
-        method: "GET",
-        path: "/v1/recommendations",
-        summary: "List recommendations",
-        description:
-          "Returns the current credential's unexpired recommendations in a bounded page.",
-        tags: ["Recommendations"],
-        operationId: "listRecommendations",
-        security,
-        parameters: [
-          { name: "limit", in: "query", description: "Maximum recommendation count, from 1 to 50.", schema: { type: "integer", minimum: 1, maximum: 50 } },
-          { name: "starting_after", in: "query", description: "Opaque next_cursor returned by the previous page.", schema: { type: "string" } },
-        ],
-        responses: {
-          "200": listOperationResponse("#/components/schemas/Recommendation"),
-        },
-      },
-      post: {
-        method: "POST",
-        path: "/v1/recommendations",
-        summary: "Create a recommendation",
-        description:
-          "Stores bounded evidence and a proposed request. This endpoint cannot execute the request.",
-        tags: ["Recommendations"],
-        operationId: "createRecommendation",
-        security,
-        parameters: [idempotencyKeyParameter],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/RecommendationCreateRequest" },
-            },
-          },
-        },
-        responses: {
-          "201": itemOperationResponse("#/components/schemas/Recommendation"),
-        },
-      },
-    },
-    "/v1/recommendations/{recommendation_id}": {
-      get: {
-        method: "GET",
-        path: "/v1/recommendations/{recommendation_id}",
-        summary: "Get a recommendation",
-        description:
-          "Returns one unexpired recommendation created by the current credential.",
-        tags: ["Recommendations"],
-        operationId: "getRecommendation",
-        security,
-        parameters: [
-          { name: "recommendation_id", in: "path", required: true, description: "Recommendation identifier.", schema: { type: "string" } },
-        ],
-        responses: {
-          "200": itemOperationResponse("#/components/schemas/Recommendation"),
-        },
-      },
-    },
-    "/v1/recommendations/{recommendation_id}/plan": {
-      post: {
-        method: "POST",
-        path: "/v1/recommendations/{recommendation_id}/plan",
-        summary: "Create a policy-checked action plan from a recommendation",
-        description:
-          "Creates the normal Mailrith action preview. It does not approve or execute the proposed request.",
-        tags: ["Recommendations"],
-        operationId: "planRecommendation",
-        security,
-        parameters: [
-          { name: "recommendation_id", in: "path", required: true, description: "Recommendation identifier.", schema: { type: "string" } },
-          idempotencyKeyParameter,
-        ],
-        responses: {
-          "201": itemOperationResponse("#/components/schemas/AgentAction"),
-        },
-      },
-    },
-    "/v1/experiments": {
-      get: {
-        method: "GET",
-        path: "/v1/experiments",
-        summary: "List experiments",
-        description: "Returns a bounded page of reference-only experiments.",
-        tags: ["Experiments"],
-        operationId: "listExperiments",
-        security,
-        parameters: [
-          { name: "limit", in: "query", description: "Maximum experiment count, from 1 to 50.", schema: { type: "integer", minimum: 1, maximum: 50 } },
-          { name: "starting_after", in: "query", description: "Opaque next_cursor returned by the previous page.", schema: { type: "string" } },
-        ],
-        responses: {
-          "200": listOperationResponse("#/components/schemas/Experiment"),
-        },
-      },
-      post: {
-        method: "POST",
-        path: "/v1/experiments",
-        summary: "Create an experiment",
-        description:
-          "Stores only variant references and digests under fixed safety safeguards; it never stores per-Subscriber assignments.",
-        tags: ["Experiments"],
-        operationId: "createExperiment",
-        security,
-        parameters: [idempotencyKeyParameter],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/ExperimentCreateRequest" },
-            },
-          },
-        },
-        responses: {
-          "201": itemOperationResponse("#/components/schemas/Experiment"),
-        },
-      },
-    },
-    "/v1/experiments/{experiment_id}": {
-      get: {
-        method: "GET",
-        path: "/v1/experiments/{experiment_id}",
-        summary: "Get an experiment",
-        description:
-          "Returns one experiment, its fixed safeguards, and aggregate decision evidence.",
-        tags: ["Experiments"],
-        operationId: "getExperiment",
-        security,
-        parameters: [
-          { name: "experiment_id", in: "path", required: true, description: "Experiment identifier.", schema: { type: "string" } },
-        ],
-        responses: {
-          "200": itemOperationResponse("#/components/schemas/Experiment"),
-        },
-      },
-    },
-    "/v1/experiments/{experiment_id}/decision": {
-      post: {
-        method: "POST",
-        path: "/v1/experiments/{experiment_id}/decision",
-        summary: "Record an aggregate winner decision",
-        description:
-          "Validates minimum sample and duration safeguards. The decision is recorded as recommendation-only and never changes a campaign automatically.",
-        tags: ["Experiments"],
-        operationId: "recordExperimentDecision",
-        security,
-        parameters: [
-          { name: "experiment_id", in: "path", required: true, description: "Experiment identifier.", schema: { type: "string" } },
-          idempotencyKeyParameter,
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/ExperimentDecisionRequest" },
-            },
-          },
-        },
-        responses: {
-          "200": itemOperationResponse("#/components/schemas/Experiment"),
-        },
-      },
-    },
     "/v1/agent-activity": {
       get: {
         method: "GET",
@@ -4193,7 +3579,7 @@ export const publicApiSpec: PublicApiSpec = {
             ["resource_type", "Exact target resource type."],
             ["resource_id", "Exact target resource identifier."],
             ["request_id", "Exact request correlation identifier."],
-            ["action_id", "Exact action identifier."],
+            ["activity_id", "Exact activity identifier."],
           ].map(([name, description]) => ({
             name,
             in: "query" as const,
@@ -4227,7 +3613,7 @@ export const publicApiSpec: PublicApiSpec = {
         path: "/v1/agent-activity/{activity_id}",
         summary: "Get agent activity",
         description:
-          "Returns one redacted activity trail with correlation, approval, retry, result, and retention metadata.",
+          "Returns one redacted activity trail with correlation, retry, result, and retention metadata.",
         tags: ["Agent Activity"],
         operationId: "getAgentActivity",
         security,
@@ -4236,7 +3622,7 @@ export const publicApiSpec: PublicApiSpec = {
             name: "activity_id",
             in: "path",
             required: true,
-            description: "The activity or action identifier.",
+            description: "The activity identifier.",
             schema: { type: "string" },
           },
         ],
@@ -4251,87 +3637,6 @@ export const publicApiSpec: PublicApiSpec = {
           },
           "404": {
             description: "The activity row was not found.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/v1/agent-actions/{action_id}": {
-      get: {
-        method: "GET",
-        path: "/v1/agent-actions/{action_id}",
-        summary: "Get an agent action plan",
-        description:
-          "Returns the bounded preview and current approval or execution state for an action created by this credential.",
-        tags: ["Agent Actions"],
-        operationId: "getAgentAction",
-        security,
-        parameters: [
-          {
-            name: "action_id",
-            in: "path",
-            required: true,
-            description: "The action plan identifier.",
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          "200": {
-            description: "The action plan was returned.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/AgentActionResponse" },
-              },
-            },
-          },
-          "404": {
-            description: "The action plan was not found for this credential.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/v1/agent-actions/{action_id}/approval-token": {
-      post: {
-        method: "POST",
-        path: "/v1/agent-actions/{action_id}/approval-token",
-        summary: "Claim an approved action token",
-        description:
-          "Issues the approved action's short-lived, single-use execution token once. The token is bound to this credential, operation, canonical input, and resource version.",
-        tags: ["Agent Actions"],
-        operationId: "issueAgentApprovalToken",
-        security,
-        parameters: [
-          {
-            name: "action_id",
-            in: "path",
-            required: true,
-            description: "The approved action plan identifier.",
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          "200": {
-            description: "The one-time execution token was issued.",
-            content: {
-              "application/json": {
-                schema: {
-                  $ref: "#/components/schemas/AgentApprovalTokenResponse",
-                },
-              },
-            },
-          },
-          "409": {
-            description:
-              "The action is not approved, expired, revoked, or its token was already issued.",
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },
@@ -4393,7 +3698,7 @@ export const publicApiSpec: PublicApiSpec = {
         path: "/v1/webhook-subscriptions",
         summary: "Create a webhook subscription",
         description:
-          "Creates a signed outbound webhook subscription and returns the signing secret once. The caller must also have read scopes for the selected event families.",
+          "Creates a signed outbound webhook subscription and returns the signing secret once. The caller must also have read scopes for the selected event families. A workspace can have up to 20 webhook subscriptions, including disabled subscriptions.",
         tags: ["Webhooks"],
         operationId: "createWebhookSubscription",
         security,
@@ -4434,7 +3739,8 @@ export const publicApiSpec: PublicApiSpec = {
             },
           },
           "409": {
-            description: "Conflict",
+            description:
+              "The subscription name already exists or the workspace has reached its 20-subscription limit.",
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },
@@ -6341,6 +5647,44 @@ export const publicApiSpec: PublicApiSpec = {
           },
         },
       },
+      delete: {
+        method: "DELETE",
+        path: "/v1/subscribers/{subscriber_id}",
+        summary: "Delete a subscriber",
+        description:
+          "Permanently removes one Subscriber and their Mailrith activity history from the authenticated workspace.",
+        tags: ["Subscribers"],
+        operationId: "deleteSubscriber",
+        security,
+        parameters: [
+          {
+            name: "subscriber_id",
+            in: "path",
+            required: true,
+            description: "The Subscriber identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "204": { description: "Subscriber was deleted" },
+          "401": {
+            description: "Authentication is required or invalid",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "404": {
+            description: "Resource not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
     },
     "/v1/subscribers/{subscriber_id}/status": {
       put: {
@@ -6700,6 +6044,130 @@ export const publicApiSpec: PublicApiSpec = {
           "409": {
             description:
               "Request conflicts with an existing resource or current state",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/tags/{tag_id}": {
+      get: {
+        method: "GET",
+        path: "/v1/tags/{tag_id}",
+        summary: "Get a tag",
+        description: "Returns one Tag from the authenticated workspace.",
+        tags: ["Tags"],
+        operationId: "getTag",
+        security,
+        parameters: [
+          {
+            name: "tag_id",
+            in: "path",
+            required: true,
+            description: "The Tag identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse("#/components/schemas/Tag"),
+          "404": {
+            description: "Resource not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+      put: {
+        method: "PUT",
+        path: "/v1/tags/{tag_id}",
+        summary: "Update a tag",
+        description:
+          "Changes the name and description of one Tag in the authenticated workspace.",
+        tags: ["Tags"],
+        operationId: "updateTag",
+        security,
+        parameters: [
+          {
+            name: "tag_id",
+            in: "path",
+            required: true,
+            description: "The Tag identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/TagCreateRequest" },
+            },
+          },
+        },
+        responses: {
+          "200": itemOperationResponse("#/components/schemas/Tag"),
+          "400": {
+            description: "Request is invalid",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "404": {
+            description: "Resource not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "409": {
+            description:
+              "Request conflicts with an existing resource or current state",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        method: "DELETE",
+        path: "/v1/tags/{tag_id}",
+        summary: "Delete a tag",
+        description:
+          "Permanently removes one Tag when no saved Mailrith resource references it.",
+        tags: ["Tags"],
+        operationId: "deleteTag",
+        security,
+        parameters: [
+          {
+            name: "tag_id",
+            in: "path",
+            required: true,
+            description: "The Tag identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "204": { description: "Tag was deleted" },
+          "404": {
+            description: "Resource not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "409": {
+            description: "Tag is still referenced by another resource",
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },
@@ -7869,79 +7337,6 @@ export const publicApiSpec: PublicApiSpec = {
   },
 };
 
-const agentPlanResponse = {
-  description:
-    "The mutation was planned. Review the bounded preview and complete the approval flow before execution.",
-  content: {
-    "application/json": {
-      schema: { $ref: "#/components/schemas/AgentActionResponse" },
-    },
-  },
-};
-
-const addAgentActionControlsToMutationContracts = () => {
-  for (const pathItem of Object.values(publicApiSpec.paths)) {
-    for (const operation of Object.values(pathItem)) {
-      const risk = getPublicApiAgentOperationRisk(operation.operationId);
-      if (!risk || risk.risk === "read" || risk.resourceKey === "agent_actions") {
-        continue;
-      }
-
-      operation.parameters = [
-        ...(operation.parameters ?? []),
-        {
-          name: "mode",
-          in: "query",
-          description:
-            "Use `plan` to create a bounded, non-executing action preview.",
-          schema: { type: "string", enum: ["plan"] },
-        },
-        {
-          name: "X-Mailrith-Action-Id",
-          in: "header",
-          description:
-            "The approved action identifier returned by the planning request.",
-          schema: { type: "string" },
-        },
-        {
-          name: "X-Mailrith-Approval-Token",
-          in: "header",
-          description:
-            "The short-lived, single-use token claimed after approval.",
-          schema: { type: "string" },
-        },
-        {
-          name: "X-Mailrith-Approval-Return-Url",
-          in: "header",
-          description:
-            "Optional HTTPS or localhost URL shown to the approver after a decision. Secrets must not be included.",
-          schema: { type: "string", format: "uri" },
-        },
-      ];
-
-      const existingAcceptedSchema =
-        operation.responses["202"]?.content?.["application/json"]?.schema;
-      operation.responses["202"] = existingAcceptedSchema
-        ? {
-            ...operation.responses["202"],
-            description: `${operation.responses["202"].description} When mode is plan, the response contains the action preview instead.`,
-            content: {
-              "application/json": {
-                schema: {
-                  anyOf: [
-                    existingAcceptedSchema,
-                    { $ref: "#/components/schemas/AgentActionResponse" },
-                  ],
-                },
-              },
-            },
-          }
-        : agentPlanResponse;
-    }
-  }
-};
-
-addAgentActionControlsToMutationContracts();
 
 export type PublicApiSdkOperation = {
   namespace:
@@ -7960,13 +7355,9 @@ export type PublicApiSdkOperation = {
     | "segments"
     | "webhookSubscriptions"
     | "jobs"
-    | "agentActions"
     | "agentActivity"
     | "analytics"
-    | "diagnostics"
-    | "consent"
-    | "recommendations"
-    | "experiments";
+    | "diagnostics";
   methodName: string;
   operationId: string;
   method: string;
@@ -7981,7 +7372,6 @@ export type PublicApiSdkOperation = {
   sideEffectClass: PublicApiAgentSideEffectClass;
   retryMode: PublicApiAgentRetryMode;
   idempotencyPolicy: PublicApiAgentIdempotencyPolicy;
-  approvalPolicy: PublicApiAgentApprovalPolicy;
   toolsets: PublicApiMcpToolsetKey[];
   annotations: PublicApiMcpToolAnnotations;
   riskRationale: string;
@@ -8052,7 +7442,6 @@ const createSdkOperation = (
     sideEffectClass: risk.sideEffectClass,
     retryMode: risk.retryMode,
     idempotencyPolicy: risk.idempotencyPolicy,
-    approvalPolicy: risk.approvalPolicy,
     toolsets,
     annotations: createPublicApiMcpToolAnnotations(risk),
     riskRationale: risk.rationale,
@@ -8132,10 +7521,6 @@ export const publicApiSdkResources: PublicApiSdkResource[] = [
   createSdkResource("workspace", "workspace", {
     getWorkspace: "get",
   }),
-  createSdkResource("agentActions", "agent_actions", {
-    getAgentAction: "get",
-    issueAgentApprovalToken: "issueApprovalToken",
-  }),
   createSdkResource("agentActivity", "agent_activity", {
     listAgentActivity: "list",
     getAgentActivity: "get",
@@ -8151,25 +7536,11 @@ export const publicApiSdkResources: PublicApiSdkResource[] = [
     getBroadcastDiagnostics: "getBroadcast",
     getSubscriberActivityDiagnostics: "getSubscriber",
   }),
-  createSdkResource("consent", "consent", {
-    recordSubscriberComplianceEvent: "recordEvent",
-  }),
-  createSdkResource("recommendations", "recommendations", {
-    listRecommendations: "list",
-    createRecommendation: "create",
-    getRecommendation: "get",
-    planRecommendation: "plan",
-  }),
-  createSdkResource("experiments", "experiments", {
-    listExperiments: "list",
-    createExperiment: "create",
-    getExperiment: "get",
-    recordExperimentDecision: "recordDecision",
-  }),
   createSdkResource("subscribers", "subscribers", {
     listSubscribers: "list",
     upsertSubscriber: "upsert",
     updateSubscriber: "update",
+    deleteSubscriber: "delete",
     updateSubscriberStatus: "updateStatus",
     addSubscriberTag: "addTag",
     removeSubscriberTag: "removeTag",
@@ -8179,6 +7550,9 @@ export const publicApiSdkResources: PublicApiSdkResource[] = [
   createSdkResource("tags", "tags", {
     listTags: "list",
     createTag: "create",
+    getTag: "get",
+    updateTag: "update",
+    deleteTag: "delete",
   }),
   createSdkResource("customFields", "custom_fields", {
     listCustomFields: "list",
@@ -8331,6 +7705,33 @@ export const publicApiQuickstart = {
   }
 }`,
 };
+
+export const publicApiExamplePayloads = {
+  broadcastDraft: {
+    subject: "Welcome to Mailrith",
+    preview_text: "A quick hello from the team",
+    body_document: {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Hello {{ subscriber.name }}",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  webhookSubscription: {
+    name: "CRM Subscriber Updates",
+    url: "https://example.com/mailrith/events",
+    event_patterns: ["subscriber.created", "subscriber.updated"],
+    status: "active",
+  },
+} as const;
 
 export const getPublicApiOperations = () =>
   Object.values(publicApiSpec.paths)

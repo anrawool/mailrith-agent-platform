@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mailrith-sdk"
-version = "0.1.0b1"
+version = "0.1.0"
 description = "Official Python SDK for Mailrith's public API."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -14,7 +14,7 @@ authors = [
 ]
 dependencies = []
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -25,7 +25,6 @@ classifiers = [
 [project.urls]
 Documentation = "https://mailrith.com/developers/sdks"
 Homepage = "https://mailrith.com"
-Source = "https://github.com/anrawool/mailrith-agent-platform"
 Issues = "https://github.com/anrawool/mailrith-agent-platform/issues"
 
 [tool.setuptools]

@@ -9,10 +9,15 @@ import type {
 export const publicApiMcpToolsetKeys = [
   "reporting",
   "subscriber_sync",
-  "campaign_drafting",
-  "campaign_sending",
-  "automations",
+  "data_transfer",
+  "content_and_targeting",
   "capture",
+  "broadcast_preparation",
+  "broadcast_sending",
+  "sequence_preparation",
+  "sequence_operations",
+  "automations",
+  "webhooks",
   "administration",
 ] as const;
 
@@ -26,34 +31,19 @@ export type PublicApiMcpToolset = {
   scopeKeys: readonly PublicApiScopeKey[];
 };
 
-const captureScopeKeys = [
-  "workspace:read",
-  "subscribers:read",
-  "subscribers:profile",
-  "subscribers:eligibility",
-  "subscribers:targeting",
-  "tags:read",
-  "custom_fields:read",
-  "forms:read",
-  "forms:submissions_read",
-  "forms:configure",
-  "forms:delete",
-  "landing_pages:read",
-  "landing_pages:submissions_read",
-  "landing_pages:configure",
-  "landing_pages:delete",
-  "magic_links:read",
-  "magic_links:configure",
-  "magic_links:delete",
-] as const satisfies readonly PublicApiScopeKey[];
-
 const presetScopes = (
   key:
     | "reporting"
     | "subscriber_sync"
-    | "campaign_drafting"
-    | "campaign_sending"
+    | "content_and_targeting"
+    | "capture_management"
+    | "broadcast_preparation"
+    | "broadcast_sending"
+    | "sequence_preparation"
+    | "sequence_operations"
     | "automation_management"
+    | "webhook_management"
+    | "data_transfer"
     | "full_administration",
 ) => publicApiScopePresetByKey.get(key)?.scopeKeys ?? [];
 
@@ -69,34 +59,69 @@ export const publicApiMcpToolsets = [
     key: "subscriber_sync",
     label: "Subscriber Sync",
     description:
-      "Sync individual Subscriber profiles, eligibility, targeting, Tags, and custom fields.",
+      "Manage individual Subscriber profiles, status, Tags, deletion, and custom fields.",
     scopeKeys: presetScopes("subscriber_sync"),
   },
   {
-    key: "campaign_drafting",
-    label: "Campaign Drafting",
+    key: "data_transfer",
+    label: "Subscriber Import & Export",
     description:
-      "Create email content, Segments, and Broadcast drafts without sending email.",
-    scopeKeys: presetScopes("campaign_drafting"),
+      "Run bounded Subscriber imports and exports and monitor their jobs.",
+    scopeKeys: presetScopes("data_transfer"),
   },
   {
-    key: "campaign_sending",
-    label: "Campaign Sending",
+    key: "content_and_targeting",
+    label: "Templates, Tags, Fields & Segments",
+    description:
+      "Manage email templates, Tags, custom fields, and Segments.",
+    scopeKeys: presetScopes("content_and_targeting"),
+  },
+  {
+    key: "capture",
+    label: "Forms, Landing Pages & Magic Links",
+    description:
+      "Manage Forms, Landing Pages, Magic Links, and their Subscriber capture data.",
+    scopeKeys: presetScopes("capture_management"),
+  },
+  {
+    key: "broadcast_preparation",
+    label: "Broadcast Preparation",
+    description:
+      "Create, change, check, and delete Broadcast drafts without sending email.",
+    scopeKeys: presetScopes("broadcast_preparation"),
+  },
+  {
+    key: "broadcast_sending",
+    label: "Broadcast Sending",
     description: "Review, test, send, monitor, and stop Broadcasts.",
-    scopeKeys: presetScopes("campaign_sending"),
+    scopeKeys: presetScopes("broadcast_sending"),
+  },
+  {
+    key: "sequence_preparation",
+    label: "Sequence Preparation",
+    description:
+      "Create, change, and delete paused Sequences without activating them or enrolling Subscribers.",
+    scopeKeys: presetScopes("sequence_preparation"),
+  },
+  {
+    key: "sequence_operations",
+    label: "Sequence Operations",
+    description:
+      "Activate or pause Sequences and add or remove individual Subscribers.",
+    scopeKeys: presetScopes("sequence_operations"),
   },
   {
     key: "automations",
     label: "Automations",
-    description: "Draft, activate, pause, and inspect Sequences and Automations.",
+    description: "Create, change, activate, pause, delete, and inspect Automations.",
     scopeKeys: presetScopes("automation_management"),
   },
   {
-    key: "capture",
-    label: "Capture",
+    key: "webhooks",
+    label: "Outbound Webhook Setup",
     description:
-      "Manage Forms, Landing Pages, Magic Links, and their Subscriber capture data.",
-    scopeKeys: captureScopeKeys,
+      "Create, change, rotate secrets for, and delete outbound webhook subscriptions.",
+    scopeKeys: presetScopes("webhook_management"),
   },
   {
     key: "administration",
@@ -152,7 +177,6 @@ export const publicApiMcpErrorCategories = [
   "validation",
   "authentication",
   "permission",
-  "approval",
   "conflict",
   "rate_limit",
   "transient",
@@ -270,9 +294,6 @@ class JsonSchemaDocumentBuilder {
 
 const mcpHeaderParameterNames: Record<string, string> = {
   "idempotency-key": "idempotency_key",
-  "x-mailrith-action-id": "action_id",
-  "x-mailrith-approval-token": "approval_token",
-  "x-mailrith-approval-return-url": "approval_return_url",
 };
 
 const toMcpParameterName = (parameter: OpenApiParameter) =>

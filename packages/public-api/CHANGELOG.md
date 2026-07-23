@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.1.0-beta.1 - 2026-07-22
+## 0.1.0 - 2026-07-24
 
-- Publish the coordinated pre-GA REST, OAuth, scope, risk, MCP, and SDK contract.
-- Add server-enforced agent planning, approvals, sandbox behavior, and activity operations.
+- Add shared, contract-checked read-only OAuth scopes and copyable Broadcast and Webhook payloads.
+- Correct the Webhook status description.
+- Limit each workspace to 20 Webhook subscriptions and return `webhook_subscription_limit_exceeded` when the workspace is full.
+- Replace internal diagnostics, consent, job, and per-webhook-action scopes with resource reads, Subscriber subscription permissions, bulk-operation permissions, and Webhooks Read or Write.
+- Remove the pre-launch recommendation, reference-experiment, and generic compliance-event resources.
+- Publish the coordinated REST, OAuth, scope, risk, MCP, and SDK contract.
+- Add scoped agent operations, sandbox behavior, and Agent Activity operations.
+- Add focused support for Broadcasts, Sequences, Automations, content, targeting, capture, Webhooks, and data transfer.

@@ -63,7 +63,7 @@ jobs:
 
       - name: Test Release Surfaces
         run: |
-          pnpm vitest run tests/agent-release-workflow.test.ts
+          pnpm vitest run tests/agent-release-workflow.test.ts tests/agent-release-config.test.ts
           pnpm --filter @mailrith/public-api test
           pnpm --filter @mailrith/sdk test
           pnpm --filter @mailrith/mcp-server test
@@ -141,7 +141,7 @@ jobs:
             ./npm/mailrith-cli-*.tgz \
             ./npm/mailrith-agent-skill-*.tgz
           do
-            npm publish "$archive" --access public --provenance --tag beta
+            npm publish "$archive" --access public --provenance --tag latest
           done
         working-directory: release
 
@@ -187,8 +187,8 @@ jobs:
           python-version: "3.13"
       - name: Clean Install From Public Registries
         env:
-          RELEASE_VERSION: 0.1.0-beta.1
-          PYTHON_RELEASE_VERSION: 0.1.0b1
+          RELEASE_VERSION: 0.1.0
+          PYTHON_RELEASE_VERSION: 0.1.0
         run: |
           npm_packages=(
             "@mailrith/public-api"
