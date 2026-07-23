@@ -36,7 +36,7 @@ jobs:
         with:
           version: 11.7.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: pnpm
@@ -123,7 +123,7 @@ jobs:
         with:
           name: mailrith-agent-packages
           path: release
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
@@ -132,7 +132,6 @@ jobs:
         working-directory: release
       - name: Publish Npm Packages In Dependency Order
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"
         run: |
           for archive in \
@@ -179,7 +178,7 @@ jobs:
       (needs.publish-python.result == 'success' || needs.publish-python.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
@@ -191,7 +190,34 @@ jobs:
           RELEASE_VERSION: 0.1.0-beta.1
           PYTHON_RELEASE_VERSION: 0.1.0b1
         run: |
-          sleep 30
+          npm_packages=(
+            "@mailrith/public-api"
+            "@mailrith/sdk"
+            "@mailrith/mcp-server"
+            "@mailrith/cli"
+            "@mailrith/agent-skill"
+          )
+          for attempt in {1..30}; do
+            missing_packages=()
+            for package_name in "${npm_packages[@]}"; do
+              if ! npm view "$package_name@$RELEASE_VERSION" version >/dev/null 2>&1; then
+                missing_packages+=("$package_name")
+              fi
+            done
+
+            if (( ${#missing_packages[@]} == 0 )); then
+              break
+            fi
+
+            if (( attempt == 30 )); then
+              echo "::error::npm registry propagation timed out for: ${missing_packages[*]}"
+              exit 1
+            fi
+
+            echo "Waiting for npm registry propagation (${missing_packages[*]}); attempt $attempt/30"
+            sleep 10
+          done
+
           npm_directory="$(mktemp -d)"
           cd "$npm_directory"
           npm init --yes

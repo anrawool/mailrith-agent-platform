@@ -96,9 +96,9 @@ const buildManifest = async () => {
     schema_version: 1,
     release_version: releaseVersion,
     channel: "beta",
-    status: "prepared_not_published",
+    status: "published",
     contract_version: "v1",
-    documentation_revision: "2026-07-22",
+    documentation_revision: "2026-07-23",
     packages: {
       npm: packageVersions,
       pypi: { "mailrith-sdk": pythonReleaseVersion },
