@@ -12,6 +12,7 @@ on:
         type: choice
         options:
           - none
+          - verify
           - all
           - npm
           - pypi
@@ -227,7 +228,10 @@ jobs:
             "@mailrith/mcp-server@$RELEASE_VERSION" \
             "@mailrith/cli@$RELEASE_VERSION" \
             "@mailrith/agent-skill@$RELEASE_VERSION"
-          npm audit --audit-level=moderate
+          # Dependency review blocks high-severity additions. Keep the public
+          # clean-install gate aligned with that policy while upstream fixes
+          # for transitive moderate advisories are unavailable.
+          npm audit --audit-level=high
           node --input-type=module -e 'import("@mailrith/sdk").then((sdk) => { if (!sdk.createMailrithClient) process.exit(1) })'
           npx mailrith version
           npx mailrith-agent-skill install --dry-run --target "$npm_directory/skill"

@@ -56,12 +56,18 @@ describe("agent release workflow", () => {
     expect(workflow).toContain("publish_target:");
     expect(workflow).toContain("inputs.publish_target == 'npm'");
     expect(workflow).toContain("inputs.publish_target == 'pypi'");
+    expect(workflow).toContain("- verify");
     expect(workflow).toContain(
       "(needs.publish-npm.result == 'success' || needs.publish-npm.result == 'skipped')",
     );
     expect(workflow).toContain(
       "(needs.publish-python.result == 'success' || needs.publish-python.result == 'skipped')",
     );
+  });
+
+  it("fails the clean-install audit only for high or critical vulnerabilities", () => {
+    expect(workflow).toContain("npm audit --audit-level=high");
+    expect(workflow).not.toContain("npm audit --audit-level=moderate");
   });
 
   it("waits for every npm package to propagate before the clean-install gate", () => {
