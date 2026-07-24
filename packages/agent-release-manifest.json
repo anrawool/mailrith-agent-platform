@@ -2,7 +2,7 @@
   "schema_version": 1,
   "release_version": "0.1.2",
   "channel": "ga",
-  "status": "prepared_not_published",
+  "status": "published",
   "contract_version": "v1",
   "documentation_revision": "2026-07-24",
   "packages": {

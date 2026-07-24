@@ -3,6 +3,6 @@
   "release_version": "0.1.2",
   "python_release_version": "0.1.2",
   "channel": "ga",
-  "status": "prepared_not_published",
+  "status": "published",
   "documentation_revision": "2026-07-24"
 }
