@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 - 2026-07-24
+
+- Republish the generated TypeScript client as part of the coordinated Agent Skill patch release.
+
 ## 0.1.0 - 2026-07-24
 
 - Export the contract-generated scopes for the first read-only OAuth connection.

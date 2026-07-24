@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 - 2026-07-24
+
+- Point hosted MCP discovery to the public Mailrith server card instead of a missing API-origin document.
+
 ## 0.1.0 - 2026-07-24
 
 - Keep the read-only Codex and Claude starters within the default OAuth permissions and explain that only workspace changes produce Activity records.

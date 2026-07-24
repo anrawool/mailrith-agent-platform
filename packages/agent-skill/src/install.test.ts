@@ -83,6 +83,15 @@ describe("Mailrith connector templates", () => {
       path.join(connectorsDirectory, "pipedream-read-capabilities.mjs"),
       "utf8",
     );
+    const connectionGuidance = await readFile(
+      path.join(
+        packageRoot,
+        "mailrith-email-marketing",
+        "references",
+        "connections.md",
+      ),
+      "utf8",
+    );
     const openAi = JSON.parse(openAiSource) as Record<string, any>;
     const claude = JSON.parse(claudeSource) as Record<string, any>;
     const n8n = JSON.parse(n8nSource) as Record<string, any>;
@@ -115,6 +124,12 @@ describe("Mailrith connector templates", () => {
     expect(codexSource).not.toContain("broadcasts_get_send_progress");
     expect(pipedreamSource).toContain('url: "https://api.mailrith.com/v1/capabilities"');
     expect(pipedreamSource).toContain("secret: true");
+    expect(connectionGuidance).toContain(
+      "https://mailrith.com/.well-known/mcp/server-card.json",
+    );
+    expect(connectionGuidance).not.toContain(
+      "https://api.mailrith.com/.well-known/mcp.json",
+    );
 
     const knownTools = new Set(
       mailrithSdkResources.flatMap((resource) =>

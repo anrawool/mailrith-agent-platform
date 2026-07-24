@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 - 2026-07-24
+
+- Republish the unchanged public contract as part of the coordinated Agent Skill patch release.
+
 ## 0.1.0 - 2026-07-24
 
 - Add shared, contract-checked read-only OAuth scopes and copyable Broadcast and Webhook payloads.

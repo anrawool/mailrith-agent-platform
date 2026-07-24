@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 - 2026-07-24
+
+- Republish the CLI as part of the coordinated Agent Skill patch release.
+
 ## 0.1.0 - 2026-07-24
 
 - Request the workspace and Subscriber read permissions required by the read-only starter.

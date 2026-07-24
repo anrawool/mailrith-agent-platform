@@ -5,7 +5,7 @@
 - Server URL: `https://api.mailrith.com/mcp`
 - Transport: Streamable HTTP
 - Authentication: OAuth for interactive agent clients; bearer API key or OAuth access token only in runtimes that can protect secrets
-- Discovery: `https://api.mailrith.com/.well-known/mcp.json`
+- Discovery: `https://mailrith.com/.well-known/mcp/server-card.json`
 
 Use the reviewed templates shipped with `@mailrith/agent-skill` for OpenAI, Claude, Codex, n8n, and Pipedream. Client fields change over time, so confirm the client version against the Mailrith compatibility page before installation.
 

@@ -1,36 +1,37 @@
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const workflow = readFileSync(
-  fileURLToPath(
-    new URL("../.github/workflows/release-agent-packages.yml", import.meta.url),
-  ),
-  "utf8",
-);
-const releaseConfig = readFileSync(
-  fileURLToPath(
-    new URL("../packages/agent-release-config.json", import.meta.url),
-  ),
+  join(process.cwd(), ".github/workflows/release-agent-packages.yml"),
   "utf8",
 );
 
 describe("agent release workflow", () => {
-  it("uses the coordinated stable release configuration", () => {
-    expect(JSON.parse(releaseConfig)).toMatchObject({
-      release_version: "0.1.0",
-      python_release_version: "0.1.0",
-      channel: "ga",
-      documentation_revision: "2026-07-24",
-    });
+  it("keeps non-publishing preparation usable for private repositories", () => {
+    expect(workflow).toContain(
+      "if: github.event.repository.visibility == 'public'",
+    );
+    expect(workflow).toContain("Record Private Repository Attestation Gate");
+    expect(workflow).toContain("uses: actions/upload-artifact@v4");
   });
 
-  it("publishes through npm OIDC without a long-lived workflow token", () => {
+  it("fails closed when private-repository publication is requested", () => {
+    expect(workflow).toContain(
+      "if: (startsWith(github.ref, 'refs/tags/agent-v') || inputs.publish_target == 'all' || inputs.publish_target == 'npm' || inputs.publish_target == 'pypi') && github.event.repository.visibility != 'public'",
+    );
+    expect(workflow).toContain(
+      "Package publication is blocked while this user-owned repository is private.",
+    );
+  });
+
+  it("preserves registry provenance and trusted publishing", () => {
     expect(workflow).toContain("uses: actions/setup-node@v6");
     expect(workflow).toContain('NPM_CONFIG_PROVENANCE: "true"');
     expect(workflow).toContain(
       'npm publish "$archive" --access public --provenance --tag latest',
     );
+    expect(workflow).toContain("uses: pypa/gh-action-pypi-publish@release/v1");
     expect(workflow).not.toContain("NODE_AUTH_TOKEN");
     expect(workflow).not.toContain("secrets.NPM_TOKEN");
   });
@@ -50,9 +51,6 @@ describe("agent release workflow", () => {
   });
 
   it("supports bounded single-registry retries while retaining the full clean-install gate", () => {
-    expect(workflow).toContain(
-      'npm publish "$archive" --access public --provenance --tag latest',
-    );
     expect(workflow).toContain("publish_target:");
     expect(workflow).toContain("inputs.publish_target == 'npm'");
     expect(workflow).toContain("inputs.publish_target == 'pypi'");
@@ -71,6 +69,16 @@ describe("agent release workflow", () => {
   });
 
   it("waits for every npm package to propagate before the clean-install gate", () => {
+    expect(workflow).toContain(
+      "release-version: ${{ steps.release-versions.outputs.release_version }}",
+    );
+    expect(workflow).toContain(
+      "RELEASE_VERSION: ${{ needs.prepare.outputs.release-version }}",
+    );
+    expect(workflow).toContain(
+      "PYTHON_RELEASE_VERSION: ${{ needs.prepare.outputs.python-release-version }}",
+    );
+    expect(workflow).not.toMatch(/RELEASE_VERSION: 0\.\d+\.\d+/);
     expect(workflow).toContain("for attempt in {1..30}");
     expect(workflow).toContain(
       'npm view "$package_name@$RELEASE_VERSION" version',

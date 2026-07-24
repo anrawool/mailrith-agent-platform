@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+// Artifact generation must consume source so a stale or absent build directory
+// cannot silently publish an older contract.
+// eslint-disable-next-line no-restricted-imports
 import {
   publicApiMcpErrorCategories,
   publicApiMcpOperationContractMap,

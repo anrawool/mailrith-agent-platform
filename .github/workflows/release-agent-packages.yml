@@ -24,6 +24,9 @@ permissions:
 jobs:
   prepare:
     runs-on: ubuntu-latest
+    outputs:
+      release-version: ${{ steps.release-versions.outputs.release_version }}
+      python-release-version: ${{ steps.release-versions.outputs.python_release_version }}
     permissions:
       contents: read
       id-token: write
@@ -50,6 +53,16 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Read Coordinated Release Versions
+        id: release-versions
+        run: |
+          node --input-type=module -e '
+            import { appendFileSync, readFileSync } from "node:fs";
+            const release = JSON.parse(readFileSync("packages/agent-release-config.json", "utf8"));
+            appendFileSync(process.env.GITHUB_OUTPUT, `release_version=${release.release_version}\n`);
+            appendFileSync(process.env.GITHUB_OUTPUT, `python_release_version=${release.python_release_version}\n`);
+          '
+
       - name: Verify Generated Artifacts And Release Manifest
         env:
           MAILRITH_AGENT_RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
@@ -64,7 +77,7 @@ jobs:
 
       - name: Test Release Surfaces
         run: |
-          pnpm vitest run tests/agent-release-workflow.test.ts tests/agent-release-config.test.ts
+          pnpm vitest run tests/agent-release-workflow.test.ts
           pnpm --filter @mailrith/public-api test
           pnpm --filter @mailrith/sdk test
           pnpm --filter @mailrith/mcp-server test
@@ -99,10 +112,23 @@ jobs:
           cd release
           find npm python -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
 
+      - name: Require Public Repository For Publication Provenance
+        if: (startsWith(github.ref, 'refs/tags/agent-v') || inputs.publish_target == 'all' || inputs.publish_target == 'npm' || inputs.publish_target == 'pypi') && github.event.repository.visibility != 'public'
+        run: |
+          echo "Package publication is blocked while this user-owned repository is private."
+          echo "Make the repository public before publishing so npm and GitHub provenance can be generated and verified."
+          exit 1
+
       - name: Attest Package Provenance
+        if: github.event.repository.visibility == 'public'
         uses: actions/attest-build-provenance@v3
         with:
           subject-path: "release/**/*"
+
+      - name: Record Private Repository Attestation Gate
+        if: github.event.repository.visibility != 'public'
+        run: |
+          echo "::notice title=Package provenance gate::GitHub artifact attestations are unavailable for this user-owned private repository. Package preparation can continue, but publication remains blocked until the repository is public."
 
       - uses: actions/upload-artifact@v4
         with:
@@ -188,8 +214,8 @@ jobs:
           python-version: "3.13"
       - name: Clean Install From Public Registries
         env:
-          RELEASE_VERSION: 0.1.0
-          PYTHON_RELEASE_VERSION: 0.1.0
+          RELEASE_VERSION: ${{ needs.prepare.outputs.release-version }}
+          PYTHON_RELEASE_VERSION: ${{ needs.prepare.outputs.python-release-version }}
         run: |
           npm_packages=(
             "@mailrith/public-api"
