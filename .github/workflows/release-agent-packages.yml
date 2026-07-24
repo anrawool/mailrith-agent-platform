@@ -196,6 +196,7 @@ jobs:
 
   clean-install:
     needs:
+      - prepare
       - publish-npm
       - publish-python
     if: >-

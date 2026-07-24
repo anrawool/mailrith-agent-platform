@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 - 2026-07-24
+
+- Republish the Agent Skill with coordinated package version reporting and registry verification.
+
 ## 0.1.1 - 2026-07-24
 
 - Point hosted MCP discovery to the public Mailrith server card instead of a missing API-origin document.

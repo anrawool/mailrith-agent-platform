@@ -111,6 +111,22 @@ const verifyNpmPackage = async (
   return { name: expectedName, version: releaseVersion };
 };
 
+const verifyRuntimeVersion = async (
+  relativePath: string,
+  expectedSource: string,
+  releaseVersion: string,
+) => {
+  const source = await readFile(
+    path.join(repositoryRoot, relativePath),
+    "utf8",
+  );
+  if (!source.includes(expectedSource.replace("{version}", releaseVersion))) {
+    throw new Error(
+      `${relativePath} must report release version ${releaseVersion}.`,
+    );
+  }
+};
+
 const buildManifest = async () => {
   const releaseConfig = parseAgentReleaseConfig(
     await readJson("packages/agent-release-config.json"),
@@ -120,6 +136,18 @@ const buildManifest = async () => {
       verifyNpmPackage(name, packagePath, releaseConfig.release_version),
     ),
   );
+  await Promise.all([
+    verifyRuntimeVersion(
+      "packages/cli/src/index.ts",
+      'export const mailrithCliVersion = "{version}";',
+      releaseConfig.release_version,
+    ),
+    verifyRuntimeVersion(
+      "packages/mcp-server/src/index.ts",
+      'version: "{version}",',
+      releaseConfig.release_version,
+    ),
+  ]);
   const pyproject = await readFile(
     path.join(repositoryRoot, "packages/python-sdk/pyproject.toml"),
     "utf8",

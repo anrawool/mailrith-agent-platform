@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "release_version": "0.1.1",
+  "release_version": "0.1.2",
   "channel": "ga",
   "status": "prepared_not_published",
   "contract_version": "v1",
   "documentation_revision": "2026-07-24",
   "packages": {
     "npm": {
-      "@mailrith/public-api": "0.1.1",
-      "@mailrith/sdk": "0.1.1",
-      "@mailrith/mcp-server": "0.1.1",
-      "@mailrith/cli": "0.1.1",
-      "@mailrith/agent-skill": "0.1.1"
+      "@mailrith/public-api": "0.1.2",
+      "@mailrith/sdk": "0.1.2",
+      "@mailrith/mcp-server": "0.1.2",
+      "@mailrith/cli": "0.1.2",
+      "@mailrith/agent-skill": "0.1.2"
     },
     "pypi": {
-      "mailrith-sdk": "0.1.1"
+      "mailrith-sdk": "0.1.2"
     }
   },
   "digests": {

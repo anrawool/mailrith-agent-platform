@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 - 2026-07-24
+
+- Report the published package version in the MCP server identity.
+- Correct the public-registry clean-install release gate.
+
 ## 0.1.1 - 2026-07-24
 
 - Republish the MCP server as part of the coordinated Agent Skill patch release.

@@ -16,7 +16,7 @@ import {
   writeMailrithCliConfig,
 } from "./config.js";
 
-export const mailrithCliVersion = "0.1.0";
+export const mailrithCliVersion = "0.1.2";
 export const mailrithCliDefaultOAuthScopes =
   mailrithAgentReadQuickstartScopeKeys;
 

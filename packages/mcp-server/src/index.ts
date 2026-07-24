@@ -39,7 +39,7 @@ const defaultBaseUrl = "https://api.mailrith.com";
 const mcpRequestMaxBodyBytes = 1024 * 1024;
 const mcpServerInfo = {
   name: "mailrith",
-  version: "0.1.0",
+  version: "0.1.2",
 } as const;
 
 type MailrithFetch = typeof fetch;

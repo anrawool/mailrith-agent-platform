@@ -1,6 +1,6 @@
 {
   "name": "@mailrith/cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Official command-line interface for Mailrith agent workflows.",
   "license": "MIT",
   "homepage": "https://mailrith.com/developers/agent-quickstarts",

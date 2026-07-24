@@ -69,6 +69,9 @@ describe("agent release workflow", () => {
   });
 
   it("waits for every npm package to propagate before the clean-install gate", () => {
+    expect(workflow).toMatch(
+      /clean-install:\s+needs:\s+- prepare\s+- publish-npm\s+- publish-python/,
+    );
     expect(workflow).toContain(
       "release-version: ${{ steps.release-versions.outputs.release_version }}",
     );
