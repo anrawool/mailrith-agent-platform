@@ -17,22 +17,21 @@
         "mcp_tool_name": "discovery_get_metadata",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "webhooks",
-          "administration"
+          "email_delivery_setup",
+          "subscriber_import_export",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -60,22 +59,21 @@
         "mcp_tool_name": "discovery_get_capabilities",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "webhooks",
-          "administration"
+          "email_delivery_setup",
+          "subscriber_import_export",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -103,22 +101,21 @@
         "mcp_tool_name": "discovery_get_open_api_document",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "webhooks",
-          "administration"
+          "email_delivery_setup",
+          "subscriber_import_export",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -155,22 +152,21 @@
         "mcp_tool_name": "workspace_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "webhooks",
-          "administration"
+          "email_delivery_setup",
+          "subscriber_import_export",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -188,31 +184,40 @@
     ]
   },
   {
-    "namespace": "agent_activity",
-    "name": "Agent Activity",
-    "description": "Inspect the bounded, redacted activity trail for agent-originated workspace changes.",
+    "namespace": "sender_identities",
+    "name": "Sender Identities",
+    "description": "Discover enabled sender names, addresses, and provider types that can be selected for Broadcasts and Sequences. Provider credentials are never returned.",
     "operations": [
       {
-        "namespace": "agent_activity",
+        "namespace": "sender_identities",
         "method_name": "list",
-        "operation_id": "listAgentActivity",
+        "operation_id": "listSenderIdentities",
         "method": "GET",
-        "path": "/v1/agent-activity",
-        "summary": "List agent activity",
-        "description": "Returns one redacted row per logical agent-originated mutation. Results use keyset pagination, default to seven days, and cannot span more than 30 days.",
+        "path": "/v1/sender-identities",
+        "summary": "List sender identities",
+        "description": "Returns a bounded page of enabled sender names, addresses, and provider types that can be selected for Broadcasts and Sequences. Provider credentials and configuration are never returned.",
         "auth_required": true,
         "required_scopes": [
-          "activity:read"
+          "workspace:read"
         ],
-        "mcp_tool_name": "agent_activity_list",
+        "mcp_tool_name": "sender_identities_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "email_delivery_setup",
+          "subscriber_import_export",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -220,49 +225,46 @@
           "idempotentHint": true,
           "openWorldHint": false
         },
-        "risk_rationale": "Reads a bounded, redacted page of agent-originated workspace mutations.",
+        "risk_rationale": "Reads a bounded page of enabled sender metadata without provider credentials.",
         "path_params": [],
         "query_params": [
           "limit",
-          "cursor",
-          "from",
-          "to",
-          "client",
-          "credential_type",
-          "credential_id",
-          "operation",
-          "risk",
-          "outcome",
-          "resource_type",
-          "resource_id",
-          "request_id",
-          "activity_id"
+          "starting_after"
         ],
         "header_params": [],
         "has_request_body": false,
         "request_body_required": false
       },
       {
-        "namespace": "agent_activity",
+        "namespace": "sender_identities",
         "method_name": "get",
-        "operation_id": "getAgentActivity",
+        "operation_id": "getSenderIdentity",
         "method": "GET",
-        "path": "/v1/agent-activity/{activity_id}",
-        "summary": "Get agent activity",
-        "description": "Returns one redacted activity trail with correlation, retry, result, and retention metadata.",
+        "path": "/v1/sender-identities/{sender_identity_id}",
+        "summary": "Get a sender identity",
+        "description": "Returns one enabled sender name, address, and provider type by stable identifier. Provider credentials and configuration are never returned.",
         "auth_required": true,
         "required_scopes": [
-          "activity:read"
+          "workspace:read"
         ],
-        "mcp_tool_name": "agent_activity_get",
+        "mcp_tool_name": "sender_identities_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "email_delivery_setup",
+          "subscriber_import_export",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -270,9 +272,406 @@
           "idempotentHint": true,
           "openWorldHint": false
         },
-        "risk_rationale": "Reads one redacted agent mutation trail by its stable action identifier.",
+        "risk_rationale": "Reads one enabled sender identity without provider credentials.",
         "path_params": [
-          "activity_id"
+          "sender_identity_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      }
+    ]
+  },
+  {
+    "namespace": "email_delivery_connections",
+    "name": "Email Delivery Connections",
+    "description": "Set up and manage email delivery connections for the authenticated workspace. Provider credentials are entered only in Mailrith's secure browser flow and are never accepted or returned by the agent API.",
+    "operations": [
+      {
+        "namespace": "email_delivery_connections",
+        "method_name": "list",
+        "operation_id": "listEmailDeliveryConnections",
+        "method": "GET",
+        "path": "/v1/email-delivery-connections",
+        "summary": "List email delivery connections",
+        "description": "Returns a bounded page of email delivery connections linked to the authenticated workspace. Saved credentials and webhook secrets are never returned.",
+        "auth_required": true,
+        "required_scopes": [
+          "email_delivery_connections:read"
+        ],
+        "mcp_tool_name": "email_delivery_connections_list",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads a bounded page of secret-free delivery connection metadata.",
+        "path_params": [],
+        "query_params": [
+          "limit",
+          "starting_after"
+        ],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "email_delivery_connections",
+        "method_name": "start_setup",
+        "operation_id": "startEmailDeliveryConnectionSetup",
+        "method": "POST",
+        "path": "/v1/email-delivery-connection-setup-sessions",
+        "summary": "Start secure email delivery connection setup",
+        "description": "Creates a short-lived browser handoff containing only non-secret defaults. Open setup_url so an authorized Mailrith user can enter provider credentials directly in Mailrith.",
+        "auth_required": true,
+        "required_scopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcp_tool_name": "email_delivery_connections_start_setup",
+        "risk": "admin",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "secret-change",
+        "retry_mode": "resource-state",
+        "idempotency_policy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Creates a short-lived browser handoff so provider credentials never pass through the agent API.",
+        "path_params": [],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": true,
+        "request_body_required": true
+      },
+      {
+        "namespace": "email_delivery_connections",
+        "method_name": "get_setup",
+        "operation_id": "getEmailDeliveryConnectionSetup",
+        "method": "GET",
+        "path": "/v1/email-delivery-connection-setup-sessions/{setup_session_id}",
+        "summary": "Get secure setup status",
+        "description": "Returns pending or completed status for one short-lived setup session. It never returns the browser token or provider credentials.",
+        "auth_required": true,
+        "required_scopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcp_tool_name": "email_delivery_connections_get_setup",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads the bounded status of one short-lived secure setup session.",
+        "path_params": [
+          "setup_session_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "email_delivery_connections",
+        "method_name": "renew_setup",
+        "operation_id": "renewEmailDeliveryConnectionSetup",
+        "method": "POST",
+        "path": "/v1/email-delivery-connection-setup-sessions/{setup_session_id}/renew",
+        "summary": "Renew secure email delivery setup",
+        "description": "Creates a fresh short-lived browser link from the previous session's bounded non-secret defaults. Completed sessions cannot be renewed.",
+        "auth_required": true,
+        "required_scopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcp_tool_name": "email_delivery_connections_renew_setup",
+        "risk": "admin",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "secret-change",
+        "retry_mode": "resource-state",
+        "idempotency_policy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reissues a short-lived browser handoff from bounded non-secret setup context.",
+        "path_params": [
+          "setup_session_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "email_delivery_connections",
+        "method_name": "get",
+        "operation_id": "getEmailDeliveryConnection",
+        "method": "GET",
+        "path": "/v1/email-delivery-connections/{connection_id}",
+        "summary": "Get an email delivery connection",
+        "description": "Returns one secret-free email delivery connection linked to the authenticated workspace.",
+        "auth_required": true,
+        "required_scopes": [
+          "email_delivery_connections:read"
+        ],
+        "mcp_tool_name": "email_delivery_connections_get",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads one secret-free delivery connection linked to the workspace.",
+        "path_params": [
+          "connection_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "email_delivery_connections",
+        "method_name": "update",
+        "operation_id": "updateEmailDeliveryConnection",
+        "method": "PATCH",
+        "path": "/v1/email-delivery-connections/{connection_id}",
+        "summary": "Update an email delivery connection",
+        "description": "Changes non-secret details for one connection linked only to the authenticated workspace. Use a secure setup session to replace provider credentials. Shared connections must be changed in the Mailrith UI.",
+        "auth_required": true,
+        "required_scopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcp_tool_name": "email_delivery_connections_update",
+        "risk": "admin",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "workspace-change",
+        "retry_mode": "resource-state",
+        "idempotency_policy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Changes non-secret sender settings for one workspace-only connection.",
+        "path_params": [
+          "connection_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": true,
+        "request_body_required": true
+      },
+      {
+        "namespace": "email_delivery_connections",
+        "method_name": "update_status",
+        "operation_id": "updateEmailDeliveryConnectionStatus",
+        "method": "PUT",
+        "path": "/v1/email-delivery-connections/{connection_id}/status",
+        "summary": "Enable or disable an email delivery connection",
+        "description": "Enables or disables one connection linked only to the authenticated workspace. Shared or in-use connections remain protected.",
+        "auth_required": true,
+        "required_scopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcp_tool_name": "email_delivery_connections_update_status",
+        "risk": "admin",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "workspace-change",
+        "retry_mode": "resource-state",
+        "idempotency_policy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Enables or disables a delivery connection and can change whether workspace resources may be created or sent.",
+        "path_params": [
+          "connection_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": true,
+        "request_body_required": true
+      },
+      {
+        "namespace": "email_delivery_connections",
+        "method_name": "verify",
+        "operation_id": "verifyEmailDeliveryConnection",
+        "method": "POST",
+        "path": "/v1/email-delivery-connections/{connection_id}/verify",
+        "summary": "Verify an email delivery connection",
+        "description": "Checks the saved provider credential and sender without returning secrets. If the provider key allows sending but not inspection, the response clearly requires a real test email.",
+        "auth_required": true,
+        "required_scopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcp_tool_name": "email_delivery_connections_verify",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Checks the saved provider credential and sender without storing a verification history.",
+        "path_params": [
+          "connection_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "email_delivery_connections",
+        "method_name": "send_test",
+        "operation_id": "testEmailDeliveryConnection",
+        "method": "POST",
+        "path": "/v1/email-delivery-connections/{connection_id}/test",
+        "summary": "Send an email delivery connection test",
+        "description": "Sends one real test email through the saved connection. This is the definitive check when a send-only provider key cannot be inspected.",
+        "auth_required": true,
+        "required_scopes": [
+          "live_actions:write",
+          "email_delivery_connections:write"
+        ],
+        "mcp_tool_name": "email_delivery_connections_send_test",
+        "risk": "test",
+        "external_side_effect": true,
+        "requires_live_action": true,
+        "side_effect_class": "external-email",
+        "retry_mode": "idempotency-key",
+        "idempotency_policy": "idempotency-key",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "risk_rationale": "Sends one real test email to a controlled recipient.",
+        "path_params": [
+          "connection_id"
+        ],
+        "query_params": [],
+        "header_params": [
+          "Idempotency-Key"
+        ],
+        "has_request_body": true,
+        "request_body_required": true
+      },
+      {
+        "namespace": "email_delivery_connections",
+        "method_name": "delete",
+        "operation_id": "deleteEmailDeliveryConnection",
+        "method": "DELETE",
+        "path": "/v1/email-delivery-connections/{connection_id}",
+        "summary": "Delete an email delivery connection",
+        "description": "Deletes one connection linked only to the authenticated workspace. Shared or in-use connections are not deleted.",
+        "auth_required": true,
+        "required_scopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcp_tool_name": "email_delivery_connections_delete",
+        "risk": "delete",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "deletion",
+        "retry_mode": "resource-state",
+        "idempotency_policy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Deletes one eligible workspace-only delivery connection and its saved provider credentials.",
+        "path_params": [
+          "connection_id"
         ],
         "query_params": [],
         "header_params": [],
@@ -301,18 +700,16 @@
         "mcp_tool_name": "analytics_create_report",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
-          "automations",
-          "administration"
+          "broadcasts",
+          "sequences",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -342,18 +739,16 @@
         "mcp_tool_name": "analytics_get_report",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
-          "automations",
-          "administration"
+          "broadcasts",
+          "sequences",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -395,13 +790,14 @@
         "mcp_tool_name": "diagnostics_list_automation_runs",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "automations",
-          "administration"
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -435,13 +831,14 @@
         "mcp_tool_name": "diagnostics_get_automation_run",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "automations",
-          "administration"
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -474,14 +871,15 @@
         "mcp_tool_name": "diagnostics_get_sequence",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "sequence_preparation",
-          "sequence_operations",
-          "administration"
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -515,14 +913,14 @@
         "mcp_tool_name": "diagnostics_get_broadcast",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -549,19 +947,24 @@
         "description": "Returns a 90-day, bounded activity view without exposing the Subscriber email address.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:read",
-          "subscriptions:read"
+          "subscribers:read"
         ],
         "mcp_tool_name": "diagnostics_get_subscriber",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -600,21 +1003,19 @@
         "mcp_tool_name": "subscribers_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "administration"
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -644,6 +1045,50 @@
       },
       {
         "namespace": "subscribers",
+        "method_name": "get",
+        "operation_id": "getSubscriber",
+        "method": "GET",
+        "path": "/v1/subscribers/{subscriber_id}",
+        "summary": "Get a subscriber",
+        "description": "Returns one Subscriber by its stable identifier from the authenticated workspace.",
+        "auth_required": true,
+        "required_scopes": [
+          "subscribers:read"
+        ],
+        "mcp_tool_name": "subscribers_get",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "subscriber_import_export"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads one Subscriber by its stable identifier.",
+        "path_params": [
+          "subscriber_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "subscribers",
         "method_name": "upsert",
         "operation_id": "upsertSubscriber",
         "method": "POST",
@@ -652,17 +1097,20 @@
         "description": "Creates a new subscriber when the email does not exist in the workspace. If the email already exists, the API updates the existing subscriber unless create_only is true.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:profile"
+          "live_actions:write",
+          "subscribers:write"
         ],
         "mcp_tool_name": "subscribers_upsert",
         "risk": "execute",
         "external_side_effect": false,
+        "requires_live_action": true,
         "side_effect_class": "subscriber-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "subscriber_sync",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -677,30 +1125,7 @@
           "Idempotency-Key"
         ],
         "has_request_body": true,
-        "request_body_required": true,
-        "payload_field_scope_requirements": {
-          "description": "Subscriber relationship fields require their matching granular permission in addition to the operation's base permissions.",
-          "required_scopes_by_field": {
-            "status": [
-              "subscriptions:write"
-            ],
-            "existing_tag_ids": [
-              "subscribers:targeting"
-            ],
-            "new_tags": [
-              "subscribers:targeting"
-            ],
-            "form_id": [
-              "subscribers:targeting"
-            ],
-            "sequence_ids": [
-              "subscribers:sequence_enroll"
-            ],
-            "consent_evidence": [
-              "subscriptions:write"
-            ]
-          }
-        }
+        "request_body_required": true
       },
       {
         "namespace": "subscribers",
@@ -712,17 +1137,19 @@
         "description": "Updates profile fields, status, custom fields, tags, or sequence assignments for one subscriber. Fields omitted from the request stay unchanged. Blank optional custom field values also leave saved values unchanged, and filled-in invalid values are rejected.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:profile"
+          "subscribers:write"
         ],
         "mcp_tool_name": "subscribers_update",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "subscriber-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -737,30 +1164,7 @@
         "query_params": [],
         "header_params": [],
         "has_request_body": true,
-        "request_body_required": true,
-        "payload_field_scope_requirements": {
-          "description": "Subscriber relationship fields require their matching granular permission in addition to the operation's base permissions.",
-          "required_scopes_by_field": {
-            "status": [
-              "subscriptions:write"
-            ],
-            "existing_tag_ids": [
-              "subscribers:targeting"
-            ],
-            "new_tags": [
-              "subscribers:targeting"
-            ],
-            "form_id": [
-              "subscribers:targeting"
-            ],
-            "sequence_ids": [
-              "subscribers:sequence_enroll"
-            ],
-            "consent_evidence": [
-              "subscriptions:write"
-            ]
-          }
-        }
+        "request_body_required": true
       },
       {
         "namespace": "subscribers",
@@ -772,17 +1176,19 @@
         "description": "Permanently removes one Subscriber and their Mailrith activity history from the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:delete"
+          "subscribers:write"
         ],
         "mcp_tool_name": "subscribers_delete",
         "risk": "delete",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -809,17 +1215,20 @@
         "description": "Changes the delivery status for one Subscriber without changing profile, targeting, or Sequence enrollment fields.",
         "auth_required": true,
         "required_scopes": [
-          "subscriptions:write"
+          "live_actions:write",
+          "subscribers:write"
         ],
         "mcp_tool_name": "subscribers_update_status",
         "risk": "execute",
         "external_side_effect": false,
+        "requires_live_action": true,
         "side_effect_class": "subscriber-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -846,17 +1255,20 @@
         "description": "Adds the selected Tag to a Subscriber. If the Subscriber already has the Tag, the API returns the Subscriber unchanged.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:targeting"
+          "live_actions:write",
+          "subscribers:write"
         ],
         "mcp_tool_name": "subscribers_add_tag",
         "risk": "execute",
         "external_side_effect": false,
+        "requires_live_action": true,
         "side_effect_class": "subscriber-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -884,17 +1296,20 @@
         "description": "Removes the selected tag from a subscriber. If the subscriber does not have the tag, the API returns the subscriber unchanged.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:targeting"
+          "live_actions:write",
+          "subscribers:write"
         ],
         "mcp_tool_name": "subscribers_remove_tag",
         "risk": "execute",
         "external_side_effect": false,
+        "requires_live_action": true,
         "side_effect_class": "subscriber-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -922,17 +1337,20 @@
         "description": "Adds the selected subscriber to the selected sequence. If the subscriber is already in the sequence, the API returns the subscriber unchanged.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:sequence_enroll"
+          "live_actions:write",
+          "subscribers:write"
         ],
         "mcp_tool_name": "subscribers_add_to_sequence",
         "risk": "execute",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "external-email",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "sequence_operations",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -960,17 +1378,20 @@
         "description": "Removes the selected subscriber from the selected sequence. If the subscriber is not in the sequence, the API returns the subscriber unchanged.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:sequence_enroll"
+          "live_actions:write",
+          "subscribers:write"
         ],
         "mcp_tool_name": "subscribers_remove_from_sequence",
         "risk": "execute",
         "external_side_effect": false,
+        "requires_live_action": true,
         "side_effect_class": "subscriber-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "sequence_operations",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1010,19 +1431,19 @@
         "mcp_tool_name": "tags_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "sequence_preparation",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "administration"
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1051,18 +1472,19 @@
         "description": "Creates a new tag in the authenticated workspace. The GDPR consent tag names can be created and applied like other tags when you need to apply consent collected outside Mailrith. Tag-level double opt-in fields are no longer accepted; configure double opt-in on forms and landing pages instead.",
         "auth_required": true,
         "required_scopes": [
-          "tags:configure"
+          "tags:write"
         ],
         "mcp_tool_name": "tags_create",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "subscriber_sync",
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1094,19 +1516,19 @@
         "mcp_tool_name": "tags_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "sequence_preparation",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "administration"
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1133,18 +1555,19 @@
         "description": "Changes the name and description of one Tag in the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "tags:configure"
+          "tags:write"
         ],
         "mcp_tool_name": "tags_update",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1171,17 +1594,19 @@
         "description": "Permanently removes one Tag when no saved Mailrith resource references it.",
         "auth_required": true,
         "required_scopes": [
-          "tags:delete"
+          "tags:write"
         ],
         "mcp_tool_name": "tags_delete",
         "risk": "delete",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1220,17 +1645,19 @@
         "mcp_tool_name": "custom_fields_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1241,6 +1668,7 @@
         "risk_rationale": "Reads the bounded custom-field schema.",
         "path_params": [],
         "query_params": [
+          "search",
           "limit",
           "starting_after"
         ],
@@ -1258,18 +1686,19 @@
         "description": "Creates a workspace-scoped custom-field definition.",
         "auth_required": true,
         "required_scopes": [
-          "custom_fields:configure"
+          "custom_fields:write"
         ],
         "mcp_tool_name": "custom_fields_create",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "subscriber_sync",
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1301,17 +1730,19 @@
         "mcp_tool_name": "custom_fields_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1338,18 +1769,19 @@
         "description": "Updates a custom-field definition for the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "custom_fields:configure"
+          "custom_fields:write"
         ],
         "mcp_tool_name": "custom_fields_update",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1376,17 +1808,19 @@
         "description": "Deletes a custom-field definition from the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "custom_fields:delete"
+          "custom_fields:write"
         ],
         "mcp_tool_name": "custom_fields_delete",
         "risk": "delete",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1425,16 +1859,17 @@
         "mcp_tool_name": "email_templates_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "sequence_preparation",
-          "automations",
-          "administration"
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1445,6 +1880,7 @@
         "risk_rationale": "Reads a bounded page of reusable email templates.",
         "path_params": [],
         "query_params": [
+          "search",
           "limit",
           "starting_after"
         ],
@@ -1462,17 +1898,18 @@
         "description": "Creates a reusable email template scoped to the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "email_templates:draft"
+          "email_templates:write"
         ],
         "mcp_tool_name": "email_templates_create",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1504,16 +1941,17 @@
         "mcp_tool_name": "email_templates_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "sequence_preparation",
-          "automations",
-          "administration"
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1532,6 +1970,49 @@
       },
       {
         "namespace": "email_templates",
+        "method_name": "preview",
+        "operation_id": "previewEmailTemplate",
+        "method": "POST",
+        "path": "/v1/email-templates/{template_id}/preview",
+        "summary": "Preview an email template for a Subscriber",
+        "description": "Renders one template using a saved Subscriber's name, email, and custom fields without sending or saving anything.",
+        "auth_required": true,
+        "required_scopes": [
+          "subscribers:read",
+          "email_templates:read"
+        ],
+        "mcp_tool_name": "email_templates_preview",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Renders one reusable email template with one saved Subscriber without sending or saving anything.",
+        "path_params": [
+          "template_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": true,
+        "request_body_required": true
+      },
+      {
+        "namespace": "email_templates",
         "method_name": "update",
         "operation_id": "updateEmailTemplate",
         "method": "PUT",
@@ -1540,17 +2021,18 @@
         "description": "Updates the content or enabled state of an existing email template.",
         "auth_required": true,
         "required_scopes": [
-          "email_templates:draft"
+          "email_templates:write"
         ],
         "mcp_tool_name": "email_templates_update",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1577,17 +2059,18 @@
         "description": "Deletes an existing email template linked to the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "email_templates:delete"
+          "email_templates:write"
         ],
         "mcp_tool_name": "email_templates_delete",
         "risk": "delete",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1598,6 +2081,247 @@
         "risk_rationale": "Permanently removes reusable email content.",
         "path_params": [
           "template_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      }
+    ]
+  },
+  {
+    "namespace": "starting_points",
+    "name": "Starting Points",
+    "description": "Discover the same email, Form, and Landing Page starting points shown in the Mailrith UI. Lists return metadata only; item reads return full content on demand.",
+    "operations": [
+      {
+        "namespace": "starting_points",
+        "method_name": "list_email_templates",
+        "operation_id": "listEmailStartingPoints",
+        "method": "GET",
+        "path": "/v1/starting-points/email-templates",
+        "summary": "List email starting points",
+        "description": "Returns compact metadata for the same email starting points available in the Mailrith UI. Load one item only when its full content is needed.",
+        "auth_required": true,
+        "required_scopes": [
+          "email_templates:read"
+        ],
+        "mcp_tool_name": "starting_points_list_email_templates",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads compact metadata for the canonical email starting points shared with the Mailrith UI.",
+        "path_params": [],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "starting_points",
+        "method_name": "get_email_template",
+        "operation_id": "getEmailStartingPoint",
+        "method": "GET",
+        "path": "/v1/starting-points/email-templates/{starting_point_id}",
+        "summary": "Get an email starting point",
+        "description": "Returns one email starting point with its full structured email document.",
+        "auth_required": true,
+        "required_scopes": [
+          "email_templates:read"
+        ],
+        "mcp_tool_name": "starting_points_get_email_template",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads one canonical email starting point on demand.",
+        "path_params": [
+          "starting_point_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "starting_points",
+        "method_name": "list_forms",
+        "operation_id": "listFormStartingPoints",
+        "method": "GET",
+        "path": "/v1/starting-points/forms",
+        "summary": "List Form starting points",
+        "description": "Returns compact metadata for the same Form starting points available in the Mailrith UI. Load one item only when its full content is needed.",
+        "auth_required": true,
+        "required_scopes": [
+          "forms:read"
+        ],
+        "mcp_tool_name": "starting_points_list_forms",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads compact metadata for the canonical Form starting points shared with the Mailrith UI.",
+        "path_params": [],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "starting_points",
+        "method_name": "get_form",
+        "operation_id": "getFormStartingPoint",
+        "method": "GET",
+        "path": "/v1/starting-points/forms/{starting_point_id}",
+        "summary": "Get a Form starting point",
+        "description": "Returns one Form starting point with its definition, styles, and settings.",
+        "auth_required": true,
+        "required_scopes": [
+          "forms:read"
+        ],
+        "mcp_tool_name": "starting_points_get_form",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads one canonical Form starting point on demand.",
+        "path_params": [
+          "starting_point_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "starting_points",
+        "method_name": "list_landing_pages",
+        "operation_id": "listLandingPageStartingPoints",
+        "method": "GET",
+        "path": "/v1/starting-points/landing-pages",
+        "summary": "List Landing Page starting points",
+        "description": "Returns compact metadata for the same Landing Page starting points available in the Mailrith UI. Load one item only when its full content is needed.",
+        "auth_required": true,
+        "required_scopes": [
+          "landing_pages:read"
+        ],
+        "mcp_tool_name": "starting_points_list_landing_pages",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads compact metadata for the canonical Landing Page starting points shared with the Mailrith UI.",
+        "path_params": [],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "starting_points",
+        "method_name": "get_landing_page",
+        "operation_id": "getLandingPageStartingPoint",
+        "method": "GET",
+        "path": "/v1/starting-points/landing-pages/{starting_point_id}",
+        "summary": "Get a Landing Page starting point",
+        "description": "Returns one Landing Page starting point with its definition, styles, and settings.",
+        "auth_required": true,
+        "required_scopes": [
+          "landing_pages:read"
+        ],
+        "mcp_tool_name": "starting_points_get_landing_page",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads one canonical Landing Page starting point on demand.",
+        "path_params": [
+          "starting_point_id"
         ],
         "query_params": [],
         "header_params": [],
@@ -1626,13 +2350,14 @@
         "mcp_tool_name": "forms_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1661,17 +2386,19 @@
         "description": "Creates a form in the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "forms:configure"
+          "live_actions:write",
+          "forms:write"
         ],
         "mcp_tool_name": "forms_create",
         "risk": "draft",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1703,13 +2430,14 @@
         "mcp_tool_name": "forms_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1733,21 +2461,22 @@
         "method": "GET",
         "path": "/v1/forms/{form_id}/submissions",
         "summary": "List form submissions",
-        "description": "Returns recent real submissions for one form, including the subscriber who submitted the form. Requires both `forms:read` and `subscribers:read`.",
+        "description": "Returns a bounded cursor page of retained submissions for one Form, including the Subscriber who submitted it.",
         "auth_required": true,
         "required_scopes": [
-          "forms:submissions_read"
+          "form_submissions:read"
         ],
         "mcp_tool_name": "forms_list_submissions",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1769,6 +2498,86 @@
       },
       {
         "namespace": "forms",
+        "method_name": "get_submission",
+        "operation_id": "getFormSubmission",
+        "method": "GET",
+        "path": "/v1/forms/{form_id}/submissions/{submission_id}",
+        "summary": "Get a form submission",
+        "description": "Returns one retained Form submission by stable identifier.",
+        "auth_required": true,
+        "required_scopes": [
+          "form_submissions:read"
+        ],
+        "mcp_tool_name": "forms_get_submission",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads one retained Form submission by stable identifier.",
+        "path_params": [
+          "form_id",
+          "submission_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "forms",
+        "method_name": "preview_double_opt_in",
+        "operation_id": "previewFormDoubleOptIn",
+        "method": "POST",
+        "path": "/v1/forms/{form_id}/double-opt-in-preview",
+        "summary": "Preview a form confirmation email for a Subscriber",
+        "description": "Renders the configured double opt-in email for a saved Subscriber without sending or saving anything.",
+        "auth_required": true,
+        "required_scopes": [
+          "subscribers:read",
+          "forms:read"
+        ],
+        "mcp_tool_name": "forms_preview_double_opt_in",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Renders one Form confirmation email with one saved Subscriber without sending or saving anything.",
+        "path_params": [
+          "form_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": true,
+        "request_body_required": true
+      },
+      {
+        "namespace": "forms",
         "method_name": "update",
         "operation_id": "updateForm",
         "method": "PUT",
@@ -1777,17 +2586,19 @@
         "description": "Updates an existing form without creating a new form.",
         "auth_required": true,
         "required_scopes": [
-          "forms:configure"
+          "live_actions:write",
+          "forms:write"
         ],
         "mcp_tool_name": "forms_update",
         "risk": "draft",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1814,17 +2625,19 @@
         "description": "Deletes a form from the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "forms:delete"
+          "live_actions:write",
+          "forms:write"
         ],
         "mcp_tool_name": "forms_delete",
         "risk": "delete",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1863,13 +2676,14 @@
         "mcp_tool_name": "landing_pages_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1898,17 +2712,19 @@
         "description": "Creates a hosted landing page in the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "landing_pages:configure"
+          "live_actions:write",
+          "landing_pages:write"
         ],
         "mcp_tool_name": "landing_pages_create",
         "risk": "draft",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1940,13 +2756,14 @@
         "mcp_tool_name": "landing_pages_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1970,21 +2787,22 @@
         "method": "GET",
         "path": "/v1/landing-pages/{landing_page_id}/submissions",
         "summary": "List landing page submissions",
-        "description": "Returns recent real submissions for one landing page, including the subscriber who submitted the landing page. Requires both `landing_pages:read` and `subscribers:read`.",
+        "description": "Returns a bounded cursor page of retained submissions for one Landing Page, including the Subscriber who submitted it.",
         "auth_required": true,
         "required_scopes": [
-          "landing_pages:submissions_read"
+          "landing_page_submissions:read"
         ],
         "mcp_tool_name": "landing_pages_list_submissions",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2006,6 +2824,86 @@
       },
       {
         "namespace": "landing_pages",
+        "method_name": "get_submission",
+        "operation_id": "getLandingPageSubmission",
+        "method": "GET",
+        "path": "/v1/landing-pages/{landing_page_id}/submissions/{submission_id}",
+        "summary": "Get a landing page submission",
+        "description": "Returns one retained Landing Page submission by stable identifier.",
+        "auth_required": true,
+        "required_scopes": [
+          "landing_page_submissions:read"
+        ],
+        "mcp_tool_name": "landing_pages_get_submission",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads one retained Landing Page submission by stable identifier.",
+        "path_params": [
+          "landing_page_id",
+          "submission_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "landing_pages",
+        "method_name": "preview_double_opt_in",
+        "operation_id": "previewLandingPageDoubleOptIn",
+        "method": "POST",
+        "path": "/v1/landing-pages/{landing_page_id}/double-opt-in-preview",
+        "summary": "Preview a landing page confirmation email for a Subscriber",
+        "description": "Renders the configured double opt-in email for a saved Subscriber without sending or saving anything.",
+        "auth_required": true,
+        "required_scopes": [
+          "subscribers:read",
+          "landing_pages:read"
+        ],
+        "mcp_tool_name": "landing_pages_preview_double_opt_in",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Renders one Landing Page confirmation email with one saved Subscriber without sending or saving anything.",
+        "path_params": [
+          "landing_page_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": true,
+        "request_body_required": true
+      },
+      {
+        "namespace": "landing_pages",
         "method_name": "update",
         "operation_id": "updateLandingPage",
         "method": "PUT",
@@ -2014,17 +2912,19 @@
         "description": "Updates an existing hosted landing page without creating a new landing page.",
         "auth_required": true,
         "required_scopes": [
-          "landing_pages:configure"
+          "live_actions:write",
+          "landing_pages:write"
         ],
         "mcp_tool_name": "landing_pages_update",
         "risk": "draft",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2051,17 +2951,19 @@
         "description": "Deletes a landing page from the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "landing_pages:delete"
+          "live_actions:write",
+          "landing_pages:write"
         ],
         "mcp_tool_name": "landing_pages_delete",
         "risk": "delete",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2100,14 +3002,15 @@
         "mcp_tool_name": "sequences_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "sequence_preparation",
-          "sequence_operations",
-          "administration"
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2136,17 +3039,18 @@
         "description": "Creates a sequence in the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "sequences:draft"
+          "sequences:write"
         ],
         "mcp_tool_name": "sequences_create",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "sequence_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2178,14 +3082,15 @@
         "mcp_tool_name": "sequences_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "sequence_preparation",
-          "sequence_operations",
-          "administration"
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2204,6 +3109,131 @@
       },
       {
         "namespace": "sequences",
+        "method_name": "preflight",
+        "operation_id": "preflightSequence",
+        "method": "GET",
+        "path": "/v1/sequences/{sequence_id}/preflight",
+        "summary": "Check sequence readiness",
+        "description": "Checks the saved Sequence, its published emails, and its email delivery connection without changing data or sending email.",
+        "auth_required": true,
+        "required_scopes": [
+          "sequences:read"
+        ],
+        "mcp_tool_name": "sequences_preflight",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "subscriber_management",
+          "sequences"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Runs bounded Sequence readiness checks without changing the Sequence.",
+        "path_params": [
+          "sequence_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "sequences",
+        "method_name": "preview_journey",
+        "operation_id": "previewSequenceJourney",
+        "method": "GET",
+        "path": "/v1/sequences/{sequence_id}/journey-preview",
+        "summary": "Preview a sequence journey",
+        "description": "Returns the bounded saved email timeline and shows which messages a selected Subscriber is eligible to receive, without enrolling the Subscriber or sending email.",
+        "auth_required": true,
+        "required_scopes": [
+          "subscribers:read",
+          "sequences:read"
+        ],
+        "mcp_tool_name": "sequences_preview_journey",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "subscriber_management",
+          "sequences"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Returns a bounded, side-effect-free timeline of the Sequence emails.",
+        "path_params": [
+          "sequence_id"
+        ],
+        "query_params": [
+          "subscriber_id"
+        ],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "sequences",
+        "method_name": "send_test",
+        "operation_id": "testSequence",
+        "method": "POST",
+        "path": "/v1/sequences/{sequence_id}/test",
+        "summary": "Send sequence test messages",
+        "description": "Sends up to five selected saved Sequence emails to one explicit test address. This does not enroll a Subscriber, start the Sequence, or write delivery activity.",
+        "auth_required": true,
+        "required_scopes": [
+          "live_actions:write",
+          "subscribers:read",
+          "sequences:write"
+        ],
+        "mcp_tool_name": "sequences_send_test",
+        "risk": "test",
+        "external_side_effect": true,
+        "requires_live_action": true,
+        "side_effect_class": "external-email",
+        "retry_mode": "idempotency-key",
+        "idempotency_policy": "idempotency-key",
+        "toolsets": [
+          "full_email_marketing_access",
+          "sequences"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "risk_rationale": "Sends at most five selected Sequence messages to one explicit test address without enrolling Subscribers.",
+        "path_params": [
+          "sequence_id"
+        ],
+        "query_params": [],
+        "header_params": [
+          "Idempotency-Key"
+        ],
+        "has_request_body": true,
+        "request_body_required": true
+      },
+      {
+        "namespace": "sequences",
         "method_name": "update",
         "operation_id": "updateSequence",
         "method": "PUT",
@@ -2212,17 +3242,18 @@
         "description": "Updates an existing sequence.",
         "auth_required": true,
         "required_scopes": [
-          "sequences:draft"
+          "sequences:write"
         ],
         "mcp_tool_name": "sequences_update",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "sequence_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2249,17 +3280,19 @@
         "description": "Starts or pauses one Sequence without changing its content or delivery settings.",
         "auth_required": true,
         "required_scopes": [
-          "sequences:activate"
+          "live_actions:write",
+          "sequences:write"
         ],
         "mcp_tool_name": "sequences_update_status",
         "risk": "execute",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "external-email",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "sequence_operations",
-          "administration"
+          "full_email_marketing_access",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2286,17 +3319,18 @@
         "description": "Deletes an existing sequence from the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "sequences:delete"
+          "sequences:write"
         ],
         "mcp_tool_name": "sequences_delete",
         "risk": "delete",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "sequence_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2335,13 +3369,14 @@
         "mcp_tool_name": "automations_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "automations",
-          "administration"
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2352,6 +3387,7 @@
         "risk_rationale": "Reads a bounded page of Automation definitions and states.",
         "path_params": [],
         "query_params": [
+          "search",
           "limit",
           "starting_after"
         ],
@@ -2369,17 +3405,18 @@
         "description": "Creates an automation in the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "automations:draft"
+          "automations:write"
         ],
         "mcp_tool_name": "automations_create",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "automations",
-          "administration"
+          "full_email_marketing_access",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2411,13 +3448,14 @@
         "mcp_tool_name": "automations_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "automations",
-          "administration"
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2436,6 +3474,129 @@
       },
       {
         "namespace": "automations",
+        "method_name": "preflight",
+        "operation_id": "preflightAutomation",
+        "method": "GET",
+        "path": "/v1/automations/{automation_id}/preflight",
+        "summary": "Check automation readiness",
+        "description": "Checks the saved Automation definition and email delivery prerequisite without running any action.",
+        "auth_required": true,
+        "required_scopes": [
+          "automations:read"
+        ],
+        "mcp_tool_name": "automations_preflight",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "automations"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Runs bounded Automation readiness checks without running any actions.",
+        "path_params": [
+          "automation_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "automations",
+        "method_name": "preview_journey",
+        "operation_id": "previewAutomationJourney",
+        "method": "GET",
+        "path": "/v1/automations/{automation_id}/journey-preview",
+        "summary": "Preview an automation journey",
+        "description": "Shows the bounded path a selected Subscriber would take through the current saved conditions without running actions or writing history.",
+        "auth_required": true,
+        "required_scopes": [
+          "subscribers:read",
+          "automations:read"
+        ],
+        "mcp_tool_name": "automations_preview_journey",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "automations"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Returns a bounded, side-effect-free view of Automation triggers, steps, and branches.",
+        "path_params": [
+          "automation_id"
+        ],
+        "query_params": [
+          "subscriber_id"
+        ],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "automations",
+        "method_name": "send_test",
+        "operation_id": "testAutomation",
+        "method": "POST",
+        "path": "/v1/automations/{automation_id}/test",
+        "summary": "Send automation test messages",
+        "description": "Sends up to five selected saved Automation email steps to one explicit test address. This does not start the Automation or run other actions.",
+        "auth_required": true,
+        "required_scopes": [
+          "live_actions:write",
+          "subscribers:read",
+          "automations:write"
+        ],
+        "mcp_tool_name": "automations_send_test",
+        "risk": "test",
+        "external_side_effect": true,
+        "requires_live_action": true,
+        "side_effect_class": "external-email",
+        "retry_mode": "idempotency-key",
+        "idempotency_policy": "idempotency-key",
+        "toolsets": [
+          "full_email_marketing_access",
+          "automations"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "risk_rationale": "Sends at most five selected Automation email steps to one explicit test address without running actions.",
+        "path_params": [
+          "automation_id"
+        ],
+        "query_params": [],
+        "header_params": [
+          "Idempotency-Key"
+        ],
+        "has_request_body": true,
+        "request_body_required": true
+      },
+      {
+        "namespace": "automations",
         "method_name": "update",
         "operation_id": "updateAutomation",
         "method": "PUT",
@@ -2444,17 +3605,18 @@
         "description": "Updates an existing automation.",
         "auth_required": true,
         "required_scopes": [
-          "automations:draft"
+          "automations:write"
         ],
         "mcp_tool_name": "automations_update",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "automations",
-          "administration"
+          "full_email_marketing_access",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2477,21 +3639,23 @@
         "operation_id": "updateAutomationStatus",
         "method": "PUT",
         "path": "/v1/automations/{automation_id}/status",
-        "summary": "Activate or pause an automation",
-        "description": "Starts or pauses one Automation without changing its definition.",
+        "summary": "Change an automation status",
+        "description": "Starts, pauses, or returns one Automation to draft without changing its definition.",
         "auth_required": true,
         "required_scopes": [
-          "automations:activate"
+          "live_actions:write",
+          "automations:write"
         ],
         "mcp_tool_name": "automations_update_status",
         "risk": "execute",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "external-email",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "automations",
-          "administration"
+          "full_email_marketing_access",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2518,17 +3682,18 @@
         "description": "Deletes an automation from the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "automations:delete"
+          "automations:write"
         ],
         "mcp_tool_name": "automations_delete",
         "risk": "delete",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "automations",
-          "administration"
+          "full_email_marketing_access",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2567,13 +3732,14 @@
         "mcp_tool_name": "magic_links_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2584,6 +3750,7 @@
         "risk_rationale": "Reads a bounded page of Magic Links.",
         "path_params": [],
         "query_params": [
+          "search",
           "limit",
           "starting_after"
         ],
@@ -2601,17 +3768,19 @@
         "description": "Creates a magic link in the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "magic_links:configure"
+          "live_actions:write",
+          "magic_links:write"
         ],
         "mcp_tool_name": "magic_links_create",
         "risk": "execute",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "public-resource",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2643,13 +3812,14 @@
         "mcp_tool_name": "magic_links_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2676,17 +3846,19 @@
         "description": "Updates an existing magic link.",
         "auth_required": true,
         "required_scopes": [
-          "magic_links:configure"
+          "live_actions:write",
+          "magic_links:write"
         ],
         "mcp_tool_name": "magic_links_update",
         "risk": "execute",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "public-resource",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2713,17 +3885,19 @@
         "description": "Deletes a magic link from the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "magic_links:delete"
+          "live_actions:write",
+          "magic_links:write"
         ],
         "mcp_tool_name": "magic_links_delete",
         "risk": "delete",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2762,14 +3936,14 @@
         "mcp_tool_name": "broadcasts_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2780,6 +3954,7 @@
         "risk_rationale": "Reads a bounded page of Broadcasts and aggregate results.",
         "path_params": [],
         "query_params": [
+          "search",
           "limit",
           "starting_after"
         ],
@@ -2794,20 +3969,21 @@
         "method": "POST",
         "path": "/v1/broadcasts",
         "summary": "Create a broadcast",
-        "description": "Creates a broadcast draft or scheduled broadcast in the authenticated workspace.",
+        "description": "Creates a broadcast draft in the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "broadcasts:draft"
+          "broadcasts:write"
         ],
         "mcp_tool_name": "broadcasts_create",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "broadcast_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2839,14 +4015,14 @@
         "mcp_tool_name": "broadcasts_get_send_progress",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2878,14 +4054,14 @@
         "mcp_tool_name": "broadcasts_list_delivery_errors",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2920,14 +4096,14 @@
         "mcp_tool_name": "broadcasts_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2954,17 +4130,18 @@
         "description": "Updates a broadcast draft or scheduled send in place.",
         "auth_required": true,
         "required_scopes": [
-          "broadcasts:draft"
+          "broadcasts:write"
         ],
         "mcp_tool_name": "broadcasts_update",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "broadcast_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2991,17 +4168,18 @@
         "description": "Deletes a draft, scheduled, or failed broadcast from the authenticated workspace. Broadcasts cannot be deleted after they start sending.",
         "auth_required": true,
         "required_scopes": [
-          "broadcasts:delete"
+          "broadcasts:write"
         ],
         "mcp_tool_name": "broadcasts_delete",
         "risk": "delete",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "broadcast_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3028,19 +4206,19 @@
         "description": "Optionally checks the current Subscriber estimate, provider capacity, sender setup, event tracking, and blocking issues. This diagnostic is not required before starting a durable send.",
         "auth_required": true,
         "required_scopes": [
-          "broadcasts:preflight"
+          "broadcasts:read"
         ],
         "mcp_tool_name": "broadcasts_preflight",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3059,6 +4237,84 @@
       },
       {
         "namespace": "broadcasts",
+        "method_name": "schedule",
+        "operation_id": "scheduleBroadcast",
+        "method": "PUT",
+        "path": "/v1/broadcasts/{broadcast_id}/schedule",
+        "summary": "Schedule or reschedule a broadcast",
+        "description": "Schedules a draft for future delivery, or changes the delivery time of an existing scheduled Broadcast. This uses Mailrith's durable scheduled-send path and does not start delivery immediately.",
+        "auth_required": true,
+        "required_scopes": [
+          "live_actions:write",
+          "broadcasts:write"
+        ],
+        "mcp_tool_name": "broadcasts_schedule",
+        "risk": "execute",
+        "external_side_effect": true,
+        "requires_live_action": true,
+        "side_effect_class": "external-email",
+        "retry_mode": "resource-state",
+        "idempotency_policy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "broadcasts"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true
+        },
+        "risk_rationale": "Schedules durable delivery to real Subscribers at a future time.",
+        "path_params": [
+          "broadcast_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": true,
+        "request_body_required": true
+      },
+      {
+        "namespace": "broadcasts",
+        "method_name": "unschedule",
+        "operation_id": "unscheduleBroadcast",
+        "method": "DELETE",
+        "path": "/v1/broadcasts/{broadcast_id}/schedule",
+        "summary": "Unschedule a broadcast",
+        "description": "Returns a scheduled Broadcast to draft state before delivery starts.",
+        "auth_required": true,
+        "required_scopes": [
+          "live_actions:write",
+          "broadcasts:write"
+        ],
+        "mcp_tool_name": "broadcasts_unschedule",
+        "risk": "execute",
+        "external_side_effect": false,
+        "requires_live_action": true,
+        "side_effect_class": "workspace-change",
+        "retry_mode": "resource-state",
+        "idempotency_policy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "broadcasts"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Cancels future delivery before it starts and returns the Broadcast to draft state.",
+        "path_params": [
+          "broadcast_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "broadcasts",
         "method_name": "send",
         "operation_id": "sendBroadcast",
         "method": "POST",
@@ -3067,17 +4323,19 @@
         "description": "Immediately creates durable preparation for a broadcast draft or scheduled send. Mailrith calculates the exact Subscriber total and checks provider readiness in the background before delivery. A 202 response means the durable send was accepted, not that provider delivery is complete. Reuse the same idempotency key if the response is lost.",
         "auth_required": true,
         "required_scopes": [
-          "broadcasts:send"
+          "live_actions:write",
+          "broadcasts:write"
         ],
         "mcp_tool_name": "broadcasts_send",
         "risk": "execute",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "external-email",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "broadcast_sending",
-          "administration"
+          "full_email_marketing_access",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3106,17 +4364,19 @@
         "description": "Requests cancellation for delivery work that has not reached the provider. Provider-accepted emails cannot be recalled. Repeat the same request with the same idempotency key when the response is lost.",
         "auth_required": true,
         "required_scopes": [
-          "broadcasts:cancel"
+          "live_actions:write",
+          "broadcasts:write"
         ],
         "mcp_tool_name": "broadcasts_cancel",
         "risk": "execute",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "external-email",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "broadcast_sending",
-          "administration"
+          "full_email_marketing_access",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3145,17 +4405,20 @@
         "description": "Sends a test message from an existing broadcast to one recipient.",
         "auth_required": true,
         "required_scopes": [
-          "broadcasts:test"
+          "live_actions:write",
+          "subscribers:read",
+          "broadcasts:write"
         ],
         "mcp_tool_name": "broadcasts_send_test",
         "risk": "test",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "external-email",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "broadcast_sending",
-          "administration"
+          "full_email_marketing_access",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3196,15 +4459,16 @@
         "mcp_tool_name": "segments_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3215,6 +4479,7 @@
         "risk_rationale": "Reads a bounded page of saved Segments.",
         "path_params": [],
         "query_params": [
+          "search",
           "limit",
           "starting_after"
         ],
@@ -3232,18 +4497,20 @@
         "description": "Creates a saved segment in the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "segments:configure"
+          "segments:write"
         ],
         "mcp_tool_name": "segments_create",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "content_and_targeting",
-          "broadcast_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3275,15 +4542,16 @@
         "mcp_tool_name": "segments_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3310,18 +4578,20 @@
         "description": "Updates a saved segment in the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "segments:configure"
+          "segments:write"
         ],
         "mcp_tool_name": "segments_update",
         "risk": "draft",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "workspace-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "content_and_targeting",
-          "broadcast_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3348,17 +4618,20 @@
         "description": "Deletes a saved segment from the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
-          "segments:delete"
+          "segments:write"
         ],
         "mcp_tool_name": "segments_delete",
         "risk": "delete",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3390,15 +4663,16 @@
         "mcp_tool_name": "segments_preview",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3435,13 +4709,13 @@
         "mcp_tool_name": "webhook_subscriptions_list",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
-          "reporting",
-          "webhooks",
-          "administration"
+          "full_email_marketing_access",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3466,17 +4740,19 @@
         "description": "Creates a signed outbound webhook subscription and returns the signing secret once. The caller must also have read scopes for the selected event families. A workspace can have up to 20 webhook subscriptions, including disabled subscriptions.",
         "auth_required": true,
         "required_scopes": [
+          "live_actions:write",
           "webhooks:write"
         ],
         "mcp_tool_name": "webhook_subscriptions_create",
         "risk": "admin",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "external-webhook",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "webhooks",
-          "administration"
+          "full_email_marketing_access",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3491,72 +4767,7 @@
           "Idempotency-Key"
         ],
         "has_request_body": true,
-        "request_body_required": true,
-        "event_pattern_scope_requirements": {
-          "request_field": "event_patterns",
-          "description": "When creating or updating a webhook subscription, each selected event pattern requires these read scopes in addition to `webhooks:write`.",
-          "required_scopes_by_event_pattern": {
-            "*": [
-              "subscribers:read",
-              "subscriptions:read",
-              "forms:read",
-              "landing_pages:read",
-              "broadcasts:read",
-              "automations:read"
-            ],
-            "subscriber.*": [
-              "subscribers:read",
-              "subscriptions:read"
-            ],
-            "form.*": [
-              "subscribers:read",
-              "forms:read"
-            ],
-            "landing_page.*": [
-              "subscribers:read",
-              "landing_pages:read"
-            ],
-            "broadcast.*": [
-              "broadcasts:read"
-            ],
-            "automation.*": [
-              "subscribers:read",
-              "automations:read"
-            ],
-            "subscriber.created": [
-              "subscribers:read"
-            ],
-            "subscriber.updated": [
-              "subscribers:read"
-            ],
-            "subscriber.status_changed": [
-              "subscriptions:read"
-            ],
-            "form.submitted": [
-              "subscribers:read",
-              "forms:read"
-            ],
-            "landing_page.submitted": [
-              "subscribers:read",
-              "landing_pages:read"
-            ],
-            "broadcast.state_changed": [
-              "broadcasts:read"
-            ],
-            "automation.entered": [
-              "subscribers:read",
-              "automations:read"
-            ],
-            "automation.step_executed": [
-              "subscribers:read",
-              "automations:read"
-            ],
-            "automation.completed": [
-              "subscribers:read",
-              "automations:read"
-            ]
-          }
-        }
+        "request_body_required": true
       },
       {
         "namespace": "webhook_subscriptions",
@@ -3573,13 +4784,13 @@
         "mcp_tool_name": "webhook_subscriptions_get",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
-          "reporting",
-          "webhooks",
-          "administration"
+          "full_email_marketing_access",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3606,17 +4817,19 @@
         "description": "Updates the destination URL, status, or event pattern set for an existing webhook subscription. The caller must also have read scopes for the subscription's event families.",
         "auth_required": true,
         "required_scopes": [
+          "live_actions:write",
           "webhooks:write"
         ],
         "mcp_tool_name": "webhook_subscriptions_update",
         "risk": "admin",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "external-webhook",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "webhooks",
-          "administration"
+          "full_email_marketing_access",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3631,72 +4844,7 @@
         "query_params": [],
         "header_params": [],
         "has_request_body": true,
-        "request_body_required": true,
-        "event_pattern_scope_requirements": {
-          "request_field": "event_patterns",
-          "description": "When creating or updating a webhook subscription, each selected event pattern requires these read scopes in addition to `webhooks:write`.",
-          "required_scopes_by_event_pattern": {
-            "*": [
-              "subscribers:read",
-              "subscriptions:read",
-              "forms:read",
-              "landing_pages:read",
-              "broadcasts:read",
-              "automations:read"
-            ],
-            "subscriber.*": [
-              "subscribers:read",
-              "subscriptions:read"
-            ],
-            "form.*": [
-              "subscribers:read",
-              "forms:read"
-            ],
-            "landing_page.*": [
-              "subscribers:read",
-              "landing_pages:read"
-            ],
-            "broadcast.*": [
-              "broadcasts:read"
-            ],
-            "automation.*": [
-              "subscribers:read",
-              "automations:read"
-            ],
-            "subscriber.created": [
-              "subscribers:read"
-            ],
-            "subscriber.updated": [
-              "subscribers:read"
-            ],
-            "subscriber.status_changed": [
-              "subscriptions:read"
-            ],
-            "form.submitted": [
-              "subscribers:read",
-              "forms:read"
-            ],
-            "landing_page.submitted": [
-              "subscribers:read",
-              "landing_pages:read"
-            ],
-            "broadcast.state_changed": [
-              "broadcasts:read"
-            ],
-            "automation.entered": [
-              "subscribers:read",
-              "automations:read"
-            ],
-            "automation.step_executed": [
-              "subscribers:read",
-              "automations:read"
-            ],
-            "automation.completed": [
-              "subscribers:read",
-              "automations:read"
-            ]
-          }
-        }
+        "request_body_required": true
       },
       {
         "namespace": "webhook_subscriptions",
@@ -3708,17 +4856,19 @@
         "description": "Deletes an existing outbound webhook subscription from the authenticated workspace.",
         "auth_required": true,
         "required_scopes": [
+          "live_actions:write",
           "webhooks:write"
         ],
         "mcp_tool_name": "webhook_subscriptions_delete",
         "risk": "delete",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "deletion",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "webhooks",
-          "administration"
+          "full_email_marketing_access",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3745,17 +4895,19 @@
         "description": "Invalidates the existing webhook signing secret and returns a replacement once.",
         "auth_required": true,
         "required_scopes": [
+          "live_actions:write",
           "webhooks:write"
         ],
         "mcp_tool_name": "webhook_subscriptions_rotate_secret",
         "risk": "admin",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "secret-change",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
-          "webhooks",
-          "administration"
+          "full_email_marketing_access",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3781,25 +4933,140 @@
     "operations": [
       {
         "namespace": "jobs",
+        "method_name": "start_import_upload",
+        "operation_id": "startSubscriberImportUpload",
+        "method": "POST",
+        "path": "/v1/jobs/subscriber-import-uploads",
+        "summary": "Start a subscriber import upload",
+        "description": "Creates a short-lived browser handoff where a signed-in user can choose a CSV file. Starting the handoff does not import Subscribers.",
+        "auth_required": true,
+        "required_scopes": [
+          "subscribers:import"
+        ],
+        "mcp_tool_name": "jobs_start_import_upload",
+        "risk": "draft",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "workspace-change",
+        "retry_mode": "resource-state",
+        "idempotency_policy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "subscriber_import_export"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Creates a short-lived browser handoff without importing or storing Subscriber rows.",
+        "path_params": [],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "jobs",
+        "method_name": "get_import_upload",
+        "operation_id": "getSubscriberImportUpload",
+        "method": "GET",
+        "path": "/v1/jobs/subscriber-import-uploads/{upload_id}",
+        "summary": "Get a subscriber import upload",
+        "description": "Returns upload readiness, bounded column metadata, and the row count without returning CSV contents.",
+        "auth_required": true,
+        "required_scopes": [
+          "subscribers:import"
+        ],
+        "mcp_tool_name": "jobs_get_import_upload",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "subscriber_import_export"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads bounded status and CSV column metadata for one short-lived upload.",
+        "path_params": [
+          "upload_id"
+        ],
+        "query_params": [],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "jobs",
+        "method_name": "list_imports",
+        "operation_id": "listSubscriberImportJobs",
+        "method": "GET",
+        "path": "/v1/jobs/subscriber-imports",
+        "summary": "List subscriber import jobs",
+        "description": "Returns a bounded cursor page of recent Subscriber import job summaries without loading stored CSV data or mapping payloads.",
+        "auth_required": true,
+        "required_scopes": [
+          "subscribers:import"
+        ],
+        "mcp_tool_name": "jobs_list_imports",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "subscriber_import_export"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads a bounded page of recent Subscriber import job summaries.",
+        "path_params": [],
+        "query_params": [
+          "limit",
+          "starting_after"
+        ],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "jobs",
         "method_name": "create_import",
         "operation_id": "createSubscriberImportJob",
         "method": "POST",
         "path": "/v1/jobs/subscriber-imports",
         "summary": "Create a subscriber import job",
-        "description": "Queues an asynchronous import job that creates or updates subscribers from CSV text.",
+        "description": "Queues an asynchronous import job from a ready short-lived browser upload. CSV contents never pass through the agent request.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:bulk_import"
+          "live_actions:write",
+          "subscribers:import"
         ],
         "mcp_tool_name": "jobs_create_import",
         "risk": "bulk",
         "external_side_effect": true,
+        "requires_live_action": true,
         "side_effect_class": "bulk-data",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "data_transfer",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3826,17 +5093,18 @@
         "description": "Returns the current state of a previously created import job.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:bulk_import"
+          "subscribers:import"
         ],
         "mcp_tool_name": "jobs_get_import",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
-          "data_transfer",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3855,25 +5123,65 @@
       },
       {
         "namespace": "jobs",
+        "method_name": "list_exports",
+        "operation_id": "listSubscriberExportJobs",
+        "method": "GET",
+        "path": "/v1/jobs/subscriber-exports",
+        "summary": "List subscriber export jobs",
+        "description": "Returns a bounded cursor page of recent Subscriber export job summaries without loading selection payloads or generating download URLs.",
+        "auth_required": true,
+        "required_scopes": [
+          "subscribers:export"
+        ],
+        "mcp_tool_name": "jobs_list_exports",
+        "risk": "read",
+        "external_side_effect": false,
+        "requires_live_action": false,
+        "side_effect_class": "none",
+        "retry_mode": "safe",
+        "idempotency_policy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "subscriber_import_export"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "risk_rationale": "Reads a bounded page of recent Subscriber export job summaries.",
+        "path_params": [],
+        "query_params": [
+          "limit",
+          "starting_after"
+        ],
+        "header_params": [],
+        "has_request_body": false,
+        "request_body_required": false
+      },
+      {
+        "namespace": "jobs",
         "method_name": "create_export",
         "operation_id": "createSubscriberExportJob",
         "method": "POST",
         "path": "/v1/jobs/subscriber-exports",
         "summary": "Create a subscriber export job",
-        "description": "Queues an asynchronous Subscriber export for the authenticated workspace. Requires `subscribers:bulk_export` because the finished file contains bulk Subscriber data.",
+        "description": "Queues an asynchronous Subscriber export for the authenticated workspace. Requires `subscribers:export` because the finished file contains bulk Subscriber data.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:bulk_export"
+          "subscribers:export"
         ],
         "mcp_tool_name": "jobs_create_export",
         "risk": "bulk",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "bulk-data",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
-          "data_transfer",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3897,20 +5205,21 @@
         "method": "GET",
         "path": "/v1/jobs/subscriber-exports/{job_id}",
         "summary": "Get a subscriber export job",
-        "description": "Returns the current state of a previously created export job. Requires `subscribers:bulk_export` because completed jobs include a Subscriber CSV download URL.",
+        "description": "Returns the current state of a previously created export job. Requires `subscribers:export` because completed jobs include a Subscriber CSV download URL.",
         "auth_required": true,
         "required_scopes": [
-          "subscribers:bulk_export"
+          "subscribers:export"
         ],
         "mcp_tool_name": "jobs_get_export",
         "risk": "read",
         "external_side_effect": false,
+        "requires_live_action": false,
         "side_effect_class": "none",
         "retry_mode": "safe",
         "idempotency_policy": "safe-read",
         "toolsets": [
-          "data_transfer",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,

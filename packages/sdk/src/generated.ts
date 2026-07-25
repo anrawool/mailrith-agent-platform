@@ -8,6 +8,208 @@ export const generatedMailrithAgentReadQuickstartScopeKeys = [
   "subscribers:read"
 ] as const;
 
+export const generatedMailrithWorkProfiles = [
+  {
+    "key": "full_email_marketing_access",
+    "label": "Full Email Marketing Access",
+    "description": "Create, view, change, send, import, export, and manage every public email-marketing resource in the selected workspace. This does not grant billing, team, account-security, credential-reading, or internal administration access.",
+    "scopeKeys": [
+      "analytics:read",
+      "live_actions:write",
+      "subscribers:read",
+      "subscribers:write",
+      "subscribers:import",
+      "subscribers:export",
+      "segments:read",
+      "segments:write",
+      "tags:read",
+      "tags:write",
+      "forms:read",
+      "forms:write",
+      "form_submissions:read",
+      "landing_pages:read",
+      "landing_pages:write",
+      "landing_page_submissions:read",
+      "broadcasts:read",
+      "broadcasts:write",
+      "sequences:read",
+      "sequences:write",
+      "magic_links:read",
+      "magic_links:write",
+      "automations:read",
+      "automations:write",
+      "workspace:read",
+      "email_delivery_connections:read",
+      "email_delivery_connections:write",
+      "email_templates:read",
+      "email_templates:write",
+      "custom_fields:read",
+      "custom_fields:write",
+      "webhooks:read",
+      "webhooks:write"
+    ]
+  },
+  {
+    "key": "reporting",
+    "label": "Reporting",
+    "description": "View workspace, Subscriber, content, workflow, and delivery information without changing anything.",
+    "scopeKeys": [
+      "analytics:read",
+      "subscribers:read",
+      "segments:read",
+      "tags:read",
+      "forms:read",
+      "form_submissions:read",
+      "landing_pages:read",
+      "landing_page_submissions:read",
+      "broadcasts:read",
+      "sequences:read",
+      "magic_links:read",
+      "automations:read",
+      "workspace:read",
+      "email_delivery_connections:read",
+      "email_templates:read",
+      "custom_fields:read"
+    ]
+  },
+  {
+    "key": "subscriber_management",
+    "label": "Subscriber Management",
+    "description": "Manage individual Subscribers, Tags, custom fields, Segments, status, and Sequence enrollment.",
+    "scopeKeys": [
+      "live_actions:write",
+      "subscribers:read",
+      "subscribers:write",
+      "segments:read",
+      "segments:write",
+      "tags:read",
+      "tags:write",
+      "sequences:read",
+      "workspace:read",
+      "custom_fields:read",
+      "custom_fields:write"
+    ]
+  },
+  {
+    "key": "content_and_capture",
+    "label": "Content And Capture",
+    "description": "Manage Templates, Forms, Landing Pages, Magic Links, Tags, fields, Segments, and captured submissions.",
+    "scopeKeys": [
+      "live_actions:write",
+      "subscribers:read",
+      "segments:read",
+      "segments:write",
+      "tags:read",
+      "tags:write",
+      "forms:read",
+      "forms:write",
+      "form_submissions:read",
+      "landing_pages:read",
+      "landing_pages:write",
+      "landing_page_submissions:read",
+      "magic_links:read",
+      "magic_links:write",
+      "workspace:read",
+      "email_templates:read",
+      "email_templates:write",
+      "custom_fields:read",
+      "custom_fields:write"
+    ]
+  },
+  {
+    "key": "broadcasts",
+    "label": "Broadcasts",
+    "description": "Create, review, test, schedule, send, stop, delete, and report on Broadcasts.",
+    "scopeKeys": [
+      "analytics:read",
+      "live_actions:write",
+      "subscribers:read",
+      "segments:read",
+      "segments:write",
+      "tags:read",
+      "broadcasts:read",
+      "broadcasts:write",
+      "workspace:read",
+      "email_delivery_connections:read",
+      "email_templates:read",
+      "custom_fields:read"
+    ]
+  },
+  {
+    "key": "sequences",
+    "label": "Sequences",
+    "description": "Create, review, test, start, pause, delete, and report on Sequences, including Subscriber enrollment.",
+    "scopeKeys": [
+      "analytics:read",
+      "live_actions:write",
+      "subscribers:read",
+      "subscribers:write",
+      "tags:read",
+      "sequences:read",
+      "sequences:write",
+      "workspace:read",
+      "email_delivery_connections:read",
+      "email_templates:read",
+      "custom_fields:read"
+    ]
+  },
+  {
+    "key": "automations",
+    "label": "Automations",
+    "description": "Create, review, test, start, pause, return to draft, delete, and report on Automations.",
+    "scopeKeys": [
+      "analytics:read",
+      "live_actions:write",
+      "subscribers:read",
+      "tags:read",
+      "automations:read",
+      "automations:write",
+      "workspace:read",
+      "email_delivery_connections:read",
+      "email_templates:read",
+      "custom_fields:read"
+    ]
+  },
+  {
+    "key": "email_delivery_setup",
+    "label": "Email Delivery Setup",
+    "description": "View and manage email delivery connections without exposing saved provider credentials.",
+    "scopeKeys": [
+      "live_actions:write",
+      "workspace:read",
+      "email_delivery_connections:read",
+      "email_delivery_connections:write"
+    ]
+  },
+  {
+    "key": "subscriber_import_export",
+    "label": "Subscriber Import And Export",
+    "description": "Import, export, and monitor bounded Subscriber transfer jobs.",
+    "scopeKeys": [
+      "live_actions:write",
+      "subscribers:read",
+      "subscribers:import",
+      "subscribers:export",
+      "tags:read",
+      "workspace:read",
+      "custom_fields:read"
+    ]
+  },
+  {
+    "key": "outbound_webhooks",
+    "label": "Outbound Webhooks",
+    "description": "View and manage signed outbound webhook destinations.",
+    "scopeKeys": [
+      "live_actions:write",
+      "workspace:read",
+      "webhooks:read",
+      "webhooks:write"
+    ]
+  }
+] as const;
+
+export const generatedMailrithDefaultWorkProfileKey = "full_email_marketing_access" as const;
+
 export const generatedMailrithSdkResources = [
   {
     "namespace": "discovery",
@@ -27,22 +229,21 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "discovery_get_metadata",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "webhooks",
-          "administration"
+          "email_delivery_setup",
+          "subscriber_import_export",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -70,22 +271,21 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "discovery_get_capabilities",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "webhooks",
-          "administration"
+          "email_delivery_setup",
+          "subscriber_import_export",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -113,22 +313,21 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "discovery_get_open_api_document",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "webhooks",
-          "administration"
+          "email_delivery_setup",
+          "subscriber_import_export",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -165,22 +364,21 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "workspace_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "webhooks",
-          "administration"
+          "email_delivery_setup",
+          "subscriber_import_export",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -198,31 +396,40 @@ export const generatedMailrithSdkResources = [
     ]
   },
   {
-    "namespace": "agentActivity",
-    "name": "Agent Activity",
-    "description": "Inspect the bounded, redacted activity trail for agent-originated workspace changes.",
+    "namespace": "senderIdentities",
+    "name": "Sender Identities",
+    "description": "Discover enabled sender names, addresses, and provider types that can be selected for Broadcasts and Sequences. Provider credentials are never returned.",
     "operations": [
       {
-        "namespace": "agentActivity",
+        "namespace": "senderIdentities",
         "methodName": "list",
-        "operationId": "listAgentActivity",
+        "operationId": "listSenderIdentities",
         "method": "GET",
-        "path": "/v1/agent-activity",
-        "summary": "List agent activity",
-        "description": "Returns one redacted row per logical agent-originated mutation. Results use keyset pagination, default to seven days, and cannot span more than 30 days.",
+        "path": "/v1/sender-identities",
+        "summary": "List sender identities",
+        "description": "Returns a bounded page of enabled sender names, addresses, and provider types that can be selected for Broadcasts and Sequences. Provider credentials and configuration are never returned.",
         "authRequired": true,
         "requiredScopes": [
-          "activity:read"
+          "workspace:read"
         ],
-        "mcpToolName": "agent_activity_list",
+        "mcpToolName": "sender_identities_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "email_delivery_setup",
+          "subscriber_import_export",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -230,49 +437,46 @@ export const generatedMailrithSdkResources = [
           "idempotentHint": true,
           "openWorldHint": false
         },
-        "riskRationale": "Reads a bounded, redacted page of agent-originated workspace mutations.",
+        "riskRationale": "Reads a bounded page of enabled sender metadata without provider credentials.",
         "pathParams": [],
         "queryParams": [
           "limit",
-          "cursor",
-          "from",
-          "to",
-          "client",
-          "credential_type",
-          "credential_id",
-          "operation",
-          "risk",
-          "outcome",
-          "resource_type",
-          "resource_id",
-          "request_id",
-          "activity_id"
+          "starting_after"
         ],
         "headerParams": [],
         "hasRequestBody": false,
         "requestBodyRequired": false
       },
       {
-        "namespace": "agentActivity",
+        "namespace": "senderIdentities",
         "methodName": "get",
-        "operationId": "getAgentActivity",
+        "operationId": "getSenderIdentity",
         "method": "GET",
-        "path": "/v1/agent-activity/{activity_id}",
-        "summary": "Get agent activity",
-        "description": "Returns one redacted activity trail with correlation, retry, result, and retention metadata.",
+        "path": "/v1/sender-identities/{sender_identity_id}",
+        "summary": "Get a sender identity",
+        "description": "Returns one enabled sender name, address, and provider type by stable identifier. Provider credentials and configuration are never returned.",
         "authRequired": true,
         "requiredScopes": [
-          "activity:read"
+          "workspace:read"
         ],
-        "mcpToolName": "agent_activity_get",
+        "mcpToolName": "sender_identities_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "email_delivery_setup",
+          "subscriber_import_export",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -280,9 +484,406 @@ export const generatedMailrithSdkResources = [
           "idempotentHint": true,
           "openWorldHint": false
         },
-        "riskRationale": "Reads one redacted agent mutation trail by its stable action identifier.",
+        "riskRationale": "Reads one enabled sender identity without provider credentials.",
         "pathParams": [
-          "activity_id"
+          "sender_identity_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      }
+    ]
+  },
+  {
+    "namespace": "emailDeliveryConnections",
+    "name": "Email Delivery Connections",
+    "description": "Set up and manage email delivery connections for the authenticated workspace. Provider credentials are entered only in Mailrith's secure browser flow and are never accepted or returned by the agent API.",
+    "operations": [
+      {
+        "namespace": "emailDeliveryConnections",
+        "methodName": "list",
+        "operationId": "listEmailDeliveryConnections",
+        "method": "GET",
+        "path": "/v1/email-delivery-connections",
+        "summary": "List email delivery connections",
+        "description": "Returns a bounded page of email delivery connections linked to the authenticated workspace. Saved credentials and webhook secrets are never returned.",
+        "authRequired": true,
+        "requiredScopes": [
+          "email_delivery_connections:read"
+        ],
+        "mcpToolName": "email_delivery_connections_list",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads a bounded page of secret-free delivery connection metadata.",
+        "pathParams": [],
+        "queryParams": [
+          "limit",
+          "starting_after"
+        ],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "emailDeliveryConnections",
+        "methodName": "startSetup",
+        "operationId": "startEmailDeliveryConnectionSetup",
+        "method": "POST",
+        "path": "/v1/email-delivery-connection-setup-sessions",
+        "summary": "Start secure email delivery connection setup",
+        "description": "Creates a short-lived browser handoff containing only non-secret defaults. Open setup_url so an authorized Mailrith user can enter provider credentials directly in Mailrith.",
+        "authRequired": true,
+        "requiredScopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcpToolName": "email_delivery_connections_start_setup",
+        "risk": "admin",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "secret-change",
+        "retryMode": "resource-state",
+        "idempotencyPolicy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Creates a short-lived browser handoff so provider credentials never pass through the agent API.",
+        "pathParams": [],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": true,
+        "requestBodyRequired": true
+      },
+      {
+        "namespace": "emailDeliveryConnections",
+        "methodName": "getSetup",
+        "operationId": "getEmailDeliveryConnectionSetup",
+        "method": "GET",
+        "path": "/v1/email-delivery-connection-setup-sessions/{setup_session_id}",
+        "summary": "Get secure setup status",
+        "description": "Returns pending or completed status for one short-lived setup session. It never returns the browser token or provider credentials.",
+        "authRequired": true,
+        "requiredScopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcpToolName": "email_delivery_connections_get_setup",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads the bounded status of one short-lived secure setup session.",
+        "pathParams": [
+          "setup_session_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "emailDeliveryConnections",
+        "methodName": "renewSetup",
+        "operationId": "renewEmailDeliveryConnectionSetup",
+        "method": "POST",
+        "path": "/v1/email-delivery-connection-setup-sessions/{setup_session_id}/renew",
+        "summary": "Renew secure email delivery setup",
+        "description": "Creates a fresh short-lived browser link from the previous session's bounded non-secret defaults. Completed sessions cannot be renewed.",
+        "authRequired": true,
+        "requiredScopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcpToolName": "email_delivery_connections_renew_setup",
+        "risk": "admin",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "secret-change",
+        "retryMode": "resource-state",
+        "idempotencyPolicy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reissues a short-lived browser handoff from bounded non-secret setup context.",
+        "pathParams": [
+          "setup_session_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "emailDeliveryConnections",
+        "methodName": "get",
+        "operationId": "getEmailDeliveryConnection",
+        "method": "GET",
+        "path": "/v1/email-delivery-connections/{connection_id}",
+        "summary": "Get an email delivery connection",
+        "description": "Returns one secret-free email delivery connection linked to the authenticated workspace.",
+        "authRequired": true,
+        "requiredScopes": [
+          "email_delivery_connections:read"
+        ],
+        "mcpToolName": "email_delivery_connections_get",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads one secret-free delivery connection linked to the workspace.",
+        "pathParams": [
+          "connection_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "emailDeliveryConnections",
+        "methodName": "update",
+        "operationId": "updateEmailDeliveryConnection",
+        "method": "PATCH",
+        "path": "/v1/email-delivery-connections/{connection_id}",
+        "summary": "Update an email delivery connection",
+        "description": "Changes non-secret details for one connection linked only to the authenticated workspace. Use a secure setup session to replace provider credentials. Shared connections must be changed in the Mailrith UI.",
+        "authRequired": true,
+        "requiredScopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcpToolName": "email_delivery_connections_update",
+        "risk": "admin",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "workspace-change",
+        "retryMode": "resource-state",
+        "idempotencyPolicy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Changes non-secret sender settings for one workspace-only connection.",
+        "pathParams": [
+          "connection_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": true,
+        "requestBodyRequired": true
+      },
+      {
+        "namespace": "emailDeliveryConnections",
+        "methodName": "updateStatus",
+        "operationId": "updateEmailDeliveryConnectionStatus",
+        "method": "PUT",
+        "path": "/v1/email-delivery-connections/{connection_id}/status",
+        "summary": "Enable or disable an email delivery connection",
+        "description": "Enables or disables one connection linked only to the authenticated workspace. Shared or in-use connections remain protected.",
+        "authRequired": true,
+        "requiredScopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcpToolName": "email_delivery_connections_update_status",
+        "risk": "admin",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "workspace-change",
+        "retryMode": "resource-state",
+        "idempotencyPolicy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Enables or disables a delivery connection and can change whether workspace resources may be created or sent.",
+        "pathParams": [
+          "connection_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": true,
+        "requestBodyRequired": true
+      },
+      {
+        "namespace": "emailDeliveryConnections",
+        "methodName": "verify",
+        "operationId": "verifyEmailDeliveryConnection",
+        "method": "POST",
+        "path": "/v1/email-delivery-connections/{connection_id}/verify",
+        "summary": "Verify an email delivery connection",
+        "description": "Checks the saved provider credential and sender without returning secrets. If the provider key allows sending but not inspection, the response clearly requires a real test email.",
+        "authRequired": true,
+        "requiredScopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcpToolName": "email_delivery_connections_verify",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Checks the saved provider credential and sender without storing a verification history.",
+        "pathParams": [
+          "connection_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "emailDeliveryConnections",
+        "methodName": "sendTest",
+        "operationId": "testEmailDeliveryConnection",
+        "method": "POST",
+        "path": "/v1/email-delivery-connections/{connection_id}/test",
+        "summary": "Send an email delivery connection test",
+        "description": "Sends one real test email through the saved connection. This is the definitive check when a send-only provider key cannot be inspected.",
+        "authRequired": true,
+        "requiredScopes": [
+          "live_actions:write",
+          "email_delivery_connections:write"
+        ],
+        "mcpToolName": "email_delivery_connections_send_test",
+        "risk": "test",
+        "externalSideEffect": true,
+        "requiresLiveAction": true,
+        "sideEffectClass": "external-email",
+        "retryMode": "idempotency-key",
+        "idempotencyPolicy": "idempotency-key",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "riskRationale": "Sends one real test email to a controlled recipient.",
+        "pathParams": [
+          "connection_id"
+        ],
+        "queryParams": [],
+        "headerParams": [
+          "Idempotency-Key"
+        ],
+        "hasRequestBody": true,
+        "requestBodyRequired": true
+      },
+      {
+        "namespace": "emailDeliveryConnections",
+        "methodName": "delete",
+        "operationId": "deleteEmailDeliveryConnection",
+        "method": "DELETE",
+        "path": "/v1/email-delivery-connections/{connection_id}",
+        "summary": "Delete an email delivery connection",
+        "description": "Deletes one connection linked only to the authenticated workspace. Shared or in-use connections are not deleted.",
+        "authRequired": true,
+        "requiredScopes": [
+          "email_delivery_connections:write"
+        ],
+        "mcpToolName": "email_delivery_connections_delete",
+        "risk": "delete",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "deletion",
+        "retryMode": "resource-state",
+        "idempotencyPolicy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "email_delivery_setup"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Deletes one eligible workspace-only delivery connection and its saved provider credentials.",
+        "pathParams": [
+          "connection_id"
         ],
         "queryParams": [],
         "headerParams": [],
@@ -311,18 +912,16 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "analytics_create_report",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
-          "automations",
-          "administration"
+          "broadcasts",
+          "sequences",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -352,18 +951,16 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "analytics_get_report",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
-          "automations",
-          "administration"
+          "broadcasts",
+          "sequences",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -405,13 +1002,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "diagnostics_list_automation_runs",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "automations",
-          "administration"
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -445,13 +1043,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "diagnostics_get_automation_run",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "automations",
-          "administration"
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -484,14 +1083,15 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "diagnostics_get_sequence",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "sequence_preparation",
-          "sequence_operations",
-          "administration"
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -525,14 +1125,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "diagnostics_get_broadcast",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -559,19 +1159,24 @@ export const generatedMailrithSdkResources = [
         "description": "Returns a 90-day, bounded activity view without exposing the Subscriber email address.",
         "authRequired": true,
         "requiredScopes": [
-          "subscribers:read",
-          "subscriptions:read"
+          "subscribers:read"
         ],
         "mcpToolName": "diagnostics_get_subscriber",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -610,21 +1215,19 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "subscribers_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "sequence_preparation",
-          "sequence_operations",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "administration"
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -654,6 +1257,50 @@ export const generatedMailrithSdkResources = [
       },
       {
         "namespace": "subscribers",
+        "methodName": "get",
+        "operationId": "getSubscriber",
+        "method": "GET",
+        "path": "/v1/subscribers/{subscriber_id}",
+        "summary": "Get a subscriber",
+        "description": "Returns one Subscriber by its stable identifier from the authenticated workspace.",
+        "authRequired": true,
+        "requiredScopes": [
+          "subscribers:read"
+        ],
+        "mcpToolName": "subscribers_get",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "subscriber_import_export"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads one Subscriber by its stable identifier.",
+        "pathParams": [
+          "subscriber_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "subscribers",
         "methodName": "upsert",
         "operationId": "upsertSubscriber",
         "method": "POST",
@@ -662,17 +1309,20 @@ export const generatedMailrithSdkResources = [
         "description": "Creates a new subscriber when the email does not exist in the workspace. If the email already exists, the API updates the existing subscriber unless create_only is true.",
         "authRequired": true,
         "requiredScopes": [
-          "subscribers:profile"
+          "live_actions:write",
+          "subscribers:write"
         ],
         "mcpToolName": "subscribers_upsert",
         "risk": "execute",
         "externalSideEffect": false,
+        "requiresLiveAction": true,
         "sideEffectClass": "subscriber-change",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "subscriber_sync",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -687,30 +1337,7 @@ export const generatedMailrithSdkResources = [
           "Idempotency-Key"
         ],
         "hasRequestBody": true,
-        "requestBodyRequired": true,
-        "payloadFieldScopeRequirements": {
-          "description": "Subscriber relationship fields require their matching granular permission in addition to the operation's base permissions.",
-          "requiredScopesByField": {
-            "status": [
-              "subscriptions:write"
-            ],
-            "existing_tag_ids": [
-              "subscribers:targeting"
-            ],
-            "new_tags": [
-              "subscribers:targeting"
-            ],
-            "form_id": [
-              "subscribers:targeting"
-            ],
-            "sequence_ids": [
-              "subscribers:sequence_enroll"
-            ],
-            "consent_evidence": [
-              "subscriptions:write"
-            ]
-          }
-        }
+        "requestBodyRequired": true
       },
       {
         "namespace": "subscribers",
@@ -722,17 +1349,19 @@ export const generatedMailrithSdkResources = [
         "description": "Updates profile fields, status, custom fields, tags, or sequence assignments for one subscriber. Fields omitted from the request stay unchanged. Blank optional custom field values also leave saved values unchanged, and filled-in invalid values are rejected.",
         "authRequired": true,
         "requiredScopes": [
-          "subscribers:profile"
+          "subscribers:write"
         ],
         "mcpToolName": "subscribers_update",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "subscriber-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -747,30 +1376,7 @@ export const generatedMailrithSdkResources = [
         "queryParams": [],
         "headerParams": [],
         "hasRequestBody": true,
-        "requestBodyRequired": true,
-        "payloadFieldScopeRequirements": {
-          "description": "Subscriber relationship fields require their matching granular permission in addition to the operation's base permissions.",
-          "requiredScopesByField": {
-            "status": [
-              "subscriptions:write"
-            ],
-            "existing_tag_ids": [
-              "subscribers:targeting"
-            ],
-            "new_tags": [
-              "subscribers:targeting"
-            ],
-            "form_id": [
-              "subscribers:targeting"
-            ],
-            "sequence_ids": [
-              "subscribers:sequence_enroll"
-            ],
-            "consent_evidence": [
-              "subscriptions:write"
-            ]
-          }
-        }
+        "requestBodyRequired": true
       },
       {
         "namespace": "subscribers",
@@ -782,17 +1388,19 @@ export const generatedMailrithSdkResources = [
         "description": "Permanently removes one Subscriber and their Mailrith activity history from the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "subscribers:delete"
+          "subscribers:write"
         ],
         "mcpToolName": "subscribers_delete",
         "risk": "delete",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "deletion",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -819,17 +1427,20 @@ export const generatedMailrithSdkResources = [
         "description": "Changes the delivery status for one Subscriber without changing profile, targeting, or Sequence enrollment fields.",
         "authRequired": true,
         "requiredScopes": [
-          "subscriptions:write"
+          "live_actions:write",
+          "subscribers:write"
         ],
         "mcpToolName": "subscribers_update_status",
         "risk": "execute",
         "externalSideEffect": false,
+        "requiresLiveAction": true,
         "sideEffectClass": "subscriber-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -856,17 +1467,20 @@ export const generatedMailrithSdkResources = [
         "description": "Adds the selected Tag to a Subscriber. If the Subscriber already has the Tag, the API returns the Subscriber unchanged.",
         "authRequired": true,
         "requiredScopes": [
-          "subscribers:targeting"
+          "live_actions:write",
+          "subscribers:write"
         ],
         "mcpToolName": "subscribers_add_tag",
         "risk": "execute",
         "externalSideEffect": false,
+        "requiresLiveAction": true,
         "sideEffectClass": "subscriber-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -894,17 +1508,20 @@ export const generatedMailrithSdkResources = [
         "description": "Removes the selected tag from a subscriber. If the subscriber does not have the tag, the API returns the subscriber unchanged.",
         "authRequired": true,
         "requiredScopes": [
-          "subscribers:targeting"
+          "live_actions:write",
+          "subscribers:write"
         ],
         "mcpToolName": "subscribers_remove_tag",
         "risk": "execute",
         "externalSideEffect": false,
+        "requiresLiveAction": true,
         "sideEffectClass": "subscriber-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -932,17 +1549,20 @@ export const generatedMailrithSdkResources = [
         "description": "Adds the selected subscriber to the selected sequence. If the subscriber is already in the sequence, the API returns the subscriber unchanged.",
         "authRequired": true,
         "requiredScopes": [
-          "subscribers:sequence_enroll"
+          "live_actions:write",
+          "subscribers:write"
         ],
         "mcpToolName": "subscribers_add_to_sequence",
         "risk": "execute",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "external-email",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "sequence_operations",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -970,17 +1590,20 @@ export const generatedMailrithSdkResources = [
         "description": "Removes the selected subscriber from the selected sequence. If the subscriber is not in the sequence, the API returns the subscriber unchanged.",
         "authRequired": true,
         "requiredScopes": [
-          "subscribers:sequence_enroll"
+          "live_actions:write",
+          "subscribers:write"
         ],
         "mcpToolName": "subscribers_remove_from_sequence",
         "risk": "execute",
         "externalSideEffect": false,
+        "requiresLiveAction": true,
         "sideEffectClass": "subscriber-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "sequence_operations",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1020,19 +1643,19 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "tags_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "sequence_preparation",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "administration"
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1061,18 +1684,19 @@ export const generatedMailrithSdkResources = [
         "description": "Creates a new tag in the authenticated workspace. The GDPR consent tag names can be created and applied like other tags when you need to apply consent collected outside Mailrith. Tag-level double opt-in fields are no longer accepted; configure double opt-in on forms and landing pages instead.",
         "authRequired": true,
         "requiredScopes": [
-          "tags:configure"
+          "tags:write"
         ],
         "mcpToolName": "tags_create",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "subscriber_sync",
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1104,19 +1728,19 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "tags_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "sequence_preparation",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
           "automations",
-          "administration"
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1143,18 +1767,19 @@ export const generatedMailrithSdkResources = [
         "description": "Changes the name and description of one Tag in the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "tags:configure"
+          "tags:write"
         ],
         "mcpToolName": "tags_update",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1181,17 +1806,19 @@ export const generatedMailrithSdkResources = [
         "description": "Permanently removes one Tag when no saved Mailrith resource references it.",
         "authRequired": true,
         "requiredScopes": [
-          "tags:delete"
+          "tags:write"
         ],
         "mcpToolName": "tags_delete",
         "risk": "delete",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "deletion",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1230,17 +1857,19 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "custom_fields_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1251,6 +1880,7 @@ export const generatedMailrithSdkResources = [
         "riskRationale": "Reads the bounded custom-field schema.",
         "pathParams": [],
         "queryParams": [
+          "search",
           "limit",
           "starting_after"
         ],
@@ -1268,18 +1898,19 @@ export const generatedMailrithSdkResources = [
         "description": "Creates a workspace-scoped custom-field definition.",
         "authRequired": true,
         "requiredScopes": [
-          "custom_fields:configure"
+          "custom_fields:write"
         ],
         "mcpToolName": "custom_fields_create",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "subscriber_sync",
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1311,17 +1942,19 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "custom_fields_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "subscriber_sync",
-          "data_transfer",
-          "content_and_targeting",
-          "capture",
-          "broadcast_preparation",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1348,18 +1981,19 @@ export const generatedMailrithSdkResources = [
         "description": "Updates a custom-field definition for the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "custom_fields:configure"
+          "custom_fields:write"
         ],
         "mcpToolName": "custom_fields_update",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "subscriber_sync",
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1386,17 +2020,19 @@ export const generatedMailrithSdkResources = [
         "description": "Deletes a custom-field definition from the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "custom_fields:delete"
+          "custom_fields:write"
         ],
         "mcpToolName": "custom_fields_delete",
         "risk": "delete",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "deletion",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1435,16 +2071,17 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "email_templates_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "sequence_preparation",
-          "automations",
-          "administration"
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1455,6 +2092,7 @@ export const generatedMailrithSdkResources = [
         "riskRationale": "Reads a bounded page of reusable email templates.",
         "pathParams": [],
         "queryParams": [
+          "search",
           "limit",
           "starting_after"
         ],
@@ -1472,17 +2110,18 @@ export const generatedMailrithSdkResources = [
         "description": "Creates a reusable email template scoped to the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "email_templates:draft"
+          "email_templates:write"
         ],
         "mcpToolName": "email_templates_create",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1514,16 +2153,17 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "email_templates_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "sequence_preparation",
-          "automations",
-          "administration"
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1542,6 +2182,49 @@ export const generatedMailrithSdkResources = [
       },
       {
         "namespace": "emailTemplates",
+        "methodName": "preview",
+        "operationId": "previewEmailTemplate",
+        "method": "POST",
+        "path": "/v1/email-templates/{template_id}/preview",
+        "summary": "Preview an email template for a Subscriber",
+        "description": "Renders one template using a saved Subscriber's name, email, and custom fields without sending or saving anything.",
+        "authRequired": true,
+        "requiredScopes": [
+          "subscribers:read",
+          "email_templates:read"
+        ],
+        "mcpToolName": "email_templates_preview",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Renders one reusable email template with one saved Subscriber without sending or saving anything.",
+        "pathParams": [
+          "template_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": true,
+        "requestBodyRequired": true
+      },
+      {
+        "namespace": "emailTemplates",
         "methodName": "update",
         "operationId": "updateEmailTemplate",
         "method": "PUT",
@@ -1550,17 +2233,18 @@ export const generatedMailrithSdkResources = [
         "description": "Updates the content or enabled state of an existing email template.",
         "authRequired": true,
         "requiredScopes": [
-          "email_templates:draft"
+          "email_templates:write"
         ],
         "mcpToolName": "email_templates_update",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1587,17 +2271,18 @@ export const generatedMailrithSdkResources = [
         "description": "Deletes an existing email template linked to the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "email_templates:delete"
+          "email_templates:write"
         ],
         "mcpToolName": "email_templates_delete",
         "risk": "delete",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "deletion",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1608,6 +2293,247 @@ export const generatedMailrithSdkResources = [
         "riskRationale": "Permanently removes reusable email content.",
         "pathParams": [
           "template_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      }
+    ]
+  },
+  {
+    "namespace": "startingPoints",
+    "name": "Starting Points",
+    "description": "Discover the same email, Form, and Landing Page starting points shown in the Mailrith UI. Lists return metadata only; item reads return full content on demand.",
+    "operations": [
+      {
+        "namespace": "startingPoints",
+        "methodName": "listEmailTemplates",
+        "operationId": "listEmailStartingPoints",
+        "method": "GET",
+        "path": "/v1/starting-points/email-templates",
+        "summary": "List email starting points",
+        "description": "Returns compact metadata for the same email starting points available in the Mailrith UI. Load one item only when its full content is needed.",
+        "authRequired": true,
+        "requiredScopes": [
+          "email_templates:read"
+        ],
+        "mcpToolName": "starting_points_list_email_templates",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads compact metadata for the canonical email starting points shared with the Mailrith UI.",
+        "pathParams": [],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "startingPoints",
+        "methodName": "getEmailTemplate",
+        "operationId": "getEmailStartingPoint",
+        "method": "GET",
+        "path": "/v1/starting-points/email-templates/{starting_point_id}",
+        "summary": "Get an email starting point",
+        "description": "Returns one email starting point with its full structured email document.",
+        "authRequired": true,
+        "requiredScopes": [
+          "email_templates:read"
+        ],
+        "mcpToolName": "starting_points_get_email_template",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture",
+          "broadcasts",
+          "sequences",
+          "automations"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads one canonical email starting point on demand.",
+        "pathParams": [
+          "starting_point_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "startingPoints",
+        "methodName": "listForms",
+        "operationId": "listFormStartingPoints",
+        "method": "GET",
+        "path": "/v1/starting-points/forms",
+        "summary": "List Form starting points",
+        "description": "Returns compact metadata for the same Form starting points available in the Mailrith UI. Load one item only when its full content is needed.",
+        "authRequired": true,
+        "requiredScopes": [
+          "forms:read"
+        ],
+        "mcpToolName": "starting_points_list_forms",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads compact metadata for the canonical Form starting points shared with the Mailrith UI.",
+        "pathParams": [],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "startingPoints",
+        "methodName": "getForm",
+        "operationId": "getFormStartingPoint",
+        "method": "GET",
+        "path": "/v1/starting-points/forms/{starting_point_id}",
+        "summary": "Get a Form starting point",
+        "description": "Returns one Form starting point with its definition, styles, and settings.",
+        "authRequired": true,
+        "requiredScopes": [
+          "forms:read"
+        ],
+        "mcpToolName": "starting_points_get_form",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads one canonical Form starting point on demand.",
+        "pathParams": [
+          "starting_point_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "startingPoints",
+        "methodName": "listLandingPages",
+        "operationId": "listLandingPageStartingPoints",
+        "method": "GET",
+        "path": "/v1/starting-points/landing-pages",
+        "summary": "List Landing Page starting points",
+        "description": "Returns compact metadata for the same Landing Page starting points available in the Mailrith UI. Load one item only when its full content is needed.",
+        "authRequired": true,
+        "requiredScopes": [
+          "landing_pages:read"
+        ],
+        "mcpToolName": "starting_points_list_landing_pages",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads compact metadata for the canonical Landing Page starting points shared with the Mailrith UI.",
+        "pathParams": [],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "startingPoints",
+        "methodName": "getLandingPage",
+        "operationId": "getLandingPageStartingPoint",
+        "method": "GET",
+        "path": "/v1/starting-points/landing-pages/{starting_point_id}",
+        "summary": "Get a Landing Page starting point",
+        "description": "Returns one Landing Page starting point with its definition, styles, and settings.",
+        "authRequired": true,
+        "requiredScopes": [
+          "landing_pages:read"
+        ],
+        "mcpToolName": "starting_points_get_landing_page",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads one canonical Landing Page starting point on demand.",
+        "pathParams": [
+          "starting_point_id"
         ],
         "queryParams": [],
         "headerParams": [],
@@ -1636,13 +2562,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "forms_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1671,17 +2598,19 @@ export const generatedMailrithSdkResources = [
         "description": "Creates a form in the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "forms:configure"
+          "live_actions:write",
+          "forms:write"
         ],
         "mcpToolName": "forms_create",
         "risk": "draft",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "workspace-change",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1713,13 +2642,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "forms_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1743,21 +2673,22 @@ export const generatedMailrithSdkResources = [
         "method": "GET",
         "path": "/v1/forms/{form_id}/submissions",
         "summary": "List form submissions",
-        "description": "Returns recent real submissions for one form, including the subscriber who submitted the form. Requires both `forms:read` and `subscribers:read`.",
+        "description": "Returns a bounded cursor page of retained submissions for one Form, including the Subscriber who submitted it.",
         "authRequired": true,
         "requiredScopes": [
-          "forms:submissions_read"
+          "form_submissions:read"
         ],
         "mcpToolName": "forms_list_submissions",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1779,6 +2710,86 @@ export const generatedMailrithSdkResources = [
       },
       {
         "namespace": "forms",
+        "methodName": "getSubmission",
+        "operationId": "getFormSubmission",
+        "method": "GET",
+        "path": "/v1/forms/{form_id}/submissions/{submission_id}",
+        "summary": "Get a form submission",
+        "description": "Returns one retained Form submission by stable identifier.",
+        "authRequired": true,
+        "requiredScopes": [
+          "form_submissions:read"
+        ],
+        "mcpToolName": "forms_get_submission",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads one retained Form submission by stable identifier.",
+        "pathParams": [
+          "form_id",
+          "submission_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "forms",
+        "methodName": "previewDoubleOptIn",
+        "operationId": "previewFormDoubleOptIn",
+        "method": "POST",
+        "path": "/v1/forms/{form_id}/double-opt-in-preview",
+        "summary": "Preview a form confirmation email for a Subscriber",
+        "description": "Renders the configured double opt-in email for a saved Subscriber without sending or saving anything.",
+        "authRequired": true,
+        "requiredScopes": [
+          "subscribers:read",
+          "forms:read"
+        ],
+        "mcpToolName": "forms_preview_double_opt_in",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Renders one Form confirmation email with one saved Subscriber without sending or saving anything.",
+        "pathParams": [
+          "form_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": true,
+        "requestBodyRequired": true
+      },
+      {
+        "namespace": "forms",
         "methodName": "update",
         "operationId": "updateForm",
         "method": "PUT",
@@ -1787,17 +2798,19 @@ export const generatedMailrithSdkResources = [
         "description": "Updates an existing form without creating a new form.",
         "authRequired": true,
         "requiredScopes": [
-          "forms:configure"
+          "live_actions:write",
+          "forms:write"
         ],
         "mcpToolName": "forms_update",
         "risk": "draft",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "workspace-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1824,17 +2837,19 @@ export const generatedMailrithSdkResources = [
         "description": "Deletes a form from the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "forms:delete"
+          "live_actions:write",
+          "forms:write"
         ],
         "mcpToolName": "forms_delete",
         "risk": "delete",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "deletion",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1873,13 +2888,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "landing_pages_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1908,17 +2924,19 @@ export const generatedMailrithSdkResources = [
         "description": "Creates a hosted landing page in the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "landing_pages:configure"
+          "live_actions:write",
+          "landing_pages:write"
         ],
         "mcpToolName": "landing_pages_create",
         "risk": "draft",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "workspace-change",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -1950,13 +2968,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "landing_pages_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -1980,21 +2999,22 @@ export const generatedMailrithSdkResources = [
         "method": "GET",
         "path": "/v1/landing-pages/{landing_page_id}/submissions",
         "summary": "List landing page submissions",
-        "description": "Returns recent real submissions for one landing page, including the subscriber who submitted the landing page. Requires both `landing_pages:read` and `subscribers:read`.",
+        "description": "Returns a bounded cursor page of retained submissions for one Landing Page, including the Subscriber who submitted it.",
         "authRequired": true,
         "requiredScopes": [
-          "landing_pages:submissions_read"
+          "landing_page_submissions:read"
         ],
         "mcpToolName": "landing_pages_list_submissions",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2016,6 +3036,86 @@ export const generatedMailrithSdkResources = [
       },
       {
         "namespace": "landingPages",
+        "methodName": "getSubmission",
+        "operationId": "getLandingPageSubmission",
+        "method": "GET",
+        "path": "/v1/landing-pages/{landing_page_id}/submissions/{submission_id}",
+        "summary": "Get a landing page submission",
+        "description": "Returns one retained Landing Page submission by stable identifier.",
+        "authRequired": true,
+        "requiredScopes": [
+          "landing_page_submissions:read"
+        ],
+        "mcpToolName": "landing_pages_get_submission",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads one retained Landing Page submission by stable identifier.",
+        "pathParams": [
+          "landing_page_id",
+          "submission_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "landingPages",
+        "methodName": "previewDoubleOptIn",
+        "operationId": "previewLandingPageDoubleOptIn",
+        "method": "POST",
+        "path": "/v1/landing-pages/{landing_page_id}/double-opt-in-preview",
+        "summary": "Preview a landing page confirmation email for a Subscriber",
+        "description": "Renders the configured double opt-in email for a saved Subscriber without sending or saving anything.",
+        "authRequired": true,
+        "requiredScopes": [
+          "subscribers:read",
+          "landing_pages:read"
+        ],
+        "mcpToolName": "landing_pages_preview_double_opt_in",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "content_and_capture"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Renders one Landing Page confirmation email with one saved Subscriber without sending or saving anything.",
+        "pathParams": [
+          "landing_page_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": true,
+        "requestBodyRequired": true
+      },
+      {
+        "namespace": "landingPages",
         "methodName": "update",
         "operationId": "updateLandingPage",
         "method": "PUT",
@@ -2024,17 +3124,19 @@ export const generatedMailrithSdkResources = [
         "description": "Updates an existing hosted landing page without creating a new landing page.",
         "authRequired": true,
         "requiredScopes": [
-          "landing_pages:configure"
+          "live_actions:write",
+          "landing_pages:write"
         ],
         "mcpToolName": "landing_pages_update",
         "risk": "draft",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "workspace-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2061,17 +3163,19 @@ export const generatedMailrithSdkResources = [
         "description": "Deletes a landing page from the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "landing_pages:delete"
+          "live_actions:write",
+          "landing_pages:write"
         ],
         "mcpToolName": "landing_pages_delete",
         "risk": "delete",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "deletion",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2110,14 +3214,15 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "sequences_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "sequence_preparation",
-          "sequence_operations",
-          "administration"
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2146,17 +3251,18 @@ export const generatedMailrithSdkResources = [
         "description": "Creates a sequence in the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "sequences:draft"
+          "sequences:write"
         ],
         "mcpToolName": "sequences_create",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "sequence_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2188,14 +3294,15 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "sequences_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "sequence_preparation",
-          "sequence_operations",
-          "administration"
+          "subscriber_management",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2214,6 +3321,131 @@ export const generatedMailrithSdkResources = [
       },
       {
         "namespace": "sequences",
+        "methodName": "preflight",
+        "operationId": "preflightSequence",
+        "method": "GET",
+        "path": "/v1/sequences/{sequence_id}/preflight",
+        "summary": "Check sequence readiness",
+        "description": "Checks the saved Sequence, its published emails, and its email delivery connection without changing data or sending email.",
+        "authRequired": true,
+        "requiredScopes": [
+          "sequences:read"
+        ],
+        "mcpToolName": "sequences_preflight",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "subscriber_management",
+          "sequences"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Runs bounded Sequence readiness checks without changing the Sequence.",
+        "pathParams": [
+          "sequence_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "sequences",
+        "methodName": "previewJourney",
+        "operationId": "previewSequenceJourney",
+        "method": "GET",
+        "path": "/v1/sequences/{sequence_id}/journey-preview",
+        "summary": "Preview a sequence journey",
+        "description": "Returns the bounded saved email timeline and shows which messages a selected Subscriber is eligible to receive, without enrolling the Subscriber or sending email.",
+        "authRequired": true,
+        "requiredScopes": [
+          "subscribers:read",
+          "sequences:read"
+        ],
+        "mcpToolName": "sequences_preview_journey",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "subscriber_management",
+          "sequences"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Returns a bounded, side-effect-free timeline of the Sequence emails.",
+        "pathParams": [
+          "sequence_id"
+        ],
+        "queryParams": [
+          "subscriber_id"
+        ],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "sequences",
+        "methodName": "sendTest",
+        "operationId": "testSequence",
+        "method": "POST",
+        "path": "/v1/sequences/{sequence_id}/test",
+        "summary": "Send sequence test messages",
+        "description": "Sends up to five selected saved Sequence emails to one explicit test address. This does not enroll a Subscriber, start the Sequence, or write delivery activity.",
+        "authRequired": true,
+        "requiredScopes": [
+          "live_actions:write",
+          "subscribers:read",
+          "sequences:write"
+        ],
+        "mcpToolName": "sequences_send_test",
+        "risk": "test",
+        "externalSideEffect": true,
+        "requiresLiveAction": true,
+        "sideEffectClass": "external-email",
+        "retryMode": "idempotency-key",
+        "idempotencyPolicy": "idempotency-key",
+        "toolsets": [
+          "full_email_marketing_access",
+          "sequences"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "riskRationale": "Sends at most five selected Sequence messages to one explicit test address without enrolling Subscribers.",
+        "pathParams": [
+          "sequence_id"
+        ],
+        "queryParams": [],
+        "headerParams": [
+          "Idempotency-Key"
+        ],
+        "hasRequestBody": true,
+        "requestBodyRequired": true
+      },
+      {
+        "namespace": "sequences",
         "methodName": "update",
         "operationId": "updateSequence",
         "method": "PUT",
@@ -2222,17 +3454,18 @@ export const generatedMailrithSdkResources = [
         "description": "Updates an existing sequence.",
         "authRequired": true,
         "requiredScopes": [
-          "sequences:draft"
+          "sequences:write"
         ],
         "mcpToolName": "sequences_update",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "sequence_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2259,17 +3492,19 @@ export const generatedMailrithSdkResources = [
         "description": "Starts or pauses one Sequence without changing its content or delivery settings.",
         "authRequired": true,
         "requiredScopes": [
-          "sequences:activate"
+          "live_actions:write",
+          "sequences:write"
         ],
         "mcpToolName": "sequences_update_status",
         "risk": "execute",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "external-email",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "sequence_operations",
-          "administration"
+          "full_email_marketing_access",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2296,17 +3531,18 @@ export const generatedMailrithSdkResources = [
         "description": "Deletes an existing sequence from the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "sequences:delete"
+          "sequences:write"
         ],
         "mcpToolName": "sequences_delete",
         "risk": "delete",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "deletion",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "sequence_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "sequences"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2345,13 +3581,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "automations_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "automations",
-          "administration"
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2362,6 +3599,7 @@ export const generatedMailrithSdkResources = [
         "riskRationale": "Reads a bounded page of Automation definitions and states.",
         "pathParams": [],
         "queryParams": [
+          "search",
           "limit",
           "starting_after"
         ],
@@ -2379,17 +3617,18 @@ export const generatedMailrithSdkResources = [
         "description": "Creates an automation in the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "automations:draft"
+          "automations:write"
         ],
         "mcpToolName": "automations_create",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "automations",
-          "administration"
+          "full_email_marketing_access",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2421,13 +3660,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "automations_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "automations",
-          "administration"
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2446,6 +3686,129 @@ export const generatedMailrithSdkResources = [
       },
       {
         "namespace": "automations",
+        "methodName": "preflight",
+        "operationId": "preflightAutomation",
+        "method": "GET",
+        "path": "/v1/automations/{automation_id}/preflight",
+        "summary": "Check automation readiness",
+        "description": "Checks the saved Automation definition and email delivery prerequisite without running any action.",
+        "authRequired": true,
+        "requiredScopes": [
+          "automations:read"
+        ],
+        "mcpToolName": "automations_preflight",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "automations"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Runs bounded Automation readiness checks without running any actions.",
+        "pathParams": [
+          "automation_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "automations",
+        "methodName": "previewJourney",
+        "operationId": "previewAutomationJourney",
+        "method": "GET",
+        "path": "/v1/automations/{automation_id}/journey-preview",
+        "summary": "Preview an automation journey",
+        "description": "Shows the bounded path a selected Subscriber would take through the current saved conditions without running actions or writing history.",
+        "authRequired": true,
+        "requiredScopes": [
+          "subscribers:read",
+          "automations:read"
+        ],
+        "mcpToolName": "automations_preview_journey",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "reporting",
+          "automations"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Returns a bounded, side-effect-free view of Automation triggers, steps, and branches.",
+        "pathParams": [
+          "automation_id"
+        ],
+        "queryParams": [
+          "subscriber_id"
+        ],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "automations",
+        "methodName": "sendTest",
+        "operationId": "testAutomation",
+        "method": "POST",
+        "path": "/v1/automations/{automation_id}/test",
+        "summary": "Send automation test messages",
+        "description": "Sends up to five selected saved Automation email steps to one explicit test address. This does not start the Automation or run other actions.",
+        "authRequired": true,
+        "requiredScopes": [
+          "live_actions:write",
+          "subscribers:read",
+          "automations:write"
+        ],
+        "mcpToolName": "automations_send_test",
+        "risk": "test",
+        "externalSideEffect": true,
+        "requiresLiveAction": true,
+        "sideEffectClass": "external-email",
+        "retryMode": "idempotency-key",
+        "idempotencyPolicy": "idempotency-key",
+        "toolsets": [
+          "full_email_marketing_access",
+          "automations"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "riskRationale": "Sends at most five selected Automation email steps to one explicit test address without running actions.",
+        "pathParams": [
+          "automation_id"
+        ],
+        "queryParams": [],
+        "headerParams": [
+          "Idempotency-Key"
+        ],
+        "hasRequestBody": true,
+        "requestBodyRequired": true
+      },
+      {
+        "namespace": "automations",
         "methodName": "update",
         "operationId": "updateAutomation",
         "method": "PUT",
@@ -2454,17 +3817,18 @@ export const generatedMailrithSdkResources = [
         "description": "Updates an existing automation.",
         "authRequired": true,
         "requiredScopes": [
-          "automations:draft"
+          "automations:write"
         ],
         "mcpToolName": "automations_update",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "automations",
-          "administration"
+          "full_email_marketing_access",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2487,21 +3851,23 @@ export const generatedMailrithSdkResources = [
         "operationId": "updateAutomationStatus",
         "method": "PUT",
         "path": "/v1/automations/{automation_id}/status",
-        "summary": "Activate or pause an automation",
-        "description": "Starts or pauses one Automation without changing its definition.",
+        "summary": "Change an automation status",
+        "description": "Starts, pauses, or returns one Automation to draft without changing its definition.",
         "authRequired": true,
         "requiredScopes": [
-          "automations:activate"
+          "live_actions:write",
+          "automations:write"
         ],
         "mcpToolName": "automations_update_status",
         "risk": "execute",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "external-email",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "automations",
-          "administration"
+          "full_email_marketing_access",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2528,17 +3894,18 @@ export const generatedMailrithSdkResources = [
         "description": "Deletes an automation from the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "automations:delete"
+          "automations:write"
         ],
         "mcpToolName": "automations_delete",
         "risk": "delete",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "deletion",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "automations",
-          "administration"
+          "full_email_marketing_access",
+          "automations"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2577,13 +3944,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "magic_links_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2594,6 +3962,7 @@ export const generatedMailrithSdkResources = [
         "riskRationale": "Reads a bounded page of Magic Links.",
         "pathParams": [],
         "queryParams": [
+          "search",
           "limit",
           "starting_after"
         ],
@@ -2611,17 +3980,19 @@ export const generatedMailrithSdkResources = [
         "description": "Creates a magic link in the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "magic_links:configure"
+          "live_actions:write",
+          "magic_links:write"
         ],
         "mcpToolName": "magic_links_create",
         "risk": "execute",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "public-resource",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2653,13 +4024,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "magic_links_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "capture",
-          "administration"
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2686,17 +4058,19 @@ export const generatedMailrithSdkResources = [
         "description": "Updates an existing magic link.",
         "authRequired": true,
         "requiredScopes": [
-          "magic_links:configure"
+          "live_actions:write",
+          "magic_links:write"
         ],
         "mcpToolName": "magic_links_update",
         "risk": "execute",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "public-resource",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2723,17 +4097,19 @@ export const generatedMailrithSdkResources = [
         "description": "Deletes a magic link from the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "magic_links:delete"
+          "live_actions:write",
+          "magic_links:write"
         ],
         "mcpToolName": "magic_links_delete",
         "risk": "delete",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "deletion",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "capture",
-          "administration"
+          "full_email_marketing_access",
+          "content_and_capture"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2772,14 +4148,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "broadcasts_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2790,6 +4166,7 @@ export const generatedMailrithSdkResources = [
         "riskRationale": "Reads a bounded page of Broadcasts and aggregate results.",
         "pathParams": [],
         "queryParams": [
+          "search",
           "limit",
           "starting_after"
         ],
@@ -2804,20 +4181,21 @@ export const generatedMailrithSdkResources = [
         "method": "POST",
         "path": "/v1/broadcasts",
         "summary": "Create a broadcast",
-        "description": "Creates a broadcast draft or scheduled broadcast in the authenticated workspace.",
+        "description": "Creates a broadcast draft in the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "broadcasts:draft"
+          "broadcasts:write"
         ],
         "mcpToolName": "broadcasts_create",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "broadcast_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -2849,14 +4227,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "broadcasts_get_send_progress",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2888,14 +4266,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "broadcasts_list_delivery_errors",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2930,14 +4308,14 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "broadcasts_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -2964,17 +4342,18 @@ export const generatedMailrithSdkResources = [
         "description": "Updates a broadcast draft or scheduled send in place.",
         "authRequired": true,
         "requiredScopes": [
-          "broadcasts:draft"
+          "broadcasts:write"
         ],
         "mcpToolName": "broadcasts_update",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "broadcast_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3001,17 +4380,18 @@ export const generatedMailrithSdkResources = [
         "description": "Deletes a draft, scheduled, or failed broadcast from the authenticated workspace. Broadcasts cannot be deleted after they start sending.",
         "authRequired": true,
         "requiredScopes": [
-          "broadcasts:delete"
+          "broadcasts:write"
         ],
         "mcpToolName": "broadcasts_delete",
         "risk": "delete",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "deletion",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "broadcast_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3038,19 +4418,19 @@ export const generatedMailrithSdkResources = [
         "description": "Optionally checks the current Subscriber estimate, provider capacity, sender setup, event tracking, and blocking issues. This diagnostic is not required before starting a durable send.",
         "authRequired": true,
         "requiredScopes": [
-          "broadcasts:preflight"
+          "broadcasts:read"
         ],
         "mcpToolName": "broadcasts_preflight",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3069,6 +4449,84 @@ export const generatedMailrithSdkResources = [
       },
       {
         "namespace": "broadcasts",
+        "methodName": "schedule",
+        "operationId": "scheduleBroadcast",
+        "method": "PUT",
+        "path": "/v1/broadcasts/{broadcast_id}/schedule",
+        "summary": "Schedule or reschedule a broadcast",
+        "description": "Schedules a draft for future delivery, or changes the delivery time of an existing scheduled Broadcast. This uses Mailrith's durable scheduled-send path and does not start delivery immediately.",
+        "authRequired": true,
+        "requiredScopes": [
+          "live_actions:write",
+          "broadcasts:write"
+        ],
+        "mcpToolName": "broadcasts_schedule",
+        "risk": "execute",
+        "externalSideEffect": true,
+        "requiresLiveAction": true,
+        "sideEffectClass": "external-email",
+        "retryMode": "resource-state",
+        "idempotencyPolicy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "broadcasts"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true
+        },
+        "riskRationale": "Schedules durable delivery to real Subscribers at a future time.",
+        "pathParams": [
+          "broadcast_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": true,
+        "requestBodyRequired": true
+      },
+      {
+        "namespace": "broadcasts",
+        "methodName": "unschedule",
+        "operationId": "unscheduleBroadcast",
+        "method": "DELETE",
+        "path": "/v1/broadcasts/{broadcast_id}/schedule",
+        "summary": "Unschedule a broadcast",
+        "description": "Returns a scheduled Broadcast to draft state before delivery starts.",
+        "authRequired": true,
+        "requiredScopes": [
+          "live_actions:write",
+          "broadcasts:write"
+        ],
+        "mcpToolName": "broadcasts_unschedule",
+        "risk": "execute",
+        "externalSideEffect": false,
+        "requiresLiveAction": true,
+        "sideEffectClass": "workspace-change",
+        "retryMode": "resource-state",
+        "idempotencyPolicy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "broadcasts"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Cancels future delivery before it starts and returns the Broadcast to draft state.",
+        "pathParams": [
+          "broadcast_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "broadcasts",
         "methodName": "send",
         "operationId": "sendBroadcast",
         "method": "POST",
@@ -3077,17 +4535,19 @@ export const generatedMailrithSdkResources = [
         "description": "Immediately creates durable preparation for a broadcast draft or scheduled send. Mailrith calculates the exact Subscriber total and checks provider readiness in the background before delivery. A 202 response means the durable send was accepted, not that provider delivery is complete. Reuse the same idempotency key if the response is lost.",
         "authRequired": true,
         "requiredScopes": [
-          "broadcasts:send"
+          "live_actions:write",
+          "broadcasts:write"
         ],
         "mcpToolName": "broadcasts_send",
         "risk": "execute",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "external-email",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "broadcast_sending",
-          "administration"
+          "full_email_marketing_access",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3116,17 +4576,19 @@ export const generatedMailrithSdkResources = [
         "description": "Requests cancellation for delivery work that has not reached the provider. Provider-accepted emails cannot be recalled. Repeat the same request with the same idempotency key when the response is lost.",
         "authRequired": true,
         "requiredScopes": [
-          "broadcasts:cancel"
+          "live_actions:write",
+          "broadcasts:write"
         ],
         "mcpToolName": "broadcasts_cancel",
         "risk": "execute",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "external-email",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "broadcast_sending",
-          "administration"
+          "full_email_marketing_access",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3155,17 +4617,20 @@ export const generatedMailrithSdkResources = [
         "description": "Sends a test message from an existing broadcast to one recipient.",
         "authRequired": true,
         "requiredScopes": [
-          "broadcasts:test"
+          "live_actions:write",
+          "subscribers:read",
+          "broadcasts:write"
         ],
         "mcpToolName": "broadcasts_send_test",
         "risk": "test",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "external-email",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "broadcast_sending",
-          "administration"
+          "full_email_marketing_access",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3206,15 +4671,16 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "segments_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3225,6 +4691,7 @@ export const generatedMailrithSdkResources = [
         "riskRationale": "Reads a bounded page of saved Segments.",
         "pathParams": [],
         "queryParams": [
+          "search",
           "limit",
           "starting_after"
         ],
@@ -3242,18 +4709,20 @@ export const generatedMailrithSdkResources = [
         "description": "Creates a saved segment in the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "segments:configure"
+          "segments:write"
         ],
         "mcpToolName": "segments_create",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "content_and_targeting",
-          "broadcast_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3285,15 +4754,16 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "segments_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3320,18 +4790,20 @@ export const generatedMailrithSdkResources = [
         "description": "Updates a saved segment in the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "segments:configure"
+          "segments:write"
         ],
         "mcpToolName": "segments_update",
         "risk": "draft",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "workspace-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "content_and_targeting",
-          "broadcast_preparation",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3358,17 +4830,20 @@ export const generatedMailrithSdkResources = [
         "description": "Deletes a saved segment from the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
-          "segments:delete"
+          "segments:write"
         ],
         "mcpToolName": "segments_delete",
         "risk": "delete",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "deletion",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "content_and_targeting",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3400,15 +4875,16 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "segments_preview",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
+          "full_email_marketing_access",
           "reporting",
-          "content_and_targeting",
-          "broadcast_preparation",
-          "broadcast_sending",
-          "administration"
+          "subscriber_management",
+          "content_and_capture",
+          "broadcasts"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3445,13 +4921,13 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "webhook_subscriptions_list",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
-          "reporting",
-          "webhooks",
-          "administration"
+          "full_email_marketing_access",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3476,17 +4952,19 @@ export const generatedMailrithSdkResources = [
         "description": "Creates a signed outbound webhook subscription and returns the signing secret once. The caller must also have read scopes for the selected event families. A workspace can have up to 20 webhook subscriptions, including disabled subscriptions.",
         "authRequired": true,
         "requiredScopes": [
+          "live_actions:write",
           "webhooks:write"
         ],
         "mcpToolName": "webhook_subscriptions_create",
         "risk": "admin",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "external-webhook",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "webhooks",
-          "administration"
+          "full_email_marketing_access",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3501,72 +4979,7 @@ export const generatedMailrithSdkResources = [
           "Idempotency-Key"
         ],
         "hasRequestBody": true,
-        "requestBodyRequired": true,
-        "eventPatternScopeRequirements": {
-          "requestField": "event_patterns",
-          "description": "When creating or updating a webhook subscription, each selected event pattern requires these read scopes in addition to `webhooks:write`.",
-          "requiredScopesByEventPattern": {
-            "*": [
-              "subscribers:read",
-              "subscriptions:read",
-              "forms:read",
-              "landing_pages:read",
-              "broadcasts:read",
-              "automations:read"
-            ],
-            "subscriber.*": [
-              "subscribers:read",
-              "subscriptions:read"
-            ],
-            "form.*": [
-              "subscribers:read",
-              "forms:read"
-            ],
-            "landing_page.*": [
-              "subscribers:read",
-              "landing_pages:read"
-            ],
-            "broadcast.*": [
-              "broadcasts:read"
-            ],
-            "automation.*": [
-              "subscribers:read",
-              "automations:read"
-            ],
-            "subscriber.created": [
-              "subscribers:read"
-            ],
-            "subscriber.updated": [
-              "subscribers:read"
-            ],
-            "subscriber.status_changed": [
-              "subscriptions:read"
-            ],
-            "form.submitted": [
-              "subscribers:read",
-              "forms:read"
-            ],
-            "landing_page.submitted": [
-              "subscribers:read",
-              "landing_pages:read"
-            ],
-            "broadcast.state_changed": [
-              "broadcasts:read"
-            ],
-            "automation.entered": [
-              "subscribers:read",
-              "automations:read"
-            ],
-            "automation.step_executed": [
-              "subscribers:read",
-              "automations:read"
-            ],
-            "automation.completed": [
-              "subscribers:read",
-              "automations:read"
-            ]
-          }
-        }
+        "requestBodyRequired": true
       },
       {
         "namespace": "webhookSubscriptions",
@@ -3583,13 +4996,13 @@ export const generatedMailrithSdkResources = [
         "mcpToolName": "webhook_subscriptions_get",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
-          "reporting",
-          "webhooks",
-          "administration"
+          "full_email_marketing_access",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3616,17 +5029,19 @@ export const generatedMailrithSdkResources = [
         "description": "Updates the destination URL, status, or event pattern set for an existing webhook subscription. The caller must also have read scopes for the subscription's event families.",
         "authRequired": true,
         "requiredScopes": [
+          "live_actions:write",
           "webhooks:write"
         ],
         "mcpToolName": "webhook_subscriptions_update",
         "risk": "admin",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "external-webhook",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "webhooks",
-          "administration"
+          "full_email_marketing_access",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3641,72 +5056,7 @@ export const generatedMailrithSdkResources = [
         "queryParams": [],
         "headerParams": [],
         "hasRequestBody": true,
-        "requestBodyRequired": true,
-        "eventPatternScopeRequirements": {
-          "requestField": "event_patterns",
-          "description": "When creating or updating a webhook subscription, each selected event pattern requires these read scopes in addition to `webhooks:write`.",
-          "requiredScopesByEventPattern": {
-            "*": [
-              "subscribers:read",
-              "subscriptions:read",
-              "forms:read",
-              "landing_pages:read",
-              "broadcasts:read",
-              "automations:read"
-            ],
-            "subscriber.*": [
-              "subscribers:read",
-              "subscriptions:read"
-            ],
-            "form.*": [
-              "subscribers:read",
-              "forms:read"
-            ],
-            "landing_page.*": [
-              "subscribers:read",
-              "landing_pages:read"
-            ],
-            "broadcast.*": [
-              "broadcasts:read"
-            ],
-            "automation.*": [
-              "subscribers:read",
-              "automations:read"
-            ],
-            "subscriber.created": [
-              "subscribers:read"
-            ],
-            "subscriber.updated": [
-              "subscribers:read"
-            ],
-            "subscriber.status_changed": [
-              "subscriptions:read"
-            ],
-            "form.submitted": [
-              "subscribers:read",
-              "forms:read"
-            ],
-            "landing_page.submitted": [
-              "subscribers:read",
-              "landing_pages:read"
-            ],
-            "broadcast.state_changed": [
-              "broadcasts:read"
-            ],
-            "automation.entered": [
-              "subscribers:read",
-              "automations:read"
-            ],
-            "automation.step_executed": [
-              "subscribers:read",
-              "automations:read"
-            ],
-            "automation.completed": [
-              "subscribers:read",
-              "automations:read"
-            ]
-          }
-        }
+        "requestBodyRequired": true
       },
       {
         "namespace": "webhookSubscriptions",
@@ -3718,17 +5068,19 @@ export const generatedMailrithSdkResources = [
         "description": "Deletes an existing outbound webhook subscription from the authenticated workspace.",
         "authRequired": true,
         "requiredScopes": [
+          "live_actions:write",
           "webhooks:write"
         ],
         "mcpToolName": "webhook_subscriptions_delete",
         "risk": "delete",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "deletion",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "webhooks",
-          "administration"
+          "full_email_marketing_access",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3755,17 +5107,19 @@ export const generatedMailrithSdkResources = [
         "description": "Invalidates the existing webhook signing secret and returns a replacement once.",
         "authRequired": true,
         "requiredScopes": [
+          "live_actions:write",
           "webhooks:write"
         ],
         "mcpToolName": "webhook_subscriptions_rotate_secret",
         "risk": "admin",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "secret-change",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
-          "webhooks",
-          "administration"
+          "full_email_marketing_access",
+          "outbound_webhooks"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3791,25 +5145,140 @@ export const generatedMailrithSdkResources = [
     "operations": [
       {
         "namespace": "jobs",
+        "methodName": "startImportUpload",
+        "operationId": "startSubscriberImportUpload",
+        "method": "POST",
+        "path": "/v1/jobs/subscriber-import-uploads",
+        "summary": "Start a subscriber import upload",
+        "description": "Creates a short-lived browser handoff where a signed-in user can choose a CSV file. Starting the handoff does not import Subscribers.",
+        "authRequired": true,
+        "requiredScopes": [
+          "subscribers:import"
+        ],
+        "mcpToolName": "jobs_start_import_upload",
+        "risk": "draft",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "workspace-change",
+        "retryMode": "resource-state",
+        "idempotencyPolicy": "resource-state",
+        "toolsets": [
+          "full_email_marketing_access",
+          "subscriber_import_export"
+        ],
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Creates a short-lived browser handoff without importing or storing Subscriber rows.",
+        "pathParams": [],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "jobs",
+        "methodName": "getImportUpload",
+        "operationId": "getSubscriberImportUpload",
+        "method": "GET",
+        "path": "/v1/jobs/subscriber-import-uploads/{upload_id}",
+        "summary": "Get a subscriber import upload",
+        "description": "Returns upload readiness, bounded column metadata, and the row count without returning CSV contents.",
+        "authRequired": true,
+        "requiredScopes": [
+          "subscribers:import"
+        ],
+        "mcpToolName": "jobs_get_import_upload",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "subscriber_import_export"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads bounded status and CSV column metadata for one short-lived upload.",
+        "pathParams": [
+          "upload_id"
+        ],
+        "queryParams": [],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "jobs",
+        "methodName": "listImports",
+        "operationId": "listSubscriberImportJobs",
+        "method": "GET",
+        "path": "/v1/jobs/subscriber-imports",
+        "summary": "List subscriber import jobs",
+        "description": "Returns a bounded cursor page of recent Subscriber import job summaries without loading stored CSV data or mapping payloads.",
+        "authRequired": true,
+        "requiredScopes": [
+          "subscribers:import"
+        ],
+        "mcpToolName": "jobs_list_imports",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "subscriber_import_export"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads a bounded page of recent Subscriber import job summaries.",
+        "pathParams": [],
+        "queryParams": [
+          "limit",
+          "starting_after"
+        ],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "jobs",
         "methodName": "createImport",
         "operationId": "createSubscriberImportJob",
         "method": "POST",
         "path": "/v1/jobs/subscriber-imports",
         "summary": "Create a subscriber import job",
-        "description": "Queues an asynchronous import job that creates or updates subscribers from CSV text.",
+        "description": "Queues an asynchronous import job from a ready short-lived browser upload. CSV contents never pass through the agent request.",
         "authRequired": true,
         "requiredScopes": [
-          "subscribers:bulk_import"
+          "live_actions:write",
+          "subscribers:import"
         ],
         "mcpToolName": "jobs_create_import",
         "risk": "bulk",
         "externalSideEffect": true,
+        "requiresLiveAction": true,
         "sideEffectClass": "bulk-data",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "data_transfer",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3836,17 +5305,18 @@ export const generatedMailrithSdkResources = [
         "description": "Returns the current state of a previously created import job.",
         "authRequired": true,
         "requiredScopes": [
-          "subscribers:bulk_import"
+          "subscribers:import"
         ],
         "mcpToolName": "jobs_get_import",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
-          "data_transfer",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,
@@ -3865,25 +5335,65 @@ export const generatedMailrithSdkResources = [
       },
       {
         "namespace": "jobs",
+        "methodName": "listExports",
+        "operationId": "listSubscriberExportJobs",
+        "method": "GET",
+        "path": "/v1/jobs/subscriber-exports",
+        "summary": "List subscriber export jobs",
+        "description": "Returns a bounded cursor page of recent Subscriber export job summaries without loading selection payloads or generating download URLs.",
+        "authRequired": true,
+        "requiredScopes": [
+          "subscribers:export"
+        ],
+        "mcpToolName": "jobs_list_exports",
+        "risk": "read",
+        "externalSideEffect": false,
+        "requiresLiveAction": false,
+        "sideEffectClass": "none",
+        "retryMode": "safe",
+        "idempotencyPolicy": "safe-read",
+        "toolsets": [
+          "full_email_marketing_access",
+          "subscriber_import_export"
+        ],
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "riskRationale": "Reads a bounded page of recent Subscriber export job summaries.",
+        "pathParams": [],
+        "queryParams": [
+          "limit",
+          "starting_after"
+        ],
+        "headerParams": [],
+        "hasRequestBody": false,
+        "requestBodyRequired": false
+      },
+      {
+        "namespace": "jobs",
         "methodName": "createExport",
         "operationId": "createSubscriberExportJob",
         "method": "POST",
         "path": "/v1/jobs/subscriber-exports",
         "summary": "Create a subscriber export job",
-        "description": "Queues an asynchronous Subscriber export for the authenticated workspace. Requires `subscribers:bulk_export` because the finished file contains bulk Subscriber data.",
+        "description": "Queues an asynchronous Subscriber export for the authenticated workspace. Requires `subscribers:export` because the finished file contains bulk Subscriber data.",
         "authRequired": true,
         "requiredScopes": [
-          "subscribers:bulk_export"
+          "subscribers:export"
         ],
         "mcpToolName": "jobs_create_export",
         "risk": "bulk",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "bulk-data",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
-          "data_transfer",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": false,
@@ -3907,20 +5417,21 @@ export const generatedMailrithSdkResources = [
         "method": "GET",
         "path": "/v1/jobs/subscriber-exports/{job_id}",
         "summary": "Get a subscriber export job",
-        "description": "Returns the current state of a previously created export job. Requires `subscribers:bulk_export` because completed jobs include a Subscriber CSV download URL.",
+        "description": "Returns the current state of a previously created export job. Requires `subscribers:export` because completed jobs include a Subscriber CSV download URL.",
         "authRequired": true,
         "requiredScopes": [
-          "subscribers:bulk_export"
+          "subscribers:export"
         ],
         "mcpToolName": "jobs_get_export",
         "risk": "read",
         "externalSideEffect": false,
+        "requiresLiveAction": false,
         "sideEffectClass": "none",
         "retryMode": "safe",
         "idempotencyPolicy": "safe-read",
         "toolsets": [
-          "data_transfer",
-          "administration"
+          "full_email_marketing_access",
+          "subscriber_import_export"
         ],
         "annotations": {
           "readOnlyHint": true,

@@ -24,10 +24,13 @@
         "defer_loading": true
       },
       "configs": {
-        "discovery_get_metadata": { "enabled": true },
-        "discovery_get_capabilities": { "enabled": true },
-        "workspace_get": { "enabled": true },
-        "subscribers_list": { "enabled": true }
+        "mailrith_check_connection": { "enabled": true },
+        "mailrith_search_operations": { "enabled": true },
+        "mailrith_get_operation": { "enabled": true },
+        "mailrith_read": { "enabled": true },
+        "mailrith_write": { "enabled": true },
+        "mailrith_delete": { "enabled": true },
+        "mailrith_live": { "enabled": true }
       }
     }
   ],

@@ -4,7 +4,6 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
-import { mailrithSdkResources } from "@mailrith/sdk";
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const installerPath = path.join(packageRoot, "bin", "install.js");
@@ -70,7 +69,7 @@ describe("Mailrith Agent Skill package", () => {
 });
 
 describe("Mailrith connector templates", () => {
-  it("keeps provider templates current, read-only by default, and free of resolved secrets", async () => {
+  it("keeps general-purpose provider templates complete and free of resolved secrets", async () => {
     const connectorsDirectory = path.join(packageRoot, "connectors");
     const openAiSource = await readFile(path.join(connectorsDirectory, "openai-responses.json"), "utf8");
     const claudeSource = await readFile(path.join(connectorsDirectory, "claude-messages.json"), "utf8");
@@ -95,33 +94,48 @@ describe("Mailrith connector templates", () => {
     const openAi = JSON.parse(openAiSource) as Record<string, any>;
     const claude = JSON.parse(claudeSource) as Record<string, any>;
     const n8n = JSON.parse(n8nSource) as Record<string, any>;
+    const compactReadTools = [
+      "mailrith_check_connection",
+      "mailrith_search_operations",
+      "mailrith_get_operation",
+      "mailrith_read",
+    ];
+    const compactTools = [
+      ...compactReadTools,
+      "mailrith_write",
+      "mailrith_delete",
+      "mailrith_live",
+    ];
 
     expect(openAi.store).toBe(false);
     expect(openAi.tools[0]).toMatchObject({
       type: "mcp",
       server_url: "https://api.mailrith.com/mcp",
-      allowed_tools: { read_only: true },
+      allowed_tools: compactTools,
       require_approval: "never",
     });
     expect(claude.betas).toEqual(["mcp-client-2025-11-20"]);
-    expect(claude.mcp_servers[0].url).toBe("https://api.mailrith.com/mcp");
+    expect(claude.mcp_servers[0].url).toBe(
+      "https://api.mailrith.com/mcp",
+    );
     expect(claude.tools[0].default_config).toMatchObject({
       enabled: false,
       defer_loading: true,
     });
-    expect(Object.keys(claude.tools[0].configs)).toEqual([
-      "discovery_get_metadata",
-      "discovery_get_capabilities",
-      "workspace_get",
-      "subscribers_list",
-    ]);
+    expect(Object.keys(claude.tools[0].configs)).toEqual(compactTools);
     expect(n8n.active).toBe(false);
     expect(n8n.nodes[1].parameters.url).toBe("https://api.mailrith.com/v1/capabilities");
     expect(n8n.nodes[1].parameters.options.timeout).toBe(10_000);
-    expect(codexSource).toContain('url = "https://api.mailrith.com/mcp"');
+    expect(codexSource).toContain(
+      'url = "https://api.mailrith.com/mcp"',
+    );
+    for (const tool of compactTools) {
+      expect(codexSource).toContain(`"${tool}"`);
+    }
     expect(codexSource).toContain('default_tools_approval_mode = "never"');
-    expect(codexSource).not.toContain("agent_activity_");
-    expect(codexSource).not.toContain("broadcasts_get_send_progress");
+    for (const tool of compactReadTools) {
+      expect(codexSource).toContain(`"${tool}"`);
+    }
     expect(pipedreamSource).toContain('url: "https://api.mailrith.com/v1/capabilities"');
     expect(pipedreamSource).toContain("secret: true");
     expect(connectionGuidance).toContain(
@@ -131,14 +145,13 @@ describe("Mailrith connector templates", () => {
       "https://api.mailrith.com/.well-known/mcp.json",
     );
 
-    const knownTools = new Set(
-      mailrithSdkResources.flatMap((resource) =>
-        resource.operations.map((operation) => operation.mcpToolName),
-      ),
-    );
-    expect(Object.keys(claude.tools[0].configs).every((tool) => knownTools.has(tool))).toBe(true);
     for (const source of [openAiSource, claudeSource, n8nSource, codexSource, pipedreamSource]) {
       expect(source).not.toMatch(/(?:mrk|mra|mrt)_[A-Za-z0-9_-]{12,}/);
+    }
+    for (const source of [openAiSource, claudeSource, codexSource]) {
+      expect(source).not.toMatch(
+        /\b(?:discovery|workspace|subscribers|broadcasts|sequences|automations)_[a-z][a-z_]+\b/,
+      );
     }
   });
 });

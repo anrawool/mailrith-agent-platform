@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+## 0.2.0 - 2026-07-24
+
+- Replace fragmented action permissions with 33 stable resource permissions and 10 complete Work Profiles generated from one canonical resource contract, including one centrally derived Live Actions permission and one full-access default for general-purpose agents.
+- Replace inline Subscriber import CSV bodies with short-lived, browser-completed upload sessions so agents receive only bounded headers and row counts.
+- Publish actionable missing-permission details and compact MCP discovery metadata without loading the full operation catalog into agent context.
+- Add direct stable-ID retrieval, self links, and compact import and export job lists across the public contract, SDKs, CLI, and MCP server.
+- Add secret-free Sender Identity discovery and Broadcast schedule, reschedule, and unschedule operations.
+- Add secure, short-lived browser handoff for email delivery connection creation and credential replacement so provider secrets never pass through agent requests.
+- Add email delivery connection verification and idempotent real test-send operations.
+- Make authenticated capabilities report only operations currently available to the credential, plan, workspace state, and rollout state, with actionable prerequisite details.
+- Make MCP capability discovery honor internal task-focused toolsets and read-only filtering, and add bounded Sequence and Automation readiness, journey-preview, and test-message operations.
+- Use one standard MCP URL with purpose-based optional OAuth permissions and actionable permission-upgrade errors.
+- Require a saved Subscriber for every personalized Template, Broadcast, Sequence, Automation, Form, and Landing Page preview or test; report Subscriber eligibility and the selected Automation branch without changing saved data.
+- Make large resource collections use indexed database search, keyset pagination, and compact summaries while keeping complete objects on individual GET operations.
+- Require an active email delivery connection before creating Broadcasts, Sequences, Automations, Forms, or Landing Pages through any interface.
+- Make public resource updates preserve every omitted field and publish exact schemas for email documents, Subscriber filters, Sequences, Automations, Forms, and Landing Pages.
+- Remove the pre-launch Agent Sandbox surface.
+- Remove the pre-launch Agent Activity resource and permission.
+
 ## 0.1.2 - 2026-07-24
 
 - Republish the unchanged public contract with coordinated package version reporting and registry verification.
@@ -16,5 +37,5 @@
 - Replace internal diagnostics, consent, job, and per-webhook-action scopes with resource reads, Subscriber subscription permissions, bulk-operation permissions, and Webhooks Read or Write.
 - Remove the pre-launch recommendation, reference-experiment, and generic compliance-event resources.
 - Publish the coordinated REST, OAuth, scope, risk, MCP, and SDK contract.
-- Add scoped agent operations, sandbox behavior, and Agent Activity operations.
+- Add scoped agent operations and pre-launch test-workspace behavior.
 - Add focused support for Broadcasts, Sequences, Automations, content, targeting, capture, Webhooks, and data transfer.

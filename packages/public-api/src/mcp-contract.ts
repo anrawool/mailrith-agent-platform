@@ -1,28 +1,17 @@
 import {
-  publicApiScopePresetByKey,
+  publicApiWorkProfiles,
   type PublicApiScopeKey,
-} from "./scopes.js";
+  type PublicApiWorkProfileKey,
+} from "./resource-contract.js";
 import type {
   PublicApiAgentOperationRisk,
 } from "./agent-risk.js";
 
-export const publicApiMcpToolsetKeys = [
-  "reporting",
-  "subscriber_sync",
-  "data_transfer",
-  "content_and_targeting",
-  "capture",
-  "broadcast_preparation",
-  "broadcast_sending",
-  "sequence_preparation",
-  "sequence_operations",
-  "automations",
-  "webhooks",
-  "administration",
-] as const;
+export type PublicApiMcpToolsetKey = PublicApiWorkProfileKey;
 
-export type PublicApiMcpToolsetKey =
-  (typeof publicApiMcpToolsetKeys)[number];
+export const publicApiMcpToolsetKeys = publicApiWorkProfiles.map(
+  (profile) => profile.key,
+) as PublicApiMcpToolsetKey[];
 
 export type PublicApiMcpToolset = {
   key: PublicApiMcpToolsetKey;
@@ -31,106 +20,12 @@ export type PublicApiMcpToolset = {
   scopeKeys: readonly PublicApiScopeKey[];
 };
 
-const presetScopes = (
-  key:
-    | "reporting"
-    | "subscriber_sync"
-    | "content_and_targeting"
-    | "capture_management"
-    | "broadcast_preparation"
-    | "broadcast_sending"
-    | "sequence_preparation"
-    | "sequence_operations"
-    | "automation_management"
-    | "webhook_management"
-    | "data_transfer"
-    | "full_administration",
-) => publicApiScopePresetByKey.get(key)?.scopeKeys ?? [];
-
-export const publicApiMcpToolsets = [
-  {
-    key: "reporting",
-    label: "Reporting",
-    description:
-      "Read workspace, Subscriber, content, workflow, and delivery information without changing it.",
-    scopeKeys: presetScopes("reporting"),
-  },
-  {
-    key: "subscriber_sync",
-    label: "Subscriber Sync",
-    description:
-      "Manage individual Subscriber profiles, status, Tags, deletion, and custom fields.",
-    scopeKeys: presetScopes("subscriber_sync"),
-  },
-  {
-    key: "data_transfer",
-    label: "Subscriber Import & Export",
-    description:
-      "Run bounded Subscriber imports and exports and monitor their jobs.",
-    scopeKeys: presetScopes("data_transfer"),
-  },
-  {
-    key: "content_and_targeting",
-    label: "Templates, Tags, Fields & Segments",
-    description:
-      "Manage email templates, Tags, custom fields, and Segments.",
-    scopeKeys: presetScopes("content_and_targeting"),
-  },
-  {
-    key: "capture",
-    label: "Forms, Landing Pages & Magic Links",
-    description:
-      "Manage Forms, Landing Pages, Magic Links, and their Subscriber capture data.",
-    scopeKeys: presetScopes("capture_management"),
-  },
-  {
-    key: "broadcast_preparation",
-    label: "Broadcast Preparation",
-    description:
-      "Create, change, check, and delete Broadcast drafts without sending email.",
-    scopeKeys: presetScopes("broadcast_preparation"),
-  },
-  {
-    key: "broadcast_sending",
-    label: "Broadcast Sending",
-    description: "Review, test, send, monitor, and stop Broadcasts.",
-    scopeKeys: presetScopes("broadcast_sending"),
-  },
-  {
-    key: "sequence_preparation",
-    label: "Sequence Preparation",
-    description:
-      "Create, change, and delete paused Sequences without activating them or enrolling Subscribers.",
-    scopeKeys: presetScopes("sequence_preparation"),
-  },
-  {
-    key: "sequence_operations",
-    label: "Sequence Operations",
-    description:
-      "Activate or pause Sequences and add or remove individual Subscribers.",
-    scopeKeys: presetScopes("sequence_operations"),
-  },
-  {
-    key: "automations",
-    label: "Automations",
-    description: "Create, change, activate, pause, delete, and inspect Automations.",
-    scopeKeys: presetScopes("automation_management"),
-  },
-  {
-    key: "webhooks",
-    label: "Outbound Webhook Setup",
-    description:
-      "Create, change, rotate secrets for, and delete outbound webhook subscriptions.",
-    scopeKeys: presetScopes("webhook_management"),
-  },
-  {
-    key: "administration",
-    label: "Administration",
-    description:
-      "Use the complete public API surface, including bulk, deletion, and webhook administration.",
-    scopeKeys: presetScopes("full_administration"),
-  },
-] as const satisfies readonly PublicApiMcpToolset[];
+export const publicApiMcpToolsets = publicApiWorkProfiles.map((profile) => ({
+  key: profile.key,
+  label: profile.label,
+  description: profile.description,
+  scopeKeys: profile.scopeKeys,
+})) satisfies readonly PublicApiMcpToolset[];
 
 const publicApiMcpToolsetScopeMap = new Map(
   publicApiMcpToolsets.map((toolset) => [
@@ -406,6 +301,69 @@ export const createPublicApiMcpOperationContract = (
           code: { type: "string" },
           message: { type: "string" },
           retryable: { type: "boolean" },
+          required_scopes: {
+            type: "array",
+            maxItems: 50,
+            items: { type: "string" },
+          },
+          missing_scopes: {
+            type: "array",
+            maxItems: 50,
+            items: { type: "string" },
+          },
+          replacement_scopes: {
+            type: "array",
+            maxItems: 50,
+            items: { type: "string" },
+          },
+          credential_type: {
+            type: "string",
+            enum: ["workspace_api_key", "oauth_access_token"],
+          },
+          recommended_work_profiles: {
+            type: "array",
+            maxItems: 20,
+            items: { type: "string" },
+          },
+          access_update_url: { type: "string", format: "uri" },
+          reconnect_required: { type: "boolean" },
+          permissions_help_url: { type: "string", format: "uri" },
+          recovery: {
+            type: "object",
+            additionalProperties: false,
+            required: ["action", "message"],
+            properties: {
+              action: {
+                type: "string",
+                enum: ["replace_api_key", "reconnect_oauth"],
+              },
+              message: { type: "string" },
+              replacement_scopes: {
+                type: "array",
+                maxItems: 50,
+                items: { type: "string" },
+              },
+              access_update_url: { type: "string", format: "uri" },
+              permissions_help_url: { type: "string", format: "uri" },
+            },
+          },
+          details: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              field: { type: "string" },
+              reason: { type: "string" },
+              resource: {
+                type: "object",
+                additionalProperties: false,
+                required: ["type", "id"],
+                properties: {
+                  type: { type: "string" },
+                  id: { type: "string" },
+                },
+              },
+            },
+          },
           issues: {
             type: "array",
             maxItems: 20,
@@ -418,6 +376,34 @@ export const createPublicApiMcpOperationContract = (
                 code: { type: "string" },
                 message: { type: "string" },
               },
+            },
+          },
+          prerequisite: {
+            type: "object",
+            additionalProperties: false,
+            required: ["resource", "state"],
+            properties: {
+              resource: { type: "string" },
+              state: {
+                type: "string",
+                enum: ["missing", "disabled"],
+              },
+              required_scopes: {
+                type: "array",
+                maxItems: 50,
+                items: { type: "string" },
+              },
+              work_profile: { type: "string" },
+              setup_url: { type: "string", format: "uri" },
+            },
+          },
+          retry: {
+            type: "object",
+            additionalProperties: false,
+            required: ["safe", "guidance"],
+            properties: {
+              safe: { type: "boolean" },
+              guidance: { type: "string" },
             },
           },
         },

@@ -5,12 +5,18 @@
     {
       "type": "mcp",
       "server_label": "mailrith",
-      "server_description": "Mailrith email marketing tools with scoped access, sandbox testing, and redacted activity records.",
+      "server_description": "Mailrith email marketing tools with scoped access and resource-first result verification.",
       "server_url": "https://api.mailrith.com/mcp",
       "authorization": "${MAILRITH_ACCESS_TOKEN}",
-      "allowed_tools": {
-        "read_only": true
-      },
+      "allowed_tools": [
+        "mailrith_check_connection",
+        "mailrith_search_operations",
+        "mailrith_get_operation",
+        "mailrith_read",
+        "mailrith_write",
+        "mailrith_delete",
+        "mailrith_live"
+      ],
       "require_approval": "never"
     }
   ]

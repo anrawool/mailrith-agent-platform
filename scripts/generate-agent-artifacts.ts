@@ -10,9 +10,20 @@ import {
   publicApiMcpOperationContractMap,
   publicApiMcpToolsets,
   publicApiAgentReadQuickstartScopeKeys,
+  publicApiDefaultWorkProfileKey,
   publicApiSdkResources,
   publicApiVersion,
+  publicApiWorkProfiles,
 } from "../packages/public-api/src/index.js";
+// Discovery artifacts must consume the source catalog so publishing cannot
+// silently package aliases from a stale SDK build.
+// eslint-disable-next-line no-restricted-imports
+import {
+  mailrithOperationActionAliases,
+  mailrithOperationIntentAliases,
+  mailrithOperationResourceAliases,
+  mailrithOperationSearchStopWords,
+} from "../packages/sdk/src/operation-discovery.js";
 
 export const generatedAgentArtifactsNotice =
   "// This file is generated from packages/public-api/src/index.ts.\n" +
@@ -33,47 +44,12 @@ const toSnakeCase = (value: string) =>
     .replace(/^_+|_+$/g, "")
     .toLowerCase();
 
-const toPythonEventPatternScopeRequirements = (
-  requirements:
-    | (typeof publicApiSdkResources)[number]["operations"][number]["eventPatternScopeRequirements"]
-    | undefined,
-) =>
-  requirements
-    ? {
-        request_field: requirements.requestField,
-        description: requirements.description,
-        required_scopes_by_event_pattern:
-          requirements.requiredScopesByEventPattern,
-      }
-    : undefined;
-
-const toPythonPayloadFieldScopeRequirements = (
-  requirements:
-    | (typeof publicApiSdkResources)[number]["operations"][number]["payloadFieldScopeRequirements"]
-    | undefined,
-) =>
-  requirements
-    ? {
-        description: requirements.description,
-        required_scopes_by_field: requirements.requiredScopesByField,
-      }
-    : undefined;
-
 export const buildPythonSdkManifest = () =>
   publicApiSdkResources.map((resource) => ({
     namespace: toSnakeCase(resource.namespace),
     name: resource.name,
     description: resource.description,
-    operations: resource.operations.map((operation) => {
-      const eventPatternScopeRequirements =
-        toPythonEventPatternScopeRequirements(
-          operation.eventPatternScopeRequirements,
-        );
-      const payloadFieldScopeRequirements =
-        toPythonPayloadFieldScopeRequirements(
-          operation.payloadFieldScopeRequirements,
-        );
-      return {
+    operations: resource.operations.map((operation) => ({
         namespace: toSnakeCase(operation.namespace),
         method_name: toSnakeCase(operation.methodName),
         operation_id: operation.operationId,
@@ -86,6 +62,7 @@ export const buildPythonSdkManifest = () =>
         mcp_tool_name: operation.mcpToolName,
         risk: operation.risk,
         external_side_effect: operation.externalSideEffect,
+        requires_live_action: operation.requiresLiveAction,
         side_effect_class: operation.sideEffectClass,
         retry_mode: operation.retryMode,
         idempotency_policy: operation.idempotencyPolicy,
@@ -97,14 +74,7 @@ export const buildPythonSdkManifest = () =>
         header_params: operation.headerParams,
         has_request_body: operation.hasRequestBody,
         request_body_required: operation.requestBodyRequired,
-        ...(eventPatternScopeRequirements
-          ? { event_pattern_scope_requirements: eventPatternScopeRequirements }
-          : {}),
-        ...(payloadFieldScopeRequirements
-          ? { payload_field_scope_requirements: payloadFieldScopeRequirements }
-          : {}),
-      };
-    }),
+      })),
   }));
 
 export const buildTypeScriptSdkManifest = () => `${generatedAgentArtifactsNotice}
@@ -116,6 +86,21 @@ export const generatedMailrithAgentReadQuickstartScopeKeys = ${JSON.stringify(
   2,
 )} as const;
 
+export const generatedMailrithWorkProfiles = ${JSON.stringify(
+  publicApiWorkProfiles.map((profile) => ({
+    key: profile.key,
+    label: profile.label,
+    description: profile.description,
+    scopeKeys: profile.scopeKeys,
+  })),
+  null,
+  2,
+)} as const;
+
+export const generatedMailrithDefaultWorkProfileKey = ${JSON.stringify(
+  publicApiDefaultWorkProfileKey,
+)} as const;
+
 export const generatedMailrithSdkResources = ${JSON.stringify(
   publicApiSdkResources,
   null,
@@ -125,6 +110,22 @@ export const generatedMailrithSdkResources = ${JSON.stringify(
 
 export const buildPythonSdkManifestJson = () =>
   `${JSON.stringify(buildPythonSdkManifest(), null, 2)}\n`;
+
+export const buildPythonOperationDiscoveryCatalogJson = () =>
+  `${JSON.stringify(
+    {
+      resource_aliases: Object.fromEntries(
+        Object.entries(mailrithOperationResourceAliases).map(
+          ([namespace, aliases]) => [toSnakeCase(namespace), aliases],
+        ),
+      ),
+      action_aliases: mailrithOperationActionAliases,
+      operation_intent_aliases: mailrithOperationIntentAliases,
+      stop_words: mailrithOperationSearchStopWords,
+    },
+    null,
+    2,
+  )}\n`;
 
 export const buildAgentContractVersionJson = () =>
   `${JSON.stringify({ contract_version: publicApiVersion }, null, 2)}\n`;
@@ -164,6 +165,7 @@ export const buildMcpToolManifest = () => {
         requiredScopes: operation.requiredScopes,
         risk: operation.risk,
         externalSideEffect: operation.externalSideEffect,
+        requiresLiveAction: operation.requiresLiveAction,
         sideEffectClass: operation.sideEffectClass,
         retryMode: operation.retryMode,
         idempotencyPolicy: operation.idempotencyPolicy,
@@ -202,11 +204,49 @@ export const buildMcpToolManifest = () => {
 };
 
 export const buildMcpToolManifestModule = () => `${generatedAgentArtifactsNotice}
-export const generatedMailrithMcpToolManifest = ${JSON.stringify(
-  buildMcpToolManifest(),
-  null,
-  2,
-)} as const;
+// Keep this runtime artifact compact. Exact nested schemas are intentionally
+// detailed, and whitespace would otherwise inflate every MCP package and
+// Worker bundle without improving the generated source's maintainability.
+export type GeneratedMailrithMcpToolsetKey = ${publicApiMcpToolsets
+  .map((toolset) => JSON.stringify(toolset.key))
+  .join(" | ")};
+
+export type GeneratedMailrithMcpToolManifest = {
+  name: string;
+  manifestVersion: string;
+  contractVersion: string;
+  schemaDigest: string;
+  errorCategories: readonly string[];
+  toolsets: readonly {
+    key: string;
+    label: string;
+    description: string;
+    scopeKeys: readonly string[];
+    [key: string]: unknown;
+  }[];
+  tools: readonly {
+    name: string;
+    operationId: string;
+    requiredScopes: readonly string[];
+    risk: string;
+    requiresLiveAction: boolean;
+    sideEffectClass: string;
+    idempotencyPolicy: string;
+    toolsets: readonly GeneratedMailrithMcpToolsetKey[];
+    annotations: {
+      readOnlyHint: boolean;
+      destructiveHint: boolean;
+      idempotentHint: boolean;
+      openWorldHint: boolean;
+    };
+    inputSchema: Record<string, unknown>;
+    outputSchema: Record<string, unknown>;
+    [key: string]: unknown;
+  }[];
+  [key: string]: unknown;
+};
+
+export const generatedMailrithMcpToolManifest: GeneratedMailrithMcpToolManifest = ${JSON.stringify(buildMcpToolManifest())};
 `;
 
 const main = async () => {
@@ -217,6 +257,10 @@ const main = async () => {
   await writeGeneratedFile(
     "packages/python-sdk/mailrith_sdk/manifest.json",
     buildPythonSdkManifestJson(),
+  );
+  await writeGeneratedFile(
+    "packages/python-sdk/mailrith_sdk/operation_discovery.json",
+    buildPythonOperationDiscoveryCatalogJson(),
   );
   await writeGeneratedFile(
     "packages/python-sdk/mailrith_sdk/contract.json",

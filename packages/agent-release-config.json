@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "release_version": "0.1.2",
-  "python_release_version": "0.1.2",
+  "release_version": "0.2.0",
+  "python_release_version": "0.2.0",
   "channel": "ga",
-  "status": "published",
-  "documentation_revision": "2026-07-24"
+  "status": "prepared_not_published",
+  "documentation_revision": "2026-07-25"
 }

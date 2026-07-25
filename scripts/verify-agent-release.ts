@@ -194,7 +194,7 @@ const buildManifest = async () => {
     digests: {
       public_contract_sha256: await hashFiles([
         "packages/public-api/src/index.ts",
-        "packages/public-api/src/scopes.ts",
+        "packages/public-api/src/resource-contract.ts",
         "packages/public-api/src/mcp-contract.ts",
       ]),
       risk_catalog_sha256: await hashFiles(["packages/public-api/src/agent-risk.ts"]),

@@ -44,6 +44,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@mailrith/public-api':
+        specifier: workspace:^
+        version: link:../public-api
       '@mailrith/sdk':
         specifier: workspace:^
         version: link:../sdk

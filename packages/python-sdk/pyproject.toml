@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mailrith-sdk"
-version = "0.1.2"
+version = "0.2.0"
 description = "Official Python SDK for Mailrith's public API."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -35,4 +35,9 @@ where = ["."]
 include = ["mailrith_sdk*"]
 
 [tool.setuptools.package-data]
-mailrith_sdk = ["contract.json", "manifest.json", "py.typed"]
+mailrith_sdk = [
+  "contract.json",
+  "manifest.json",
+  "operation_discovery.json",
+  "py.typed",
+]

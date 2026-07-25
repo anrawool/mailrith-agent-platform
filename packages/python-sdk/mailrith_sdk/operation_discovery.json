@@ -1,0 +1,578 @@
+{
+  "resource_aliases": {
+    "workspace": [
+      "account",
+      "workspace",
+      "profile"
+    ],
+    "sender_identities": [
+      "from address",
+      "from email",
+      "sender",
+      "identity"
+    ],
+    "email_delivery_connections": [
+      "email provider",
+      "delivery provider",
+      "sending provider",
+      "smtp",
+      "credentials",
+      "sender connection",
+      "amazon ses",
+      "postmark",
+      "sendgrid",
+      "mailgun",
+      "resend",
+      "brevo"
+    ],
+    "subscribers": [
+      "contact",
+      "contacts",
+      "people",
+      "person",
+      "recipient",
+      "recipients",
+      "member",
+      "members",
+      "email list",
+      "subscription status"
+    ],
+    "tags": [
+      "label",
+      "labels",
+      "organize subscribers"
+    ],
+    "custom_fields": [
+      "subscriber field",
+      "profile field",
+      "attribute"
+    ],
+    "email_templates": [
+      "email starting point",
+      "email design",
+      "reusable email",
+      "email content"
+    ],
+    "starting_points": [
+      "template gallery",
+      "starting point",
+      "starter",
+      "example",
+      "design"
+    ],
+    "forms": [
+      "signup form",
+      "subscribe form",
+      "capture form",
+      "opt in form"
+    ],
+    "landing_pages": [
+      "landing page",
+      "signup page",
+      "capture page"
+    ],
+    "sequences": [
+      "drip",
+      "nurture",
+      "lifecycle",
+      "autoresponder",
+      "email series"
+    ],
+    "automations": [
+      "workflow",
+      "trigger",
+      "journey",
+      "automated email"
+    ],
+    "magic_links": [
+      "tracked link",
+      "click action",
+      "smart link"
+    ],
+    "broadcasts": [
+      "campaign",
+      "newsletter",
+      "email blast",
+      "one off email",
+      "bulk email"
+    ],
+    "segments": [
+      "filter",
+      "group",
+      "targeting",
+      "cohort",
+      "saved filter"
+    ],
+    "webhook_subscriptions": [
+      "webhook",
+      "outbound event",
+      "event notification",
+      "callback"
+    ],
+    "jobs": [
+      "import",
+      "export",
+      "csv",
+      "bulk transfer",
+      "background task",
+      "progress"
+    ],
+    "analytics": [
+      "metrics",
+      "report",
+      "performance",
+      "results",
+      "statistics"
+    ],
+    "diagnostics": [
+      "troubleshoot",
+      "failure",
+      "error",
+      "why",
+      "delivery problem",
+      "activity"
+    ]
+  },
+  "action_aliases": {
+    "list": [
+      "find",
+      "search",
+      "show",
+      "view",
+      "browse",
+      "which",
+      "who"
+    ],
+    "get": [
+      "find",
+      "show",
+      "view",
+      "inspect",
+      "read",
+      "review",
+      "details"
+    ],
+    "create": [
+      "new",
+      "add",
+      "make",
+      "build",
+      "draft",
+      "publish"
+    ],
+    "upsert": [
+      "create",
+      "update",
+      "add",
+      "sync"
+    ],
+    "start": [
+      "begin",
+      "create",
+      "open",
+      "launch",
+      "connect",
+      "set up",
+      "upload"
+    ],
+    "update": [
+      "change",
+      "edit",
+      "modify",
+      "set",
+      "replace"
+    ],
+    "delete": [
+      "remove",
+      "erase"
+    ],
+    "send": [
+      "deliver",
+      "launch"
+    ],
+    "test": [
+      "preview",
+      "try"
+    ],
+    "preview": [
+      "test",
+      "check",
+      "inspect"
+    ],
+    "schedule": [
+      "plan",
+      "queue",
+      "reschedule"
+    ],
+    "unschedule": [
+      "return to draft",
+      "cancel scheduled delivery"
+    ],
+    "cancel": [
+      "stop",
+      "abort"
+    ],
+    "verify": [
+      "check",
+      "validate"
+    ],
+    "preflight": [
+      "check",
+      "inspect",
+      "review",
+      "validate",
+      "ready",
+      "readiness"
+    ],
+    "status": [
+      "activate",
+      "pause",
+      "enable",
+      "disable",
+      "start",
+      "stop",
+      "turn on",
+      "turn off",
+      "subscribe",
+      "unsubscribe",
+      "resubscribe",
+      "block",
+      "unblock"
+    ],
+    "publish": [
+      "enable",
+      "launch",
+      "make live"
+    ],
+    "duplicate": [
+      "copy",
+      "clone"
+    ],
+    "export": [
+      "download",
+      "transfer out"
+    ],
+    "import": [
+      "upload",
+      "transfer in"
+    ],
+    "enroll": [
+      "add",
+      "join"
+    ],
+    "unenroll": [
+      "remove",
+      "leave"
+    ],
+    "activate": [
+      "enable",
+      "start",
+      "turn on"
+    ],
+    "pause": [
+      "disable",
+      "stop",
+      "turn off"
+    ],
+    "add": [
+      "attach",
+      "assign",
+      "enroll"
+    ],
+    "remove": [
+      "detach",
+      "unassign",
+      "unenroll"
+    ],
+    "rotate": [
+      "replace",
+      "renew"
+    ],
+    "renew": [
+      "refresh",
+      "extend",
+      "restart"
+    ]
+  },
+  "operation_intent_aliases": {
+    "upsertSubscriber": [
+      "add subscriber",
+      "add contact",
+      "create subscriber",
+      "create contact",
+      "new subscriber",
+      "new contact",
+      "sync subscriber",
+      "sync contact"
+    ],
+    "updateSubscriber": [
+      "update subscriber",
+      "update contact",
+      "change subscriber profile",
+      "change contact profile",
+      "update subscriber custom fields",
+      "update contact custom fields",
+      "update subscriber profile fields",
+      "update contact profile fields",
+      "update subscriber attributes",
+      "update contact attributes"
+    ],
+    "addSubscriberTag": [
+      "add tag to subscriber",
+      "add tag to contact",
+      "attach tag to subscriber",
+      "attach tag to contact",
+      "assign tag to subscriber",
+      "assign tag to contact",
+      "label subscriber",
+      "label contact"
+    ],
+    "removeSubscriberTag": [
+      "remove tag from subscriber",
+      "remove tag from contact",
+      "detach tag from subscriber",
+      "detach tag from contact",
+      "unassign tag from subscriber",
+      "unassign tag from contact",
+      "unlabel subscriber",
+      "unlabel contact"
+    ],
+    "addSubscriberSequence": [
+      "add subscriber to sequence",
+      "add contact to sequence",
+      "enroll subscriber in sequence",
+      "enroll contact in sequence",
+      "join subscriber to sequence",
+      "join contact to sequence"
+    ],
+    "removeSubscriberSequence": [
+      "remove subscriber from sequence",
+      "remove contact from sequence",
+      "unenroll subscriber from sequence",
+      "unenroll contact from sequence",
+      "unsubscribe subscriber from sequence",
+      "unsubscribe contact from sequence",
+      "leave subscriber sequence",
+      "leave contact sequence"
+    ],
+    "updateEmailDeliveryConnectionStatus": [
+      "enable email delivery connection",
+      "disable email delivery connection",
+      "enable sending provider connection",
+      "disable sending provider connection",
+      "turn on email delivery connection",
+      "turn off email delivery connection"
+    ],
+    "updateSubscriberStatus": [
+      "unsubscribe subscriber",
+      "unsubscribe contact",
+      "resubscribe subscriber",
+      "resubscribe contact",
+      "subscribe subscriber",
+      "subscribe contact",
+      "block subscriber",
+      "block contact",
+      "unblock subscriber",
+      "unblock contact",
+      "change subscriber status",
+      "change contact status",
+      "stop email for contact",
+      "allow email for contact"
+    ],
+    "startEmailDeliveryConnectionSetup": [
+      "connect email provider",
+      "connect sending provider",
+      "connect smtp",
+      "connect amazon ses",
+      "connect postmark",
+      "connect sendgrid",
+      "connect mailgun",
+      "connect resend",
+      "connect brevo",
+      "set up email delivery",
+      "replace email provider credentials",
+      "replace sending provider credentials",
+      "replace smtp credentials",
+      "replace smtp password",
+      "replace postmark credentials",
+      "replace mailgun credentials",
+      "replace resend credentials",
+      "change provider api key"
+    ],
+    "createBroadcast": [
+      "draft broadcast",
+      "draft newsletter",
+      "draft newsletter campaign",
+      "create broadcast",
+      "create newsletter",
+      "create campaign",
+      "write newsletter"
+    ],
+    "scheduleBroadcast": [
+      "schedule broadcast",
+      "schedule newsletter",
+      "schedule campaign",
+      "reschedule broadcast",
+      "reschedule newsletter",
+      "reschedule campaign",
+      "change newsletter send time"
+    ],
+    "unscheduleBroadcast": [
+      "unschedule broadcast",
+      "unschedule newsletter",
+      "unschedule campaign",
+      "cancel scheduled broadcast",
+      "cancel scheduled newsletter",
+      "cancel scheduled campaign",
+      "return scheduled newsletter to draft"
+    ],
+    "testBroadcast": [
+      "test broadcast",
+      "test newsletter",
+      "test campaign",
+      "send test broadcast",
+      "send test newsletter",
+      "send test campaign",
+      "send preview email"
+    ],
+    "getBroadcastSendProgress": [
+      "broadcast progress",
+      "newsletter progress",
+      "campaign progress",
+      "broadcast send progress",
+      "newsletter send progress",
+      "campaign send progress",
+      "check newsletter status",
+      "is newsletter done",
+      "monitor broadcast"
+    ],
+    "cancelBroadcastSend": [
+      "cancel broadcast send",
+      "cancel newsletter send",
+      "stop sending broadcast",
+      "stop sending newsletter",
+      "stop active broadcast"
+    ],
+    "startSubscriberImportUpload": [
+      "import subscribers from csv",
+      "import contacts from csv",
+      "upload subscriber csv",
+      "upload contact csv",
+      "choose csv for subscriber import"
+    ],
+    "createSubscriberImportJob": [
+      "start subscriber import",
+      "start contact import",
+      "queue subscriber import",
+      "run subscriber import"
+    ],
+    "getSubscriberImportJob": [
+      "csv import progress",
+      "subscriber import progress",
+      "contact import progress",
+      "check subscriber import",
+      "check contact import"
+    ],
+    "createSubscriberExportJob": [
+      "export subscribers to csv",
+      "export contacts to csv",
+      "download subscribers csv",
+      "download contacts csv",
+      "start subscriber export"
+    ],
+    "getSubscriberExportJob": [
+      "csv export progress",
+      "subscriber export progress",
+      "contact export progress",
+      "check subscriber export",
+      "get subscriber export download"
+    ],
+    "createAnalyticsReport": [
+      "show email performance",
+      "show newsletter performance",
+      "show campaign performance",
+      "show sequence performance",
+      "show automation performance",
+      "view email analytics",
+      "view newsletter analytics",
+      "view campaign analytics",
+      "view sequence analytics",
+      "view automation analytics",
+      "analyze email results",
+      "report email metrics"
+    ],
+    "createForm": [
+      "publish signup form",
+      "publish subscribe form",
+      "make signup form live",
+      "create public signup form"
+    ],
+    "createLandingPage": [
+      "publish landing page",
+      "make landing page live",
+      "create public landing page",
+      "launch signup page"
+    ],
+    "createSequence": [
+      "create sequence",
+      "make new sequence",
+      "build email series",
+      "build nurture series",
+      "draft sequence"
+    ],
+    "createAutomation": [
+      "create automation",
+      "create workflow",
+      "build customer journey",
+      "build automated workflow",
+      "draft automation"
+    ],
+    "updateSequenceStatus": [
+      "activate sequence",
+      "pause sequence",
+      "enable sequence",
+      "disable sequence",
+      "start sequence",
+      "stop sequence",
+      "turn on sequence",
+      "turn off sequence"
+    ],
+    "updateAutomationStatus": [
+      "activate automation",
+      "pause automation",
+      "make automation inactive",
+      "return automation to draft",
+      "retire automation",
+      "enable automation",
+      "disable automation",
+      "start automation",
+      "stop automation",
+      "turn on automation",
+      "turn off automation",
+      "activate workflow",
+      "pause workflow"
+    ]
+  },
+  "stop_words": [
+    "a",
+    "an",
+    "and",
+    "can",
+    "do",
+    "for",
+    "from",
+    "i",
+    "in",
+    "is",
+    "me",
+    "my",
+    "of",
+    "on",
+    "please",
+    "the",
+    "to",
+    "want",
+    "with",
+    "yesterday"
+  ]
+}

@@ -52,6 +52,64 @@ class MailrithClientTest(unittest.TestCase):
         self.assertEqual(headers["x-client"], "mailrith-python-sdk-test")
         self.assertEqual(body, '{"confirm": true}')
 
+    def test_searches_generated_operations_with_relationship_aware_intents(self) -> None:
+        client = MailrithClient(transport=lambda *_args: (200, {}, {}))
+        cases = (
+            ("create campaign", "createBroadcast"),
+            ("connect smtp", "startEmailDeliveryConnectionSetup"),
+            ("unsubscribe contact", "updateSubscriberStatus"),
+            ("show newsletter performance", "createAnalyticsReport"),
+            ("draft automation", "createAutomation"),
+            ("send test newsletter", "testBroadcast"),
+            ("add the VIP tag to this subscriber", "addSubscriberTag"),
+            ("remove a tag from a contact", "removeSubscriberTag"),
+            ("enroll a contact in a sequence", "addSubscriberSequence"),
+            ("remove subscriber from sequence", "removeSubscriberSequence"),
+            ("schedule the newsletter", "scheduleBroadcast"),
+        )
+        for query, operation_id in cases:
+            result = client.search_operations(query, limit=3)
+            self.assertEqual(
+                result["selection"]["recommended_operation_id"], operation_id, query
+            )
+            self.assertEqual(
+                result["matches"][0]["operation"]["operation_id"], operation_id, query
+            )
+
+        self.assertEqual(
+            client.get_operation("addSubscriberTag")["method_name"], "add_tag"
+        )
+        contacts = client.search_operations("find contacts", limit=3)
+        self.assertEqual(contacts["selection"]["status"], "ambiguous")
+        self.assertEqual(
+            contacts["selection"]["candidate_operation_ids"],
+            ["listSubscribers", "getSubscriber"],
+        )
+
+    def test_filters_operation_search_by_resource_and_category(self) -> None:
+        client = MailrithClient(transport=lambda *_args: (200, {}, {}))
+        result = client.search_operations(
+            "show newsletter",
+            resource="campaign",
+            category="read",
+            limit=5,
+        )
+
+        self.assertTrue(result["matches"])
+        self.assertTrue(
+            all(
+                match["operation"]["namespace"] == "broadcasts"
+                and match["operation"]["risk"] == "read"
+                for match in result["matches"]
+            )
+        )
+        with self.assertRaisesRegex(ValueError, "category must be"):
+            client.search_operations(category="unknown")
+
+    def test_bounds_operation_search_results(self) -> None:
+        client = MailrithClient(transport=lambda *_args: (200, {}, {}))
+        self.assertEqual(len(client.search_operations(limit=500)["matches"]), 25)
+
     def test_lowercases_boolean_query_values(self) -> None:
         calls = []
 
@@ -84,7 +142,23 @@ class MailrithClientTest(unittest.TestCase):
                     "error": {
                         "type": "permission_error",
                         "code": "insufficient_scope",
-                        "message": "Missing broadcasts:send",
+                        "message": "Missing broadcasts:write",
+                        "credential_type": "oauth_access_token",
+                        "missing_scopes": ["broadcasts:write"],
+                        "replacement_scopes": [
+                            "workspace:read",
+                            "broadcasts:read",
+                            "broadcasts:write",
+                        ],
+                        "recovery": {
+                            "action": "reconnect_oauth",
+                            "message": "Reconnect and approve the permission.",
+                            "replacement_scopes": [
+                                "workspace:read",
+                                "broadcasts:read",
+                                "broadcasts:write",
+                            ],
+                        },
                     }
                 },
             )
@@ -97,6 +171,20 @@ class MailrithClientTest(unittest.TestCase):
         self.assertEqual(raised.exception.status, 403)
         self.assertEqual(raised.exception.type, "permission_error")
         self.assertEqual(raised.exception.code, "insufficient_scope")
+        self.assertEqual(
+            raised.exception.credential_recovery,
+            {
+                "credential_type": "oauth_access_token",
+                "action": "reconnect_oauth",
+                "message": "Reconnect and approve the permission.",
+                "missing_scopes": ["broadcasts:write"],
+                "replacement_scopes": [
+                    "workspace:read",
+                    "broadcasts:read",
+                    "broadcasts:write",
+                ],
+            },
+        )
 
 
 if __name__ == "__main__":

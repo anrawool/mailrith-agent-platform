@@ -59,10 +59,10 @@ export type PublicApiAgentOperationRisk = {
   resourceKey: string;
   risk: PublicApiAgentRiskClass;
   externalSideEffect: boolean;
+  requiresLiveAction: boolean;
   sideEffectClass: PublicApiAgentSideEffectClass;
   retryMode: PublicApiAgentRetryMode;
   idempotencyPolicy: PublicApiAgentIdempotencyPolicy;
-  minimumPermission: string;
   dataScope: PublicApiAgentDataScope;
   rationale: string;
 };
@@ -70,7 +70,6 @@ export type PublicApiAgentOperationRisk = {
 const read = (
   operationId: string,
   resourceKey: string,
-  minimumPermission: string,
   dataScope: PublicApiAgentDataScope,
   rationale: string,
 ): PublicApiAgentOperationRisk => ({
@@ -78,10 +77,10 @@ const read = (
   resourceKey,
   risk: "read",
   externalSideEffect: false,
+  requiresLiveAction: false,
   sideEffectClass: "none",
   retryMode: "safe",
   idempotencyPolicy: "safe-read",
-  minimumPermission,
   dataScope,
   rationale,
 });
@@ -90,9 +89,9 @@ const change = (
   operationId: string,
   resourceKey: string,
   risk: Exclude<PublicApiAgentRiskClass, "read">,
-  minimumPermission: string,
   options: {
     externalSideEffect?: boolean;
+    requiresLiveAction?: boolean;
     sideEffectClass?: Exclude<PublicApiAgentSideEffectClass, "none">;
     retryMode?: Exclude<PublicApiAgentRetryMode, "safe">;
     dataScope?: Exclude<PublicApiAgentDataScope, "public">;
@@ -101,6 +100,9 @@ const change = (
 ): PublicApiAgentOperationRisk => {
   const retryMode = options.retryMode ?? "idempotency-key";
   const externalSideEffect = options.externalSideEffect ?? false;
+  const requiresLiveAction =
+    options.requiresLiveAction ??
+    (risk === "execute" || risk === "test");
   const sideEffectClass =
     options.sideEffectClass ??
     (risk === "delete"
@@ -122,11 +124,11 @@ const change = (
     resourceKey,
     risk,
     externalSideEffect,
+    requiresLiveAction,
     sideEffectClass,
     retryMode,
     idempotencyPolicy:
       retryMode === "resource-state" ? "resource-state" : "idempotency-key",
-    minimumPermission,
     dataScope: options.dataScope ?? "workspace",
     rationale: options.rationale,
   };
@@ -137,13 +139,11 @@ export const publicApiAgentOperationRiskCatalog = [
     "getPublicApiMeta",
     "discovery",
     "public",
-    "public",
     "Returns public version and discovery metadata.",
   ),
   read(
     "getPublicApiCapabilities",
     "discovery",
-    "workspace:read",
     "workspace",
     "Returns the authenticated credential and workspace capability boundary.",
   ),
@@ -151,98 +151,214 @@ export const publicApiAgentOperationRiskCatalog = [
     "getPublicApiOpenApiDocument",
     "discovery",
     "public",
-    "public",
     "Returns the public API contract without reading workspace data.",
   ),
   read(
     "getWorkspace",
     "workspace",
-    "workspace:read",
     "workspace",
     "Reads one authenticated workspace profile.",
   ),
   read(
-    "listAgentActivity",
-    "agent_activity",
-    "activity:read",
+    "listSenderIdentities",
+    "sender_identities",
     "workspace",
-    "Reads a bounded, redacted page of agent-originated workspace mutations.",
+    "Reads a bounded page of enabled sender metadata without provider credentials.",
   ),
   read(
-    "getAgentActivity",
-    "agent_activity",
-    "activity:read",
+    "getSenderIdentity",
+    "sender_identities",
     "workspace",
-    "Reads one redacted agent mutation trail by its stable action identifier.",
+    "Reads one enabled sender identity without provider credentials.",
+  ),
+  read(
+    "listEmailDeliveryConnections",
+    "email_delivery_connections",
+    "workspace",
+    "Reads a bounded page of secret-free delivery connection metadata.",
+  ),
+  change(
+    "startEmailDeliveryConnectionSetup",
+    "email_delivery_connections",
+    "admin",
+    {
+      sideEffectClass: "secret-change",
+      retryMode: "resource-state",
+      rationale:
+        "Creates a short-lived browser handoff so provider credentials never pass through the agent API.",
+    },
+  ),
+  read(
+    "getEmailDeliveryConnectionSetup",
+    "email_delivery_connections",
+    "workspace",
+    "Reads the bounded status of one short-lived secure setup session.",
+  ),
+  change(
+    "renewEmailDeliveryConnectionSetup",
+    "email_delivery_connections",
+    "admin",
+    {
+      sideEffectClass: "secret-change",
+      retryMode: "resource-state",
+      rationale:
+        "Reissues a short-lived browser handoff from bounded non-secret setup context.",
+    },
+  ),
+  read(
+    "listEmailStartingPoints",
+    "starting_points",
+    "workspace",
+    "Reads compact metadata for the canonical email starting points shared with the Mailrith UI.",
+  ),
+  read(
+    "getEmailStartingPoint",
+    "starting_points",
+    "workspace",
+    "Reads one canonical email starting point on demand.",
+  ),
+  read(
+    "listFormStartingPoints",
+    "starting_points",
+    "workspace",
+    "Reads compact metadata for the canonical Form starting points shared with the Mailrith UI.",
+  ),
+  read(
+    "getFormStartingPoint",
+    "starting_points",
+    "workspace",
+    "Reads one canonical Form starting point on demand.",
+  ),
+  read(
+    "listLandingPageStartingPoints",
+    "starting_points",
+    "workspace",
+    "Reads compact metadata for the canonical Landing Page starting points shared with the Mailrith UI.",
+  ),
+  read(
+    "getLandingPageStartingPoint",
+    "starting_points",
+    "workspace",
+    "Reads one canonical Landing Page starting point on demand.",
+  ),
+  read(
+    "getEmailDeliveryConnection",
+    "email_delivery_connections",
+    "workspace",
+    "Reads one secret-free delivery connection linked to the workspace.",
+  ),
+  change(
+    "updateEmailDeliveryConnection",
+    "email_delivery_connections",
+    "admin",
+    {
+      retryMode: "resource-state",
+      rationale:
+        "Changes non-secret sender settings for one workspace-only connection.",
+    },
+  ),
+  change(
+    "updateEmailDeliveryConnectionStatus",
+    "email_delivery_connections",
+    "admin",
+    {
+      retryMode: "resource-state",
+      rationale:
+        "Enables or disables a delivery connection and can change whether workspace resources may be created or sent.",
+    },
+  ),
+  read(
+    "verifyEmailDeliveryConnection",
+    "email_delivery_connections",
+    "workspace",
+    "Checks the saved provider credential and sender without storing a verification history.",
+  ),
+  change(
+    "testEmailDeliveryConnection",
+    "email_delivery_connections",
+    "test",
+    {
+      externalSideEffect: true,
+      sideEffectClass: "external-email",
+      rationale: "Sends one real test email to a controlled recipient.",
+    },
+  ),
+  change(
+    "deleteEmailDeliveryConnection",
+    "email_delivery_connections",
+    "delete",
+    {
+      retryMode: "resource-state",
+      rationale:
+        "Deletes one eligible workspace-only delivery connection and its saved provider credentials.",
+    },
   ),
   read(
     "createAnalyticsReport",
     "analytics",
-    "analytics:read",
     "workspace",
     "Creates or reuses one bounded, expiring aggregate report from compact rollups.",
   ),
   read(
     "getAnalyticsReport",
     "analytics",
-    "analytics:read",
     "workspace",
     "Reads one bounded, expiring aggregate report.",
   ),
   read(
     "listAutomationRunDiagnostics",
     "diagnostics",
-    "automations:read",
     "workspace",
     "Reads a bounded page of redacted Automation run diagnostics.",
   ),
   read(
     "getAutomationRunDiagnostics",
     "diagnostics",
-    "automations:read",
     "workspace",
     "Reads one redacted Automation run and its bounded step diagnostics.",
   ),
   read(
     "getSequenceDiagnostics",
     "diagnostics",
-    "sequences:read",
     "workspace",
     "Reads bounded Sequence failure and retry diagnostics.",
   ),
   read(
     "getBroadcastDiagnostics",
     "diagnostics",
-    "broadcasts:read",
     "workspace",
     "Reads bounded Broadcast selection, provider readiness, and delivery reasons.",
   ),
   read(
     "getSubscriberActivityDiagnostics",
     "diagnostics",
-    "subscribers:read",
     "subscriber",
     "Reads one privacy-conscious Subscriber activity and subscription summary without an email address.",
   ),
   read(
     "listSubscribers",
     "subscribers",
-    "subscribers:read",
     "subscriber",
     "Reads a bounded, cursor-paginated page of Subscribers.",
   ),
-  change("upsertSubscriber", "subscribers", "execute", "subscribers:profile", {
+  read(
+    "getSubscriber",
+    "subscribers",
+    "subscriber",
+    "Reads one Subscriber by its stable identifier.",
+  ),
+  change("upsertSubscriber", "subscribers", "execute", {
     dataScope: "subscriber",
     rationale:
       "Creates or changes one Subscriber and can change sending eligibility.",
   }),
-  change("updateSubscriber", "subscribers", "draft", "subscribers:profile", {
+  change("updateSubscriber", "subscribers", "draft", {
     retryMode: "resource-state",
     dataScope: "subscriber",
     rationale:
       "Changes one Subscriber profile or custom-field values without changing sending eligibility.",
   }),
-  change("deleteSubscriber", "subscribers", "delete", "subscribers:delete", {
+  change("deleteSubscriber", "subscribers", "delete", {
     retryMode: "resource-state",
     dataScope: "subscriber",
     rationale:
@@ -252,7 +368,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "updateSubscriberStatus",
     "subscribers",
     "execute",
-    "subscriptions:write",
     {
       retryMode: "resource-state",
       dataScope: "subscriber",
@@ -263,7 +378,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "addSubscriberTag",
     "subscribers",
     "execute",
-    "subscribers:targeting",
     {
       retryMode: "resource-state",
       dataScope: "subscriber",
@@ -275,7 +389,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "removeSubscriberTag",
     "subscribers",
     "execute",
-    "subscribers:targeting",
     {
       retryMode: "resource-state",
       dataScope: "subscriber",
@@ -287,7 +400,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "addSubscriberSequence",
     "subscribers",
     "execute",
-    "subscribers:sequence_enroll",
     {
       externalSideEffect: true,
       sideEffectClass: "external-email",
@@ -301,23 +413,22 @@ export const publicApiAgentOperationRiskCatalog = [
     "removeSubscriberSequence",
     "subscribers",
     "execute",
-    "subscribers:sequence_enroll",
     {
       retryMode: "resource-state",
       dataScope: "subscriber",
       rationale: "Removes one Subscriber from a lifecycle workflow.",
     },
   ),
-  read("listTags", "tags", "tags:read", "workspace", "Reads the bounded Tag catalog."),
-  change("createTag", "tags", "draft", "tags:configure", {
+  read("listTags", "tags", "workspace", "Reads the bounded Tag catalog."),
+  change("createTag", "tags", "draft", {
     rationale: "Creates targeting metadata without contacting Subscribers.",
   }),
-  read("getTag", "tags", "tags:read", "workspace", "Reads one Tag definition."),
-  change("updateTag", "tags", "draft", "tags:configure", {
+  read("getTag", "tags", "workspace", "Reads one Tag definition."),
+  change("updateTag", "tags", "draft", {
     retryMode: "resource-state",
     rationale: "Changes targeting metadata without contacting Subscribers.",
   }),
-  change("deleteTag", "tags", "delete", "tags:delete", {
+  change("deleteTag", "tags", "delete", {
     retryMode: "resource-state",
     rationale:
       "Permanently removes targeting metadata when no saved resource references it.",
@@ -325,7 +436,6 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "listCustomFields",
     "custom_fields",
-    "custom_fields:read",
     "workspace",
     "Reads the bounded custom-field schema.",
   ),
@@ -333,13 +443,11 @@ export const publicApiAgentOperationRiskCatalog = [
     "createCustomField",
     "custom_fields",
     "draft",
-    "custom_fields:configure",
     { rationale: "Creates a custom-field definition." },
   ),
   read(
     "getCustomField",
     "custom_fields",
-    "custom_fields:read",
     "workspace",
     "Reads one custom-field definition.",
   ),
@@ -347,7 +455,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "updateCustomField",
     "custom_fields",
     "draft",
-    "custom_fields:configure",
     {
       retryMode: "resource-state",
       rationale: "Changes a custom-field definition used by Subscriber data.",
@@ -357,7 +464,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "deleteCustomField",
     "custom_fields",
     "delete",
-    "custom_fields:delete",
     {
       retryMode: "resource-state",
       rationale: "Permanently removes a field definition and associated values.",
@@ -366,7 +472,6 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "listEmailTemplates",
     "email_templates",
-    "email_templates:read",
     "workspace",
     "Reads a bounded page of reusable email templates.",
   ),
@@ -374,21 +479,24 @@ export const publicApiAgentOperationRiskCatalog = [
     "createEmailTemplate",
     "email_templates",
     "draft",
-    "email_templates:draft",
     { rationale: "Creates reusable draft content without sending email." },
   ),
   read(
     "getEmailTemplate",
     "email_templates",
-    "email_templates:read",
     "workspace",
     "Reads one reusable email template.",
+  ),
+  read(
+    "previewEmailTemplate",
+    "email_templates",
+    "subscriber",
+    "Renders one reusable email template with one saved Subscriber without sending or saving anything.",
   ),
   change(
     "updateEmailTemplate",
     "email_templates",
     "draft",
-    "email_templates:draft",
     {
       retryMode: "resource-state",
       rationale: "Changes reusable draft content without sending email.",
@@ -398,39 +506,51 @@ export const publicApiAgentOperationRiskCatalog = [
     "deleteEmailTemplate",
     "email_templates",
     "delete",
-    "email_templates:delete",
     {
       retryMode: "resource-state",
       rationale: "Permanently removes reusable email content.",
     },
   ),
-  read("listForms", "forms", "forms:read", "workspace", "Reads a bounded page of Forms."),
-  change("createForm", "forms", "draft", "forms:configure", {
+  read("listForms", "forms", "workspace", "Reads a bounded page of Forms."),
+  change("createForm", "forms", "draft", {
     externalSideEffect: true,
+    requiresLiveAction: true,
     rationale: "Creates a publicly reachable Subscriber capture surface.",
   }),
-  read("getForm", "forms", "forms:read", "workspace", "Reads one Form definition."),
+  read("getForm", "forms", "workspace", "Reads one Form definition."),
   read(
     "listFormSubmissions",
     "forms",
-    "forms:submissions_read",
     "subscriber",
     "Reads a bounded page of Form submissions and Subscriber data.",
   ),
-  change("updateForm", "forms", "draft", "forms:configure", {
+  read(
+    "getFormSubmission",
+    "forms",
+    "subscriber",
+    "Reads one retained Form submission by stable identifier.",
+  ),
+  read(
+    "previewFormDoubleOptIn",
+    "forms",
+    "subscriber",
+    "Renders one Form confirmation email with one saved Subscriber without sending or saving anything.",
+  ),
+  change("updateForm", "forms", "draft", {
     externalSideEffect: true,
+    requiresLiveAction: true,
     retryMode: "resource-state",
     rationale: "Changes a publicly reachable Subscriber capture surface.",
   }),
-  change("deleteForm", "forms", "delete", "forms:delete", {
+  change("deleteForm", "forms", "delete", {
     externalSideEffect: true,
+    requiresLiveAction: true,
     retryMode: "resource-state",
     rationale: "Removes a public Subscriber capture surface.",
   }),
   read(
     "listLandingPages",
     "landing_pages",
-    "landing_pages:read",
     "workspace",
     "Reads a bounded page of Landing Pages.",
   ),
@@ -438,33 +558,43 @@ export const publicApiAgentOperationRiskCatalog = [
     "createLandingPage",
     "landing_pages",
     "draft",
-    "landing_pages:configure",
     {
       externalSideEffect: true,
+      requiresLiveAction: true,
       rationale: "Creates a publicly reachable hosted page.",
     },
   ),
   read(
     "getLandingPage",
     "landing_pages",
-    "landing_pages:read",
     "workspace",
     "Reads one Landing Page definition.",
   ),
   read(
     "listLandingPageSubmissions",
     "landing_pages",
-    "landing_pages:submissions_read",
     "subscriber",
     "Reads a bounded page of Landing Page submissions and Subscriber data.",
+  ),
+  read(
+    "getLandingPageSubmission",
+    "landing_pages",
+    "subscriber",
+    "Reads one retained Landing Page submission by stable identifier.",
+  ),
+  read(
+    "previewLandingPageDoubleOptIn",
+    "landing_pages",
+    "subscriber",
+    "Renders one Landing Page confirmation email with one saved Subscriber without sending or saving anything.",
   ),
   change(
     "updateLandingPage",
     "landing_pages",
     "draft",
-    "landing_pages:configure",
     {
       externalSideEffect: true,
+      requiresLiveAction: true,
       retryMode: "resource-state",
       rationale: "Changes a publicly reachable hosted page.",
     },
@@ -473,9 +603,9 @@ export const publicApiAgentOperationRiskCatalog = [
     "deleteLandingPage",
     "landing_pages",
     "delete",
-    "landing_pages:delete",
     {
       externalSideEffect: true,
+      requiresLiveAction: true,
       retryMode: "resource-state",
       rationale: "Removes a public hosted page.",
     },
@@ -483,38 +613,53 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "listSequences",
     "sequences",
-    "sequences:read",
     "workspace",
     "Reads a bounded page of Sequences and aggregate results.",
   ),
-  change("createSequence", "sequences", "draft", "sequences:draft", {
+  change("createSequence", "sequences", "draft", {
     rationale: "Creates a paused Sequence without starting delivery.",
   }),
   read(
     "getSequence",
     "sequences",
-    "sequences:read",
     "workspace",
     "Reads one Sequence definition and aggregate results.",
   ),
-  change("updateSequence", "sequences", "draft", "sequences:draft", {
+  read(
+    "preflightSequence",
+    "sequences",
+    "workspace",
+    "Runs bounded Sequence readiness checks without changing the Sequence.",
+  ),
+  read(
+    "previewSequenceJourney",
+    "sequences",
+    "workspace",
+    "Returns a bounded, side-effect-free timeline of the Sequence emails.",
+  ),
+  change("testSequence", "sequences", "test", {
+    externalSideEffect: true,
+    sideEffectClass: "external-email",
+    rationale:
+      "Sends at most five selected Sequence messages to one explicit test address without enrolling Subscribers.",
+  }),
+  change("updateSequence", "sequences", "draft", {
     retryMode: "resource-state",
     rationale: "Changes a paused Sequence without starting delivery.",
   }),
-  change("updateSequenceStatus", "sequences", "execute", "sequences:activate", {
+  change("updateSequenceStatus", "sequences", "execute", {
     externalSideEffect: true,
     sideEffectClass: "external-email",
     retryMode: "resource-state",
     rationale: "Starts or pauses a Sequence that can send email.",
   }),
-  change("deleteSequence", "sequences", "delete", "sequences:delete", {
+  change("deleteSequence", "sequences", "delete", {
     retryMode: "resource-state",
     rationale: "Permanently removes a lifecycle workflow.",
   }),
   read(
     "listAutomations",
     "automations",
-    "automations:read",
     "workspace",
     "Reads a bounded page of Automation definitions and states.",
   ),
@@ -522,7 +667,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "createAutomation",
     "automations",
     "draft",
-    "automations:draft",
     {
       rationale: "Creates an inactive Automation without running actions.",
     },
@@ -530,15 +674,31 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "getAutomation",
     "automations",
-    "automations:read",
     "workspace",
     "Reads one Automation definition and state.",
   ),
+  read(
+    "preflightAutomation",
+    "automations",
+    "workspace",
+    "Runs bounded Automation readiness checks without running any actions.",
+  ),
+  read(
+    "previewAutomationJourney",
+    "automations",
+    "workspace",
+    "Returns a bounded, side-effect-free view of Automation triggers, steps, and branches.",
+  ),
+  change("testAutomation", "automations", "test", {
+    externalSideEffect: true,
+    sideEffectClass: "external-email",
+    rationale:
+      "Sends at most five selected Automation email steps to one explicit test address without running actions.",
+  }),
   change(
     "updateAutomation",
     "automations",
     "draft",
-    "automations:draft",
     {
       retryMode: "resource-state",
       rationale: "Changes an inactive Automation without running actions.",
@@ -548,7 +708,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "updateAutomationStatus",
     "automations",
     "execute",
-    "automations:activate",
     {
       externalSideEffect: true,
       sideEffectClass: "external-email",
@@ -560,7 +719,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "deleteAutomation",
     "automations",
     "delete",
-    "automations:delete",
     {
       retryMode: "resource-state",
       rationale: "Permanently removes an Automation workflow.",
@@ -569,11 +727,10 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "listMagicLinks",
     "magic_links",
-    "magic_links:read",
     "workspace",
     "Reads a bounded page of Magic Links.",
   ),
-  change("createMagicLink", "magic_links", "execute", "magic_links:configure", {
+  change("createMagicLink", "magic_links", "execute", {
     externalSideEffect: true,
     rationale:
       "Creates a public link that can change Subscriber state when used.",
@@ -581,68 +738,79 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "getMagicLink",
     "magic_links",
-    "magic_links:read",
     "workspace",
     "Reads one Magic Link definition.",
   ),
-  change("updateMagicLink", "magic_links", "execute", "magic_links:configure", {
+  change("updateMagicLink", "magic_links", "execute", {
     externalSideEffect: true,
     retryMode: "resource-state",
     rationale:
       "Changes a public link that can change Subscriber state when used.",
   }),
-  change("deleteMagicLink", "magic_links", "delete", "magic_links:delete", {
+  change("deleteMagicLink", "magic_links", "delete", {
     externalSideEffect: true,
+    requiresLiveAction: true,
     retryMode: "resource-state",
     rationale: "Removes a public link and its configured action.",
   }),
   read(
     "listBroadcasts",
     "broadcasts",
-    "broadcasts:read",
     "workspace",
     "Reads a bounded page of Broadcasts and aggregate results.",
   ),
-  change("createBroadcast", "broadcasts", "draft", "broadcasts:draft", {
+  change("createBroadcast", "broadcasts", "draft", {
     rationale: "Creates a Broadcast draft without scheduling or sending it.",
   }),
   read(
     "getBroadcastSendProgress",
     "broadcasts",
-    "broadcasts:read",
     "workspace",
     "Reads bounded progress aggregates without scanning recipient delivery rows.",
   ),
   read(
     "listBroadcastDeliveryErrors",
     "broadcasts",
-    "broadcasts:read",
     "subscriber",
     "Reads a bounded, keyset-paginated page of delivery failures.",
   ),
   read(
     "getBroadcast",
     "broadcasts",
-    "broadcasts:read",
     "workspace",
     "Reads one Broadcast and aggregate results.",
   ),
-  change("updateBroadcast", "broadcasts", "draft", "broadcasts:draft", {
+  change("updateBroadcast", "broadcasts", "draft", {
     retryMode: "resource-state",
     rationale: "Changes a Broadcast draft without scheduling or sending it.",
   }),
-  change("deleteBroadcast", "broadcasts", "delete", "broadcasts:delete", {
+  change("deleteBroadcast", "broadcasts", "delete", {
     retryMode: "resource-state",
     rationale: "Permanently removes an eligible Broadcast.",
   }),
   read(
     "preflightBroadcast",
     "broadcasts",
-    "broadcasts:preflight",
     "workspace",
     "Runs bounded readiness checks and returns counts rather than Subscriber rows.",
   ),
-  change("sendBroadcast", "broadcasts", "execute", "broadcasts:send", {
+  change("scheduleBroadcast", "broadcasts", "execute", {
+    externalSideEffect: true,
+    retryMode: "resource-state",
+    rationale:
+      "Schedules durable delivery to real Subscribers at a future time.",
+  }),
+  change(
+    "unscheduleBroadcast",
+    "broadcasts",
+    "execute",
+    {
+      retryMode: "resource-state",
+      rationale:
+        "Cancels future delivery before it starts and returns the Broadcast to draft state.",
+    },
+  ),
+  change("sendBroadcast", "broadcasts", "execute", {
     externalSideEffect: true,
     rationale: "Starts durable delivery to real Subscribers.",
   }),
@@ -650,53 +818,49 @@ export const publicApiAgentOperationRiskCatalog = [
     "cancelBroadcastSend",
     "broadcasts",
     "execute",
-    "broadcasts:cancel",
     {
       externalSideEffect: true,
+      requiresLiveAction: true,
       rationale:
         "Stops remaining delivery work and must remain available as a safety action.",
     },
   ),
-  change("testBroadcast", "broadcasts", "test", "broadcasts:test", {
+  change("testBroadcast", "broadcasts", "test", {
     externalSideEffect: true,
     rationale: "Sends one real test email to a controlled recipient.",
   }),
   read(
     "listSegments",
     "segments",
-    "segments:read",
     "workspace",
     "Reads a bounded page of saved Segments.",
   ),
-  change("createSegment", "segments", "draft", "segments:configure", {
+  change("createSegment", "segments", "draft", {
     rationale: "Creates a saved Subscriber-selection definition.",
   }),
   read(
     "getSegment",
     "segments",
-    "segments:read",
     "workspace",
     "Reads one saved Segment definition.",
   ),
-  change("updateSegment", "segments", "draft", "segments:configure", {
+  change("updateSegment", "segments", "draft", {
     retryMode: "resource-state",
     rationale: "Changes a saved Subscriber-selection definition.",
   }),
-  change("deleteSegment", "segments", "delete", "segments:delete", {
+  change("deleteSegment", "segments", "delete", {
     retryMode: "resource-state",
     rationale: "Permanently removes a saved Subscriber-selection definition.",
   }),
   read(
     "previewSegment",
     "segments",
-    "segments:read",
     "subscriber",
     "Returns bounded aggregate counts for an unsaved Segment definition.",
   ),
   read(
     "listWebhookSubscriptions",
     "webhook_subscriptions",
-    "webhooks:read",
     "workspace",
     "Reads a bounded page of webhook destinations and delivery health.",
   ),
@@ -704,9 +868,9 @@ export const publicApiAgentOperationRiskCatalog = [
     "createWebhookSubscription",
     "webhook_subscriptions",
     "admin",
-    "webhooks:write",
     {
       externalSideEffect: true,
+      requiresLiveAction: true,
       rationale:
         "Creates an outbound data destination and returns new secret material once.",
     },
@@ -714,7 +878,6 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "getWebhookSubscription",
     "webhook_subscriptions",
-    "webhooks:read",
     "workspace",
     "Reads one webhook destination and delivery health record.",
   ),
@@ -722,9 +885,9 @@ export const publicApiAgentOperationRiskCatalog = [
     "updateWebhookSubscription",
     "webhook_subscriptions",
     "admin",
-    "webhooks:write",
     {
       externalSideEffect: true,
+      requiresLiveAction: true,
       retryMode: "resource-state",
       rationale: "Changes an outbound data destination or subscribed events.",
     },
@@ -733,9 +896,9 @@ export const publicApiAgentOperationRiskCatalog = [
     "deleteWebhookSubscription",
     "webhook_subscriptions",
     "delete",
-    "webhooks:write",
     {
       externalSideEffect: true,
+      requiresLiveAction: true,
       retryMode: "resource-state",
       rationale: "Removes an outbound event destination.",
     },
@@ -744,21 +907,44 @@ export const publicApiAgentOperationRiskCatalog = [
     "rotateWebhookSubscriptionSecret",
     "webhook_subscriptions",
     "admin",
-    "webhooks:write",
     {
       externalSideEffect: true,
+      requiresLiveAction: true,
       sideEffectClass: "secret-change",
       retryMode: "resource-state",
       rationale: "Invalidates the old webhook secret and reveals a replacement once.",
     },
   ),
+  read(
+    "listSubscriberImportJobs",
+    "jobs",
+    "bulk-subscribers",
+    "Reads a bounded page of recent Subscriber import job summaries.",
+  ),
+  change(
+    "startSubscriberImportUpload",
+    "jobs",
+    "draft",
+    {
+      retryMode: "resource-state",
+      dataScope: "bulk-subscribers",
+      rationale:
+        "Creates a short-lived browser handoff without importing or storing Subscriber rows.",
+    },
+  ),
+  read(
+    "getSubscriberImportUpload",
+    "jobs",
+    "workspace",
+    "Reads bounded status and CSV column metadata for one short-lived upload.",
+  ),
   change(
     "createSubscriberImportJob",
     "jobs",
     "bulk",
-    "subscribers:bulk_import",
     {
       externalSideEffect: true,
+      requiresLiveAction: true,
       dataScope: "bulk-subscribers",
       rationale:
         "Changes many Subscribers and can enroll them in running Sequences.",
@@ -767,15 +953,19 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "getSubscriberImportJob",
     "jobs",
-    "subscribers:bulk_import",
     "workspace",
     "Reads one bounded import summary.",
+  ),
+  read(
+    "listSubscriberExportJobs",
+    "jobs",
+    "bulk-subscribers",
+    "Reads a bounded page of recent Subscriber export job summaries.",
   ),
   change(
     "createSubscriberExportJob",
     "jobs",
     "bulk",
-    "subscribers:bulk_export",
     {
       dataScope: "bulk-subscribers",
       rationale: "Creates an export containing bulk Subscriber data.",
@@ -784,7 +974,6 @@ export const publicApiAgentOperationRiskCatalog = [
   read(
     "getSubscriberExportJob",
     "jobs",
-    "subscribers:bulk_export",
     "bulk-subscribers",
     "Reads export status and a short-lived download location.",
   ),
@@ -806,3 +995,8 @@ if (
 
 export const getPublicApiAgentOperationRisk = (operationId: string) =>
   publicApiAgentOperationRiskMap.get(operationId) ?? null;
+
+export const requiresPublicApiLiveActionPermission = (
+  operationId: string,
+) =>
+  publicApiAgentOperationRiskMap.get(operationId)?.requiresLiveAction === true;

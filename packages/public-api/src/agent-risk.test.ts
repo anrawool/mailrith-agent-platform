@@ -71,7 +71,6 @@ describe("public API agent operation risk catalog", () => {
   it("keeps cancellation available as an unblocked safety action", () => {
     expect(getPublicApiAgentOperationRisk("cancelBroadcastSend")).toMatchObject({
       risk: "execute",
-      minimumPermission: "broadcasts:cancel",
     });
   });
 

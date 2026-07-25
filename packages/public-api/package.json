@@ -1,6 +1,6 @@
 {
   "name": "@mailrith/public-api",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Versioned Mailrith public API, OAuth, MCP, scope, and risk contract.",
   "license": "MIT",
   "homepage": "https://mailrith.com/developers",
@@ -19,10 +19,10 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./scopes": {
-      "types": "./dist/scopes.d.ts",
-      "import": "./dist/scopes.js",
-      "default": "./dist/scopes.js"
+    "./resource-contract": {
+      "types": "./dist/resource-contract.d.ts",
+      "import": "./dist/resource-contract.js",
+      "default": "./dist/resource-contract.js"
     }
   },
   "files": [

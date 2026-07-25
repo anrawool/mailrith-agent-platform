@@ -7,6 +7,7 @@ import {
   MailrithApiError,
   createMailrithClient,
   mailrithAgentReadQuickstartScopeKeys,
+  mailrithOperationDiscovery,
   mailrithSdkResources,
 } from "./index";
 
@@ -34,13 +35,13 @@ describe("@mailrith/sdk", () => {
       "webhookSubscriptions",
       "create",
     );
-    expect(
-      createWebhookOperation &&
-        "eventPatternScopeRequirements" in createWebhookOperation
-        ? createWebhookOperation.eventPatternScopeRequirements
-            .requiredScopesByEventPattern["form.submitted"]
-        : undefined,
-    ).toEqual(["subscribers:read", "forms:read"]);
+    expect(createWebhookOperation?.requiredScopes).toEqual([
+      "live_actions:write",
+      "webhooks:write",
+    ]);
+    expect(createWebhookOperation).not.toHaveProperty(
+      "eventPatternScopeRequirements",
+    );
   });
 
   it("keeps generated resources in sync with the public api manifest", () => {
@@ -54,6 +55,54 @@ describe("@mailrith/sdk", () => {
         ?.operations.find((operation) => operation.methodName === "list")
         ?.queryParams,
     ).toEqual(expect.arrayContaining(["email"]));
+  });
+
+  it("recommends one correct operation for common agent task language", () => {
+    const cases = [
+      ["unsubscribe this subscriber", "updateSubscriberStatus"],
+      ["add a subscriber", "upsertSubscriber"],
+      ["update subscriber custom fields", "updateSubscriber"],
+      ["add the VIP tag to this subscriber", "addSubscriberTag"],
+      ["attach a tag to a contact", "addSubscriberTag"],
+      ["remove the VIP tag from this subscriber", "removeSubscriberTag"],
+      ["detach a tag from a contact", "removeSubscriberTag"],
+      [
+        "unsubscribe a subscriber from a sequence",
+        "removeSubscriberSequence",
+      ],
+      ["enroll a contact in a sequence", "addSubscriberSequence"],
+      ["resubscribe this contact", "updateSubscriberStatus"],
+      ["block this contact from email", "updateSubscriberStatus"],
+      ["connect Mailgun", "startEmailDeliveryConnectionSetup"],
+      ["connect Resend as our email provider", "startEmailDeliveryConnectionSetup"],
+      ["replace our SMTP credentials", "startEmailDeliveryConnectionSetup"],
+      ["replace Postmark credentials", "startEmailDeliveryConnectionSetup"],
+      ["schedule the newsletter", "scheduleBroadcast"],
+      ["reschedule the campaign", "scheduleBroadcast"],
+      ["cancel the scheduled newsletter", "unscheduleBroadcast"],
+      ["send a test newsletter", "testBroadcast"],
+      ["check newsletter send progress", "getBroadcastSendProgress"],
+      ["stop the active broadcast", "cancelBroadcastSend"],
+      ["import subscribers from CSV", "startSubscriberImportUpload"],
+      ["check CSV import progress", "getSubscriberImportJob"],
+      ["export contacts to CSV", "createSubscriberExportJob"],
+      ["check CSV export progress", "getSubscriberExportJob"],
+      ["show newsletter performance", "createAnalyticsReport"],
+      ["view automation analytics", "createAnalyticsReport"],
+      ["publish a signup form", "createForm"],
+      ["make the landing page live", "createLandingPage"],
+    ] as const;
+
+    for (const [query, operationId] of cases) {
+      const result = mailrithOperationDiscovery.search({ query });
+      expect(result.matches[0]?.operation.operationId, query).toBe(
+        operationId,
+      );
+      expect(result.selection, query).toMatchObject({
+        status: "recommended",
+        recommended_operation_id: operationId,
+      });
+    }
   });
 
   it("builds authenticated requests with path params, query params, body, and idempotency headers", async () => {
@@ -133,7 +182,25 @@ describe("@mailrith/sdk", () => {
           error: {
             type: "permission_error",
             code: "insufficient_scope",
-            message: "Missing broadcasts:send",
+            message: "Missing broadcasts:write",
+            credential_type: "workspace_api_key",
+            missing_scopes: ["broadcasts:write"],
+            replacement_scopes: [
+              "workspace:read",
+              "broadcasts:read",
+              "broadcasts:write",
+            ],
+            recovery: {
+              action: "replace_api_key",
+              message: "Create and install a replacement key.",
+              replacement_scopes: [
+                "workspace:read",
+                "broadcasts:read",
+                "broadcasts:write",
+              ],
+              access_update_url:
+                "https://app.mailrith.com/settings?tab=api-keys",
+            },
           },
         }),
         {
@@ -157,6 +224,19 @@ describe("@mailrith/sdk", () => {
         type: "permission_error",
         code: "insufficient_scope",
         requestId: "req_denied",
+        credentialRecovery: {
+          credentialType: "workspace_api_key",
+          action: "replace_api_key",
+          message: "Create and install a replacement key.",
+          missingScopes: ["broadcasts:write"],
+          replacementScopes: [
+            "workspace:read",
+            "broadcasts:read",
+            "broadcasts:write",
+          ],
+          accessUpdateUrl:
+            "https://app.mailrith.com/settings?tab=api-keys",
+        },
       }),
     );
   });

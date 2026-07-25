@@ -10,8 +10,8 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import {
   publicApiAgentsPath,
-  publicApiAgentReadQuickstartScopeKeys,
   publicApiCapabilitiesPath,
+  publicApiDefaultWorkProfileKey,
   publicApiDocsPath,
   publicApiMcpPath,
   publicApiMcpOAuthProtectedResourcePath,
@@ -19,15 +19,22 @@ import {
   publicApiReferencePath,
   publicApiVersion,
   isPublicApiMcpToolsetKey,
+  publicApiMcpToolsets,
   publicApiMcpToolsetKeys,
+  publicApiReadScopeKeys,
+  publicApiScopeKeys,
+  resolvePublicApiMcpToolsets,
   type PublicApiMcpErrorCategory,
   type PublicApiMcpToolsetKey,
 } from "@mailrith/public-api";
 import {
   MailrithApiError,
+  createMailrithOperationDiscovery,
   createMailrithClient,
+  getMailrithOperationCategory,
   mailrithSdkResources,
   type MailrithClient,
+  type MailrithOperationCategory,
   type MailrithQueryValue,
   type MailrithSdkOperationDescriptor,
 } from "@mailrith/sdk";
@@ -39,7 +46,7 @@ const defaultBaseUrl = "https://api.mailrith.com";
 const mcpRequestMaxBodyBytes = 1024 * 1024;
 const mcpServerInfo = {
   name: "mailrith",
-  version: "0.1.2",
+  version: "0.2.0",
 } as const;
 
 type MailrithFetch = typeof fetch;
@@ -51,6 +58,24 @@ export type MailrithMcpServerOptions = {
   client?: MailrithClient;
   grantedScopes?: readonly string[];
   enabledToolsets?: readonly PublicApiMcpToolsetKey[];
+  readOnly?: boolean;
+  includeOutputSchemas?: boolean;
+  capabilityContext?: MailrithMcpCapabilityContext;
+};
+
+export type MailrithMcpCapabilityLimitation = {
+  code: string;
+  message: string;
+  setupUrl?: string;
+  affectedOperationIds?: readonly string[];
+};
+
+export type MailrithMcpCapabilityContext = {
+  workspace: { id: string; name: string } | null;
+  credentialType: "workspace_api_key" | "oauth_access_token" | null;
+  scopes: readonly string[];
+  effectiveOperationIds: readonly string[] | null;
+  limitations: readonly MailrithMcpCapabilityLimitation[];
 };
 
 export type MailrithMcpToolDefinition = {
@@ -77,10 +102,14 @@ export type MailrithMcpToolDefinition = {
   }>;
 };
 
-export const mailrithMcpDefaultOAuthScopes =
-  publicApiAgentReadQuickstartScopeKeys;
+export const mailrithMcpStandardOAuthScopes = [
+  ...new Set(publicApiMcpToolsets.flatMap((toolset) => toolset.scopeKeys)),
+];
 
 export const mailrithMcpToolsetsHeader = "mailrith-mcp-toolsets";
+export const mailrithMcpReadOnlyHeader = "mailrith-mcp-read-only";
+export const mailrithMcpIncludeOutputSchemasHeader =
+  "mailrith-mcp-include-output-schemas";
 
 const normalizeBaseUrl = (value: string | undefined) =>
   (value ?? defaultBaseUrl).replace(/\/+$/, "");
@@ -102,44 +131,28 @@ const resolveMarketingOrigin = (baseUrl: string) => {
   return `${url.protocol}//${url.host}`;
 };
 
+const resolveAppOrigin = (baseUrl: string) => {
+  const url = new URL(baseUrl);
+  if (url.hostname === "api.mailrith.com") {
+    return "https://app.mailrith.com";
+  }
+  if (url.hostname === "api-stage.mailrith.com") {
+    return "https://app-stage.mailrith.com";
+  }
+  if (url.hostname === "api-feature.mailrith.com") {
+    return "https://app-feature.mailrith.com";
+  }
+  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
+    return "http://localhost:5173";
+  }
+  return `${url.protocol}//${url.host}`;
+};
+
 const stringifyToolPayload = (value: unknown) => {
   if (typeof value === "string") {
     return value;
   }
   return JSON.stringify(value, null, 2);
-};
-
-const getOperationEventPatternScopeRequirements = (
-  operation: MailrithSdkOperationDescriptor,
-) => {
-  if (
-    "eventPatternScopeRequirements" in operation &&
-    operation.eventPatternScopeRequirements &&
-    typeof operation.eventPatternScopeRequirements === "object"
-  ) {
-    return operation.eventPatternScopeRequirements as {
-      requestField: string;
-      description: string;
-      requiredScopesByEventPattern: Record<string, readonly string[]>;
-    };
-  }
-  return null;
-};
-
-const getOperationPayloadFieldScopeRequirements = (
-  operation: MailrithSdkOperationDescriptor,
-) => {
-  if (
-    "payloadFieldScopeRequirements" in operation &&
-    operation.payloadFieldScopeRequirements &&
-    typeof operation.payloadFieldScopeRequirements === "object"
-  ) {
-    return operation.payloadFieldScopeRequirements as {
-      description: string;
-      requiredScopesByField: Record<string, readonly string[]>;
-    };
-  }
-  return null;
 };
 
 const createToolRequestId = () => `mcp_${crypto.randomUUID()}`;
@@ -188,6 +201,173 @@ const buildToolErrorResult = (
 ) => {
   if (error instanceof MailrithApiError) {
     const category = resolveToolErrorCategory(error);
+    const responseError =
+      error.responseBody &&
+      typeof error.responseBody === "object" &&
+      !Array.isArray(error.responseBody) &&
+      "error" in error.responseBody &&
+      error.responseBody.error &&
+      typeof error.responseBody.error === "object" &&
+      !Array.isArray(error.responseBody.error)
+        ? (error.responseBody.error as Record<string, unknown>)
+        : null;
+    const requiredScopes = Array.isArray(responseError?.required_scopes)
+      ? responseError.required_scopes.filter(
+          (scope): scope is string => typeof scope === "string",
+        )
+      : [];
+    const reconnectRequired =
+      responseError?.reconnect_required === true;
+    const credentialType =
+      responseError?.credential_type === "oauth_access_token" ||
+      responseError?.credential_type === "workspace_api_key"
+        ? responseError.credential_type
+        : null;
+    const responseRecovery =
+      responseError?.recovery &&
+      typeof responseError.recovery === "object" &&
+      !Array.isArray(responseError.recovery)
+        ? (responseError.recovery as Record<string, unknown>)
+        : null;
+    const replacementScopes = Array.isArray(
+      responseError?.replacement_scopes,
+    )
+      ? responseError.replacement_scopes
+          .filter((scope): scope is string => typeof scope === "string")
+          .slice(0, 50)
+      : [];
+    const recoveryReplacementScopes = Array.isArray(
+      responseRecovery?.replacement_scopes,
+    )
+      ? responseRecovery.replacement_scopes
+          .filter((scope): scope is string => typeof scope === "string")
+          .slice(0, 50)
+      : replacementScopes;
+    const recovery =
+      responseRecovery &&
+      (responseRecovery.action === "reconnect_oauth" ||
+        responseRecovery.action === "replace_api_key") &&
+      typeof responseRecovery.message === "string"
+        ? {
+            action: responseRecovery.action,
+            message: responseRecovery.message,
+            ...(recoveryReplacementScopes.length > 0
+              ? { replacement_scopes: recoveryReplacementScopes }
+              : {}),
+            ...(typeof responseRecovery.access_update_url === "string"
+              ? { access_update_url: responseRecovery.access_update_url }
+              : {}),
+            ...(typeof responseRecovery.permissions_help_url === "string"
+              ? {
+                  permissions_help_url:
+                    responseRecovery.permissions_help_url,
+                }
+              : {}),
+          }
+        : null;
+    const permissionsHelpUrl =
+      typeof responseError?.permissions_help_url === "string"
+        ? responseError.permissions_help_url
+        : null;
+    const accessUpdateUrl =
+      typeof responseError?.access_update_url === "string"
+        ? responseError.access_update_url
+        : null;
+    const missingScopes = Array.isArray(responseError?.missing_scopes)
+      ? responseError.missing_scopes
+          .filter((scope): scope is string => typeof scope === "string")
+          .slice(0, 50)
+      : requiredScopes;
+    const recommendedWorkProfiles = Array.isArray(
+      responseError?.recommended_work_profiles,
+    )
+      ? responseError.recommended_work_profiles
+          .filter((profile): profile is string => typeof profile === "string")
+          .slice(0, 20)
+      : [];
+    const responseDetails =
+      responseError?.details &&
+      typeof responseError.details === "object" &&
+      !Array.isArray(responseError.details)
+        ? (responseError.details as Record<string, unknown>)
+        : null;
+    const responseDetailsResource =
+      responseDetails?.resource &&
+      typeof responseDetails.resource === "object" &&
+      !Array.isArray(responseDetails.resource)
+        ? (responseDetails.resource as Record<string, unknown>)
+        : null;
+    const details =
+      responseDetails &&
+      (typeof responseDetails.field === "string" ||
+        typeof responseDetails.reason === "string" ||
+        (typeof responseDetailsResource?.type === "string" &&
+          typeof responseDetailsResource.id === "string"))
+        ? {
+            ...(typeof responseDetails.field === "string"
+              ? { field: responseDetails.field }
+              : {}),
+            ...(typeof responseDetails.reason === "string"
+              ? { reason: responseDetails.reason }
+              : {}),
+            ...(typeof responseDetailsResource?.type === "string" &&
+            typeof responseDetailsResource.id === "string"
+              ? {
+                  resource: {
+                    type: responseDetailsResource.type,
+                    id: responseDetailsResource.id,
+                  },
+                }
+              : {}),
+          }
+        : null;
+    const responsePrerequisite =
+      responseError?.prerequisite &&
+      typeof responseError.prerequisite === "object" &&
+      !Array.isArray(responseError.prerequisite)
+        ? (responseError.prerequisite as Record<string, unknown>)
+        : null;
+    const prerequisiteScopes = Array.isArray(
+      responsePrerequisite?.required_scopes,
+    )
+      ? responsePrerequisite.required_scopes
+          .filter((scope): scope is string => typeof scope === "string")
+          .slice(0, 50)
+      : [];
+    const prerequisite =
+      responsePrerequisite &&
+      typeof responsePrerequisite.resource === "string" &&
+      (responsePrerequisite.state === "missing" ||
+        responsePrerequisite.state === "disabled")
+        ? {
+            resource: responsePrerequisite.resource,
+            state: responsePrerequisite.state,
+            ...(prerequisiteScopes.length > 0
+              ? { required_scopes: prerequisiteScopes }
+              : {}),
+            ...(typeof responsePrerequisite.work_profile === "string"
+              ? { work_profile: responsePrerequisite.work_profile }
+              : {}),
+            ...(typeof responsePrerequisite.setup_url === "string"
+              ? { setup_url: responsePrerequisite.setup_url }
+              : {}),
+          }
+        : null;
+    const responseRetry =
+      responseError?.retry &&
+      typeof responseError.retry === "object" &&
+      !Array.isArray(responseError.retry)
+        ? (responseError.retry as Record<string, unknown>)
+        : null;
+    const retry =
+      responseRetry &&
+      typeof responseRetry.safe === "boolean" &&
+      typeof responseRetry.guidance === "string"
+        ? {
+            safe: responseRetry.safe,
+            guidance: responseRetry.guidance,
+          }
+        : null;
     const payload = {
       operation_id: operationId,
       request_id: requestId,
@@ -197,6 +377,28 @@ const buildToolErrorResult = (
         code: error.code ?? error.type ?? `http_${error.status}`,
         message: error.message,
         retryable: category === "rate_limit" || category === "transient",
+        ...(requiredScopes.length > 0
+          ? { required_scopes: requiredScopes }
+          : {}),
+        ...(missingScopes.length > 0
+          ? { missing_scopes: missingScopes }
+          : {}),
+        ...(replacementScopes.length > 0
+          ? { replacement_scopes: replacementScopes }
+          : {}),
+        ...(recommendedWorkProfiles.length > 0
+          ? { recommended_work_profiles: recommendedWorkProfiles }
+          : {}),
+        ...(accessUpdateUrl ? { access_update_url: accessUpdateUrl } : {}),
+        ...(credentialType ? { credential_type: credentialType } : {}),
+        ...(reconnectRequired ? { reconnect_required: true } : {}),
+        ...(permissionsHelpUrl
+          ? { permissions_help_url: permissionsHelpUrl }
+          : {}),
+        ...(details ? { details } : {}),
+        ...(prerequisite ? { prerequisite } : {}),
+        ...(retry ? { retry } : {}),
+        ...(recovery ? { recovery } : {}),
       },
     };
     return {
@@ -254,69 +456,29 @@ const buildToolValidationErrorResult = (
   };
 };
 
-const buildToolOutputErrorResult = (
-  operationId: string,
-  requestId: string,
-  error: z.ZodError,
-) => {
-  const payload = {
-    operation_id: operationId,
-    request_id: requestId,
-    error: {
-      category: "transient" as PublicApiMcpErrorCategory,
-      status: null,
-      code: "invalid_tool_output",
-      message: "Mailrith returned a response that does not match the published schema.",
-      retryable: false,
-      issues: error.issues.slice(0, 20).map((issue) => ({
-        path: issue.path.map(String).join("."),
-        code: issue.code,
-        message: issue.message,
-      })),
-    },
-  };
-  return {
-    isError: true as const,
-    content: [{ type: "text" as const, text: JSON.stringify(payload, null, 2) }],
-    structuredContent: payload,
-  };
-};
-
 const createToolDescription = (operation: MailrithSdkOperationDescriptor) => {
   const summary = String(operation.summary);
   const description = operation.description ? String(operation.description) : "";
   const parts = [
-    `${summary}.`,
-    description && description !== summary ? description : null,
-    `Calls ${operation.method} ${operation.path}.`,
-    `Risk: ${operation.risk}. Side-effect class: ${operation.sideEffectClass}.`,
-    operation.riskRationale,
+    description && description !== summary ? description : `${summary}.`,
   ].filter((part): part is string => Boolean(part));
 
-  if (operation.idempotencyPolicy === "safe-read") {
-    parts.push("Retry: safe because this operation does not change state.");
-  } else if (operation.idempotencyPolicy === "resource-state") {
-    parts.push(
-      "Retry: first read the resource state; repeat only when the requested state has not already been reached.",
-    );
-  } else {
-    parts.push(
-      "Retry: supply idempotency_key and reuse the same value for every retry of the same logical action.",
-    );
+  if (operation.sideEffectClass !== "none") {
+    parts.push(`Effect: ${operation.sideEffectClass}.`);
+  }
+
+  if (operation.idempotencyPolicy === "resource-state") {
+    parts.push("Retry after reading the current resource state.");
+  } else if (operation.idempotencyPolicy === "idempotency-key") {
+    parts.push("Retry with the same idempotency_key.");
   }
 
   if (operation.requiredScopes.length > 0) {
-    parts.push(`Required scopes: ${operation.requiredScopes.join(", ")}.`);
-  } else {
-    parts.push("No bearer credential is required for this operation.");
-  }
-
-  const eventPatternScopeRequirements =
-    getOperationEventPatternScopeRequirements(operation);
-  if (eventPatternScopeRequirements) {
     parts.push(
-      `Additional webhook event scopes depend on body.${eventPatternScopeRequirements.requestField}; read mailrith://sdk-manifest for the event pattern scope map.`,
+      `Permission${operation.requiredScopes.length === 1 ? "" : "s"}: ${operation.requiredScopes.join(", ")}.`,
     );
+  } else {
+    parts.push("Permission: none.");
   }
 
   const queryParams: readonly string[] = operation.queryParams;
@@ -326,7 +488,7 @@ const createToolDescription = (operation: MailrithSdkOperationDescriptor) => {
     queryParams.includes("cursor")
   ) {
     parts.push(
-      "Pagination: request one bounded page at a time and continue only with the returned cursor; never retrieve all Subscribers implicitly.",
+      "Pagination: use bounded pages and returned cursors.",
     );
   }
 
@@ -409,8 +571,10 @@ const createDiscoveryGuideText = (baseUrl: string) => {
     `1. Read ${marketingOrigin}/llms.txt or ${marketingOrigin}${publicApiAgentsPath}.`,
     `2. Inspect ${metadataUrl} and ${openApiUrl} if you need the raw REST contract.`,
     `3. Authenticate this MCP server with a workspace API key or OAuth access token before calling protected tools.`,
-    `4. Call discovery_get_capabilities to confirm the current workspace surface and scopes.`,
-    `5. Prefer the SDK-backed MCP tools instead of assembling raw HTTP requests unless you need a lower-level integration.`,
+    `4. Call mailrith_check_connection to confirm the current workspace, scopes, and any permissions needed for your intended operation.`,
+    `5. Call mailrith_search_operations, then mailrith_get_operation for only the operation you need.`,
+    `6. Run the operation through mailrith_read, mailrith_write, mailrith_delete, or mailrith_live.`,
+    `7. Prefer these compact MCP tools instead of loading the complete REST or SDK manifest into the conversation.`,
     "",
     "Human docs:",
     `- ${marketingOrigin}${publicApiDocsPath}`,
@@ -542,7 +706,24 @@ export const resolveMailrithMcpApiKey = (request: Request) => {
   return undefined;
 };
 
-const resolveEnabledMcpToolsets = (
+const publicApiMcpToolsetByKey = new Map(
+  publicApiMcpToolsets.map((toolset) => [toolset.key, toolset] as const),
+);
+const publicApiReadScopeSet = new Set<string>(publicApiReadScopeKeys);
+
+const resolveBooleanHeader = (
+  request: Request,
+  name: string,
+  fallback: boolean,
+) => {
+  const value = request.headers.get(name);
+  if (value == null) return { ok: true as const, value: fallback };
+  if (value === "true") return { ok: true as const, value: true };
+  if (value === "false") return { ok: true as const, value: false };
+  return { ok: false as const, value };
+};
+
+export const resolveEnabledMcpToolsets = (
   request: Request,
   configuredToolsets: readonly PublicApiMcpToolsetKey[] | undefined,
 ) => {
@@ -570,14 +751,58 @@ const resolveEnabledMcpToolsets = (
     : new Set(publicApiMcpToolsetKeys);
   const selected = requestedValues
     ? requestedValues.filter(
-        (value): value is PublicApiMcpToolsetKey =>
-          isPublicApiMcpToolsetKey(value) && configured.has(value),
-      )
-    : [...configured];
+      (value): value is PublicApiMcpToolsetKey =>
+        isPublicApiMcpToolsetKey(value) && configured.has(value),
+    )
+    : configuredToolsets
+      ? publicApiMcpToolsetKeys.filter((toolset) => configured.has(toolset))
+      : [publicApiDefaultWorkProfileKey];
+  if (selected.length === 0) {
+    return {
+      ok: false as const,
+      invalidValues: requestedValues ?? ["standard"],
+    };
+  }
+
+  const readOnly = resolveBooleanHeader(
+    request,
+    mailrithMcpReadOnlyHeader,
+    false,
+  );
+  if (!readOnly.ok) {
+    return {
+      ok: false as const,
+      invalidValues: [`${mailrithMcpReadOnlyHeader}=${readOnly.value}`],
+    };
+  }
+  const includeOutputSchemas = resolveBooleanHeader(
+    request,
+    mailrithMcpIncludeOutputSchemasHeader,
+    false,
+  );
+  if (!includeOutputSchemas.ok) {
+    return {
+      ok: false as const,
+      invalidValues: [
+        `${mailrithMcpIncludeOutputSchemasHeader}=${includeOutputSchemas.value}`,
+      ],
+    };
+  }
+  const challengeScopes = [
+    ...new Set(
+      selected.flatMap(
+        (toolset) =>
+          publicApiMcpToolsetByKey.get(toolset)?.scopeKeys ?? [],
+      ).filter((scope) => !readOnly.value || publicApiReadScopeSet.has(scope)),
+    ),
+  ];
 
   return {
     ok: true as const,
     toolsets: [...new Set(selected)],
+    challengeScopes,
+    readOnly: readOnly.value,
+    includeOutputSchemas: includeOutputSchemas.value,
   };
 };
 
@@ -589,7 +814,10 @@ const createMcpAuthResponse = (
   status: 401 | 403,
   error: "invalid_token" | "insufficient_scope",
   errorDescription: string,
-  requiredScopes: string[],
+  requiredScopes: readonly string[],
+  credentialType?: "workspace_api_key" | "oauth_access_token",
+  currentScopes: readonly string[] = [],
+  missingScopes: readonly string[] = requiredScopes,
 ) => {
   const resourceMetadata = `${baseUrl}${publicApiMcpOAuthProtectedResourcePath}`;
   const authParams = [
@@ -602,10 +830,48 @@ const createMcpAuthResponse = (
     authParams.push(`scope=${quoteAuthHeaderValue(requiredScopes.join(" "))}`);
   }
 
+  const isOAuth = credentialType !== "workspace_api_key";
+  const accessUpdateUrl =
+    credentialType === "workspace_api_key"
+      ? new URL(
+        "/settings?tab=api-keys",
+        resolveAppOrigin(baseUrl),
+      ).toString()
+      : null;
+  const replacementScopeSet = new Set([
+    ...currentScopes,
+    ...missingScopes,
+  ]);
+  const replacementScopes = publicApiScopeKeys.filter((scope) =>
+    replacementScopeSet.has(scope),
+  );
+  const recovery =
+    status === 403 && credentialType
+      ? {
+          action: isOAuth ? "reconnect_oauth" : "replace_api_key",
+          message: isOAuth
+            ? "Reconnect the app from the app that started the connection, approve the missing permissions, and retry this action."
+            : "Create a replacement workspace API key with all listed replacement permissions, replace the saved key in the calling app, confirm the action works, and then revoke the old key.",
+          replacement_scopes: replacementScopes,
+          access_update_url: accessUpdateUrl,
+          permissions_help_url: `${resolveMarketingOrigin(baseUrl)}/developers/authentication#add-permissions`,
+        }
+      : null;
+
   return new Response(
     JSON.stringify({
       error,
       error_description: errorDescription,
+      required_scopes: requiredScopes,
+      ...(status === 403 ? { missing_scopes: missingScopes } : {}),
+      ...(status === 403 && replacementScopes.length > 0
+        ? { replacement_scopes: replacementScopes }
+        : {}),
+      ...(credentialType ? { credential_type: credentialType } : {}),
+      reconnect_required: status === 403 && isOAuth,
+      permissions_help_url: `${resolveMarketingOrigin(baseUrl)}/developers/authentication#add-permissions`,
+      ...(accessUpdateUrl ? { access_update_url: accessUpdateUrl } : {}),
+      ...(recovery ? { recovery } : {}),
     }),
     {
       status,
@@ -643,81 +909,26 @@ const sdkOperationByToolName = new Map<string, MailrithSdkOperationDescriptor>(
 const resolveMcpToolOperation = (toolName: string) =>
   sdkOperationByToolName.get(toolName) ?? null;
 
-const readEventPatternArgument = (
-  args: unknown,
-  requestField: string,
-): unknown => {
-  if (!args || typeof args !== "object" || Array.isArray(args)) {
-    return undefined;
-  }
-  const argsRecord = args as Record<string, unknown>;
-  if (requestField in argsRecord) {
-    return argsRecord[requestField];
-  }
-  const body = argsRecord.body;
-  if (body && typeof body === "object" && !Array.isArray(body)) {
-    return (body as Record<string, unknown>)[requestField];
-  }
-  return undefined;
-};
-
-const normalizeWebhookEventPatterns = (value: unknown) => {
-  if (Array.isArray(value)) {
-    return value.filter((item): item is string => typeof item === "string");
-  }
-  if (typeof value === "string" && value.trim()) {
-    return [value.trim()];
-  }
-  return [];
-};
-
 const resolveMcpToolRequiredScopes = (toolName: string, args?: unknown) => {
-  const operation = resolveMcpToolOperation(toolName);
+  const compactOperationId =
+    (toolName === "mailrith_read" ||
+      toolName === "mailrith_write" ||
+      toolName === "mailrith_delete" ||
+      toolName === "mailrith_live") &&
+    args &&
+    typeof args === "object" &&
+    !Array.isArray(args) &&
+    typeof (args as { operation_id?: unknown }).operation_id === "string"
+      ? (args as { operation_id: string }).operation_id
+      : null;
+  const operation = compactOperationId
+    ? sdkOperationById.get(compactOperationId) ?? null
+    : resolveMcpToolOperation(toolName);
   if (!operation) {
     return [] as string[];
   }
-
-  const requiredScopes = new Set<string>(operation.requiredScopes);
-  const eventPatternScopeRequirements =
-    getOperationEventPatternScopeRequirements(operation);
-  if (eventPatternScopeRequirements) {
-    const eventPatternValue = readEventPatternArgument(
-      args,
-      eventPatternScopeRequirements.requestField,
-    );
-    const eventPatterns = normalizeWebhookEventPatterns(eventPatternValue);
-    const effectiveEventPatterns =
-      eventPatterns.length > 0 ? eventPatterns : ["*"];
-    for (const eventPattern of effectiveEventPatterns) {
-      for (const scope of
-        eventPatternScopeRequirements.requiredScopesByEventPattern[
-          eventPattern
-        ] ?? []) {
-        requiredScopes.add(scope);
-      }
-    }
-  }
-  const payloadFieldScopeRequirements =
-    getOperationPayloadFieldScopeRequirements(operation);
-  const body =
-    args && typeof args === "object" && !Array.isArray(args)
-      ? (args as { body?: unknown }).body
-      : undefined;
-  if (
-    payloadFieldScopeRequirements &&
-    body &&
-    typeof body === "object" &&
-    !Array.isArray(body)
-  ) {
-    for (const [field, fieldScopes] of Object.entries(
-      payloadFieldScopeRequirements.requiredScopesByField,
-    )) {
-      if (!Object.prototype.hasOwnProperty.call(body, field)) continue;
-      for (const scope of fieldScopes) requiredScopes.add(scope);
-    }
-  }
-
-  return [...requiredScopes];
+  void args;
+  return [...operation.requiredScopes];
 };
 
 const resolveMcpRequestRequiredScopes = (parsedBody: unknown) => {
@@ -748,27 +959,118 @@ const resolveMcpRequestRequiredScopes = (parsedBody: unknown) => {
   return [...requiredScopes];
 };
 
-const readCapabilityScopes = async (response: Response) => {
-  const payload = (await response.json().catch(() => null)) as
-    | {
-        data?: {
-          credential?: {
-            scopes?: unknown;
-          };
-        };
+const asCapabilityRecord = (value: unknown) =>
+  value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+
+const boundedCapabilityString = (
+  value: unknown,
+  maximumLength: number,
+) =>
+  typeof value === "string" && value.length <= maximumLength
+    ? value
+    : null;
+
+export const parseMailrithMcpCapabilityContext = (
+  value: unknown,
+): MailrithMcpCapabilityContext | null => {
+  const envelope = asCapabilityRecord(value);
+  const data = asCapabilityRecord(envelope?.data);
+  const credential = asCapabilityRecord(data?.credential);
+  if (!data || !credential || !Array.isArray(credential.scopes)) {
+    return null;
+  }
+
+  const scopeSet = new Set(
+    credential.scopes
+      .slice(0, 100)
+      .map((scope) => boundedCapabilityString(scope, 100))
+      .filter((scope): scope is string => scope !== null),
+  );
+  const workspaceValue = asCapabilityRecord(data.workspace);
+  const workspaceId = boundedCapabilityString(workspaceValue?.id, 160);
+  const workspaceName = boundedCapabilityString(workspaceValue?.name, 200);
+  const credentialType =
+    credential.type === "workspace_api_key" ||
+    credential.type === "oauth_access_token"
+      ? credential.type
+      : null;
+
+  let effectiveOperationIds: string[] | null = null;
+  if (Array.isArray(data.resources)) {
+    const operationIdSet = new Set<string>();
+    for (const resource of data.resources.slice(0, 50)) {
+      const resourceRecord = asCapabilityRecord(resource);
+      if (!Array.isArray(resourceRecord?.operations)) continue;
+      for (const operation of resourceRecord.operations) {
+        if (operationIdSet.size >= 500) break;
+        const operationRecord = asCapabilityRecord(operation);
+        const operationId = boundedCapabilityString(
+          operationRecord?.operation_id,
+          160,
+        );
+        if (operationId) operationIdSet.add(operationId);
       }
-    | null;
-  const scopes = payload?.data?.credential?.scopes;
-  return Array.isArray(scopes)
-    ? scopes.filter((scope): scope is string => typeof scope === "string")
-    : [];
+      if (operationIdSet.size >= 500) break;
+    }
+    effectiveOperationIds = [...operationIdSet];
+  }
+
+  const limitations: MailrithMcpCapabilityLimitation[] = [];
+  if (Array.isArray(data.limitations)) {
+    for (const limitation of data.limitations.slice(0, 25)) {
+      const record = asCapabilityRecord(limitation);
+      const code = boundedCapabilityString(record?.code, 100);
+      const message = boundedCapabilityString(record?.message, 500);
+      const setupUrl = boundedCapabilityString(record?.setup_url, 2_048);
+      if (!code || !message) continue;
+      const affectedOperationIds = Array.isArray(
+        record?.affected_operation_ids,
+      )
+        ? record.affected_operation_ids
+            .slice(0, 500)
+            .map((operationId) =>
+              boundedCapabilityString(operationId, 160),
+            )
+            .filter(
+              (operationId): operationId is string =>
+                operationId !== null,
+            )
+        : [];
+      limitations.push({
+        code,
+        message,
+        affectedOperationIds,
+        ...(setupUrl ? { setupUrl } : {}),
+      });
+    }
+  }
+
+  return {
+    workspace:
+      workspaceId && workspaceName
+        ? { id: workspaceId, name: workspaceName }
+        : null,
+    credentialType,
+    scopes: [...scopeSet],
+    effectiveOperationIds,
+    limitations,
+  };
 };
+
+const readCapabilityContext = async (response: Response) =>
+  parseMailrithMcpCapabilityContext(
+    await response.json().catch(() => null),
+  );
 
 const validateMcpBearerCredential = async (params: {
   baseUrl: string;
   apiKey: string;
   fetch: MailrithFetch;
   requiredScopes: string[];
+  enabledToolsets: readonly PublicApiMcpToolsetKey[];
+  readOnly: boolean;
 }) => {
   const response = await params.fetch(
     `${params.baseUrl}${publicApiCapabilitiesPath}`,
@@ -777,6 +1079,10 @@ const validateMcpBearerCredential = async (params: {
       headers: {
         authorization: `Bearer ${params.apiKey}`,
         "x-mailrith-client": "mcp/dev",
+        ...createMcpCapabilityContextHeaders({
+          enabledToolsets: params.enabledToolsets,
+          readOnly: params.readOnly,
+        }),
       },
     },
   );
@@ -789,7 +1095,11 @@ const validateMcpBearerCredential = async (params: {
     return { ok: false as const, reason: "unavailable" as const };
   }
 
-  const scopes = await readCapabilityScopes(response);
+  const capabilityContext = await readCapabilityContext(response);
+  if (!capabilityContext) {
+    return { ok: false as const, reason: "unavailable" as const };
+  }
+  const scopes = capabilityContext.scopes;
   const scopeSet = new Set(scopes);
   const missingScopes = params.requiredScopes.filter(
     (scope) => !scopeSet.has(scope),
@@ -799,10 +1109,18 @@ const validateMcpBearerCredential = async (params: {
       ok: false as const,
       reason: "insufficient_scope" as const,
       missingScopes,
+      requiredScopes: params.requiredScopes,
+      scopes,
+      credentialType: capabilityContext.credentialType,
     };
   }
 
-  return { ok: true as const, scopes };
+  return {
+    ok: true as const,
+    scopes,
+    credentialType: capabilityContext.credentialType,
+    capabilityContext,
+  };
 };
 
 const toZodSchema = (schema: unknown) =>
@@ -815,7 +1133,7 @@ const compiledMcpSchemas = createLazyMcpSchemaCache(toZodSchema);
 const createToolAvailabilityFilter = (
   options: Pick<
     MailrithMcpServerOptions,
-    "grantedScopes" | "enabledToolsets"
+    "grantedScopes" | "enabledToolsets" | "readOnly"
   >,
 ) => {
   const grantedScopes = options.grantedScopes
@@ -838,6 +1156,9 @@ const createToolAvailabilityFilter = (
     ) {
       return false;
     }
+    if (options.readOnly && !tool.annotations.readOnlyHint) {
+      return false;
+    }
     return true;
   };
 };
@@ -846,7 +1167,7 @@ export const createMailrithMcpToolDefinitions = (
   client: MailrithClient,
   options: Pick<
     MailrithMcpServerOptions,
-    "grantedScopes" | "enabledToolsets"
+    "grantedScopes" | "enabledToolsets" | "readOnly"
   > = {},
 ): MailrithMcpToolDefinition[] =>
   generatedMailrithMcpToolManifest.tools
@@ -912,33 +1233,858 @@ export const createMailrithMcpToolDefinitions = (
       };
     });
 
+type MailrithCompactOperationCategory = MailrithOperationCategory;
+
+type MailrithCompactToolDefinition = {
+  name: string;
+  title: string;
+  description: string;
+  inputSchema: z.ZodType;
+  inputJsonSchema: Tool["inputSchema"];
+  annotations: Tool["annotations"];
+  invoke: (
+    args?: Record<string, unknown>,
+  ) => Promise<{
+    content: Array<{ type: "text"; text: string }>;
+    structuredContent?: Record<string, unknown>;
+    isError?: boolean;
+  }>;
+};
+
+const compactOperationCategory = (
+  operation: MailrithSdkOperationDescriptor,
+): MailrithCompactOperationCategory =>
+  getMailrithOperationCategory(operation);
+
+const compactOperationCategoryLabels: Record<
+  MailrithCompactOperationCategory,
+  string
+> = {
+  read: "mailrith_read",
+  write: "mailrith_write",
+  delete: "mailrith_delete",
+  live: "mailrith_live",
+};
+
+const createCompactToolResult = (
+  toolName: string,
+  response: Record<string, unknown>,
+) => {
+  const payload = {
+    operation_id: toolName,
+    request_id: createToolRequestId(),
+    response,
+  };
+  return {
+    content: [
+      {
+        type: "text" as const,
+        text: stringifyToolPayload(payload),
+      },
+    ],
+    structuredContent: payload,
+  };
+};
+
+const createCompactToolError = (
+  toolName: string,
+  code: string,
+  message: string,
+  details: Record<string, unknown> = {},
+) => {
+  const payload = {
+    operation_id: toolName,
+    request_id: createToolRequestId(),
+    error: {
+      category: "validation" as const,
+      status: null,
+      code,
+      message,
+      retryable: false,
+      ...details,
+    },
+  };
+  return {
+    isError: true as const,
+    content: [
+      {
+        type: "text" as const,
+        text: stringifyToolPayload(payload),
+      },
+    ],
+    structuredContent: payload,
+  };
+};
+
+const compactSearchInputSchema = z.object({
+  query: z.string().trim().max(200).optional(),
+  category: z
+    .enum(["read", "write", "delete", "live"])
+    .optional(),
+  resource: z.string().trim().max(100).optional(),
+  limit: z.number().int().min(1).max(25).default(12),
+});
+
+const compactGetOperationInputSchema = z.object({
+  operation_id: z.string().trim().min(1).max(160),
+  include_output_schema: z.boolean().default(false),
+});
+
+const compactExecuteInputSchema = z.object({
+  operation_id: z.string().trim().min(1).max(160),
+  arguments: z.record(z.string(), z.unknown()).optional(),
+});
+
+const compactConnectionInputSchema = z.object({
+  operation_id: z.string().trim().min(1).max(160).optional(),
+});
+
+const compactSearchInputJsonSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    query: {
+      type: "string",
+      maxLength: 200,
+      description:
+        "Words from the task, resource name, operation name, or stable operation ID.",
+    },
+    category: {
+      type: "string",
+      enum: ["read", "write", "delete", "live"],
+      description: "Optional operation-effect filter.",
+    },
+    resource: {
+      type: "string",
+      maxLength: 100,
+      description: "Optional Mailrith resource or SDK namespace.",
+    },
+    limit: {
+      type: "integer",
+      minimum: 1,
+      maximum: 25,
+      default: 12,
+    },
+  },
+} as Tool["inputSchema"];
+
+const compactGetOperationInputJsonSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["operation_id"],
+  properties: {
+    operation_id: {
+      type: "string",
+      maxLength: 160,
+      description:
+        "Stable operation ID returned by mailrith_search_operations.",
+    },
+    include_output_schema: {
+      type: "boolean",
+      default: false,
+      description:
+        "Include this operation's exact output schema in this response.",
+    },
+  },
+} as Tool["inputSchema"];
+
+const compactExecuteInputJsonSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["operation_id"],
+  properties: {
+    operation_id: {
+      type: "string",
+      maxLength: 160,
+      description:
+        "Stable operation ID returned by mailrith_search_operations.",
+    },
+    arguments: {
+      type: "object",
+      description:
+        "Arguments that match the input_schema returned by mailrith_get_operation.",
+      additionalProperties: true,
+    },
+  },
+} as Tool["inputSchema"];
+
+const compactConnectionInputJsonSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    operation_id: {
+      type: "string",
+      maxLength: 160,
+      description:
+        "Optional operation to diagnose against the connection's current permissions.",
+    },
+  },
+} as Tool["inputSchema"];
+
+const compactReadAnnotations = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true,
+  openWorldHint: false,
+};
+
+const compactWriteAnnotations = {
+  readOnlyHint: false,
+  destructiveHint: false,
+  idempotentHint: false,
+  openWorldHint: false,
+};
+
+const compactDeleteAnnotations = {
+  readOnlyHint: false,
+  destructiveHint: true,
+  idempotentHint: false,
+  openWorldHint: false,
+};
+
+const compactLiveAnnotations = {
+  readOnlyHint: false,
+  destructiveHint: false,
+  idempotentHint: false,
+  openWorldHint: true,
+};
+
+type CompactCapabilityAvailability = {
+  context: MailrithMcpCapabilityContext;
+  scopeSet: ReadonlySet<string>;
+  effectiveOperationIdSet: ReadonlySet<string> | null;
+};
+
+const createCompactCapabilityAvailability = (
+  context: MailrithMcpCapabilityContext | null | undefined,
+): CompactCapabilityAvailability | null =>
+  context
+    ? {
+        context,
+        scopeSet: new Set(context.scopes),
+        effectiveOperationIdSet: context.effectiveOperationIds
+          ? new Set(context.effectiveOperationIds)
+          : null,
+      }
+    : null;
+
+const serializeCompactCapabilityLimitation = (
+  limitation: MailrithMcpCapabilityLimitation,
+) => ({
+  code: limitation.code,
+  message: limitation.message,
+  ...(limitation.affectedOperationIds
+    ? { affected_operation_ids: limitation.affectedOperationIds }
+    : {}),
+  ...(limitation.setupUrl ? { setup_url: limitation.setupUrl } : {}),
+});
+
+const describeCompactOperation = (
+  operation: MailrithSdkOperationDescriptor,
+  availability: CompactCapabilityAvailability | null,
+  options: Pick<
+    MailrithMcpServerOptions,
+    "enabledToolsets" | "readOnly"
+  > = {},
+) => {
+  const missingScopes = availability
+    ? operation.requiredScopes.filter(
+        (scope) => !availability.scopeSet.has(scope),
+      )
+    : [];
+  const excludedByToolset =
+    options.enabledToolsets !== undefined &&
+    !operation.toolsets.some((toolset) =>
+      options.enabledToolsets?.includes(toolset),
+    );
+  const excludedByReadOnly =
+    options.readOnly === true &&
+    compactOperationCategory(operation) !== "read";
+  const connectionFilterLimitations = [
+    ...(excludedByToolset
+      ? [
+          {
+            code: "mcp_toolset_filter_active",
+            message:
+              "This operation is outside the active MCP toolsets. Reconnect with a Work Profile that includes it.",
+          },
+        ]
+      : []),
+    ...(excludedByReadOnly
+      ? [
+          {
+            code: "mcp_read_only_filter_active",
+            message:
+              "This MCP connection is read-only. Reconnect without the read-only restriction to use this operation.",
+          },
+        ]
+      : []),
+  ];
+  const effectivelyAvailable =
+    excludedByToolset || excludedByReadOnly || missingScopes.length > 0
+      ? false
+      : operation.authRequired === false
+        ? true
+        : availability?.effectiveOperationIdSet
+          ? availability.effectiveOperationIdSet.has(operation.operationId)
+          : null;
+  const blockingLimitations =
+    effectivelyAvailable === false && missingScopes.length === 0
+      ? [
+          ...connectionFilterLimitations,
+          ...(availability?.context.limitations
+          .filter(
+            (limitation) =>
+              (!limitation.affectedOperationIds ||
+                limitation.affectedOperationIds.length === 0 ||
+                limitation.affectedOperationIds?.includes(
+                  operation.operationId,
+                )),
+          )
+          .map(serializeCompactCapabilityLimitation) ?? []),
+        ]
+      : [];
+  const recommendedWorkProfiles = resolvePublicApiMcpToolsets(
+    operation.requiredScopes,
+  );
+  return {
+    operation_id: operation.operationId,
+    resource: operation.namespace,
+    summary: operation.summary,
+    category: compactOperationCategory(operation),
+    required_scopes: operation.requiredScopes,
+    available:
+      availability === null &&
+      !excludedByToolset &&
+      !excludedByReadOnly
+        ? null
+        : effectivelyAvailable,
+    availability:
+      availability === null &&
+      !excludedByToolset &&
+      !excludedByReadOnly
+        ? "unknown"
+        : effectivelyAvailable === null
+        ? "unknown"
+        : missingScopes.length > 0
+          ? "missing_permission"
+          : effectivelyAvailable
+            ? "available"
+            : "blocked",
+    ...(missingScopes.length > 0
+      ? {
+          missing_scopes: missingScopes,
+          recommended_work_profiles: recommendedWorkProfiles,
+        }
+      : {}),
+    ...(blockingLimitations.length > 0
+      ? { blocking_limitations: blockingLimitations }
+      : effectivelyAvailable === false && missingScopes.length === 0
+        ? {
+            blocking_limitations: [
+              {
+                code: "operation_unavailable",
+                message:
+                  "The operation is omitted from this workspace's current effective capabilities.",
+              },
+            ],
+          }
+        : {}),
+  };
+};
+
+const selectCompactCatalogOperations = (
+  _options: Pick<MailrithMcpServerOptions, "enabledToolsets" | "readOnly">,
+) => sdkOperations;
+
+export const createMailrithMcpCompactToolDefinitions = (
+  client: MailrithClient,
+  options: Pick<
+    MailrithMcpServerOptions,
+    | "baseUrl"
+    | "grantedScopes"
+    | "enabledToolsets"
+    | "readOnly"
+    | "includeOutputSchemas"
+    | "capabilityContext"
+  > = {},
+): MailrithCompactToolDefinition[] => {
+  const allOperationTools = createMailrithMcpToolDefinitions(client);
+  const operationToolById = new Map(
+    allOperationTools.map((tool) => [tool.operation.operationId, tool]),
+  );
+  const grantedScopes = options.grantedScopes
+    ? new Set<string>(options.grantedScopes)
+    : null;
+  let capabilityAvailability = createCompactCapabilityAvailability(
+    options.capabilityContext ??
+      (grantedScopes
+        ? {
+            workspace: null,
+            credentialType: null,
+            scopes: [...grantedScopes],
+            effectiveOperationIds: null,
+            limitations: [],
+          }
+        : null),
+  );
+  let capabilityContextLoaded = options.capabilityContext !== undefined;
+  let capabilityContextLoad:
+    | Promise<CompactCapabilityAvailability | null>
+    | null = null;
+  const catalogOperations = selectCompactCatalogOperations(options);
+  const operationDiscovery =
+    createMailrithOperationDiscovery(catalogOperations);
+  const baseUrl = normalizeBaseUrl(options.baseUrl);
+
+  const getOperation = (operationId: string) =>
+    catalogOperations.find(
+      (operation) => operation.operationId === operationId,
+    ) ?? null;
+
+  const loadCapabilityAvailability = async (): Promise<
+    CompactCapabilityAvailability | null
+  > => {
+    if (capabilityContextLoaded) {
+      return capabilityAvailability;
+    }
+    if (capabilityContextLoad) {
+      return capabilityContextLoad;
+    }
+    const capabilityTool = operationToolById.get(
+      "getPublicApiCapabilities",
+    );
+    if (!capabilityTool) {
+      capabilityContextLoaded = true;
+      return capabilityAvailability;
+    }
+    const load = (async () => {
+      const capabilityResult = await capabilityTool.invoke({});
+      if (!capabilityResult.isError) {
+        const context = parseMailrithMcpCapabilityContext(
+          (capabilityResult.structuredContent?.response as unknown) ?? null,
+        );
+        if (context) {
+          capabilityAvailability =
+            createCompactCapabilityAvailability(context);
+        }
+      }
+      capabilityContextLoaded = true;
+      return capabilityAvailability;
+    })();
+    capabilityContextLoad = load;
+    try {
+      return await load;
+    } finally {
+      capabilityContextLoad = null;
+    }
+  };
+
+  const invokeOperation = async (
+    toolName: string,
+    expectedCategory: MailrithCompactOperationCategory,
+    args: Record<string, unknown>,
+  ) => {
+    const parsed = compactExecuteInputSchema.safeParse(args);
+    if (!parsed.success) {
+      return buildToolValidationErrorResult(
+        toolName,
+        createToolRequestId(),
+        parsed.error,
+      );
+    }
+    const operation = getOperation(parsed.data.operation_id);
+    if (!operation) {
+      return createCompactToolError(
+        toolName,
+        "operation_not_found",
+        "The operation is not available in the active Mailrith toolsets.",
+      );
+    }
+    const actualCategory = compactOperationCategory(operation);
+    if (actualCategory !== expectedCategory) {
+      return createCompactToolError(
+        toolName,
+        "wrong_operation_tool",
+        `Use ${compactOperationCategoryLabels[actualCategory]} for ${operation.operationId}.`,
+        {
+          operation_id_requested: operation.operationId,
+          required_tool: compactOperationCategoryLabels[actualCategory],
+        },
+      );
+    }
+    if (options.readOnly && actualCategory !== "read") {
+      return createCompactToolError(
+        toolName,
+        "read_only_connection",
+        "This MCP connection is restricted to read-only operations.",
+      );
+    }
+    if (
+      options.enabledToolsets &&
+      !operation.toolsets.some((toolset) =>
+        options.enabledToolsets?.includes(toolset),
+      )
+    ) {
+      return createCompactToolError(
+        toolName,
+        "toolset_restricted",
+        "This operation is outside the active MCP toolsets. Reconnect with a Work Profile that includes it.",
+        {
+          recommended_work_profiles: resolvePublicApiMcpToolsets(
+            operation.requiredScopes,
+          ),
+        },
+      );
+    }
+    const operationTool = operationToolById.get(operation.operationId);
+    if (!operationTool) {
+      return createCompactToolError(
+        toolName,
+        "operation_contract_missing",
+        "The operation contract is temporarily unavailable.",
+      );
+    }
+    return operationTool.invoke(parsed.data.arguments ?? {});
+  };
+
+  return [
+    {
+      name: "mailrith_check_connection",
+      title: "Check Mailrith connection",
+      description:
+        "Check the authenticated workspace and permissions. Optionally diagnose one operation and return missing permissions, a suitable Work Profile, and where the user can update access.",
+      inputSchema: compactConnectionInputSchema,
+      inputJsonSchema: compactConnectionInputJsonSchema,
+      annotations: compactReadAnnotations,
+      invoke: async (args = {}) => {
+        const parsed = compactConnectionInputSchema.safeParse(args);
+        if (!parsed.success) {
+          return buildToolValidationErrorResult(
+            "mailrith_check_connection",
+            createToolRequestId(),
+            parsed.error,
+          );
+        }
+        const capabilityTool = operationToolById.get(
+          "getPublicApiCapabilities",
+        );
+        if (!capabilityTool) {
+          return createCompactToolError(
+            "mailrith_check_connection",
+            "capability_contract_missing",
+            "Mailrith connection diagnostics are temporarily unavailable.",
+          );
+        }
+        const capabilityResult = await capabilityTool.invoke({});
+        if (capabilityResult.isError) {
+          return capabilityResult;
+        }
+        const capability = parseMailrithMcpCapabilityContext(
+          (capabilityResult.structuredContent?.response as unknown) ?? null,
+        );
+        if (
+          !capability ||
+          !capability.workspace ||
+          !capability.credentialType
+        ) {
+          return createCompactToolError(
+            "mailrith_check_connection",
+            "invalid_capability_response",
+            "Mailrith returned an invalid connection response.",
+          );
+        }
+        capabilityAvailability =
+          createCompactCapabilityAvailability(capability);
+        capabilityContextLoaded = true;
+        const requestedOperation = parsed.data.operation_id
+          ? getOperation(parsed.data.operation_id)
+          : null;
+        if (parsed.data.operation_id && !requestedOperation) {
+          return createCompactToolError(
+            "mailrith_check_connection",
+            "operation_not_found",
+            "The operation is not available in the active Mailrith toolsets.",
+          );
+        }
+        const currentScopeSet = new Set(capability.scopes);
+        const missingScopes = requestedOperation
+          ? requestedOperation.requiredScopes.filter(
+              (scope) => !currentScopeSet.has(scope),
+            )
+          : [];
+        const replacementScopeSet = new Set([
+          ...capability.scopes,
+          ...missingScopes,
+        ]);
+        const replacementScopes = publicApiScopeKeys.filter((scope) =>
+          replacementScopeSet.has(scope),
+        );
+        const permissionsUrl =
+          capability.credentialType === "workspace_api_key"
+            ? new URL("/settings", resolveAppOrigin(baseUrl))
+            : null;
+        if (permissionsUrl) {
+          permissionsUrl.searchParams.set(
+            "workspace",
+            capability.workspace.id,
+          );
+          permissionsUrl.searchParams.set("tab", "api-keys");
+        }
+        return createCompactToolResult("mailrith_check_connection", {
+          connected: true,
+          workspace: capability.workspace,
+          credential_type: capability.credentialType,
+          scopes: capability.scopes,
+          ...(requestedOperation
+            ? {
+                operation: describeCompactOperation(
+                  requestedOperation,
+                  capabilityAvailability,
+                  options,
+                ),
+                missing_scopes: missingScopes,
+                replacement_scopes: replacementScopes,
+                recommended_work_profiles: resolvePublicApiMcpToolsets(
+                  requestedOperation.requiredScopes,
+                ),
+                ...(permissionsUrl
+                  ? { access_update_url: permissionsUrl.toString() }
+                  : {}),
+                recovery:
+                  missingScopes.length > 0
+                    ? {
+                        action:
+                          capability.credentialType === "oauth_access_token"
+                            ? "reconnect_oauth"
+                            : "replace_api_key",
+                        message:
+                          capability.credentialType === "oauth_access_token"
+                            ? "Reconnect Mailrith from the app that started the connection, approve the missing permissions, and retry."
+                            : "Create a replacement API key with all listed replacement permissions, replace the saved key in the calling app, confirm the action works, and then revoke the old key.",
+                        replacement_scopes: replacementScopes,
+                        ...(permissionsUrl
+                          ? {
+                              access_update_url:
+                                permissionsUrl.toString(),
+                            }
+                          : {}),
+                      }
+                    : null,
+                reconnect_required:
+                  capability.credentialType === "oauth_access_token" &&
+                  missingScopes.length > 0,
+              }
+            : {}),
+          limitations: capability.limitations.map(
+            serializeCompactCapabilityLimitation,
+          ),
+        });
+      },
+    },
+    {
+      name: "mailrith_search_operations",
+      title: "Find Mailrith operations",
+      description:
+        "Search the compact Mailrith operation index by task, resource, or effect. Returns bounded ranked summaries and marks ambiguous results that must be narrowed before execution. Use mailrith_get_operation for one exact schema.",
+      inputSchema: compactSearchInputSchema,
+      inputJsonSchema: compactSearchInputJsonSchema,
+      annotations: compactReadAnnotations,
+      invoke: async (args = {}) => {
+        const parsed = compactSearchInputSchema.safeParse(args);
+        if (!parsed.success) {
+          return buildToolValidationErrorResult(
+            "mailrith_search_operations",
+            createToolRequestId(),
+            parsed.error,
+          );
+        }
+        const discovery = operationDiscovery.search({
+          query: parsed.data.query,
+          resource: parsed.data.resource,
+          category: parsed.data.category,
+        });
+        const matches = discovery.matches;
+        const availability = await loadCapabilityAvailability();
+        const suggestions =
+          matches.length === 0 && parsed.data.query
+            ? [
+                "Try a resource name such as Subscribers, Broadcasts, Forms, Sequences, or Automations.",
+                "Add an action word such as find, create, update, preview, send, or delete.",
+                "Use the optional resource or category filter to narrow the catalog.",
+              ]
+            : [];
+        return createCompactToolResult("mailrith_search_operations", {
+          data: matches
+            .slice(0, parsed.data.limit)
+            .map((match) =>
+              describeCompactOperation(
+                match.operation,
+                availability,
+                options,
+              ),
+            ),
+          selection: discovery.selection,
+          pagination: {
+            returned: Math.min(matches.length, parsed.data.limit),
+            total_matches: matches.length,
+            truncated: matches.length > parsed.data.limit,
+          },
+          ...(suggestions.length > 0 ? { suggestions } : {}),
+        });
+      },
+    },
+    {
+      name: "mailrith_get_operation",
+      title: "Get one Mailrith operation schema",
+      description:
+        "Load the exact input schema, permission boundary, effect category, and retry behavior for one operation returned by mailrith_search_operations.",
+      inputSchema: compactGetOperationInputSchema,
+      inputJsonSchema: compactGetOperationInputJsonSchema,
+      annotations: compactReadAnnotations,
+      invoke: async (args = {}) => {
+        const parsed = compactGetOperationInputSchema.safeParse(args);
+        if (!parsed.success) {
+          return buildToolValidationErrorResult(
+            "mailrith_get_operation",
+            createToolRequestId(),
+            parsed.error,
+          );
+        }
+        const operation = getOperation(parsed.data.operation_id);
+        const operationTool = operation
+          ? operationToolById.get(operation.operationId)
+          : null;
+        if (!operation || !operationTool) {
+          return createCompactToolError(
+            "mailrith_get_operation",
+            "operation_not_found",
+            "The operation is not available in the active Mailrith toolsets.",
+          );
+        }
+        const availability = await loadCapabilityAvailability();
+        return createCompactToolResult("mailrith_get_operation", {
+          ...describeCompactOperation(operation, availability, options),
+          method: operation.method,
+          path: operation.path,
+          description: operation.description,
+          retry_mode: operation.retryMode,
+          idempotency_policy: operation.idempotencyPolicy,
+          execution_tool:
+            compactOperationCategoryLabels[
+              compactOperationCategory(operation)
+            ],
+          input_schema: operationTool.inputJsonSchema,
+          ...(parsed.data.include_output_schema ||
+          options.includeOutputSchemas
+            ? { output_schema: operationTool.outputJsonSchema }
+            : {}),
+        });
+      },
+    },
+    {
+      name: "mailrith_read",
+      title: "Run a Mailrith read operation",
+      description:
+        "Run one side-effect-free operation after loading its exact schema with mailrith_get_operation.",
+      inputSchema: compactExecuteInputSchema,
+      inputJsonSchema: compactExecuteInputJsonSchema,
+      annotations: compactReadAnnotations,
+      invoke: (args = {}) =>
+        invokeOperation("mailrith_read", "read", args),
+    },
+    {
+      name: "mailrith_write",
+      title: "Run a Mailrith draft or workspace operation",
+      description:
+        "Create or change draft, metadata, or workspace resources that do not immediately perform a live action.",
+      inputSchema: compactExecuteInputSchema,
+      inputJsonSchema: compactExecuteInputJsonSchema,
+      annotations: compactWriteAnnotations,
+      invoke: (args = {}) =>
+        invokeOperation("mailrith_write", "write", args),
+    },
+    {
+      name: "mailrith_delete",
+      title: "Run a Mailrith delete operation",
+      description:
+        "Delete a Mailrith resource. Load the operation schema and current resource state first; operations that delete a live-capable resource still require Perform Live Actions access.",
+      inputSchema: compactExecuteInputSchema,
+      inputJsonSchema: compactExecuteInputJsonSchema,
+      annotations: compactDeleteAnnotations,
+      invoke: (args = {}) =>
+        invokeOperation("mailrith_delete", "delete", args),
+    },
+    {
+      name: "mailrith_live",
+      title: "Run a Mailrith live action",
+      description:
+        "Run an operation that can send email, affect a running workflow, change Subscriber delivery or targeting state, publish a public capture surface, or configure outbound event delivery. The credential must also have Perform Live Actions access.",
+      inputSchema: compactExecuteInputSchema,
+      inputJsonSchema: compactExecuteInputJsonSchema,
+      annotations: compactLiveAnnotations,
+      invoke: (args = {}) =>
+        invokeOperation("mailrith_live", "live", args),
+    },
+  ];
+};
+
+export const createMcpCapabilityContextHeaders = (
+  options: Pick<MailrithMcpServerOptions, "enabledToolsets" | "readOnly">,
+) => ({
+  ...(options.enabledToolsets
+    ? {
+        [mailrithMcpToolsetsHeader]: options.enabledToolsets.join(","),
+      }
+    : {}),
+  ...(options.readOnly ? { [mailrithMcpReadOnlyHeader]: "true" } : {}),
+});
+
 export const createMailrithMcpServer = (
   options: MailrithMcpServerOptions = {},
 ) => {
   const baseUrl = normalizeBaseUrl(options.baseUrl);
+  const capabilityContextHeaders = createMcpCapabilityContextHeaders(options);
   const client =
     options.client ??
     createMailrithClient({
       baseUrl,
       apiKey: options.apiKey,
       fetch: options.fetch,
-      defaultHeaders: { "x-mailrith-client": "mcp/dev" },
+      defaultHeaders: {
+        "x-mailrith-client": "mcp/dev",
+        ...capabilityContextHeaders,
+      },
     });
 
   const server = new McpServer(mcpServerInfo);
-  const tools = createMailrithMcpToolDefinitions(client, options);
+  const tools = createMailrithMcpCompactToolDefinitions(client, {
+    ...options,
+    baseUrl,
+  });
+  const catalogOperations = selectCompactCatalogOperations(options);
+  const capabilityAvailability = createCompactCapabilityAvailability(
+    options.capabilityContext ??
+      (options.grantedScopes
+        ? {
+            workspace: null,
+            credentialType: null,
+            scopes: options.grantedScopes,
+            effectiveOperationIds: null,
+            limitations: [],
+          }
+        : null),
+  );
   const toolByName = new Map(tools.map((tool) => [tool.name, tool]));
   server.server.registerCapabilities({ tools: { listChanged: false } });
   server.server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: tools.map(
       (tool): Tool => ({
         name: tool.name,
-        title: tool.operation.summary,
+        title: tool.title,
         description: tool.description,
         inputSchema: tool.inputJsonSchema as Tool["inputSchema"],
-        outputSchema: tool.outputJsonSchema as Tool["outputSchema"],
         annotations: tool.annotations,
-        _meta: tool.meta,
       }),
     ),
   }));
@@ -954,56 +2100,32 @@ export const createMailrithMcpServer = (
     const result = await tool.invoke(
       args && typeof args === "object" && !Array.isArray(args) ? args : {},
     );
-    if (!result.isError) {
-      const validatedOutput = tool.outputSchema.safeParse(
-        result.structuredContent,
-      );
-      if (!validatedOutput.success) {
-        const requestId = result.structuredContent?.request_id;
-        return buildToolOutputErrorResult(
-          tool.operation.operationId,
-          typeof requestId === "string" ? requestId : createToolRequestId(),
-          validatedOutput.error,
-        );
-      }
-    }
     return result;
   });
 
   server.registerResource(
-    "mailrith-tool-manifest",
-    "mailrith://tool-manifest",
+    "mailrith-operation-index",
+    "mailrith://operations",
     {
-      title: "Mailrith MCP Tool Manifest",
+      title: "Mailrith Operation Index",
       description:
-        "The versioned Mailrith MCP schema, scope, risk, and toolset contract.",
+        "A compact operation index without nested request or response schemas.",
       mimeType: "application/json",
     },
     async () => ({
       contents: [
         {
-          uri: "mailrith://tool-manifest",
+          uri: "mailrith://operations",
           mimeType: "application/json",
-          text: JSON.stringify(generatedMailrithMcpToolManifest, null, 2),
-        },
-      ],
-    }),
-  );
-
-  server.registerResource(
-    "mailrith-sdk-manifest",
-    "mailrith://sdk-manifest",
-    {
-      title: "Mailrith SDK Manifest",
-      description: "The generated Mailrith SDK resource and operation manifest.",
-      mimeType: "application/json",
-    },
-    async () => ({
-      contents: [
-        {
-          uri: "mailrith://sdk-manifest",
-          mimeType: "application/json",
-          text: JSON.stringify(mailrithSdkResources, null, 2),
+          text: JSON.stringify(
+            catalogOperations.map((operation) =>
+              describeCompactOperation(
+                operation,
+                capabilityAvailability,
+                options,
+              ),
+            ),
+          ),
         },
       ],
     }),
@@ -1046,8 +2168,8 @@ export const createMailrithMcpServer = (
             type: "text",
             text: [
               "You are planning work against Mailrith.",
-              "Start by reading mailrith://discovery and mailrith://tool-manifest.",
-              "Then identify the smallest sequence of Mailrith MCP tools needed to accomplish this goal:",
+              "Start by reading mailrith://discovery.",
+              "Then use mailrith_search_operations and mailrith_get_operation to identify only the operations needed for this goal:",
               goal,
             ].join("\n"),
           },
@@ -1104,9 +2226,7 @@ export const handleMailrithMcpHttpRequest = async (
   const challengeScopes: string[] =
     requiredScopes.length > 0
       ? requiredScopes
-      : mailrithMcpDefaultOAuthScopes.length > 0
-        ? [...mailrithMcpDefaultOAuthScopes]
-        : [...publicApiAgentReadQuickstartScopeKeys];
+      : enabledToolsets.challengeScopes;
   if (!apiKey) {
     return createMcpAuthResponse(
       baseUrl,
@@ -1121,10 +2241,9 @@ export const handleMailrithMcpHttpRequest = async (
     baseUrl,
     apiKey,
     fetch: options.fetch ?? fetch,
-    requiredScopes:
-      requiredScopes.length > 0
-        ? requiredScopes
-        : [...mailrithMcpDefaultOAuthScopes],
+    requiredScopes,
+    enabledToolsets: enabledToolsets.toolsets,
+    readOnly: enabledToolsets.readOnly,
   });
   if (!validation.ok && validation.reason === "invalid_token") {
     return createMcpAuthResponse(
@@ -1141,6 +2260,9 @@ export const handleMailrithMcpHttpRequest = async (
       403,
       "insufficient_scope",
       "The Mailrith MCP bearer token is missing required scopes.",
+      validation.requiredScopes,
+      validation.credentialType ?? undefined,
+      validation.scopes,
       validation.missingScopes,
     );
   }
@@ -1161,6 +2283,9 @@ export const handleMailrithMcpHttpRequest = async (
     apiKey,
     grantedScopes: validation.scopes,
     enabledToolsets: enabledToolsets.toolsets,
+    readOnly: enabledToolsets.readOnly,
+    includeOutputSchemas: enabledToolsets.includeOutputSchemas,
+    capabilityContext: validation.capabilityContext,
   });
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,

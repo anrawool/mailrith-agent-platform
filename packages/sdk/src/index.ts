@@ -1,8 +1,21 @@
 import {
   generatedMailrithAgentReadQuickstartScopeKeys,
+  generatedMailrithDefaultWorkProfileKey,
   generatedMailrithSdkContractVersion,
   generatedMailrithSdkResources,
+  generatedMailrithWorkProfiles,
 } from "./generated.js";
+
+export {
+  createMailrithOperationDiscovery,
+  getMailrithOperationCategory,
+  mailrithOperationDiscovery,
+  type MailrithDiscoverableOperation,
+  type MailrithOperationCategory,
+  type MailrithOperationSearchMatch,
+  type MailrithOperationSearchParams,
+  type MailrithOperationSearchSelection,
+} from "./operation-discovery.js";
 
 type GeneratedMailrithSdkResource = (typeof generatedMailrithSdkResources)[number];
 type GeneratedMailrithSdkOperation = GeneratedMailrithSdkResource["operations"][number];
@@ -43,6 +56,75 @@ export type MailrithResponseMetadata = {
   status: number;
 };
 
+export type MailrithCredentialRecovery = {
+  credentialType: "workspace_api_key" | "oauth_access_token";
+  action: "replace_api_key" | "reconnect_oauth";
+  message: string;
+  missingScopes: string[];
+  replacementScopes: string[];
+  accessUpdateUrl?: string;
+  permissionsHelpUrl?: string;
+};
+
+const parseCredentialRecovery = (
+  responseBody: unknown,
+): MailrithCredentialRecovery | null => {
+  if (
+    !responseBody ||
+    typeof responseBody !== "object" ||
+    Array.isArray(responseBody) ||
+    !("error" in responseBody)
+  ) {
+    return null;
+  }
+  const error = responseBody.error;
+  if (!error || typeof error !== "object" || Array.isArray(error)) {
+    return null;
+  }
+  const value = error as Record<string, unknown>;
+  const recovery =
+    value.recovery &&
+    typeof value.recovery === "object" &&
+    !Array.isArray(value.recovery)
+      ? (value.recovery as Record<string, unknown>)
+      : null;
+  if (
+    (value.credential_type !== "workspace_api_key" &&
+      value.credential_type !== "oauth_access_token") ||
+    !recovery ||
+    (recovery.action !== "replace_api_key" &&
+      recovery.action !== "reconnect_oauth") ||
+    typeof recovery.message !== "string"
+  ) {
+    return null;
+  }
+  return {
+    credentialType: value.credential_type,
+    action: recovery.action,
+    message: recovery.message,
+    missingScopes: Array.isArray(value.missing_scopes)
+      ? value.missing_scopes
+          .filter((scope): scope is string => typeof scope === "string")
+          .slice(0, 50)
+      : [],
+    replacementScopes: Array.isArray(recovery.replacement_scopes)
+      ? recovery.replacement_scopes
+          .filter((scope): scope is string => typeof scope === "string")
+          .slice(0, 50)
+      : Array.isArray(value.replacement_scopes)
+        ? value.replacement_scopes
+            .filter((scope): scope is string => typeof scope === "string")
+            .slice(0, 50)
+        : [],
+    ...(typeof recovery.access_update_url === "string"
+      ? { accessUpdateUrl: recovery.access_update_url }
+      : {}),
+    ...(typeof recovery.permissions_help_url === "string"
+      ? { permissionsHelpUrl: recovery.permissions_help_url }
+      : {}),
+  };
+};
+
 export class MailrithApiError extends Error {
   readonly status: number;
 
@@ -53,6 +135,8 @@ export class MailrithApiError extends Error {
   readonly responseBody: unknown;
 
   readonly requestId?: string;
+
+  readonly credentialRecovery: MailrithCredentialRecovery | null;
 
   constructor(params: {
     status: number;
@@ -69,6 +153,7 @@ export class MailrithApiError extends Error {
     this.code = params.code;
     this.responseBody = params.responseBody;
     this.requestId = params.requestId;
+    this.credentialRecovery = parseCredentialRecovery(params.responseBody);
   }
 }
 
@@ -275,6 +360,9 @@ export const mailrithSdkResources = generatedMailrithSdkResources;
 export const mailrithSdkContractVersion = generatedMailrithSdkContractVersion;
 export const mailrithAgentReadQuickstartScopeKeys =
   generatedMailrithAgentReadQuickstartScopeKeys;
+export const mailrithWorkProfiles = generatedMailrithWorkProfiles;
+export const mailrithDefaultWorkProfileKey =
+  generatedMailrithDefaultWorkProfileKey;
 
 export const createMailrithClient = (
   options: MailrithClientOptions = {},

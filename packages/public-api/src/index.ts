@@ -1,5 +1,4 @@
-import { publicApiScopeDefinitions } from "./scopes.js";
-import type { PublicApiScopeKey } from "./scopes.js";
+import { resolvePublicApiOperationRequiredScopes } from "./resource-contract.js";
 import { getPublicApiAgentOperationRisk } from "./agent-risk.js";
 import {
   createPublicApiMcpOperationContract,
@@ -25,6 +24,7 @@ export {
   publicApiAgentRetryModes,
   publicApiAgentRiskClasses,
   publicApiAgentSideEffectClasses,
+  requiresPublicApiLiveActionPermission,
 } from "./agent-risk.js";
 export type {
   PublicApiAgentDataScope,
@@ -57,24 +57,30 @@ export {
   normalizePublicApiScopeKeys,
   validatePublicApiScopeKeys,
   publicApiAgentReadQuickstartScopeKeys,
+  publicApiDefaultWorkProfileKey,
   publicApiDefaultScopeKeys,
   publicApiReadScopeKeys,
   publicApiScopeDefinitionByKey,
   publicApiScopeDefinitions,
   publicApiScopeDisplaySections,
   publicApiScopeKeys,
-  publicApiScopePresetByKey,
-  publicApiScopePresetDisplaySections,
-  publicApiScopePresets,
+  publicApiResourceContractByKey,
+  publicApiResourceContracts,
+  publicApiWorkProfileByKey,
+  publicApiWorkProfileDisplaySections,
+  publicApiWorkProfiles,
   publicApiScopeResourceOrder,
-} from "./scopes.js";
+  resolvePublicApiOperationRequiredScopes,
+} from "./resource-contract.js";
 export type {
+  PublicApiResourceArchetype,
+  PublicApiResourceContract,
   PublicApiScopeAction,
   PublicApiScopeDefinition,
   PublicApiScopeKey,
-  PublicApiScopePreset,
-  PublicApiScopePresetKey,
-} from "./scopes.js";
+  PublicApiWorkProfile,
+  PublicApiWorkProfileKey,
+} from "./resource-contract.js";
 
 export type PublicApiSection = {
   id: string;
@@ -108,12 +114,6 @@ export type PublicApiOperation = {
       content?: Record<string, { schema: Record<string, unknown> }>;
     }
   >;
-  "x-mailrith-payload-field-scopes"?: Record<string, readonly string[]>;
-};
-
-export type PublicApiPayloadFieldScopeRequirements = {
-  description: string;
-  requiredScopesByField: Record<string, readonly PublicApiScopeKey[]>;
 };
 
 export type PublicApiTagDefinition = {
@@ -144,22 +144,7 @@ export type PublicApiCapabilityOperation = {
   summary: string;
   description?: string;
   requiredScopes: string[];
-  eventPatternScopeRequirements?: PublicApiWebhookEventPatternScopeRequirements;
-  payloadFieldScopeRequirements?: PublicApiPayloadFieldScopeRequirements;
 };
-
-export const publicApiSubscriberPayloadFieldScopeRequirements = {
-  description:
-    "Subscriber relationship fields require their matching granular permission in addition to the operation's base permissions.",
-  requiredScopesByField: {
-    status: ["subscriptions:write"],
-    existing_tag_ids: ["subscribers:targeting"],
-    new_tags: ["subscribers:targeting"],
-    form_id: ["subscribers:targeting"],
-    sequence_ids: ["subscribers:sequence_enroll"],
-    consent_evidence: ["subscriptions:write"],
-  },
-} as const satisfies PublicApiPayloadFieldScopeRequirements;
 
 export type PublicApiCapabilityResource = {
   key: string;
@@ -168,13 +153,16 @@ export type PublicApiCapabilityResource = {
   operations: PublicApiCapabilityOperation[];
 };
 
-export type PublicApiWebhookEventPatternScopeRequirements = {
-  requestField: "event_patterns";
-  description: string;
-  requiredScopesByEventPattern: Record<
-    PublicApiWebhookEventPattern,
-    PublicApiScopeKey[]
-  >;
+type PublicApiCapabilityOperationDefinition = Omit<
+  PublicApiCapabilityOperation,
+  "requiredScopes"
+>;
+
+type PublicApiCapabilityResourceDefinition = Omit<
+  PublicApiCapabilityResource,
+  "operations"
+> & {
+  operations: PublicApiCapabilityOperationDefinition[];
 };
 
 export const emailTemplateNameMaxLength = 160;
@@ -195,28 +183,12 @@ const stringArraySchema = {
   items: { type: "string" },
 };
 
-const formDefinitionPropertiesSchema = {
-  display: {
-    type: "object",
-    additionalProperties: true,
-  },
-  builder: {
-    type: "object",
-    additionalProperties: true,
-  },
-};
-
 const formDefinitionSchema = {
-  type: "object",
-  description:
-    "Builder-backed form definition. Field and style data live under the builder payload.",
-  required: ["builder"],
-  properties: formDefinitionPropertiesSchema,
-  additionalProperties: false,
+  $ref: "#/components/schemas/FormDefinition",
 };
 
 const formUpsertDefinitionSchema = {
-  ...formDefinitionSchema,
+  allOf: [formDefinitionSchema],
   description:
     "Builder-backed form definition. Include display and builder data only; field and style data must live inside the builder payload.",
 };
@@ -385,57 +357,6 @@ export const isPublicApiWebhookEventPattern = (
 ): value is PublicApiWebhookEventPattern =>
   publicApiWebhookEventPatternSet.has(value);
 
-const publicApiWebhookEventRequiredScopes = {
-  "subscriber.created": ["subscribers:read"],
-  "subscriber.updated": ["subscribers:read"],
-  "subscriber.status_changed": ["subscriptions:read"],
-  "form.submitted": ["forms:read", "subscribers:read"],
-  "landing_page.submitted": ["landing_pages:read", "subscribers:read"],
-  "broadcast.state_changed": ["broadcasts:read"],
-  "automation.entered": ["automations:read", "subscribers:read"],
-  "automation.step_executed": ["automations:read", "subscribers:read"],
-  "automation.completed": ["automations:read", "subscribers:read"],
-} as const satisfies Record<
-  PublicApiWebhookEventType,
-  readonly PublicApiScopeKey[]
->;
-
-export const getPublicApiWebhookEventPatternRequiredScopes = (
-  eventPatterns: readonly PublicApiWebhookEventPattern[],
-): PublicApiScopeKey[] => {
-  const requiredScopes = new Set<PublicApiScopeKey>();
-  for (const eventPattern of eventPatterns) {
-    const matchingEventTypes =
-      eventPattern === "*"
-        ? publicApiWebhookEventTypes
-        : eventPattern.endsWith(".*")
-          ? publicApiWebhookEventTypes.filter((eventType) =>
-              eventType.startsWith(eventPattern.slice(0, -1)),
-            )
-          : [eventPattern as PublicApiWebhookEventType];
-    for (const eventType of matchingEventTypes) {
-      for (const scope of publicApiWebhookEventRequiredScopes[eventType]) {
-        requiredScopes.add(scope);
-      }
-    }
-  }
-  return publicApiScopeDefinitions
-    .map((definition) => definition.key)
-    .filter((scopeKey) => requiredScopes.has(scopeKey));
-};
-
-export const publicApiWebhookEventPatternScopeRequirements = {
-  requestField: "event_patterns",
-  description:
-    "When creating or updating a webhook subscription, each selected event pattern requires these read scopes in addition to `webhooks:write`.",
-  requiredScopesByEventPattern: Object.fromEntries(
-    publicApiWebhookEventPatternValues.map((eventPattern) => [
-      eventPattern,
-      getPublicApiWebhookEventPatternRequiredScopes([eventPattern]),
-    ]),
-  ) as Record<PublicApiWebhookEventPattern, PublicApiScopeKey[]>,
-} satisfies PublicApiWebhookEventPatternScopeRequirements;
-
 export const publicApiWebhookSignatureHeaders = {
   id: "webhook-id",
   timestamp: "webhook-timestamp",
@@ -476,6 +397,16 @@ export const publicApiTags: PublicApiTagDefinition[] = [
     name: "Custom Fields",
     description:
       "Read and manage the typed custom-field schema available to the authenticated workspace.",
+  },
+  {
+    name: "Sender Identities",
+    description:
+      "Read enabled sender names and email addresses without exposing provider credentials.",
+  },
+  {
+    name: "Email Delivery Connections",
+    description:
+      "Create and manage the selected workspace's email delivery service connection without returning saved credentials.",
   },
   {
     name: "Email Templates",
@@ -528,7 +459,7 @@ export const publicApiTags: PublicApiTagDefinition[] = [
   },
 ];
 
-export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
+const publicApiCapabilityResourceDefinitions: PublicApiCapabilityResourceDefinition[] = [
   {
     key: "workspace",
     name: "Workspace",
@@ -540,29 +471,95 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/workspace",
         operationId: "getWorkspace",
         summary: "Get the current workspace",
-        requiredScopes: ["workspace:read"],
       },
     ],
   },
   {
-    key: "agent_activity",
-    name: "Agent Activity",
+    key: "sender_identities",
+    name: "Sender Identities",
     description:
-      "Inspect the bounded, redacted activity trail for agent-originated workspace changes.",
+      "Discover enabled sender names, addresses, and provider types that can be selected for Broadcasts and Sequences. Provider credentials are never returned.",
     operations: [
       {
         method: "GET",
-        path: "/v1/agent-activity",
-        operationId: "listAgentActivity",
-        summary: "List agent activity",
-        requiredScopes: ["activity:read"],
+        path: "/v1/sender-identities",
+        operationId: "listSenderIdentities",
+        summary: "List sender identities",
       },
       {
         method: "GET",
-        path: "/v1/agent-activity/{activity_id}",
-        operationId: "getAgentActivity",
-        summary: "Get agent activity",
-        requiredScopes: ["activity:read"],
+        path: "/v1/sender-identities/{sender_identity_id}",
+        operationId: "getSenderIdentity",
+        summary: "Get a sender identity",
+      },
+    ],
+  },
+  {
+    key: "email_delivery_connections",
+    name: "Email Delivery Connections",
+    description:
+      "Set up and manage email delivery connections for the authenticated workspace. Provider credentials are entered only in Mailrith's secure browser flow and are never accepted or returned by the agent API.",
+    operations: [
+      {
+        method: "GET",
+        path: "/v1/email-delivery-connections",
+        operationId: "listEmailDeliveryConnections",
+        summary: "List email delivery connections",
+      },
+      {
+        method: "POST",
+        path: "/v1/email-delivery-connection-setup-sessions",
+        operationId: "startEmailDeliveryConnectionSetup",
+        summary: "Start secure email delivery connection setup",
+      },
+      {
+        method: "GET",
+        path: "/v1/email-delivery-connection-setup-sessions/{setup_session_id}",
+        operationId: "getEmailDeliveryConnectionSetup",
+        summary: "Get secure setup status",
+      },
+      {
+        method: "POST",
+        path:
+          "/v1/email-delivery-connection-setup-sessions/{setup_session_id}/renew",
+        operationId: "renewEmailDeliveryConnectionSetup",
+        summary: "Renew secure setup",
+      },
+      {
+        method: "GET",
+        path: "/v1/email-delivery-connections/{connection_id}",
+        operationId: "getEmailDeliveryConnection",
+        summary: "Get an email delivery connection",
+      },
+      {
+        method: "PATCH",
+        path: "/v1/email-delivery-connections/{connection_id}",
+        operationId: "updateEmailDeliveryConnection",
+        summary: "Update an email delivery connection",
+      },
+      {
+        method: "PUT",
+        path: "/v1/email-delivery-connections/{connection_id}/status",
+        operationId: "updateEmailDeliveryConnectionStatus",
+        summary: "Enable or disable an email delivery connection",
+      },
+      {
+        method: "POST",
+        path: "/v1/email-delivery-connections/{connection_id}/verify",
+        operationId: "verifyEmailDeliveryConnection",
+        summary: "Verify an email delivery connection",
+      },
+      {
+        method: "POST",
+        path: "/v1/email-delivery-connections/{connection_id}/test",
+        operationId: "testEmailDeliveryConnection",
+        summary: "Send an email delivery connection test",
+      },
+      {
+        method: "DELETE",
+        path: "/v1/email-delivery-connections/{connection_id}",
+        operationId: "deleteEmailDeliveryConnection",
+        summary: "Delete an email delivery connection",
       },
     ],
   },
@@ -577,7 +574,6 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/analytics/reports",
         operationId: "createAnalyticsReport",
         summary: "Create or reuse an analytics report",
-        requiredScopes: ["analytics:read"],
       },
       {
         method: "GET",
@@ -585,7 +581,6 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         operationId: "getAnalyticsReport",
         summary: "Get an analytics report",
         description: "Returns one unexpired bounded analytics report by identifier.",
-        requiredScopes: ["analytics:read"],
       },
     ],
   },
@@ -602,7 +597,6 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         summary: "List Automation run diagnostics",
         description:
           "Returns at most 50 recent runs with redacted errors and bounded step execution details.",
-        requiredScopes: ["automations:read"],
       },
       {
         method: "GET",
@@ -611,7 +605,6 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         summary: "Get Automation run diagnostics",
         description:
           "Returns one Automation run with status, timing, retries, outcomes, and redacted step failures.",
-        requiredScopes: ["automations:read"],
       },
       {
         method: "GET",
@@ -620,7 +613,6 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         summary: "Get Sequence diagnostics",
         description:
           "Returns bounded Sequence failure, retry, status, and message outcome details.",
-        requiredScopes: ["sequences:read"],
       },
       {
         method: "GET",
@@ -629,7 +621,6 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         summary: "Get Broadcast diagnostics",
         description:
           "Returns selection totals, provider readiness, and the 20 most common structured delivery reasons.",
-        requiredScopes: ["broadcasts:read"],
       },
       {
         method: "GET",
@@ -638,7 +629,6 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         summary: "Get privacy-conscious Subscriber diagnostics",
         description:
           "Returns a 90-day, bounded activity view without exposing the Subscriber email address.",
-        requiredScopes: ["subscribers:read", "subscriptions:read"],
       },
     ],
   },
@@ -653,67 +643,60 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/subscribers",
         operationId: "listSubscribers",
         summary: "List subscribers",
-        requiredScopes: ["subscribers:read"],
+      },
+      {
+        method: "GET",
+        path: "/v1/subscribers/{subscriber_id}",
+        operationId: "getSubscriber",
+        summary: "Get a subscriber",
       },
       {
         method: "POST",
         path: "/v1/subscribers",
         operationId: "upsertSubscriber",
         summary: "Create or upsert a subscriber",
-        requiredScopes: ["subscribers:profile"],
-        payloadFieldScopeRequirements:
-          publicApiSubscriberPayloadFieldScopeRequirements,
       },
       {
         method: "PATCH",
         path: "/v1/subscribers/{subscriber_id}",
         operationId: "updateSubscriber",
         summary: "Update a subscriber",
-        requiredScopes: ["subscribers:profile"],
-        payloadFieldScopeRequirements:
-          publicApiSubscriberPayloadFieldScopeRequirements,
       },
       {
         method: "DELETE",
         path: "/v1/subscribers/{subscriber_id}",
         operationId: "deleteSubscriber",
         summary: "Delete a subscriber",
-        requiredScopes: ["subscribers:delete"],
       },
       {
         method: "PUT",
         path: "/v1/subscribers/{subscriber_id}/status",
         operationId: "updateSubscriberStatus",
         summary: "Change Subscriber sending eligibility",
-        requiredScopes: ["subscriptions:write"],
       },
       {
         method: "PUT",
         path: "/v1/subscribers/{subscriber_id}/tags/{tag_id}",
         operationId: "addSubscriberTag",
         summary: "Add a tag to a subscriber",
-        requiredScopes: ["subscribers:targeting"],
       },
       {
         method: "DELETE",
         path: "/v1/subscribers/{subscriber_id}/tags/{tag_id}",
         operationId: "removeSubscriberTag",
         summary: "Remove a tag from a subscriber",
-        requiredScopes: ["subscribers:targeting"],
       },
       {
         method: "PUT",
         path: "/v1/subscribers/{subscriber_id}/sequences/{sequence_id}",
         operationId: "addSubscriberSequence",
         summary: "Add a subscriber to a sequence",
-        requiredScopes: ["subscribers:sequence_enroll"],
       },
       {
         method: "DELETE",
         path: "/v1/subscribers/{subscriber_id}/sequences/{sequence_id}",
         operationId: "removeSubscriberSequence",
         summary: "Remove a subscriber from a sequence",
-        requiredScopes: ["subscribers:sequence_enroll"],
       },
     ],
   },
@@ -728,35 +711,30 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/tags",
         operationId: "listTags",
         summary: "List tags",
-        requiredScopes: ["tags:read"],
       },
       {
         method: "POST",
         path: "/v1/tags",
         operationId: "createTag",
         summary: "Create a tag",
-        requiredScopes: ["tags:configure"],
       },
       {
         method: "GET",
         path: "/v1/tags/{tag_id}",
         operationId: "getTag",
         summary: "Get a tag",
-        requiredScopes: ["tags:read"],
       },
       {
         method: "PUT",
         path: "/v1/tags/{tag_id}",
         operationId: "updateTag",
         summary: "Update a tag",
-        requiredScopes: ["tags:configure"],
       },
       {
         method: "DELETE",
         path: "/v1/tags/{tag_id}",
         operationId: "deleteTag",
         summary: "Delete a tag",
-        requiredScopes: ["tags:delete"],
       },
     ],
   },
@@ -771,35 +749,30 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/custom-fields",
         operationId: "listCustomFields",
         summary: "List custom fields",
-        requiredScopes: ["custom_fields:read"],
       },
       {
         method: "POST",
         path: "/v1/custom-fields",
         operationId: "createCustomField",
         summary: "Create a custom field",
-        requiredScopes: ["custom_fields:configure"],
       },
       {
         method: "GET",
         path: "/v1/custom-fields/{custom_field_id}",
         operationId: "getCustomField",
         summary: "Get a custom field",
-        requiredScopes: ["custom_fields:read"],
       },
       {
         method: "PUT",
         path: "/v1/custom-fields/{custom_field_id}",
         operationId: "updateCustomField",
         summary: "Update a custom field",
-        requiredScopes: ["custom_fields:configure"],
       },
       {
         method: "DELETE",
         path: "/v1/custom-fields/{custom_field_id}",
         operationId: "deleteCustomField",
         summary: "Delete a custom field",
-        requiredScopes: ["custom_fields:delete"],
       },
     ],
   },
@@ -814,35 +787,80 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/email-templates",
         operationId: "listEmailTemplates",
         summary: "List email templates",
-        requiredScopes: ["email_templates:read"],
       },
       {
         method: "POST",
         path: "/v1/email-templates",
         operationId: "createEmailTemplate",
         summary: "Create an email template",
-        requiredScopes: ["email_templates:draft"],
       },
       {
         method: "GET",
         path: "/v1/email-templates/{template_id}",
         operationId: "getEmailTemplate",
         summary: "Get an email template",
-        requiredScopes: ["email_templates:read"],
+      },
+      {
+        method: "POST",
+        path: "/v1/email-templates/{template_id}/preview",
+        operationId: "previewEmailTemplate",
+        summary: "Preview an email template for a Subscriber",
       },
       {
         method: "PUT",
         path: "/v1/email-templates/{template_id}",
         operationId: "updateEmailTemplate",
         summary: "Update an email template",
-        requiredScopes: ["email_templates:draft"],
       },
       {
         method: "DELETE",
         path: "/v1/email-templates/{template_id}",
         operationId: "deleteEmailTemplate",
         summary: "Delete an email template",
-        requiredScopes: ["email_templates:delete"],
+      },
+    ],
+  },
+  {
+    key: "starting_points",
+    name: "Starting Points",
+    description:
+      "Discover the same email, Form, and Landing Page starting points shown in the Mailrith UI. Lists return metadata only; item reads return full content on demand.",
+    operations: [
+      {
+        method: "GET",
+        path: "/v1/starting-points/email-templates",
+        operationId: "listEmailStartingPoints",
+        summary: "List email starting points",
+      },
+      {
+        method: "GET",
+        path: "/v1/starting-points/email-templates/{starting_point_id}",
+        operationId: "getEmailStartingPoint",
+        summary: "Get an email starting point",
+      },
+      {
+        method: "GET",
+        path: "/v1/starting-points/forms",
+        operationId: "listFormStartingPoints",
+        summary: "List Form starting points",
+      },
+      {
+        method: "GET",
+        path: "/v1/starting-points/forms/{starting_point_id}",
+        operationId: "getFormStartingPoint",
+        summary: "Get a Form starting point",
+      },
+      {
+        method: "GET",
+        path: "/v1/starting-points/landing-pages",
+        operationId: "listLandingPageStartingPoints",
+        summary: "List Landing Page starting points",
+      },
+      {
+        method: "GET",
+        path: "/v1/starting-points/landing-pages/{starting_point_id}",
+        operationId: "getLandingPageStartingPoint",
+        summary: "Get a Landing Page starting point",
       },
     ],
   },
@@ -857,42 +875,48 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/forms",
         operationId: "listForms",
         summary: "List forms",
-        requiredScopes: ["forms:read"],
       },
       {
         method: "POST",
         path: "/v1/forms",
         operationId: "createForm",
         summary: "Create a form",
-        requiredScopes: ["forms:configure"],
       },
       {
         method: "GET",
         path: "/v1/forms/{form_id}",
         operationId: "getForm",
         summary: "Get a form",
-        requiredScopes: ["forms:read"],
       },
       {
         method: "GET",
         path: "/v1/forms/{form_id}/submissions",
         operationId: "listFormSubmissions",
         summary: "List form submissions",
-        requiredScopes: ["forms:submissions_read"],
+      },
+      {
+        method: "GET",
+        path: "/v1/forms/{form_id}/submissions/{submission_id}",
+        operationId: "getFormSubmission",
+        summary: "Get a form submission",
+      },
+      {
+        method: "POST",
+        path: "/v1/forms/{form_id}/double-opt-in-preview",
+        operationId: "previewFormDoubleOptIn",
+        summary: "Preview a form confirmation email for a Subscriber",
       },
       {
         method: "PUT",
         path: "/v1/forms/{form_id}",
         operationId: "updateForm",
         summary: "Update a form",
-        requiredScopes: ["forms:configure"],
       },
       {
         method: "DELETE",
         path: "/v1/forms/{form_id}",
         operationId: "deleteForm",
         summary: "Delete a form",
-        requiredScopes: ["forms:delete"],
       },
     ],
   },
@@ -907,42 +931,49 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/landing-pages",
         operationId: "listLandingPages",
         summary: "List landing pages",
-        requiredScopes: ["landing_pages:read"],
       },
       {
         method: "POST",
         path: "/v1/landing-pages",
         operationId: "createLandingPage",
         summary: "Create a landing page",
-        requiredScopes: ["landing_pages:configure"],
       },
       {
         method: "GET",
         path: "/v1/landing-pages/{landing_page_id}",
         operationId: "getLandingPage",
         summary: "Get a landing page",
-        requiredScopes: ["landing_pages:read"],
       },
       {
         method: "GET",
         path: "/v1/landing-pages/{landing_page_id}/submissions",
         operationId: "listLandingPageSubmissions",
         summary: "List landing page submissions",
-        requiredScopes: ["landing_pages:submissions_read"],
+      },
+      {
+        method: "GET",
+        path:
+          "/v1/landing-pages/{landing_page_id}/submissions/{submission_id}",
+        operationId: "getLandingPageSubmission",
+        summary: "Get a landing page submission",
+      },
+      {
+        method: "POST",
+        path: "/v1/landing-pages/{landing_page_id}/double-opt-in-preview",
+        operationId: "previewLandingPageDoubleOptIn",
+        summary: "Preview a landing page confirmation email for a Subscriber",
       },
       {
         method: "PUT",
         path: "/v1/landing-pages/{landing_page_id}",
         operationId: "updateLandingPage",
         summary: "Update a landing page",
-        requiredScopes: ["landing_pages:configure"],
       },
       {
         method: "DELETE",
         path: "/v1/landing-pages/{landing_page_id}",
         operationId: "deleteLandingPage",
         summary: "Delete a landing page",
-        requiredScopes: ["landing_pages:delete"],
       },
     ],
   },
@@ -957,42 +988,54 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/sequences",
         operationId: "listSequences",
         summary: "List sequences",
-        requiredScopes: ["sequences:read"],
       },
       {
         method: "POST",
         path: "/v1/sequences",
         operationId: "createSequence",
         summary: "Create a sequence",
-        requiredScopes: ["sequences:draft"],
       },
       {
         method: "GET",
         path: "/v1/sequences/{sequence_id}",
         operationId: "getSequence",
         summary: "Get a sequence",
-        requiredScopes: ["sequences:read"],
+      },
+      {
+        method: "GET",
+        path: "/v1/sequences/{sequence_id}/preflight",
+        operationId: "preflightSequence",
+        summary: "Check sequence readiness",
+      },
+      {
+        method: "GET",
+        path: "/v1/sequences/{sequence_id}/journey-preview",
+        operationId: "previewSequenceJourney",
+        summary: "Preview a sequence journey",
+      },
+      {
+        method: "POST",
+        path: "/v1/sequences/{sequence_id}/test",
+        operationId: "testSequence",
+        summary: "Send sequence test messages",
       },
       {
         method: "PUT",
         path: "/v1/sequences/{sequence_id}",
         operationId: "updateSequence",
         summary: "Update a sequence",
-        requiredScopes: ["sequences:draft"],
       },
       {
         method: "PUT",
         path: "/v1/sequences/{sequence_id}/status",
         operationId: "updateSequenceStatus",
         summary: "Activate or pause a sequence",
-        requiredScopes: ["sequences:activate"],
       },
       {
         method: "DELETE",
         path: "/v1/sequences/{sequence_id}",
         operationId: "deleteSequence",
         summary: "Delete a sequence",
-        requiredScopes: ["sequences:delete"],
       },
     ],
   },
@@ -1007,42 +1050,54 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/automations",
         operationId: "listAutomations",
         summary: "List automations",
-        requiredScopes: ["automations:read"],
       },
       {
         method: "POST",
         path: "/v1/automations",
         operationId: "createAutomation",
         summary: "Create an automation",
-        requiredScopes: ["automations:draft"],
       },
       {
         method: "GET",
         path: "/v1/automations/{automation_id}",
         operationId: "getAutomation",
         summary: "Get an automation",
-        requiredScopes: ["automations:read"],
+      },
+      {
+        method: "GET",
+        path: "/v1/automations/{automation_id}/preflight",
+        operationId: "preflightAutomation",
+        summary: "Check automation readiness",
+      },
+      {
+        method: "GET",
+        path: "/v1/automations/{automation_id}/journey-preview",
+        operationId: "previewAutomationJourney",
+        summary: "Preview an automation journey",
+      },
+      {
+        method: "POST",
+        path: "/v1/automations/{automation_id}/test",
+        operationId: "testAutomation",
+        summary: "Send automation test messages",
       },
       {
         method: "PUT",
         path: "/v1/automations/{automation_id}",
         operationId: "updateAutomation",
         summary: "Update an automation",
-        requiredScopes: ["automations:draft"],
       },
       {
         method: "PUT",
         path: "/v1/automations/{automation_id}/status",
         operationId: "updateAutomationStatus",
-        summary: "Activate or pause an automation",
-        requiredScopes: ["automations:activate"],
+        summary: "Change an automation status",
       },
       {
         method: "DELETE",
         path: "/v1/automations/{automation_id}",
         operationId: "deleteAutomation",
         summary: "Delete an automation",
-        requiredScopes: ["automations:delete"],
       },
     ],
   },
@@ -1057,35 +1112,30 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/magic-links",
         operationId: "listMagicLinks",
         summary: "List magic links",
-        requiredScopes: ["magic_links:read"],
       },
       {
         method: "POST",
         path: "/v1/magic-links",
         operationId: "createMagicLink",
         summary: "Create a magic link",
-        requiredScopes: ["magic_links:configure"],
       },
       {
         method: "GET",
         path: "/v1/magic-links/{magic_link_id}",
         operationId: "getMagicLink",
         summary: "Get a magic link",
-        requiredScopes: ["magic_links:read"],
       },
       {
         method: "PUT",
         path: "/v1/magic-links/{magic_link_id}",
         operationId: "updateMagicLink",
         summary: "Update a magic link",
-        requiredScopes: ["magic_links:configure"],
       },
       {
         method: "DELETE",
         path: "/v1/magic-links/{magic_link_id}",
         operationId: "deleteMagicLink",
         summary: "Delete a magic link",
-        requiredScopes: ["magic_links:delete"],
       },
     ],
   },
@@ -1100,42 +1150,36 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/broadcasts",
         operationId: "listBroadcasts",
         summary: "List broadcasts",
-        requiredScopes: ["broadcasts:read"],
       },
       {
         method: "POST",
         path: "/v1/broadcasts",
         operationId: "createBroadcast",
         summary: "Create a broadcast",
-        requiredScopes: ["broadcasts:draft"],
       },
       {
         method: "GET",
         path: "/v1/broadcasts/{broadcast_id}/progress",
         operationId: "getBroadcastSendProgress",
         summary: "Get broadcast send progress",
-        requiredScopes: ["broadcasts:read"],
       },
       {
         method: "GET",
         path: "/v1/broadcasts/{broadcast_id}/delivery-errors",
         operationId: "listBroadcastDeliveryErrors",
         summary: "List broadcast delivery errors",
-        requiredScopes: ["broadcasts:read"],
       },
       {
         method: "GET",
         path: "/v1/broadcasts/{broadcast_id}",
         operationId: "getBroadcast",
         summary: "Get a broadcast",
-        requiredScopes: ["broadcasts:read"],
       },
       {
         method: "PUT",
         path: "/v1/broadcasts/{broadcast_id}",
         operationId: "updateBroadcast",
         summary: "Update a broadcast",
-        requiredScopes: ["broadcasts:draft"],
       },
       {
         method: "DELETE",
@@ -1144,21 +1188,34 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         summary: "Delete a broadcast",
         description:
           "Deletes a draft, scheduled, or failed broadcast. Broadcasts cannot be deleted after they start sending.",
-        requiredScopes: ["broadcasts:delete"],
       },
       {
         method: "GET",
         path: "/v1/broadcasts/{broadcast_id}/preflight",
         operationId: "preflightBroadcast",
         summary: "Inspect broadcast readiness",
-        requiredScopes: ["broadcasts:preflight"],
+      },
+      {
+        method: "PUT",
+        path: "/v1/broadcasts/{broadcast_id}/schedule",
+        operationId: "scheduleBroadcast",
+        summary: "Schedule or reschedule a broadcast",
+        description:
+          "Schedules a draft for future delivery or changes the scheduled time of an existing scheduled Broadcast.",
+      },
+      {
+        method: "DELETE",
+        path: "/v1/broadcasts/{broadcast_id}/schedule",
+        operationId: "unscheduleBroadcast",
+        summary: "Unschedule a broadcast",
+        description:
+          "Returns a scheduled Broadcast to draft state before delivery starts.",
       },
       {
         method: "POST",
         path: "/v1/broadcasts/{broadcast_id}/send",
         operationId: "sendBroadcast",
         summary: "Send a broadcast now",
-        requiredScopes: ["broadcasts:send"],
       },
       {
         method: "POST",
@@ -1167,14 +1224,12 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         summary: "Cancel a broadcast send",
         description:
           "Requests cancellation for remaining delivery work. Emails already accepted by the provider cannot be recalled.",
-        requiredScopes: ["broadcasts:cancel"],
       },
       {
         method: "POST",
         path: "/v1/broadcasts/{broadcast_id}/test",
         operationId: "testBroadcast",
         summary: "Send a broadcast test email",
-        requiredScopes: ["broadcasts:test"],
       },
     ],
   },
@@ -1189,42 +1244,36 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/segments",
         operationId: "listSegments",
         summary: "List segments",
-        requiredScopes: ["segments:read"],
       },
       {
         method: "POST",
         path: "/v1/segments",
         operationId: "createSegment",
         summary: "Create a segment",
-        requiredScopes: ["segments:configure"],
       },
       {
         method: "GET",
         path: "/v1/segments/{segment_id}",
         operationId: "getSegment",
         summary: "Get a segment",
-        requiredScopes: ["segments:read"],
       },
       {
         method: "PUT",
         path: "/v1/segments/{segment_id}",
         operationId: "updateSegment",
         summary: "Update a segment",
-        requiredScopes: ["segments:configure"],
       },
       {
         method: "DELETE",
         path: "/v1/segments/{segment_id}",
         operationId: "deleteSegment",
         summary: "Delete a segment",
-        requiredScopes: ["segments:delete"],
       },
       {
         method: "POST",
         path: "/v1/segments/preview",
         operationId: "previewSegment",
         summary: "Preview a segment definition",
-        requiredScopes: ["segments:read"],
       },
     ],
   },
@@ -1239,46 +1288,36 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
         path: "/v1/webhook-subscriptions",
         operationId: "listWebhookSubscriptions",
         summary: "List webhook subscriptions",
-        requiredScopes: ["webhooks:read"],
       },
       {
         method: "POST",
         path: "/v1/webhook-subscriptions",
         operationId: "createWebhookSubscription",
         summary: "Create a webhook subscription",
-        requiredScopes: ["webhooks:write"],
-        eventPatternScopeRequirements:
-          publicApiWebhookEventPatternScopeRequirements,
       },
       {
         method: "GET",
         path: "/v1/webhook-subscriptions/{webhook_subscription_id}",
         operationId: "getWebhookSubscription",
         summary: "Get a webhook subscription",
-        requiredScopes: ["webhooks:read"],
       },
       {
         method: "PUT",
         path: "/v1/webhook-subscriptions/{webhook_subscription_id}",
         operationId: "updateWebhookSubscription",
         summary: "Update a webhook subscription",
-        requiredScopes: ["webhooks:write"],
-        eventPatternScopeRequirements:
-          publicApiWebhookEventPatternScopeRequirements,
       },
       {
         method: "DELETE",
         path: "/v1/webhook-subscriptions/{webhook_subscription_id}",
         operationId: "deleteWebhookSubscription",
         summary: "Delete a webhook subscription",
-        requiredScopes: ["webhooks:write"],
       },
       {
         method: "POST",
         path: "/v1/webhook-subscriptions/{webhook_subscription_id}/rotate-secret",
         operationId: "rotateWebhookSubscriptionSecret",
         summary: "Rotate a webhook signing secret",
-        requiredScopes: ["webhooks:write"],
       },
     ],
   },
@@ -1290,35 +1329,68 @@ export const publicApiCapabilityResources: PublicApiCapabilityResource[] = [
     operations: [
       {
         method: "POST",
+        path: "/v1/jobs/subscriber-import-uploads",
+        operationId: "startSubscriberImportUpload",
+        summary: "Start a subscriber import upload",
+      },
+      {
+        method: "GET",
+        path: "/v1/jobs/subscriber-import-uploads/{upload_id}",
+        operationId: "getSubscriberImportUpload",
+        summary: "Get a subscriber import upload",
+      },
+      {
+        method: "GET",
+        path: "/v1/jobs/subscriber-imports",
+        operationId: "listSubscriberImportJobs",
+        summary: "List subscriber import jobs",
+      },
+      {
+        method: "POST",
         path: "/v1/jobs/subscriber-imports",
         operationId: "createSubscriberImportJob",
         summary: "Create a subscriber import job",
-        requiredScopes: ["subscribers:bulk_import"],
       },
       {
         method: "GET",
         path: "/v1/jobs/subscriber-imports/{job_id}",
         operationId: "getSubscriberImportJob",
         summary: "Get a subscriber import job",
-        requiredScopes: ["subscribers:bulk_import"],
+      },
+      {
+        method: "GET",
+        path: "/v1/jobs/subscriber-exports",
+        operationId: "listSubscriberExportJobs",
+        summary: "List subscriber export jobs",
       },
       {
         method: "POST",
         path: "/v1/jobs/subscriber-exports",
         operationId: "createSubscriberExportJob",
         summary: "Create a subscriber export job",
-        requiredScopes: ["subscribers:bulk_export"],
       },
       {
         method: "GET",
         path: "/v1/jobs/subscriber-exports/{job_id}",
         operationId: "getSubscriberExportJob",
         summary: "Get a subscriber export job",
-        requiredScopes: ["subscribers:bulk_export"],
       },
     ],
   },
 ];
+
+export const publicApiCapabilityResources: PublicApiCapabilityResource[] =
+  publicApiCapabilityResourceDefinitions.map((resource) => ({
+    ...resource,
+    operations: resource.operations.map((operation) => ({
+      ...operation,
+      requiredScopes: resolvePublicApiOperationRequiredScopes({
+        resourceKey: resource.key,
+        operationId: operation.operationId,
+        method: operation.method,
+      }),
+    })),
+  }));
 
 const schemas = {
   Error: {
@@ -1342,180 +1414,110 @@ const schemas = {
           },
           code: { type: "string" },
           message: { type: "string" },
-        },
-      },
-    },
-  },
-  AgentActivity: {
-    type: "object",
-    additionalProperties: false,
-    required: [
-      "id",
-      "workspace_id",
-      "request_id",
-      "activity_id",
-      "operation_id",
-      "risk",
-      "outcome",
-      "state",
-      "error_code",
-      "credential",
-      "client",
-      "permission_keys",
-      "targets",
-      "primary_target",
-      "changed_fields",
-      "result",
-      "attempts",
-      "duration_ms",
-      "retention",
-      "created_at",
-      "updated_at",
-      "completed_at",
-    ],
-    properties: {
-      id: { type: "string" },
-      workspace_id: { type: "string" },
-      request_id: { type: "string" },
-      activity_id: { type: "string" },
-      operation_id: { type: "string" },
-      risk: {
-        type: "string",
-        enum: ["draft", "test", "execute", "bulk", "delete", "admin"],
-      },
-      outcome: {
-        type: "string",
-        enum: ["allowed", "denied", "failed", "canceled", "completed"],
-      },
-      state: {
-        type: "string",
-        enum: ["executing", "completed", "failed", "uncertain"],
-      },
-      error_code: { type: ["string", "null"] },
-      credential: {
-        type: "object",
-        additionalProperties: false,
-        required: ["type", "id", "oauth_client_id"],
-        properties: {
-          type: { type: "string" },
-          id: { type: "string" },
-          oauth_client_id: { type: ["string", "null"] },
-        },
-      },
-      client: {
-        type: "object",
-        additionalProperties: false,
-        required: ["kind", "version"],
-        properties: {
-          kind: { type: "string" },
-          version: { type: ["string", "null"] },
-        },
-      },
-      permission_keys: {
-        type: "array",
-        maxItems: 24,
-        items: { type: "string" },
-      },
-      targets: {
-        type: "array",
-        maxItems: 20,
-        items: {
-          type: "object",
-          additionalProperties: false,
-          required: ["type", "id"],
-          properties: { type: { type: "string" }, id: { type: "string" } },
-        },
-      },
-      primary_target: {
-        anyOf: [
-          {
+          details: {
             type: "object",
             additionalProperties: false,
-            required: ["type", "id"],
-            properties: { type: { type: "string" }, id: { type: "string" } },
-          },
-          { type: "null" },
-        ],
-      },
-      changed_fields: {
-        type: "array",
-        maxItems: 24,
-        items: { type: "string" },
-      },
-      result: {
-        type: "object",
-        additionalProperties: false,
-        required: ["resource_type", "resource_id", "outcome_code"],
-        properties: {
-          resource_type: { type: ["string", "null"] },
-          resource_id: { type: ["string", "null"] },
-          outcome_code: { type: ["string", "null"] },
-        },
-      },
-      attempts: {
-        type: "object",
-        additionalProperties: false,
-        required: ["count", "first_at", "last_at"],
-        properties: {
-          count: { type: "integer", minimum: 1 },
-          first_at: { type: "string", format: "date-time" },
-          last_at: { type: "string", format: "date-time" },
-        },
-      },
-      duration_ms: {
-        anyOf: [{ type: "integer", minimum: 0 }, { type: "null" }],
-      },
-      retention: {
-        type: "object",
-        additionalProperties: false,
-        required: ["expires_at", "legal_hold", "legal_hold_expires_at"],
-        properties: {
-          expires_at: {
-            anyOf: [{ type: "string", format: "date-time" }, { type: "null" }],
-          },
-          legal_hold: { type: "boolean" },
-          legal_hold_expires_at: {
-            anyOf: [{ type: "string", format: "date-time" }, { type: "null" }],
-          },
-        },
-      },
-      created_at: { type: "string", format: "date-time" },
-      updated_at: { type: "string", format: "date-time" },
-      completed_at: {
-        anyOf: [{ type: "string", format: "date-time" }, { type: "null" }],
-      },
-    },
-  },
-  AgentActivityResponse: {
-    type: "object",
-    additionalProperties: false,
-    required: ["data"],
-    properties: { data: { $ref: "#/components/schemas/AgentActivity" } },
-  },
-  AgentActivityListResponse: {
-    type: "object",
-    additionalProperties: false,
-    required: ["data"],
-    properties: {
-      data: {
-        type: "object",
-        additionalProperties: false,
-        required: ["items", "next_cursor", "has_more", "range"],
-        properties: {
-          items: {
-            type: "array",
-            maxItems: 100,
-            items: { $ref: "#/components/schemas/AgentActivity" },
-          },
-          next_cursor: { type: ["string", "null"] },
-          has_more: { type: "boolean" },
-          range: {
-            type: "object",
-            additionalProperties: false,
-            required: ["from", "to"],
             properties: {
-              from: { type: "string", format: "date-time" },
-              to: { type: "string", format: "date-time" },
+              field: { type: "string" },
+              reason: { type: "string" },
+              resource: {
+                type: "object",
+                additionalProperties: false,
+                required: ["type", "id"],
+                properties: {
+                  type: { type: "string" },
+                  id: { type: "string" },
+                },
+              },
+            },
+          },
+          required_scopes: {
+            type: "array",
+            items: { type: "string" },
+            description:
+              "Permissions that are required to retry this request successfully.",
+          },
+          missing_scopes: {
+            type: "array",
+            items: { type: "string" },
+            description:
+              "Permissions the current credential is missing for this request.",
+          },
+          replacement_scopes: {
+            type: "array",
+            items: { type: "string" },
+            description:
+              "Complete permission set to use when replacing or reconnecting the credential without losing existing access.",
+          },
+          credential_type: {
+            type: "string",
+            enum: ["workspace_api_key", "oauth_access_token"],
+            description:
+              "The credential type that needs its access updated.",
+          },
+          recommended_work_profiles: {
+            type: "array",
+            items: { type: "string" },
+            description:
+              "Work Profiles that include every permission required by this request.",
+          },
+          access_update_url: {
+            type: "string",
+            format: "uri",
+            description:
+              "The Mailrith page where a user can update this credential's access.",
+          },
+          reconnect_required: {
+            type: "boolean",
+            description:
+              "Whether an OAuth app must reconnect to request the missing permissions.",
+          },
+          permissions_help_url: {
+            type: "string",
+            format: "uri",
+            description:
+              "Instructions for granting the required permissions.",
+          },
+          recovery: {
+            type: "object",
+            additionalProperties: false,
+            required: ["action", "message"],
+            properties: {
+              action: {
+                type: "string",
+                enum: ["replace_api_key", "reconnect_oauth"],
+              },
+              message: { type: "string" },
+              replacement_scopes: {
+                type: "array",
+                items: { type: "string" },
+              },
+              access_update_url: { type: "string", format: "uri" },
+              permissions_help_url: { type: "string", format: "uri" },
+            },
+            description:
+              "Credential-specific next step that can be shown directly to the user.",
+          },
+          prerequisite: {
+            type: "object",
+            description:
+              "A workspace prerequisite that must be completed before retrying.",
+            properties: {
+              resource: { type: "string" },
+              state: { type: "string", enum: ["missing", "disabled"] },
+              required_scopes: {
+                type: "array",
+                items: { type: "string" },
+              },
+              work_profile: { type: "string" },
+              setup_url: { type: "string", format: "uri" },
+            },
+          },
+          retry: {
+            type: "object",
+            properties: {
+              safe: { type: "boolean" },
+              guidance: { type: "string" },
             },
           },
         },
@@ -1579,9 +1581,6 @@ const schemas = {
         type: "array",
         items: { type: "string" },
       },
-      event_pattern_scope_requirements: {
-        $ref: "#/components/schemas/WebhookEventPatternScopeRequirements",
-      },
     },
   },
   CapabilityResource: {
@@ -1608,6 +1607,8 @@ const schemas = {
       "sdks",
       "mcp",
       "conventions",
+      "capability_mode",
+      "limitations",
       "events",
       "resources",
     ],
@@ -1786,6 +1787,32 @@ const schemas = {
           idempotency_header: { type: "string" },
         },
       },
+      capability_mode: {
+        type: "string",
+        enum: ["effective"],
+        description:
+          "Resources contain only operations currently available to this credential, plan, workspace state, and rollout state.",
+      },
+      limitations: {
+        type: "array",
+        description:
+          "Current plan or workspace prerequisites that caused otherwise supported operations to be omitted.",
+        items: {
+          type: "object",
+          required: ["code", "message", "affected_operation_ids"],
+          properties: {
+            code: { type: "string" },
+            message: { type: "string" },
+            affected_operation_ids: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "Exact operation IDs omitted because of this limitation.",
+            },
+            setup_url: { type: "string", format: "uri" },
+          },
+        },
+      },
       events: {
         $ref: "#/components/schemas/WebhookEventSupport",
       },
@@ -1840,6 +1867,18 @@ const schemas = {
           enum: ["streamable_http", "stdio"],
         },
       },
+      active_toolsets: {
+        type: "array",
+        nullable: true,
+        description:
+          "Toolsets selected for this MCP request. Omitted for direct REST requests.",
+        items: { type: "string" },
+      },
+      read_only: {
+        type: "boolean",
+        description:
+          "True when this MCP request is restricted to read-only operations.",
+      },
     },
   },
   WebhookSigning: {
@@ -1865,7 +1904,6 @@ const schemas = {
       "subscriptions_url",
       "supported_events",
       "supported_event_patterns",
-      "required_scopes_by_event_pattern",
       "signing",
     ],
     properties: {
@@ -1878,34 +1916,8 @@ const schemas = {
         type: "array",
         items: { type: "string" },
       },
-      required_scopes_by_event_pattern: {
-        type: "object",
-        additionalProperties: {
-          type: "array",
-          items: { type: "string" },
-        },
-      },
       signing: {
         $ref: "#/components/schemas/WebhookSigning",
-      },
-    },
-  },
-  WebhookEventPatternScopeRequirements: {
-    type: "object",
-    required: [
-      "request_field",
-      "description",
-      "required_scopes_by_event_pattern",
-    ],
-    properties: {
-      request_field: { type: "string", enum: ["event_patterns"] },
-      description: { type: "string" },
-      required_scopes_by_event_pattern: {
-        type: "object",
-        additionalProperties: {
-          type: "array",
-          items: { type: "string" },
-        },
       },
     },
   },
@@ -1939,7 +1951,7 @@ const schemas = {
       event_patterns: {
         type: "array",
         description:
-          "Events or wildcard patterns to deliver. The caller also needs read access for each selected event family; events that include subscriber details require `subscribers:read`.",
+          "Events or wildcard patterns to deliver through this outbound webhook destination.",
         items: { type: "string" },
       },
       signing_secret_preview: { type: "string" },
@@ -1969,7 +1981,7 @@ const schemas = {
       event_patterns: {
         type: "array",
         description:
-          "Events or wildcard patterns to deliver. Updating this field, or changing a subscription that already has event patterns, requires read access for the selected event families.",
+          "Events or wildcard patterns to deliver through this outbound webhook destination.",
         items: { type: "string" },
       },
       status: {
@@ -2050,6 +2062,199 @@ const schemas = {
       time_zone: { type: "string", nullable: true },
       created_at: dateTimeSchema,
       updated_at: dateTimeSchema,
+    },
+  },
+  SenderIdentity: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "id",
+      "name",
+      "provider",
+      "from_name",
+      "from_email",
+      "ready_for_selection",
+      "created_at",
+      "updated_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      name: { type: "string" },
+      provider: {
+        type: "string",
+        description:
+          "The configured email delivery provider. No provider credentials or configuration are returned.",
+      },
+      from_name: { type: "string" },
+      from_email: { type: "string", format: "email" },
+      ready_for_selection: {
+        type: "boolean",
+        enum: [true],
+        description:
+          "True because this read returns only enabled sender identities linked to the current workspace.",
+      },
+      created_at: dateTimeSchema,
+      updated_at: dateTimeSchema,
+    },
+  },
+  EmailDeliveryProviderPublicConfig: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      region: { type: "string" },
+      access_key_id: { type: "string" },
+      has_secret_access_key: { type: "boolean" },
+      has_server_token: { type: "boolean" },
+      has_account_token: { type: "boolean" },
+      message_stream: { type: "string", nullable: true },
+      has_api_key: { type: "boolean" },
+      domain: { type: "string" },
+      host: { type: "string" },
+      port: { type: "integer" },
+      secure_mode: {
+        type: "string",
+        enum: ["starttls", "tls", "none"],
+      },
+      username: { type: "string" },
+      has_password: { type: "boolean" },
+    },
+    description:
+      "Secret-free provider settings. Boolean fields only indicate whether a saved credential exists.",
+  },
+  EmailDeliveryConnection: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "id",
+      "name",
+      "provider",
+      "from_email",
+      "from_name",
+      "enabled",
+      "provider_config",
+      "created_at",
+      "updated_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      name: { type: "string" },
+      provider: {
+        type: "string",
+        enum: [
+          "amazon-ses",
+          "postmark",
+          "sendgrid",
+          "mailgun",
+          "resend",
+          "brevo",
+          "custom-smtp",
+        ],
+      },
+      from_email: { type: "string", format: "email" },
+      from_name: { type: "string" },
+      enabled: { type: "boolean" },
+      provider_config: {
+        anyOf: [
+          { $ref: "#/components/schemas/EmailDeliveryProviderPublicConfig" },
+          { type: "null" },
+        ],
+      },
+      created_at: dateTimeSchema,
+      updated_at: dateTimeSchema,
+    },
+  },
+  EmailDeliveryConnectionSetupRequest: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      purpose: {
+        type: "string",
+        enum: ["create", "replace_credentials"],
+        default: "create",
+      },
+      connection_id: {
+        type: "string",
+        description:
+          "Required only when purpose is replace_credentials.",
+      },
+      name: { type: "string" },
+      provider: {
+        type: "string",
+        enum: [
+          "amazon-ses",
+          "postmark",
+          "sendgrid",
+          "mailgun",
+          "resend",
+          "brevo",
+          "custom-smtp",
+        ],
+      },
+      from_email: { type: "string", format: "email" },
+      from_name: { type: "string" },
+    },
+    description:
+      "Non-secret defaults for a short-lived setup session. For create, include name, provider, from_email, and from_name. For replace_credentials, include connection_id. Provider credentials must never be sent to this API.",
+  },
+  EmailDeliveryConnectionSetupSession: {
+    type: "object",
+    additionalProperties: false,
+    required: ["id", "purpose", "status", "expires_at"],
+    properties: {
+      id: { type: "string" },
+      purpose: {
+        type: "string",
+        enum: ["create", "replace_credentials"],
+      },
+      status: {
+        type: "string",
+        enum: ["pending", "completed", "failed", "expired"],
+      },
+      setup_url: {
+        type: "string",
+        format: "uri",
+        description:
+          "Returned only when the session is created. Open this short-lived link in a browser to enter provider credentials directly in Mailrith.",
+      },
+      connection_id: { type: "string", nullable: true },
+      expires_at: dateTimeSchema,
+      completed_at: nullableDateTimeSchema,
+      failed_at: nullableDateTimeSchema,
+      failure_code: {
+        type: "string",
+        nullable: true,
+        enum: ["setup_action_failed", null],
+        description:
+          "Generic failure code. Provider error details and credentials are never stored in the session.",
+      },
+    },
+  },
+  EmailDeliveryConnectionUpdateRequest: {
+    type: "object",
+    additionalProperties: false,
+    minProperties: 1,
+    properties: {
+      name: { type: "string" },
+      from_email: { type: "string", format: "email" },
+      from_name: { type: "string" },
+    },
+    description:
+      "Updates non-secret connection details. Use a secure setup session to replace provider credentials.",
+  },
+  EmailDeliveryConnectionStatusRequest: {
+    type: "object",
+    additionalProperties: false,
+    required: ["enabled"],
+    properties: {
+      enabled: { type: "boolean" },
+    },
+  },
+  EmailDeliveryConnectionTestRequest: {
+    type: "object",
+    additionalProperties: false,
+    required: ["to"],
+    properties: {
+      to: { type: "string", format: "email" },
     },
   },
   TagSummary: {
@@ -2245,6 +2450,7 @@ const schemas = {
   TagCreateRequest: {
     type: "object",
     required: ["name"],
+    additionalProperties: false,
     properties: {
       name: {
         type: "string",
@@ -2252,6 +2458,251 @@ const schemas = {
           "Tag name to create. You can also create the GDPR consent tag names when you need to apply consent collected outside Mailrith.",
       },
       description: { type: "string", nullable: true },
+    },
+  },
+  TagUpdateRequest: {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
+    properties: {
+      name: { type: "string" },
+      description: { type: "string", nullable: true },
+    },
+  },
+  AudienceCondition: {
+    type: "object",
+    additionalProperties: false,
+    required: ["id", "field", "operator"],
+    properties: {
+      id: { type: "string" },
+      field: {
+        type: "string",
+        enum: [
+          "subscriber_status",
+          "country",
+          "segment",
+          "tag",
+          "sequence",
+          "form",
+          "custom_field",
+          "email_opened",
+          "email_unsubscribed",
+          "magic_link_clicked",
+        ],
+      },
+      operator: {
+        type: "string",
+        enum: [
+          "is",
+          "is_not",
+          "has_any_of",
+          "has_none_of",
+          "is_active_in_any_of",
+          "is_not_active_in_any_of",
+          "has_completed_any_of",
+          "has_not_completed_any_of",
+          "has_ever_been_in_any_of",
+          "has_never_been_in_any_of",
+          "contains",
+          "does_not_contain",
+          "is_empty",
+          "is_not_empty",
+          "before",
+          "after",
+          "on",
+          "in_last_days",
+          "greater_than",
+          "less_than",
+          "in_region",
+          "not_in_region",
+        ],
+      },
+      value: {
+        oneOf: [
+          { type: "string" },
+          { type: "number" },
+          { type: "boolean" },
+          { type: "array", items: { type: "string" } },
+          { type: "null" },
+        ],
+      },
+      customFieldId: { type: ["string", "null"] },
+    },
+  },
+  AudienceConditionGroup: {
+    type: "object",
+    additionalProperties: false,
+    required: ["id", "match", "conditions"],
+    properties: {
+      id: { type: "string" },
+      match: { type: "string", enum: ["all", "any"] },
+      conditions: {
+        type: "array",
+        minItems: 1,
+        items: { $ref: "#/components/schemas/AudienceCondition" },
+      },
+    },
+  },
+  AudienceDefinition: {
+    type: "object",
+    additionalProperties: false,
+    required: ["match", "groups"],
+    properties: {
+      match: { type: "string", enum: ["all", "any"] },
+      groups: {
+        type: "array",
+        items: { $ref: "#/components/schemas/AudienceConditionGroup" },
+      },
+    },
+    example: {
+      match: "all",
+      groups: [
+        {
+          id: "active-subscribers",
+          match: "all",
+          conditions: [
+            {
+              id: "active-status",
+              field: "subscriber_status",
+              operator: "is",
+              value: ["Active"],
+            },
+          ],
+        },
+      ],
+    },
+  },
+  BroadcastEmailMark: {
+    type: "object",
+    additionalProperties: false,
+    required: ["type"],
+    properties: {
+      type: {
+        type: "string",
+        enum: [
+          "bold",
+          "italic",
+          "strike",
+          "underline",
+          "link",
+          "textStyle",
+          "highlight",
+        ],
+      },
+      attrs: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          href: { type: "string" },
+          color: { type: "string" },
+          fontSize: { type: "string" },
+        },
+      },
+    },
+  },
+  BroadcastEmailNode: {
+    type: "object",
+    additionalProperties: false,
+    required: ["type"],
+    properties: {
+      type: {
+        type: "string",
+        enum: [
+          "doc",
+          "paragraph",
+          "heading",
+          "text",
+          "hardBreak",
+          "bulletList",
+          "orderedList",
+          "listItem",
+          "blockquote",
+          "emailSection",
+          "emailSectionColumn",
+          "emailButton",
+          "image",
+          "horizontalRule",
+        ],
+      },
+      attrs: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          id: { type: "string" },
+          level: { type: "integer", enum: [1, 2, 3] },
+          textAlign: {
+            type: "string",
+            enum: ["left", "center", "right", "justify"],
+          },
+          columns: { type: "integer", enum: [1, 2, 3] },
+          width: { type: "string", enum: ["default", "large", "full", "fit"] },
+          backgroundColor: { type: "string" },
+          backgroundImageUrl: { type: "string" },
+          margin: { type: "string", enum: ["none", "normal", "large"] },
+          padding: { type: "string", enum: ["none", "normal", "large"] },
+          borderColor: { type: "string" },
+          borderWidth: { type: "string", enum: ["none", "normal", "large"] },
+          borderRadius: {
+            type: "string",
+            enum: ["none", "normal", "small", "large", "full"],
+          },
+          verticalAlign: {
+            type: "string",
+            enum: ["top", "middle", "bottom"],
+          },
+          href: { type: "string" },
+          textColor: { type: "string" },
+          size: { type: "string", enum: ["small", "medium", "large"] },
+          align: { type: "string", enum: ["left", "center", "right"] },
+          label: { type: "string" },
+          src: { type: "string" },
+          alt: { type: "string" },
+          title: { type: "string" },
+          caption: { type: "string" },
+          source: { type: "string", enum: ["unsplash"] },
+          unsplash: {
+            type: "object",
+            additionalProperties: false,
+            required: ["photographerName"],
+            properties: {
+              photoId: { type: "string" },
+              photographerName: { type: "string" },
+              photographerUsername: { type: "string" },
+              photographerUrl: { type: "string" },
+              unsplashUrl: { type: "string" },
+            },
+          },
+          widthPercent: { type: "number", minimum: 1, maximum: 100 },
+          crop: {
+            type: "string",
+            enum: ["none", "square", "circle"],
+          },
+          fillColumn: { type: "boolean" },
+        },
+      },
+      content: {
+        type: "array",
+        items: { $ref: "#/components/schemas/BroadcastEmailNode" },
+      },
+      text: { type: "string" },
+      marks: {
+        type: "array",
+        items: { $ref: "#/components/schemas/BroadcastEmailMark" },
+      },
+    },
+  },
+  BroadcastEmailDocument: {
+    allOf: [{ $ref: "#/components/schemas/BroadcastEmailNode" }],
+    description:
+      "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+    example: {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Hello from Mailrith." }],
+        },
+      ],
     },
   },
   CustomField: {
@@ -2275,6 +2726,7 @@ const schemas = {
   CustomFieldUpsertRequest: {
     type: "object",
     required: ["label", "type"],
+    additionalProperties: false,
     properties: {
       label: { type: "string" },
       type: {
@@ -2295,7 +2747,609 @@ const schemas = {
         properties: {
           options: stringArraySchema,
         },
-        additionalProperties: true,
+        additionalProperties: false,
+      },
+    },
+  },
+  CustomFieldUpdateRequest: {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
+    properties: {
+      label: { type: "string" },
+      type: {
+        type: "string",
+        enum: [
+          "Text",
+          "Number",
+          "Date",
+          "Select (Dropdown)",
+          "Single Select",
+          "Multi Select",
+          "Text Area",
+          "Checkbox",
+        ],
+      },
+      settings: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          options: stringArraySchema,
+        },
+      },
+    },
+  },
+  FormField: {
+    oneOf: [
+      {
+        type: "object",
+        additionalProperties: false,
+        required: ["id", "type", "label", "placeholder", "required"],
+        properties: {
+          id: { type: "string" },
+          type: { type: "string", enum: ["email"] },
+          label: { type: "string" },
+          placeholder: { type: "string" },
+          required: { type: "boolean", enum: [true] },
+        },
+      },
+      {
+        type: "object",
+        additionalProperties: false,
+        required: ["id", "type", "textVariant", "content"],
+        properties: {
+          id: { type: "string" },
+          type: { type: "string", enum: ["text"] },
+          textVariant: {
+            type: "string",
+            enum: ["heading", "subheading", "paragraph"],
+          },
+          content: { type: "string" },
+        },
+      },
+      {
+        type: "object",
+        additionalProperties: false,
+        required: [
+          "id",
+          "type",
+          "customFieldId",
+          "label",
+          "customFieldType",
+          "required",
+          "placeholder",
+        ],
+        properties: {
+          id: { type: "string" },
+          type: { type: "string", enum: ["custom-field"] },
+          customFieldId: { type: "string" },
+          label: { type: "string" },
+          customFieldType: {
+            type: "string",
+            enum: [
+              "Text",
+              "Number",
+              "Date",
+              "Select (Dropdown)",
+              "Single Select",
+              "Multi Select",
+              "Text Area",
+              "Checkbox",
+            ],
+          },
+          required: { type: "boolean" },
+          placeholder: { type: ["string", "null"] },
+        },
+      },
+    ],
+  },
+  FormDisplaySettings: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      format: {
+        type: "string",
+        enum: ["inline", "modal", "slide_in", "sticky_bar", "full_page"],
+      },
+      triggerType: {
+        type: ["string", "null"],
+        enum: [
+          "exit_intent",
+          "scroll_percentage",
+          "timing_seconds",
+          "click_trigger",
+          null,
+        ],
+      },
+      scrollPercentage: { type: ["integer", "null"], minimum: 0, maximum: 100 },
+      timingSeconds: { type: ["integer", "null"], minimum: 0 },
+      triggerClassName: { type: "string" },
+      triggerId: { type: "string" },
+      stickyBarPosition: {
+        type: ["string", "null"],
+        enum: ["top", "bottom", null],
+      },
+      slideInPosition: {
+        type: ["string", "null"],
+        enum: ["left", "right", null],
+      },
+    },
+  },
+  FormStyles: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      formBackgroundColor: { type: "string" },
+      textColor: { type: "string" },
+      accentColor: { type: "string" },
+      fieldBackgroundColor: { type: "string" },
+      fieldBorderColor: { type: "string" },
+      fieldTextColor: { type: "string" },
+      errorTextColor: { type: "string" },
+      formBorderColor: { type: "string" },
+      buttonTextColor: { type: "string" },
+      rowGap: { type: "number" },
+      columnGap: { type: "number" },
+      formBorderWidthMode: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      formBorderWidthCustom: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxEdges" },
+          { type: "null" },
+        ],
+      },
+      fieldBorderWidthMode: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      fieldBorderWidthCustom: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxEdges" },
+          { type: "null" },
+        ],
+      },
+      formBorderRadiusMode: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      formBorderRadiusCustom: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxCorners" },
+          { type: "null" },
+        ],
+      },
+      fieldBorderRadiusMode: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      fieldBorderRadiusCustom: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxCorners" },
+          { type: "null" },
+        ],
+      },
+      buttonBorderRadiusMode: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      buttonBorderRadiusCustom: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxCorners" },
+          { type: "null" },
+        ],
+      },
+      submitButtonLabel: { type: "string" },
+      submitBehavior: { type: "string", enum: ["message", "redirect"] },
+      redirectUrl: { type: "string" },
+      forwardSubscriberData: { type: "boolean" },
+      forwardedSubscriberFields: {
+        type: "array",
+        items: { type: "string", enum: ["email", "name"] },
+      },
+      tagIds: stringArraySchema,
+      doubleOptIn: { $ref: "#/components/schemas/DoubleOptInSettings" },
+    },
+  },
+  DoubleOptInSettings: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      enabled: { type: "boolean" },
+      confirmationEmailSubject: { type: ["string", "null"] },
+      confirmationEmailBodyDocument: {
+        anyOf: [
+          { $ref: "#/components/schemas/BroadcastEmailDocument" },
+          { type: "null" },
+        ],
+      },
+      confirmationSuccessBehavior: {
+        type: "string",
+        enum: ["message", "redirect"],
+      },
+      confirmationSuccessMessage: { type: "string" },
+      confirmationSuccessUrl: { type: ["string", "null"] },
+    },
+  },
+  LandingPageBoxEdges: {
+    type: "object",
+    additionalProperties: false,
+    required: ["top", "right", "bottom", "left"],
+    properties: {
+      top: { type: "number" },
+      right: { type: "number" },
+      bottom: { type: "number" },
+      left: { type: "number" },
+    },
+  },
+  LandingPageBoxCorners: {
+    type: "object",
+    additionalProperties: false,
+    required: ["topLeft", "topRight", "bottomRight", "bottomLeft"],
+    properties: {
+      topLeft: { type: "number" },
+      topRight: { type: "number" },
+      bottomRight: { type: "number" },
+      bottomLeft: { type: "number" },
+    },
+  },
+  LandingPageVisibility: {
+    type: "object",
+    additionalProperties: false,
+    required: ["desktop", "tablet", "mobile"],
+    properties: {
+      desktop: { type: "boolean" },
+      tablet: { type: "boolean" },
+      mobile: { type: "boolean" },
+    },
+  },
+  LandingPageLogo: {
+    type: "object",
+    additionalProperties: false,
+    required: ["id", "name", "imageUrl", "altText"],
+    properties: {
+      id: { type: "string" },
+      name: { type: "string" },
+      imageUrl: { type: "string" },
+      altText: { type: "string" },
+      href: { type: "string" },
+    },
+  },
+  LandingPageFaqItem: {
+    type: "object",
+    additionalProperties: false,
+    required: ["id", "question", "answer"],
+    properties: {
+      id: { type: "string" },
+      question: { type: "string" },
+      answer: { type: "string" },
+    },
+  },
+  LandingPageColumn: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "id",
+      "blocks",
+      "backgroundColor",
+      "textColor",
+      "backgroundImageUrl",
+      "margin",
+      "padding",
+      "verticalAlign",
+      "borderColor",
+      "borderWidth",
+      "borderRadius",
+    ],
+    properties: {
+      id: { type: "string" },
+      blocks: {
+        type: "array",
+        items: { $ref: "#/components/schemas/LandingPageBlock" },
+      },
+      backgroundColor: { type: ["string", "null"] },
+      textColor: { type: ["string", "null"] },
+      backgroundImageUrl: { type: ["string", "null"] },
+      backgroundImageOverlayOpacity: { type: "number", minimum: 0, maximum: 1 },
+      margin: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      padding: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      customMargin: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxEdges" },
+          { type: "null" },
+        ],
+      },
+      customPadding: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxEdges" },
+          { type: "null" },
+        ],
+      },
+      verticalAlign: {
+        type: "string",
+        enum: ["top", "middle", "bottom"],
+      },
+      borderColor: { type: "string" },
+      borderWidth: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      borderRadius: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      customBorderWidth: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxEdges" },
+          { type: "null" },
+        ],
+      },
+      customBorderRadius: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxCorners" },
+          { type: "null" },
+        ],
+      },
+      visibility: { $ref: "#/components/schemas/LandingPageVisibility" },
+    },
+  },
+  LandingPageBlock: {
+    type: "object",
+    additionalProperties: false,
+    required: ["id", "type"],
+    properties: {
+      id: { type: "string" },
+      type: {
+        type: "string",
+        enum: [
+          "section",
+          "heading",
+          "paragraph",
+          "blockquote",
+          "image",
+          "video",
+          "countdown",
+          "testimonial",
+          "logo-strip",
+          "faq",
+          "divider",
+          "icon",
+          "button",
+          "form",
+        ],
+      },
+      content: { type: "string" },
+      level: { type: "integer", enum: [1, 2, 3] },
+      textAlign: {
+        type: ["string", "null"],
+        enum: ["left", "center", "right", "justify", null],
+      },
+      highlightColor: { type: ["string", "null"] },
+      citation: { type: "string" },
+      borderColor: { type: ["string", "null"] },
+      backgroundColor: { type: ["string", "null"] },
+      textColor: { type: ["string", "null"] },
+      src: { type: "string" },
+      altText: { type: "string" },
+      caption: { type: "string" },
+      href: { type: "string" },
+      borderRadius: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      customBorderRadius: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxCorners" },
+          { type: "null" },
+        ],
+      },
+      title: { type: "string" },
+      aspectRatio: { type: "string", enum: ["16:9", "4:3", "1:1", "9:16"] },
+      targetDate: { type: "string", format: "date-time" },
+      label: { type: "string" },
+      expiredMessage: { type: "string" },
+      design: {
+        type: "string",
+        enum: [
+          "cards",
+          "minimal",
+          "inline",
+          "card",
+          "quote",
+          "row",
+          "grid",
+          "bordered",
+        ],
+      },
+      accentColor: { type: ["string", "null"] },
+      align: { type: "string", enum: ["left", "center", "right"] },
+      quote: { type: "string" },
+      name: { type: "string" },
+      avatarUrl: { type: "string" },
+      avatarAlt: { type: "string" },
+      rating: { type: "number", minimum: 0, maximum: 5 },
+      heading: { type: "string" },
+      logos: {
+        type: "array",
+        items: { $ref: "#/components/schemas/LandingPageLogo" },
+      },
+      logoHeight: { type: "number" },
+      items: {
+        type: "array",
+        items: { $ref: "#/components/schemas/LandingPageFaqItem" },
+      },
+      defaultOpenFirst: { type: "boolean" },
+      iconPosition: { type: "string", enum: ["start", "end"] },
+      color: { type: ["string", "null"] },
+      thickness: { type: "number" },
+      style: { type: "string", enum: ["solid", "dashed", "dotted"] },
+      iconName: { type: "string" },
+      size: {
+        oneOf: [
+          { type: "number" },
+          { type: "string", enum: ["small", "medium", "large"] },
+        ],
+      },
+      cssClass: { type: "string" },
+      cssId: { type: "string" },
+      buttonTextColor: { type: "string" },
+      borderWidth: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      customBorderWidth: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxEdges" },
+          { type: "null" },
+        ],
+      },
+      width: { type: "string", enum: ["default", "large", "full", "fit"] },
+      openInNewTab: { type: "boolean" },
+      fields: {
+        type: "array",
+        items: { $ref: "#/components/schemas/FormField" },
+      },
+      disclaimerText: { type: "string" },
+      fieldLayout: {
+        type: "string",
+        enum: ["one-column", "two-column"],
+      },
+      submitLayout: {
+        type: "string",
+        enum: ["stacked", "inline-email"],
+      },
+      styles: { $ref: "#/components/schemas/FormStyles" },
+      columns: {
+        type: "array",
+        minItems: 1,
+        maxItems: 3,
+        items: { $ref: "#/components/schemas/LandingPageColumn" },
+      },
+      backgroundImageUrl: { type: ["string", "null"] },
+      backgroundImageOverlayOpacity: { type: "number", minimum: 0, maximum: 1 },
+      coverViewport: { type: "boolean" },
+      margin: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      padding: {
+        type: "string",
+        enum: ["none", "normal", "large", "custom"],
+      },
+      customMargin: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxEdges" },
+          { type: "null" },
+        ],
+      },
+      customPadding: {
+        anyOf: [
+          { $ref: "#/components/schemas/LandingPageBoxEdges" },
+          { type: "null" },
+        ],
+      },
+      visibility: { $ref: "#/components/schemas/LandingPageVisibility" },
+    },
+  },
+  LandingPageDefinition: {
+    type: "object",
+    additionalProperties: false,
+    required: ["blocks"],
+    properties: {
+      blocks: {
+        type: "array",
+        items: { $ref: "#/components/schemas/LandingPageBlock" },
+      },
+      successBlocks: {
+        type: "array",
+        items: { $ref: "#/components/schemas/LandingPageBlock" },
+      },
+      customCss: { type: "string" },
+    },
+    example: {
+      blocks: [
+        {
+          id: "intro",
+          type: "heading",
+          content: "Join the newsletter",
+          level: 1,
+        },
+      ],
+      successBlocks: [
+        {
+          id: "success",
+          type: "paragraph",
+          content: "Thanks for subscribing.",
+        },
+      ],
+    },
+  },
+  LandingPageStyles: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      headingFontFamily: { type: "string" },
+      fontFamily: { type: "string" },
+      fontSize: { type: "number" },
+      backgroundColor: { type: "string" },
+      textColor: { type: "string" },
+      accentColor: { type: "string" },
+    },
+  },
+  LandingPageSettings: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      seo: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          title: { type: "string" },
+          description: { type: "string" },
+        },
+      },
+      social: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          imageAssetId: { type: ["string", "null"] },
+          imageUrl: { type: "string" },
+          altText: { type: "string" },
+        },
+      },
+      analytics: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          trackingCode: { type: "string" },
+        },
+      },
+      form: { $ref: "#/components/schemas/FormStyles" },
+      display: { $ref: "#/components/schemas/FormDisplaySettings" },
+    },
+  },
+  FormDefinition: {
+    type: "object",
+    additionalProperties: false,
+    required: ["builder"],
+    properties: {
+      display: { $ref: "#/components/schemas/FormDisplaySettings" },
+      builder: {
+        type: "object",
+        additionalProperties: false,
+        required: ["definition", "styles", "settings"],
+        properties: {
+          definition: { $ref: "#/components/schemas/LandingPageDefinition" },
+          styles: { $ref: "#/components/schemas/LandingPageStyles" },
+          settings: { $ref: "#/components/schemas/LandingPageSettings" },
+        },
       },
     },
   },
@@ -2330,14 +3384,62 @@ const schemas = {
       updated_at: dateTimeSchema,
     },
   },
+  FormSummary: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "id",
+      "name",
+      "public_token",
+      "subscribers_90d",
+      "views_90d",
+      "conversion_rate_90d",
+      "submit_url",
+      "embed_url",
+      "hosted_url",
+      "created_at",
+      "updated_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      name: { type: "string" },
+      public_token: { type: "string" },
+      subscribers_90d: { type: "integer" },
+      views_90d: { type: "integer" },
+      conversion_rate_90d: { type: "number" },
+      submit_url: { type: "string" },
+      embed_url: { type: "string" },
+      hosted_url: { type: "string" },
+      created_at: dateTimeSchema,
+      updated_at: dateTimeSchema,
+    },
+  },
   FormUpsertRequest: {
     type: "object",
-    required: ["name", "definition"],
+    required: ["name"],
+    anyOf: [
+      { required: ["definition"] },
+      { required: ["starting_point_id"] },
+    ],
+    properties: {
+      name: { type: "string" },
+      definition: formUpsertDefinitionSchema,
+      starting_point_id: {
+        type: "string",
+        description:
+          "Creates the Form from this canonical starting point. Do not also provide definition.",
+      },
+    },
+    additionalProperties: false,
+  },
+  FormUpdateRequest: {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
     properties: {
       name: { type: "string" },
       definition: formUpsertDefinitionSchema,
     },
-    additionalProperties: false,
   },
   FormSubmission: {
     type: "object",
@@ -2386,17 +3488,44 @@ const schemas = {
           "Camel-case alias for custom_path. Optional Pro custom slug for the workspace's verified landing page subdomain.",
       },
       definition: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/LandingPageDefinition",
       },
       styles: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/LandingPageStyles",
       },
       settings: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/LandingPageSettings",
       },
+      public_token: { type: "string" },
+      public_url: { type: "string" },
+      subscribers_90d: { type: "integer" },
+      views_90d: { type: "integer" },
+      conversion_rate_90d: { type: "number" },
+      created_at: dateTimeSchema,
+      updated_at: dateTimeSchema,
+    },
+  },
+  LandingPageSummary: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "id",
+      "name",
+      "slug",
+      "custom_path",
+      "public_token",
+      "public_url",
+      "subscribers_90d",
+      "views_90d",
+      "conversion_rate_90d",
+      "created_at",
+      "updated_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      name: { type: "string" },
+      slug: { type: "string" },
+      custom_path: { type: "string", nullable: true },
       public_token: { type: "string" },
       public_url: { type: "string" },
       subscribers_90d: { type: "integer" },
@@ -2431,10 +3560,19 @@ const schemas = {
   },
   LandingPageUpsertRequest: {
     type: "object",
-    required: ["name", "slug", "definition"],
+    required: ["name", "slug"],
+    anyOf: [
+      { required: ["definition"] },
+      { required: ["starting_point_id"] },
+    ],
     properties: {
       name: { type: "string" },
       slug: { type: "string" },
+      starting_point_id: {
+        type: "string",
+        description:
+          "Creates the Landing Page from this canonical starting point. Do not also provide definition, styles, or settings.",
+      },
       custom_path: {
         type: "string",
         nullable: true,
@@ -2448,17 +3586,39 @@ const schemas = {
           "Camel-case alias for custom_path. Omit this field to keep the existing custom slug when updating a landing page.",
       },
       definition: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/LandingPageDefinition",
       },
       styles: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/LandingPageStyles",
       },
       settings: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/LandingPageSettings",
       },
+    },
+    additionalProperties: false,
+  },
+  LandingPageUpdateRequest: {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
+    properties: {
+      name: { type: "string" },
+      slug: { type: "string" },
+      custom_path: {
+        type: "string",
+        nullable: true,
+        description:
+          "Optional Pro custom slug. Omit this field to keep the existing custom slug.",
+      },
+      customPath: {
+        type: "string",
+        nullable: true,
+        description:
+          "Camel-case alias for custom_path. Omit this field to keep the existing custom slug.",
+      },
+      definition: { $ref: "#/components/schemas/LandingPageDefinition" },
+      styles: { $ref: "#/components/schemas/LandingPageStyles" },
+      settings: { $ref: "#/components/schemas/LandingPageSettings" },
     },
   },
   EmailTemplate: {
@@ -2481,9 +3641,8 @@ const schemas = {
       },
       body: { type: "string" },
       body_document: {
-        type: "object",
         description: `Structured email editor content. The serialized document must be ${emailTemplateBodyDocumentMaxBytes} bytes or less.`,
-        additionalProperties: true,
+        allOf: [{ $ref: "#/components/schemas/BroadcastEmailDocument" }],
       },
       enabled: { type: "boolean" },
       workspaces: {
@@ -2494,20 +3653,580 @@ const schemas = {
       updated_at: dateTimeSchema,
     },
   },
+  EmailTemplateSummary: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "id",
+      "name",
+      "enabled",
+      "workspaces",
+      "created_at",
+      "updated_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      name: {
+        type: "string",
+        maxLength: emailTemplateNameMaxLength,
+      },
+      enabled: { type: "boolean" },
+      workspaces: {
+        type: "array",
+        items: { $ref: "#/components/schemas/WorkspaceReference" },
+      },
+      created_at: dateTimeSchema,
+      updated_at: dateTimeSchema,
+    },
+  },
+  SubscriberPreviewRequest: {
+    type: "object",
+    additionalProperties: false,
+    required: ["subscriber_id"],
+    properties: {
+      subscriber_id: {
+        type: "string",
+        description:
+          "The saved Subscriber whose name, email, and custom fields should be used for personalization.",
+      },
+    },
+  },
+  EmailTemplatePreview: {
+    type: "object",
+    additionalProperties: false,
+    required: ["template_id", "subscriber_id", "html", "text"],
+    properties: {
+      template_id: { type: "string" },
+      subscriber_id: { type: "string" },
+      html: { type: "string" },
+      text: { type: "string" },
+    },
+  },
+  DoubleOptInEmailPreview: {
+    type: "object",
+    additionalProperties: false,
+    required: ["subscriber_id", "subject", "html", "text"],
+    properties: {
+      form_id: { type: "string" },
+      landing_page_id: { type: "string" },
+      subscriber_id: { type: "string" },
+      subject: { type: "string" },
+      html: { type: "string" },
+      text: { type: "string" },
+    },
+  },
   EmailTemplateUpsertRequest: {
     type: "object",
-    required: ["name", "body_document"],
+    required: ["name"],
+    anyOf: [
+      { required: ["body_document"] },
+      { required: ["starting_point_id"] },
+    ],
     properties: {
       name: {
         type: "string",
         maxLength: emailTemplateNameMaxLength,
       },
       body_document: {
-        type: "object",
         description: `Structured email editor content. The serialized document must be ${emailTemplateBodyDocumentMaxBytes} bytes or less.`,
-        additionalProperties: true,
+        allOf: [{ $ref: "#/components/schemas/BroadcastEmailDocument" }],
+      },
+      starting_point_id: {
+        type: "string",
+        description:
+          "Creates the email template from this canonical starting point. Do not also provide body_document.",
       },
       enabled: { type: "boolean" },
+    },
+    additionalProperties: false,
+  },
+  StartingPointMetadata: {
+    type: "object",
+    additionalProperties: false,
+    required: ["id", "kind", "name", "display_order", "updated_at"],
+    properties: {
+      id: { type: "string" },
+      kind: {
+        type: "string",
+        enum: ["email_template", "form", "landing_page"],
+      },
+      name: { type: "string" },
+      description: { type: "string" },
+      display_format: { type: "string" },
+      display_order: { type: "integer" },
+      updated_at: dateTimeSchema,
+    },
+  },
+  EmailStartingPoint: {
+    allOf: [
+      { $ref: "#/components/schemas/StartingPointMetadata" },
+      {
+        type: "object",
+        required: ["body_document"],
+        properties: {
+          body_document: {
+            $ref: "#/components/schemas/BroadcastEmailDocument",
+          },
+        },
+      },
+    ],
+  },
+  FormStartingPoint: {
+    allOf: [
+      { $ref: "#/components/schemas/StartingPointMetadata" },
+      {
+        type: "object",
+        required: ["definition", "styles", "settings"],
+        properties: {
+          definition: { type: "object", additionalProperties: true },
+          styles: { type: "object", additionalProperties: true },
+          settings: { type: "object", additionalProperties: true },
+        },
+      },
+    ],
+  },
+  LandingPageStartingPoint: {
+    allOf: [
+      { $ref: "#/components/schemas/StartingPointMetadata" },
+      {
+        type: "object",
+        required: ["definition", "styles", "settings"],
+        properties: {
+          definition: {
+            $ref: "#/components/schemas/LandingPageDefinition",
+          },
+          styles: { $ref: "#/components/schemas/LandingPageStyles" },
+          settings: { $ref: "#/components/schemas/LandingPageSettings" },
+        },
+      },
+    ],
+  },
+  EmailTemplateUpdateRequest: {
+    type: "object",
+    minProperties: 1,
+    properties: {
+      name: {
+        type: "string",
+        maxLength: emailTemplateNameMaxLength,
+      },
+      body_document: {
+        description: `Structured email editor content. The serialized document must be ${emailTemplateBodyDocumentMaxBytes} bytes or less.`,
+        allOf: [{ $ref: "#/components/schemas/BroadcastEmailDocument" }],
+      },
+      enabled: { type: "boolean" },
+    },
+    additionalProperties: false,
+  },
+  EmailEngagementStats: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "recipientCount",
+      "openedCount",
+      "clickedCount",
+      "unsubscribedCount",
+    ],
+    properties: {
+      recipientCount: { type: "integer", minimum: 0 },
+      engagedCount: { type: "integer", minimum: 0 },
+      openedCount: { type: "integer", minimum: 0 },
+      clickedCount: { type: "integer", minimum: 0 },
+      clickedSubscriberCount: { type: "integer", minimum: 0 },
+      unsubscribedCount: { type: "integer", minimum: 0 },
+      bouncedCount: { type: "integer", minimum: 0 },
+      complainedCount: { type: "integer", minimum: 0 },
+      sentCountsByDay: {
+        type: "object",
+        additionalProperties: { type: "integer", minimum: 0 },
+      },
+    },
+  },
+  SequenceEmail: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "id",
+      "subject",
+      "previewText",
+      "bodyDocument",
+      "status",
+      "delayValue",
+      "delayUnit",
+      "sendOnWeekdays",
+    ],
+    properties: {
+      id: { type: "string" },
+      subject: { type: "string" },
+      previewText: { type: ["string", "null"] },
+      body: {
+        type: "string",
+        readOnly: true,
+        description:
+          "Rendered HTML returned by Mailrith. Agents should send bodyDocument when creating or updating a Sequence.",
+      },
+      bodyDocument: { $ref: "#/components/schemas/BroadcastEmailDocument" },
+      status: { type: "string", enum: ["Draft", "Published"] },
+      delayValue: { type: "number", minimum: 0 },
+      delayUnit: { type: "string", enum: ["minute", "hour", "day"] },
+      sendOnWeekdays: {
+        type: "array",
+        uniqueItems: true,
+        items: {
+          type: "string",
+          enum: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        },
+      },
+      audienceMode: {
+        type: "string",
+        enum: ["all", "include", "exclude"],
+      },
+      audienceDefinition: {
+        anyOf: [
+          { $ref: "#/components/schemas/AudienceDefinition" },
+          { type: "null" },
+        ],
+      },
+      stats: { $ref: "#/components/schemas/EmailEngagementStats" },
+    },
+  },
+  SequenceDefinition: {
+    type: "object",
+    additionalProperties: false,
+    required: ["emails"],
+    properties: {
+      emails: {
+        type: "array",
+        items: { $ref: "#/components/schemas/SequenceEmail" },
+      },
+      defaultTemplateId: { type: ["string", "null"] },
+      sendOnWeekdays: {
+        type: "array",
+        uniqueItems: true,
+        items: {
+          type: "string",
+          enum: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        },
+      },
+      excludeAudienceDefinition: {
+        anyOf: [
+          { $ref: "#/components/schemas/AudienceDefinition" },
+          { type: "null" },
+        ],
+      },
+      restartSequenceForCompletedSubscribers: { type: "boolean" },
+      sendNewEmailsToCompletedSubscribers: { type: "boolean" },
+    },
+    example: {
+      emails: [
+        {
+          id: "welcome",
+          subject: "Welcome",
+          previewText: "Thanks for joining",
+          bodyDocument: {
+            type: "doc",
+            content: [
+              {
+                type: "paragraph",
+                content: [{ type: "text", text: "Welcome to the newsletter." }],
+              },
+            ],
+          },
+          status: "Published",
+          delayValue: 0,
+          delayUnit: "day",
+          sendOnWeekdays: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+          audienceMode: "all",
+          audienceDefinition: null,
+        },
+      ],
+    },
+  },
+  AutomationTrigger: {
+    type: "object",
+    additionalProperties: false,
+    required: ["type"],
+    properties: {
+      type: {
+        type: "string",
+        enum: [
+          "tag_added",
+          "tag_removed",
+          "magic_link_clicked",
+          "subscriber_status",
+        ],
+      },
+      tagId: { type: ["string", "null"] },
+      tagIds: stringArraySchema,
+      magicLinkId: { type: ["string", "null"] },
+      magicLinkIds: stringArraySchema,
+      operator: { type: "string", enum: ["is", "is_not"] },
+      statuses: {
+        type: "array",
+        items: {
+          type: "string",
+          enum: [
+            "Active",
+            "Unconfirmed",
+            "Unsubscribed",
+            "Complained",
+            "Bounced",
+            "Blocked",
+          ],
+        },
+      },
+    },
+  },
+  AutomationStepConfig: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      tagId: { type: "string" },
+      sequenceId: { type: "string" },
+      magicLinkId: { type: "string" },
+      customFieldId: { type: "string" },
+      automationId: { type: "string" },
+      emailId: { type: "string" },
+      status: { type: "string" },
+      statuses: stringArraySchema,
+      operation: {
+        type: "string",
+        enum: [
+          "set",
+          "clear",
+          "increment",
+          "decrement",
+          "set_today",
+          "add_choices",
+          "remove_choices",
+          "set_true",
+          "set_false",
+          "toggle",
+        ],
+      },
+      operator: {
+        type: "string",
+        enum: [
+          "equals",
+          "not_equals",
+          "contains",
+          "not_contains",
+          "starts_with",
+          "ends_with",
+          "exists",
+          "missing",
+          "greater_than",
+          "greater_than_or_equal",
+          "less_than",
+          "less_than_or_equal",
+          "on",
+          "not_on",
+          "before",
+          "on_or_before",
+          "after",
+          "on_or_after",
+          "contains_any",
+          "contains_all",
+          "does_not_contain_any",
+          "is_checked",
+          "is_not_checked",
+        ],
+      },
+      value: {
+        oneOf: [
+          { type: "string" },
+          { type: "number" },
+          { type: "boolean" },
+          { type: "array", items: { type: "string" } },
+          { type: "null" },
+        ],
+      },
+      mode: {
+        type: "string",
+        enum: ["duration", "until_custom_date", "until_custom_field_date"],
+      },
+      waitMode: { type: "string", enum: ["duration", "custom_date"] },
+      dateSource: {
+        type: "string",
+        enum: ["custom_field", "fixed_date"],
+      },
+      date: { type: "string", format: "date" },
+      timeOfDay: {
+        type: "string",
+        pattern: "^([01]\\d|2[0-3]):[0-5]\\d$",
+      },
+      durationValue: { type: "number", minimum: 0 },
+      durationUnit: {
+        type: "string",
+        enum: ["minute", "hour", "day", "week"],
+      },
+      waitForCompletion: { type: "boolean" },
+      waitUntilComplete: { type: "boolean" },
+      exitNextStepId: { type: ["string", "null"] },
+      lookbackDays: { type: "integer", minimum: 1 },
+      recipientEmail: { type: "string", format: "email" },
+      subject: { type: "string" },
+      previewText: { type: "string" },
+      bodyDocument: { $ref: "#/components/schemas/BroadcastEmailDocument" },
+      replyToEmail: { type: "string" },
+      trackOpens: { type: "boolean" },
+      trackClicks: { type: "boolean" },
+      utmSource: { type: "string" },
+      utmMedium: { type: "string" },
+      utmCampaign: { type: "string" },
+      utmTerm: { type: "string" },
+      utmContent: { type: "string" },
+      url: { type: "string", format: "uri" },
+      method: { type: "string", enum: ["POST", "PUT", "PATCH"] },
+      authType: { type: "string", enum: ["none", "bearer"] },
+      bearerToken: { type: "string", writeOnly: true },
+      headers: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["key", "value"],
+          properties: {
+            key: { type: "string" },
+            value: { type: "string" },
+          },
+        },
+      },
+      includeSubscriber: { type: "boolean" },
+      includeTags: { type: "boolean" },
+      includeCustomFields: { type: "boolean" },
+    },
+  },
+  AutomationPath: {
+    type: "object",
+    additionalProperties: false,
+    required: ["id", "label"],
+    properties: {
+      id: { type: "string" },
+      label: { type: "string" },
+      nextStepId: { type: ["string", "null"] },
+      weight: { type: ["number", "null"] },
+    },
+  },
+  AutomationStep: {
+    type: "object",
+    additionalProperties: false,
+    required: ["id", "kind", "type"],
+    properties: {
+      id: { type: "string" },
+      kind: { type: "string", enum: ["event", "action", "condition"] },
+      type: {
+        type: "string",
+        enum: [
+          "tag_added",
+          "tag_removed",
+          "magic_link_clicked",
+          "sequence_completed",
+          "add_tag",
+          "remove_tag",
+          "add_to_sequence",
+          "remove_from_sequence",
+          "change_subscriber_status",
+          "wait",
+          "update_custom_field",
+          "send_email",
+          "send_internal_notification",
+          "start_automation",
+          "remove_from_automation",
+          "webhook",
+          "end_automation",
+          "has_tag",
+          "custom_field_match",
+          "sequence_membership",
+          "subscriber_status",
+          "email_opened",
+          "email_clicked",
+        ],
+      },
+      config: { $ref: "#/components/schemas/AutomationStepConfig" },
+      stats: { $ref: "#/components/schemas/EmailEngagementStats" },
+      note: { type: ["string", "null"] },
+      nextStepId: { type: ["string", "null"] },
+      branches: {
+        type: "object",
+        additionalProperties: { type: ["string", "null"] },
+      },
+      paths: {
+        type: "array",
+        items: { $ref: "#/components/schemas/AutomationPath" },
+      },
+    },
+  },
+  AutomationEntryPoint: {
+    type: "object",
+    additionalProperties: false,
+    required: ["id", "trigger"],
+    properties: {
+      id: { type: "string" },
+      trigger: { $ref: "#/components/schemas/AutomationTrigger" },
+      name: { type: ["string", "null"] },
+      description: { type: ["string", "null"] },
+    },
+  },
+  AutomationDefinition: {
+    type: "object",
+    additionalProperties: false,
+    required: ["steps"],
+    properties: {
+      version: { type: "integer", enum: [2] },
+      trigger: {
+        anyOf: [
+          { $ref: "#/components/schemas/AutomationTrigger" },
+          { type: "null" },
+        ],
+      },
+      triggers: {
+        type: "array",
+        items: { $ref: "#/components/schemas/AutomationTrigger" },
+      },
+      entryPoints: {
+        type: "array",
+        items: { $ref: "#/components/schemas/AutomationEntryPoint" },
+      },
+      steps: {
+        type: "array",
+        maxItems: 256,
+        items: { $ref: "#/components/schemas/AutomationStep" },
+      },
+    },
+    example: {
+      version: 2,
+      trigger: {
+        type: "tag_added",
+        tagIds: ["tag_welcome"],
+      },
+      steps: [
+        {
+          id: "send-welcome-email",
+          kind: "action",
+          type: "send_email",
+          config: {
+            subject: "Welcome",
+            previewText: "Thanks for joining",
+            bodyDocument: {
+              type: "doc",
+              content: [
+                {
+                  type: "paragraph",
+                  content: [{ type: "text", text: "Welcome to Mailrith." }],
+                },
+              ],
+            },
+            replyToEmail: "",
+            trackOpens: true,
+            trackClicks: true,
+            utmSource: "",
+            utmMedium: "",
+            utmCampaign: "",
+            utmTerm: "",
+            utmContent: "",
+          },
+        },
+      ],
     },
   },
   Sequence: {
@@ -2559,8 +4278,7 @@ const schemas = {
       utm_term: { type: "string", nullable: true },
       utm_content: { type: "string", nullable: true },
       definition: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/SequenceDefinition",
       },
       subscriber_count: { type: "integer" },
       open_rate: { type: "integer" },
@@ -2572,6 +4290,36 @@ const schemas = {
         allOf: [{ $ref: "#/components/schemas/BroadcastSendProgress" }],
         nullable: true,
       },
+      created_at: dateTimeSchema,
+      updated_at: dateTimeSchema,
+    },
+  },
+  SequenceSummary: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "id",
+      "name",
+      "status",
+      "is_updating",
+      "email_count",
+      "subscriber_count",
+      "open_rate",
+      "click_rate",
+      "unsubscribed_count",
+      "created_at",
+      "updated_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      name: { type: "string" },
+      status: { type: "string", enum: ["running", "paused"] },
+      is_updating: { type: "boolean" },
+      email_count: { type: "integer", minimum: 0 },
+      subscriber_count: { type: "integer", minimum: 0 },
+      open_rate: { type: "integer", minimum: 0 },
+      click_rate: { type: "integer", minimum: 0 },
+      unsubscribed_count: { type: "integer", minimum: 0 },
       created_at: dateTimeSchema,
       updated_at: dateTimeSchema,
     },
@@ -2768,9 +4516,132 @@ const schemas = {
       updated_at: dateTimeSchema,
     },
   },
+  WorkflowReadinessCheck: {
+    type: "object",
+    required: ["key", "status", "message"],
+    additionalProperties: false,
+    properties: {
+      key: { type: "string" },
+      status: { type: "string", enum: ["passed", "blocking"] },
+      message: { type: "string" },
+    },
+  },
+  SequencePreflight: {
+    type: "object",
+    required: [
+      "sequence_id",
+      "ready",
+      "email_count",
+      "published_email_count",
+      "checks",
+      "checked_at",
+    ],
+    additionalProperties: false,
+    properties: {
+      sequence_id: { type: "string" },
+      ready: { type: "boolean" },
+      email_count: { type: "integer", minimum: 0 },
+      published_email_count: { type: "integer", minimum: 0 },
+      checks: {
+        type: "array",
+        items: { $ref: "#/components/schemas/WorkflowReadinessCheck" },
+      },
+      checked_at: dateTimeSchema,
+    },
+  },
+  SequenceJourneyPreview: {
+    type: "object",
+    required: [
+      "sequence_id",
+      "subscriber_id",
+      "subscriber_eligible",
+      "side_effect_free",
+      "emails",
+    ],
+    additionalProperties: false,
+    properties: {
+      sequence_id: { type: "string" },
+      subscriber_id: { type: "string" },
+      subscriber_eligible: { type: "boolean" },
+      side_effect_free: { type: "boolean", enum: [true] },
+      emails: {
+        type: "array",
+        maxItems: 100,
+        items: {
+          type: "object",
+          required: [
+            "position",
+            "email_id",
+            "subject",
+            "status",
+            "eligible",
+            "delay_value",
+            "delay_unit",
+            "send_on_weekdays",
+            "audience_mode",
+          ],
+          additionalProperties: false,
+          properties: {
+            position: { type: "integer", minimum: 1 },
+            email_id: { type: "string" },
+            subject: { type: "string" },
+            status: { type: "string", enum: ["Draft", "Published"] },
+            eligible: { type: "boolean" },
+            delay_value: { type: "integer", minimum: 0 },
+            delay_unit: { type: "string", enum: ["minute", "hour", "day"] },
+            send_on_weekdays: {
+              type: "array",
+              items: { type: "string" },
+            },
+            audience_mode: {
+              type: "string",
+              enum: ["all", "include", "exclude"],
+            },
+          },
+        },
+      },
+    },
+  },
+  WorkflowTestRequest: {
+    type: "object",
+    required: ["recipient", "subscriber_id"],
+    additionalProperties: false,
+    properties: {
+      recipient: { type: "string", format: "email" },
+      subscriber_id: {
+        type: "string",
+        description:
+          "The saved Subscriber whose personalization should be rendered in every test message.",
+      },
+      message_ids: {
+        type: "array",
+        maxItems: 5,
+        uniqueItems: true,
+        items: { type: "string" },
+        description:
+          "Optional Sequence email IDs or Automation step IDs. Omit to test the first five available messages.",
+      },
+    },
+  },
+  WorkflowTestResult: {
+    type: "object",
+    required: ["status", "sent_count", "message_ids", "subscriber_id"],
+    additionalProperties: false,
+    properties: {
+      status: { type: "string", enum: ["completed"] },
+      subscriber_id: { type: "string" },
+      sent_count: { type: "integer", minimum: 1, maximum: 5 },
+      message_ids: {
+        type: "array",
+        maxItems: 5,
+        items: { type: "string" },
+      },
+    },
+  },
   SequenceUpsertRequest: {
     type: "object",
     required: ["name", "definition"],
+    additionalProperties: false,
     properties: {
       name: { type: "string" },
       connection_id: { type: "string", nullable: true },
@@ -2783,9 +4654,26 @@ const schemas = {
       utm_term: { type: "string", nullable: true },
       utm_content: { type: "string", nullable: true },
       definition: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/SequenceDefinition",
       },
+    },
+  },
+  SequenceUpdateRequest: {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
+    properties: {
+      name: { type: "string" },
+      connection_id: { type: "string", nullable: true },
+      reply_to_email: { type: "string", nullable: true },
+      track_opens: { type: "boolean" },
+      track_clicks: { type: "boolean" },
+      utm_source: { type: "string", nullable: true },
+      utm_medium: { type: "string", nullable: true },
+      utm_campaign: { type: "string", nullable: true },
+      utm_term: { type: "string", nullable: true },
+      utm_content: { type: "string", nullable: true },
+      definition: { $ref: "#/components/schemas/SequenceDefinition" },
     },
   },
   SequenceStatusRequest: {
@@ -2817,10 +4705,31 @@ const schemas = {
           "True while Mailrith updates existing Subscriber progress after a structural Automation change.",
       },
       definition: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/AutomationDefinition",
       },
       subscriber_count: { type: "integer" },
+      created_at: dateTimeSchema,
+      updated_at: dateTimeSchema,
+    },
+  },
+  AutomationSummary: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "id",
+      "name",
+      "status",
+      "is_updating",
+      "subscriber_count",
+      "created_at",
+      "updated_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      name: { type: "string" },
+      status: { type: "string", enum: ["draft", "running", "paused"] },
+      is_updating: { type: "boolean" },
+      subscriber_count: { type: "integer", minimum: 0 },
       created_at: dateTimeSchema,
       updated_at: dateTimeSchema,
     },
@@ -2828,19 +4737,118 @@ const schemas = {
   AutomationUpsertRequest: {
     type: "object",
     required: ["name", "definition"],
+    additionalProperties: false,
     properties: {
       name: { type: "string" },
       definition: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/AutomationDefinition",
       },
+    },
+  },
+  AutomationUpdateRequest: {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
+    properties: {
+      name: { type: "string" },
+      definition: { $ref: "#/components/schemas/AutomationDefinition" },
     },
   },
   AutomationStatusRequest: {
     type: "object",
     required: ["status"],
     properties: {
-      status: { type: "string", enum: ["running", "paused"] },
+      status: { type: "string", enum: ["draft", "running", "paused"] },
+    },
+  },
+  AutomationPreflight: {
+    type: "object",
+    required: [
+      "automation_id",
+      "ready",
+      "step_count",
+      "email_step_count",
+      "checks",
+      "checked_at",
+    ],
+    additionalProperties: false,
+    properties: {
+      automation_id: { type: "string" },
+      ready: { type: "boolean" },
+      step_count: { type: "integer", minimum: 0 },
+      email_step_count: { type: "integer", minimum: 0 },
+      checks: {
+        type: "array",
+        items: { $ref: "#/components/schemas/WorkflowReadinessCheck" },
+      },
+      checked_at: dateTimeSchema,
+    },
+  },
+  AutomationJourneyPreview: {
+    type: "object",
+    required: [
+      "automation_id",
+      "subscriber_id",
+      "side_effect_free",
+      "evaluation_basis",
+      "triggers",
+      "ended",
+      "cycle_detected",
+      "steps",
+    ],
+    additionalProperties: false,
+    properties: {
+      automation_id: { type: "string" },
+      subscriber_id: { type: "string" },
+      side_effect_free: { type: "boolean", enum: [true] },
+      evaluation_basis: {
+        type: "string",
+        enum: ["current_saved_subscriber_state"],
+      },
+      ended: { type: "boolean" },
+      cycle_detected: { type: "boolean" },
+      triggers: {
+        type: "array",
+        maxItems: 50,
+        items: {
+          type: "object",
+          required: ["type"],
+          additionalProperties: false,
+          properties: {
+            type: { type: "string" },
+          },
+        },
+      },
+      steps: {
+        type: "array",
+        maxItems: 256,
+        items: {
+          type: "object",
+          required: [
+            "position",
+            "step_id",
+            "kind",
+            "type",
+            "condition_matched",
+            "selected_branch",
+            "next_step_id",
+          ],
+          additionalProperties: false,
+          properties: {
+            position: { type: "integer", minimum: 1 },
+            step_id: { type: "string" },
+            kind: { type: "string", enum: ["event", "action", "condition"] },
+            type: { type: "string" },
+            condition_matched: { type: "boolean", nullable: true },
+            selected_branch: {
+              type: "string",
+              enum: ["yes", "no"],
+              nullable: true,
+            },
+            next_step_id: { type: "string", nullable: true },
+          },
+        },
+      },
     },
   },
   MagicLink: {
@@ -2876,9 +4884,51 @@ const schemas = {
       updated_at: dateTimeSchema,
     },
   },
+  MagicLinkSummary: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "id",
+      "name",
+      "target_type",
+      "redirect_url",
+      "success_message",
+      "click_count",
+      "public_url",
+      "created_at",
+      "updated_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      name: { type: "string" },
+      target_type: { type: "string", enum: ["redirect", "message"] },
+      redirect_url: { type: "string", nullable: true },
+      success_message: { type: "string", nullable: true },
+      click_count: { type: "integer", minimum: 0 },
+      public_url: { type: "string" },
+      created_at: dateTimeSchema,
+      updated_at: dateTimeSchema,
+    },
+  },
   MagicLinkUpsertRequest: {
     type: "object",
     required: ["name", "target_type"],
+    additionalProperties: false,
+    properties: {
+      name: { type: "string" },
+      target_type: { type: "string", enum: ["redirect", "message"] },
+      redirect_url: { type: "string", nullable: true },
+      success_message: { type: "string", nullable: true },
+      add_tag_ids: stringArraySchema,
+      remove_tag_ids: stringArraySchema,
+      add_sequence_ids: stringArraySchema,
+      remove_sequence_ids: stringArraySchema,
+    },
+  },
+  MagicLinkUpdateRequest: {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
     properties: {
       name: { type: "string" },
       target_type: { type: "string", enum: ["redirect", "message"] },
@@ -2928,8 +4978,7 @@ const schemas = {
       preview_text: { type: "string", nullable: true },
       body: { type: "string" },
       body_document: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/BroadcastEmailDocument",
       },
       status: {
         type: "string",
@@ -2942,9 +4991,10 @@ const schemas = {
       from_email: { type: "string", nullable: true },
       reply_to_email: { type: "string", nullable: true },
       audience_definition: {
-        type: "object",
-        nullable: true,
-        additionalProperties: true,
+        anyOf: [
+          { $ref: "#/components/schemas/AudienceDefinition" },
+          { type: "null" },
+        ],
       },
       track_opens: { type: "boolean" },
       track_clicks: { type: "boolean" },
@@ -2963,22 +5013,89 @@ const schemas = {
       updated_at: dateTimeSchema,
     },
   },
+  BroadcastSummary: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "id",
+      "subject",
+      "preview_text",
+      "status",
+      "scheduled_at",
+      "completed_at",
+      "recipient_count",
+      "opened_count",
+      "clicked_count",
+      "unsubscribed_count",
+      "bounced_count",
+      "complained_count",
+      "created_at",
+      "updated_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      subject: { type: "string" },
+      preview_text: { type: "string", nullable: true },
+      status: {
+        type: "string",
+        enum: ["draft", "scheduled", "running", "completed", "failed"],
+      },
+      scheduled_at: nullableDateTimeSchema,
+      completed_at: nullableDateTimeSchema,
+      recipient_count: { type: "integer", minimum: 0 },
+      opened_count: { type: "integer", minimum: 0 },
+      clicked_count: { type: "integer", minimum: 0 },
+      unsubscribed_count: { type: "integer", minimum: 0 },
+      bounced_count: { type: "integer", minimum: 0 },
+      complained_count: { type: "integer", minimum: 0 },
+      created_at: dateTimeSchema,
+      updated_at: dateTimeSchema,
+    },
+  },
   BroadcastUpsertRequest: {
     type: "object",
     required: ["subject", "body_document"],
+    additionalProperties: false,
     properties: {
       subject: { type: "string" },
       preview_text: { type: "string", nullable: true },
       body_document: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/BroadcastEmailDocument",
       },
       connection_id: { type: "string", nullable: true },
       reply_to_email: { type: "string", nullable: true },
       audience_definition: {
-        type: "object",
-        nullable: true,
-        additionalProperties: true,
+        anyOf: [
+          { $ref: "#/components/schemas/AudienceDefinition" },
+          { type: "null" },
+        ],
+      },
+      track_opens: { type: "boolean" },
+      track_clicks: { type: "boolean" },
+      utm_source: { type: "string", nullable: true },
+      utm_medium: { type: "string", nullable: true },
+      utm_campaign: { type: "string", nullable: true },
+      utm_term: { type: "string", nullable: true },
+      utm_content: { type: "string", nullable: true },
+    },
+  },
+  BroadcastUpdateRequest: {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
+    properties: {
+      subject: { type: "string" },
+      preview_text: { type: "string", nullable: true },
+      body_document: {
+        $ref: "#/components/schemas/BroadcastEmailDocument",
+      },
+      connection_id: { type: "string", nullable: true },
+      reply_to_email: { type: "string", nullable: true },
+      audience_definition: {
+        anyOf: [
+          { $ref: "#/components/schemas/AudienceDefinition" },
+          { type: "null" },
+        ],
       },
       track_opens: { type: "boolean" },
       track_clicks: { type: "boolean" },
@@ -2991,9 +5108,31 @@ const schemas = {
   },
   BroadcastTestRequest: {
     type: "object",
-    required: ["recipient"],
+    required: ["recipient", "subscriber_id"],
+    additionalProperties: false,
     properties: {
       recipient: { type: "string", format: "email" },
+      subscriber_id: {
+        type: "string",
+        description:
+          "The saved Subscriber whose personalization should be rendered in the test message.",
+      },
+    },
+  },
+  BroadcastScheduleRequest: {
+    type: "object",
+    additionalProperties: false,
+    required: ["scheduled_at"],
+    properties: {
+      scheduled_at: {
+        type: "string",
+        format: "date-time",
+        description:
+          "A future date and time. Include an explicit UTC offset or Z suffix.",
+      },
+    },
+    example: {
+      scheduled_at: "2026-08-01T09:30:00.000Z",
     },
   },
   ActionResult: {
@@ -3001,6 +5140,15 @@ const schemas = {
     required: ["status"],
     properties: {
       status: { type: "string", enum: ["completed"] },
+    },
+  },
+  BroadcastTestResult: {
+    type: "object",
+    additionalProperties: false,
+    required: ["status", "subscriber_id"],
+    properties: {
+      status: { type: "string", enum: ["completed"] },
+      subscriber_id: { type: "string" },
     },
   },
   Segment: {
@@ -3020,8 +5168,7 @@ const schemas = {
       name: { type: "string" },
       description: { type: "string", nullable: true },
       definition: {
-        type: "object",
-        additionalProperties: true,
+        $ref: "#/components/schemas/AudienceDefinition",
       },
       confirmed_subscriber_count: { type: "integer" },
       total_subscriber_count: { type: "integer" },
@@ -3029,16 +5176,51 @@ const schemas = {
       updated_at: dateTimeSchema,
     },
   },
+  SegmentSummary: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "id",
+      "name",
+      "description",
+      "confirmed_subscriber_count",
+      "total_subscriber_count",
+      "created_at",
+      "updated_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      name: { type: "string" },
+      description: { type: "string", nullable: true },
+      confirmed_subscriber_count: { type: "integer", minimum: 0 },
+      total_subscriber_count: { type: "integer", minimum: 0 },
+      created_at: dateTimeSchema,
+      updated_at: dateTimeSchema,
+    },
+  },
   SegmentUpsertRequest: {
     type: "object",
     required: ["name", "definition"],
+    additionalProperties: false,
     properties: {
       name: { type: "string" },
       description: { type: "string", nullable: true },
       definition: {
-        type: "object",
         description: "The segment filters. Include at least one filter group.",
-        additionalProperties: true,
+        allOf: [{ $ref: "#/components/schemas/AudienceDefinition" }],
+      },
+    },
+  },
+  SegmentUpdateRequest: {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
+    properties: {
+      name: { type: "string" },
+      description: { type: "string", nullable: true },
+      definition: {
+        description: "The segment filters. Include at least one filter group.",
+        allOf: [{ $ref: "#/components/schemas/AudienceDefinition" }],
       },
     },
   },
@@ -3047,10 +5229,9 @@ const schemas = {
     required: ["definition"],
     properties: {
       definition: {
-        type: "object",
         description:
           "The segment filters to preview. Include at least one filter group.",
-        additionalProperties: true,
+        allOf: [{ $ref: "#/components/schemas/AudienceDefinition" }],
       },
       current_segment_id: {
         type: "string",
@@ -3094,15 +5275,87 @@ const schemas = {
       updated_at: dateTimeSchema,
     },
   },
+  SubscriberImportJobSummary: {
+    type: "object",
+    required: [
+      "id",
+      "status",
+      "imported_count",
+      "started_at",
+      "completed_at",
+      "created_at",
+      "updated_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      status: {
+        type: "string",
+        enum: ["Queued", "Processing", "Completed", "Failed"],
+      },
+      imported_count: { type: "integer", nullable: true },
+      started_at: nullableDateTimeSchema,
+      completed_at: nullableDateTimeSchema,
+      created_at: dateTimeSchema,
+      updated_at: dateTimeSchema,
+    },
+  },
+  SubscriberImportUpload: {
+    type: "object",
+    required: [
+      "id",
+      "status",
+      "upload_url",
+      "file_name",
+      "size_bytes",
+      "headers",
+      "row_count",
+      "import_job_id",
+      "expires_at",
+      "uploaded_at",
+      "queued_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      status: {
+        type: "string",
+        enum: ["Pending", "Ready", "Queued"],
+      },
+      upload_url: {
+        type: "string",
+        format: "uri",
+        nullable: true,
+        description:
+          "The short-lived browser handoff URL. It is returned only when the upload starts.",
+      },
+      file_name: { type: "string", nullable: true },
+      size_bytes: { type: "integer", nullable: true },
+      headers: {
+        type: "array",
+        maxItems: 250,
+        description:
+          "Bounded CSV column names. Each name is at most 200 characters and the combined encoded metadata is at most 12 KiB.",
+        items: { type: "string", maxLength: 200 },
+      },
+      row_count: { type: "integer", nullable: true },
+      import_job_id: { type: "string", nullable: true },
+      expires_at: dateTimeSchema,
+      uploaded_at: nullableDateTimeSchema,
+      queued_at: nullableDateTimeSchema,
+    },
+  },
   SubscriberImportJobCreateRequest: {
     type: "object",
-    required: ["csv_text", "mappings"],
+    required: ["upload_id", "mappings"],
     properties: {
-      csv_text: { type: "string" },
+      upload_id: {
+        type: "string",
+        description:
+          "The ready upload returned by startSubscriberImportUpload. CSV contents are never sent through the agent request.",
+      },
       mappings: {
         type: "array",
         description:
-          "Map each CSV column and each Mailrith field only once. Every csv_column value must exactly match a header in csv_text.",
+          "Map each uploaded CSV column and each Mailrith field only once. Every csv_column value must exactly match a header returned by getSubscriberImportUpload.",
         items: {
           type: "object",
           required: ["csv_column", "field"],
@@ -3187,6 +5440,32 @@ const schemas = {
       updated_at: dateTimeSchema,
     },
   },
+  SubscriberExportJobSummary: {
+    type: "object",
+    required: [
+      "id",
+      "status",
+      "exported_count",
+      "expires_at",
+      "started_at",
+      "completed_at",
+      "created_at",
+      "updated_at",
+    ],
+    properties: {
+      id: { type: "string" },
+      status: {
+        type: "string",
+        enum: ["Queued", "Processing", "Completed", "Failed"],
+      },
+      exported_count: { type: "integer", nullable: true },
+      expires_at: nullableDateTimeSchema,
+      started_at: nullableDateTimeSchema,
+      completed_at: nullableDateTimeSchema,
+      created_at: dateTimeSchema,
+      updated_at: dateTimeSchema,
+    },
+  },
   SubscriberExportJobCreateRequest: {
     type: "object",
     properties: {
@@ -3244,6 +5523,57 @@ const schemas = {
       "A bounded diagnostic result. Subscriber email addresses and Automation input/output snapshots are omitted.",
   },
 };
+
+const selfLinkedSchemaNames = [
+  "Workspace",
+  "SenderIdentity",
+  "EmailDeliveryConnection",
+  "EmailDeliveryConnectionSetupSession",
+  "WebhookSubscription",
+  "Subscriber",
+  "Tag",
+  "CustomField",
+  "EmailTemplate",
+  "EmailTemplateSummary",
+  "Form",
+  "FormSummary",
+  "FormSubmission",
+  "LandingPage",
+  "LandingPageSummary",
+  "LandingPageSubmission",
+  "Sequence",
+  "SequenceSummary",
+  "Automation",
+  "AutomationSummary",
+  "MagicLink",
+  "MagicLinkSummary",
+  "Broadcast",
+  "BroadcastSummary",
+  "Segment",
+  "SegmentSummary",
+  "SubscriberImportUpload",
+  "SubscriberImportJob",
+  "SubscriberImportJobSummary",
+  "SubscriberExportJob",
+  "SubscriberExportJobSummary",
+  "AnalyticsReport",
+] as const;
+
+for (const schemaName of selfLinkedSchemaNames) {
+  const schema = schemas[schemaName] as {
+    required?: string[];
+    properties?: Record<string, unknown>;
+  };
+  schema.required = [...(schema.required ?? []), "self"];
+  schema.properties = {
+    self: {
+      type: "string",
+      description:
+        "Stable relative Public API path for retrieving this resource.",
+    },
+    ...(schema.properties ?? {}),
+  };
+}
 
 const security = [{ WorkspaceApiKey: [] }];
 const idempotencyKeyParameter = {
@@ -3534,118 +5864,6 @@ export const publicApiSpec: PublicApiSpec = {
         },
       },
     },
-    "/v1/agent-activity": {
-      get: {
-        method: "GET",
-        path: "/v1/agent-activity",
-        summary: "List agent activity",
-        description:
-          "Returns one redacted row per logical agent-originated mutation. Results use keyset pagination, default to seven days, and cannot span more than 30 days.",
-        tags: ["Agent Activity"],
-        operationId: "listAgentActivity",
-        security,
-        parameters: [
-          {
-            name: "limit",
-            in: "query",
-            description: "Number of activity rows to return, from 1 to 100.",
-            schema: { type: "integer", minimum: 1, maximum: 100 },
-          },
-          {
-            name: "cursor",
-            in: "query",
-            description: "Opaque cursor returned by the previous page.",
-            schema: { type: "string" },
-          },
-          {
-            name: "from",
-            in: "query",
-            description: "Inclusive ISO start timestamp. Defaults to seven days ago.",
-            schema: { type: "string", format: "date-time" },
-          },
-          {
-            name: "to",
-            in: "query",
-            description: "Inclusive ISO end timestamp. Defaults to now.",
-            schema: { type: "string", format: "date-time" },
-          },
-          ...[
-            ["client", "Exact OAuth client identifier."],
-            ["credential_type", "Exact credential type."],
-            ["credential_id", "Exact credential identifier."],
-            ["operation", "Exact operation identifier."],
-            ["risk", "Exact risk tier."],
-            ["outcome", "Exact activity outcome."],
-            ["resource_type", "Exact target resource type."],
-            ["resource_id", "Exact target resource identifier."],
-            ["request_id", "Exact request correlation identifier."],
-            ["activity_id", "Exact activity identifier."],
-          ].map(([name, description]) => ({
-            name,
-            in: "query" as const,
-            description,
-            schema: { type: "string" },
-          })),
-        ],
-        responses: {
-          "200": {
-            description: "A bounded page of redacted agent activity.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/AgentActivityListResponse" },
-              },
-            },
-          },
-          "400": {
-            description: "A cursor, filter, or date range is invalid.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/v1/agent-activity/{activity_id}": {
-      get: {
-        method: "GET",
-        path: "/v1/agent-activity/{activity_id}",
-        summary: "Get agent activity",
-        description:
-          "Returns one redacted activity trail with correlation, retry, result, and retention metadata.",
-        tags: ["Agent Activity"],
-        operationId: "getAgentActivity",
-        security,
-        parameters: [
-          {
-            name: "activity_id",
-            in: "path",
-            required: true,
-            description: "The activity identifier.",
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          "200": {
-            description: "The redacted activity trail.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/AgentActivityResponse" },
-              },
-            },
-          },
-          "404": {
-            description: "The activity row was not found.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-    },
     "/v1/workspace": {
       get: {
         method: "GET",
@@ -3660,6 +5878,555 @@ export const publicApiSpec: PublicApiSpec = {
           "200": itemOperationResponse("#/components/schemas/Workspace"),
           "401": {
             description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/sender-identities": {
+      get: {
+        method: "GET",
+        path: "/v1/sender-identities",
+        summary: "List sender identities",
+        description:
+          "Returns a bounded page of enabled sender names, addresses, and provider types that can be selected for Broadcasts and Sequences. Provider credentials and configuration are never returned.",
+        tags: ["Sender Identities"],
+        operationId: "listSenderIdentities",
+        security,
+        parameters: [
+          {
+            name: "limit",
+            in: "query",
+            description: "Maximum number of sender identities to return.",
+            schema: { type: "integer", minimum: 1, maximum: 100 },
+          },
+          {
+            name: "starting_after",
+            in: "query",
+            description:
+              "Opaque next_cursor returned by the previous sender identity page.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": listOperationResponse(
+            "#/components/schemas/SenderIdentity",
+          ),
+          "401": {
+            description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/sender-identities/{sender_identity_id}": {
+      get: {
+        method: "GET",
+        path: "/v1/sender-identities/{sender_identity_id}",
+        summary: "Get a sender identity",
+        description:
+          "Returns one enabled sender name, address, and provider type by stable identifier. Provider credentials and configuration are never returned.",
+        tags: ["Sender Identities"],
+        operationId: "getSenderIdentity",
+        security,
+        parameters: [
+          {
+            name: "sender_identity_id",
+            in: "path",
+            required: true,
+            description: "The sender identity identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/SenderIdentity",
+          ),
+          "401": {
+            description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "404": {
+            description: "Sender identity not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/email-delivery-connection-setup-sessions": {
+      post: {
+        method: "POST",
+        path: "/v1/email-delivery-connection-setup-sessions",
+        summary: "Start secure email delivery connection setup",
+        description:
+          "Creates a short-lived browser handoff containing only non-secret defaults. Open setup_url so an authorized Mailrith user can enter provider credentials directly in Mailrith.",
+        tags: ["Email Delivery Connections"],
+        operationId: "startEmailDeliveryConnectionSetup",
+        security,
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/EmailDeliveryConnectionSetupRequest",
+              },
+            },
+          },
+        },
+        responses: {
+          "201": itemOperationResponse(
+            "#/components/schemas/EmailDeliveryConnectionSetupSession",
+            "Secure setup session created",
+          ),
+          "400": {
+            description: "The non-secret setup defaults are invalid.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/email-delivery-connection-setup-sessions/{setup_session_id}": {
+      get: {
+        method: "GET",
+        path: "/v1/email-delivery-connection-setup-sessions/{setup_session_id}",
+        summary: "Get secure setup status",
+        description:
+          "Returns pending or completed status for one short-lived setup session. It never returns the browser token or provider credentials.",
+        tags: ["Email Delivery Connections"],
+        operationId: "getEmailDeliveryConnectionSetup",
+        security,
+        parameters: [
+          {
+            name: "setup_session_id",
+            in: "path",
+            required: true,
+            description: "The identifier returned when setup started.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/EmailDeliveryConnectionSetupSession",
+          ),
+          "404": {
+            description: "The setup session was not found or expired.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/email-delivery-connection-setup-sessions/{setup_session_id}/renew": {
+      post: {
+        method: "POST",
+        path:
+          "/v1/email-delivery-connection-setup-sessions/{setup_session_id}/renew",
+        summary: "Renew secure email delivery setup",
+        description:
+          "Creates a fresh short-lived browser link from the previous session's bounded non-secret defaults. Completed sessions cannot be renewed.",
+        tags: ["Email Delivery Connections"],
+        operationId: "renewEmailDeliveryConnectionSetup",
+        security,
+        parameters: [
+          {
+            name: "setup_session_id",
+            in: "path",
+            required: true,
+            description: "The previous setup session identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "201": itemOperationResponse(
+            "#/components/schemas/EmailDeliveryConnectionSetupSession",
+            "A fresh secure setup session was created.",
+          ),
+          "409": {
+            description: "The setup session cannot be renewed.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/email-delivery-connections": {
+      get: {
+        method: "GET",
+        path: "/v1/email-delivery-connections",
+        summary: "List email delivery connections",
+        description:
+          "Returns a bounded page of email delivery connections linked to the authenticated workspace. Saved credentials and webhook secrets are never returned.",
+        tags: ["Email Delivery Connections"],
+        operationId: "listEmailDeliveryConnections",
+        security,
+        parameters: [
+          {
+            name: "limit",
+            in: "query",
+            description: "Maximum number of connections to return.",
+            schema: { type: "integer", minimum: 1, maximum: 100 },
+          },
+          {
+            name: "starting_after",
+            in: "query",
+            description:
+              "Opaque next_cursor returned by the previous connection page.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": listOperationResponse(
+            "#/components/schemas/EmailDeliveryConnection",
+          ),
+          "401": {
+            description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/email-delivery-connections/{connection_id}": {
+      get: {
+        method: "GET",
+        path: "/v1/email-delivery-connections/{connection_id}",
+        summary: "Get an email delivery connection",
+        description:
+          "Returns one secret-free email delivery connection linked to the authenticated workspace.",
+        tags: ["Email Delivery Connections"],
+        operationId: "getEmailDeliveryConnection",
+        security,
+        parameters: [
+          {
+            name: "connection_id",
+            in: "path",
+            required: true,
+            description: "The identifier of the connection to return.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/EmailDeliveryConnection",
+          ),
+          "404": {
+            description: "The connection was not found.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+      patch: {
+        method: "PATCH",
+        path: "/v1/email-delivery-connections/{connection_id}",
+        summary: "Update an email delivery connection",
+        description:
+          "Changes non-secret details for one connection linked only to the authenticated workspace. Use a secure setup session to replace provider credentials. Shared connections must be changed in the Mailrith UI.",
+        tags: ["Email Delivery Connections"],
+        operationId: "updateEmailDeliveryConnection",
+        security,
+        parameters: [
+          {
+            name: "connection_id",
+            in: "path",
+            required: true,
+            description: "The identifier of the connection to update.",
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/EmailDeliveryConnectionUpdateRequest",
+              },
+            },
+          },
+        },
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/EmailDeliveryConnection",
+          ),
+          "400": {
+            description: "The non-secret connection details are invalid.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "409": {
+            description:
+              "The connection is shared or currently in use and cannot be changed through a workspace-scoped credential.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        method: "DELETE",
+        path: "/v1/email-delivery-connections/{connection_id}",
+        summary: "Delete an email delivery connection",
+        description:
+          "Deletes one connection linked only to the authenticated workspace. Shared or in-use connections are not deleted.",
+        tags: ["Email Delivery Connections"],
+        operationId: "deleteEmailDeliveryConnection",
+        security,
+        parameters: [
+          {
+            name: "connection_id",
+            in: "path",
+            required: true,
+            description: "The identifier of the connection to delete.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "204": { description: "The connection was deleted." },
+          "404": {
+            description: "The connection was not found.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "409": {
+            description:
+              "The connection is shared or currently in use and cannot be deleted.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/email-delivery-connections/{connection_id}/status": {
+      put: {
+        method: "PUT",
+        path: "/v1/email-delivery-connections/{connection_id}/status",
+        summary: "Enable or disable an email delivery connection",
+        description:
+          "Enables or disables one connection linked only to the authenticated workspace. Shared or in-use connections remain protected.",
+        tags: ["Email Delivery Connections"],
+        operationId: "updateEmailDeliveryConnectionStatus",
+        security,
+        parameters: [
+          {
+            name: "connection_id",
+            in: "path",
+            required: true,
+            description: "The identifier of the connection to change.",
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/EmailDeliveryConnectionStatusRequest",
+              },
+            },
+          },
+        },
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/EmailDeliveryConnection",
+          ),
+          "409": {
+            description:
+              "The connection is shared or currently in use and cannot be changed.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/email-delivery-connections/{connection_id}/verify": {
+      post: {
+        method: "POST",
+        path: "/v1/email-delivery-connections/{connection_id}/verify",
+        summary: "Verify an email delivery connection",
+        description:
+          "Checks the saved provider credential and sender without returning secrets. If the provider key allows sending but not inspection, the response clearly requires a real test email.",
+        tags: ["Email Delivery Connections"],
+        operationId: "verifyEmailDeliveryConnection",
+        security,
+        parameters: [
+          {
+            name: "connection_id",
+            in: "path",
+            required: true,
+            description: "The identifier of the connection to verify.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Verification completed.",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["data"],
+                  properties: {
+                    data: {
+                      type: "object",
+                      required: [
+                        "connection_id",
+                        "verification_status",
+                        "inspection_status",
+                        "message",
+                        "verified_at",
+                      ],
+                      properties: {
+                        connection_id: { type: "string" },
+                        verification_status: {
+                          type: "string",
+                          enum: ["verified", "send_test_required"],
+                        },
+                        inspection_status: {
+                          type: "string",
+                          enum: ["available", "unavailable"],
+                        },
+                        message: { type: "string" },
+                        verified_at: dateTimeSchema,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": {
+            description: "The provider or sender verification failed.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/email-delivery-connections/{connection_id}/test": {
+      post: {
+        method: "POST",
+        path: "/v1/email-delivery-connections/{connection_id}/test",
+        summary: "Send an email delivery connection test",
+        description:
+          "Sends one real test email through the saved connection. This is the definitive check when a send-only provider key cannot be inspected.",
+        tags: ["Email Delivery Connections"],
+        operationId: "testEmailDeliveryConnection",
+        security,
+        parameters: [
+          {
+            name: "connection_id",
+            in: "path",
+            required: true,
+            description: "The identifier of the connection to test.",
+            schema: { type: "string" },
+          },
+          {
+            name: "Idempotency-Key",
+            in: "header",
+            required: true,
+            description:
+              "Prevents an automatic retry from sending a duplicate test email.",
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/EmailDeliveryConnectionTestRequest",
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Test email sent.",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["data"],
+                  properties: {
+                    data: {
+                      type: "object",
+                      required: [
+                        "connection_id",
+                        "recipient",
+                        "status",
+                        "sent_at",
+                      ],
+                      properties: {
+                        connection_id: { type: "string" },
+                        recipient: { type: "string", format: "email" },
+                        status: { type: "string", enum: ["sent"] },
+                        sent_at: dateTimeSchema,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": {
+            description: "The recipient is invalid or the test send failed.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "429": {
+            description: "Too many test emails were requested.",
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },
@@ -3927,6 +6694,159 @@ export const publicApiSpec: PublicApiSpec = {
         },
       },
     },
+    "/v1/starting-points/email-templates": {
+      get: {
+        method: "GET",
+        path: "/v1/starting-points/email-templates",
+        summary: "List email starting points",
+        description:
+          "Returns compact metadata for the same email starting points available in the Mailrith UI. Load one item only when its full content is needed.",
+        tags: ["Starting Points"],
+        operationId: "listEmailStartingPoints",
+        security,
+        responses: {
+          "200": listOperationResponse(
+            "#/components/schemas/StartingPointMetadata",
+          ),
+        },
+      },
+    },
+    "/v1/starting-points/email-templates/{starting_point_id}": {
+      get: {
+        method: "GET",
+        path: "/v1/starting-points/email-templates/{starting_point_id}",
+        summary: "Get an email starting point",
+        description:
+          "Returns one email starting point with its full structured email document.",
+        tags: ["Starting Points"],
+        operationId: "getEmailStartingPoint",
+        security,
+        parameters: [
+          {
+            name: "starting_point_id",
+            in: "path",
+            required: true,
+            description: "The email starting point identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/EmailStartingPoint",
+          ),
+          "404": {
+            description: "The email starting point was not found.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/starting-points/forms": {
+      get: {
+        method: "GET",
+        path: "/v1/starting-points/forms",
+        summary: "List Form starting points",
+        description:
+          "Returns compact metadata for the same Form starting points available in the Mailrith UI. Load one item only when its full content is needed.",
+        tags: ["Starting Points"],
+        operationId: "listFormStartingPoints",
+        security,
+        responses: {
+          "200": listOperationResponse(
+            "#/components/schemas/StartingPointMetadata",
+          ),
+        },
+      },
+    },
+    "/v1/starting-points/forms/{starting_point_id}": {
+      get: {
+        method: "GET",
+        path: "/v1/starting-points/forms/{starting_point_id}",
+        summary: "Get a Form starting point",
+        description:
+          "Returns one Form starting point with its definition, styles, and settings.",
+        tags: ["Starting Points"],
+        operationId: "getFormStartingPoint",
+        security,
+        parameters: [
+          {
+            name: "starting_point_id",
+            in: "path",
+            required: true,
+            description: "The Form starting point identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/FormStartingPoint",
+          ),
+          "404": {
+            description: "The Form starting point was not found.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/starting-points/landing-pages": {
+      get: {
+        method: "GET",
+        path: "/v1/starting-points/landing-pages",
+        summary: "List Landing Page starting points",
+        description:
+          "Returns compact metadata for the same Landing Page starting points available in the Mailrith UI. Load one item only when its full content is needed.",
+        tags: ["Starting Points"],
+        operationId: "listLandingPageStartingPoints",
+        security,
+        responses: {
+          "200": listOperationResponse(
+            "#/components/schemas/StartingPointMetadata",
+          ),
+        },
+      },
+    },
+    "/v1/starting-points/landing-pages/{starting_point_id}": {
+      get: {
+        method: "GET",
+        path: "/v1/starting-points/landing-pages/{starting_point_id}",
+        summary: "Get a Landing Page starting point",
+        description:
+          "Returns one Landing Page starting point with its definition, styles, and settings.",
+        tags: ["Starting Points"],
+        operationId: "getLandingPageStartingPoint",
+        security,
+        parameters: [
+          {
+            name: "starting_point_id",
+            in: "path",
+            required: true,
+            description: "The Landing Page starting point identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/LandingPageStartingPoint",
+          ),
+          "404": {
+            description: "The Landing Page starting point was not found.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
     "/v1/email-templates": {
       get: {
         method: "GET",
@@ -3938,6 +6858,12 @@ export const publicApiSpec: PublicApiSpec = {
         operationId: "listEmailTemplates",
         security,
         parameters: [
+          {
+            name: "search",
+            in: "query",
+            description: "Filter email templates by name.",
+            schema: { type: "string", maxLength: 200 },
+          },
           {
             name: "limit",
             in: "query",
@@ -3952,7 +6878,9 @@ export const publicApiSpec: PublicApiSpec = {
           },
         ],
         responses: {
-          "200": listOperationResponse("#/components/schemas/EmailTemplate"),
+          "200": listOperationResponse(
+            "#/components/schemas/EmailTemplateSummary",
+          ),
           "401": {
             description: "Unauthorized",
             content: {
@@ -4060,7 +6988,7 @@ export const publicApiSpec: PublicApiSpec = {
           content: {
             "application/json": {
               schema: {
-                $ref: "#/components/schemas/EmailTemplateUpsertRequest",
+                $ref: "#/components/schemas/EmailTemplateUpdateRequest",
               },
             },
           },
@@ -4136,6 +7064,58 @@ export const publicApiSpec: PublicApiSpec = {
         },
       },
     },
+    "/v1/email-templates/{template_id}/preview": {
+      post: {
+        method: "POST",
+        path: "/v1/email-templates/{template_id}/preview",
+        summary: "Preview an email template for a Subscriber",
+        description:
+          "Renders one template using a saved Subscriber's name, email, and custom fields without sending or saving anything.",
+        tags: ["Email Templates"],
+        operationId: "previewEmailTemplate",
+        security,
+        parameters: [
+          {
+            name: "template_id",
+            in: "path",
+            required: true,
+            description: "The email template identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/SubscriberPreviewRequest",
+              },
+            },
+          },
+        },
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/EmailTemplatePreview",
+          ),
+          "400": {
+            description: "Request is invalid",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "404": {
+            description: "Template or Subscriber not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
     "/v1/broadcasts": {
       get: {
         method: "GET",
@@ -4147,6 +7127,13 @@ export const publicApiSpec: PublicApiSpec = {
         operationId: "listBroadcasts",
         security,
         parameters: [
+          {
+            name: "search",
+            in: "query",
+            description:
+              "Filter Broadcasts by subject, preview text, status, or sender.",
+            schema: { type: "string", maxLength: 200 },
+          },
           {
             name: "limit",
             in: "query",
@@ -4161,7 +7148,9 @@ export const publicApiSpec: PublicApiSpec = {
           },
         ],
         responses: {
-          "200": listOperationResponse("#/components/schemas/Broadcast"),
+          "200": listOperationResponse(
+            "#/components/schemas/BroadcastSummary",
+          ),
           "401": {
             description: "Unauthorized",
             content: {
@@ -4176,8 +7165,7 @@ export const publicApiSpec: PublicApiSpec = {
         method: "POST",
         path: "/v1/broadcasts",
         summary: "Create a broadcast",
-        description:
-          "Creates a broadcast draft or scheduled broadcast in the authenticated workspace.",
+        description: "Creates a broadcast draft in the authenticated workspace.",
         tags: ["Broadcasts"],
         operationId: "createBroadcast",
         security,
@@ -4265,7 +7253,7 @@ export const publicApiSpec: PublicApiSpec = {
           required: true,
           content: {
             "application/json": {
-              schema: { $ref: "#/components/schemas/BroadcastUpsertRequest" },
+              schema: { $ref: "#/components/schemas/BroadcastUpdateRequest" },
             },
           },
         },
@@ -4460,6 +7448,94 @@ export const publicApiSpec: PublicApiSpec = {
           },
           "404": {
             description: "Resource not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/broadcasts/{broadcast_id}/schedule": {
+      put: {
+        method: "PUT",
+        path: "/v1/broadcasts/{broadcast_id}/schedule",
+        summary: "Schedule or reschedule a broadcast",
+        description:
+          "Schedules a draft for future delivery, or changes the delivery time of an existing scheduled Broadcast. This uses Mailrith's durable scheduled-send path and does not start delivery immediately.",
+        tags: ["Broadcasts"],
+        operationId: "scheduleBroadcast",
+        security,
+        parameters: [
+          {
+            name: "broadcast_id",
+            in: "path",
+            required: true,
+            description: "The broadcast identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/BroadcastScheduleRequest",
+              },
+            },
+          },
+        },
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/Broadcast",
+            "Broadcast scheduled",
+          ),
+          "400": {
+            description: "The schedule or sender is invalid.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "409": {
+            description:
+              "The Broadcast already started or cannot be scheduled in its current state.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        method: "DELETE",
+        path: "/v1/broadcasts/{broadcast_id}/schedule",
+        summary: "Unschedule a broadcast",
+        description:
+          "Returns a scheduled Broadcast to draft state before delivery starts.",
+        tags: ["Broadcasts"],
+        operationId: "unscheduleBroadcast",
+        security,
+        parameters: [
+          {
+            name: "broadcast_id",
+            in: "path",
+            required: true,
+            description: "The broadcast identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/Broadcast",
+            "Broadcast returned to draft",
+          ),
+          "409": {
+            description:
+              "The Broadcast already started or cannot be changed in its current state.",
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },
@@ -4682,7 +7758,7 @@ export const publicApiSpec: PublicApiSpec = {
         },
         responses: {
           "200": itemOperationResponse(
-            "#/components/schemas/ActionResult",
+            "#/components/schemas/BroadcastTestResult",
             "Test email sent",
           ),
           "400": {
@@ -4717,7 +7793,8 @@ export const publicApiSpec: PublicApiSpec = {
           {
             name: "search",
             in: "query",
-            description: "Filter sequences by ID, name, or status.",
+            description:
+              "Filter sequences by name, status, or sender details. Retrieve a known Sequence ID through the item endpoint.",
             schema: { type: "string" },
           },
           {
@@ -4735,7 +7812,9 @@ export const publicApiSpec: PublicApiSpec = {
           },
         ],
         responses: {
-          "200": listOperationResponse("#/components/schemas/Sequence"),
+          "200": listOperationResponse(
+            "#/components/schemas/SequenceSummary",
+          ),
           "401": {
             description: "Authentication is required or invalid",
             content: {
@@ -4837,7 +7916,7 @@ export const publicApiSpec: PublicApiSpec = {
           required: true,
           content: {
             "application/json": {
-              schema: { $ref: "#/components/schemas/SequenceUpsertRequest" },
+              schema: { $ref: "#/components/schemas/SequenceUpdateRequest" },
             },
           },
         },
@@ -4942,6 +8021,149 @@ export const publicApiSpec: PublicApiSpec = {
         },
       },
     },
+    "/v1/sequences/{sequence_id}/preflight": {
+      get: {
+        method: "GET",
+        path: "/v1/sequences/{sequence_id}/preflight",
+        summary: "Check sequence readiness",
+        description:
+          "Checks the saved Sequence, its published emails, and its email delivery connection without changing data or sending email.",
+        tags: ["Sequences"],
+        operationId: "preflightSequence",
+        security,
+        parameters: [
+          {
+            name: "sequence_id",
+            in: "path",
+            required: true,
+            description: "The Sequence identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/SequencePreflight",
+            "Sequence readiness returned",
+          ),
+          "404": {
+            description: "Sequence not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/sequences/{sequence_id}/journey-preview": {
+      get: {
+        method: "GET",
+        path: "/v1/sequences/{sequence_id}/journey-preview",
+        summary: "Preview a sequence journey",
+        description:
+          "Returns the bounded saved email timeline and shows which messages a selected Subscriber is eligible to receive, without enrolling the Subscriber or sending email.",
+        tags: ["Sequences"],
+        operationId: "previewSequenceJourney",
+        security,
+        parameters: [
+          {
+            name: "sequence_id",
+            in: "path",
+            required: true,
+            description: "The Sequence identifier.",
+            schema: { type: "string" },
+          },
+          {
+            name: "subscriber_id",
+            in: "query",
+            required: true,
+            description:
+              "The saved Subscriber whose personalization and targeting should be previewed.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/SequenceJourneyPreview",
+            "Sequence journey preview returned",
+          ),
+          "404": {
+            description: "Sequence not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/sequences/{sequence_id}/test": {
+      post: {
+        method: "POST",
+        path: "/v1/sequences/{sequence_id}/test",
+        summary: "Send sequence test messages",
+        description:
+          "Sends up to five selected saved Sequence emails to one explicit test address. This does not enroll a Subscriber, start the Sequence, or write delivery activity.",
+        tags: ["Sequences"],
+        operationId: "testSequence",
+        security,
+        parameters: [
+          {
+            name: "sequence_id",
+            in: "path",
+            required: true,
+            description: "The Sequence identifier.",
+            schema: { type: "string" },
+          },
+          {
+            name: "Idempotency-Key",
+            in: "header",
+            description: "Optional idempotency key to make retries safe.",
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/WorkflowTestRequest" },
+            },
+          },
+        },
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/WorkflowTestResult",
+            "Sequence test messages sent",
+          ),
+          "400": {
+            description: "Request is invalid",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "404": {
+            description: "Sequence not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "429": {
+            description: "Too many test messages were requested",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
     "/v1/automations": {
       get: {
         method: "GET",
@@ -4952,6 +8174,12 @@ export const publicApiSpec: PublicApiSpec = {
         operationId: "listAutomations",
         security,
         parameters: [
+          {
+            name: "search",
+            in: "query",
+            description: "Filter Automations by name or status.",
+            schema: { type: "string", maxLength: 200 },
+          },
           {
             name: "limit",
             in: "query",
@@ -4967,7 +8195,9 @@ export const publicApiSpec: PublicApiSpec = {
           },
         ],
         responses: {
-          "200": listOperationResponse("#/components/schemas/Automation"),
+          "200": listOperationResponse(
+            "#/components/schemas/AutomationSummary",
+          ),
           "401": {
             description: "Authentication is required or invalid",
             content: {
@@ -5069,7 +8299,7 @@ export const publicApiSpec: PublicApiSpec = {
           required: true,
           content: {
             "application/json": {
-              schema: { $ref: "#/components/schemas/AutomationUpsertRequest" },
+              schema: { $ref: "#/components/schemas/AutomationUpdateRequest" },
             },
           },
         },
@@ -5129,9 +8359,9 @@ export const publicApiSpec: PublicApiSpec = {
       put: {
         method: "PUT",
         path: "/v1/automations/{automation_id}/status",
-        summary: "Activate or pause an automation",
+        summary: "Change an automation status",
         description:
-          "Starts or pauses one Automation without changing its definition.",
+          "Starts, pauses, or returns one Automation to draft without changing its definition.",
         tags: ["Automations"],
         operationId: "updateAutomationStatus",
         security,
@@ -5173,6 +8403,149 @@ export const publicApiSpec: PublicApiSpec = {
         },
       },
     },
+    "/v1/automations/{automation_id}/preflight": {
+      get: {
+        method: "GET",
+        path: "/v1/automations/{automation_id}/preflight",
+        summary: "Check automation readiness",
+        description:
+          "Checks the saved Automation definition and email delivery prerequisite without running any action.",
+        tags: ["Automations"],
+        operationId: "preflightAutomation",
+        security,
+        parameters: [
+          {
+            name: "automation_id",
+            in: "path",
+            required: true,
+            description: "The Automation identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/AutomationPreflight",
+            "Automation readiness returned",
+          ),
+          "404": {
+            description: "Automation not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/automations/{automation_id}/journey-preview": {
+      get: {
+        method: "GET",
+        path: "/v1/automations/{automation_id}/journey-preview",
+        summary: "Preview an automation journey",
+        description:
+          "Shows the bounded path a selected Subscriber would take through the current saved conditions without running actions or writing history.",
+        tags: ["Automations"],
+        operationId: "previewAutomationJourney",
+        security,
+        parameters: [
+          {
+            name: "automation_id",
+            in: "path",
+            required: true,
+            description: "The Automation identifier.",
+            schema: { type: "string" },
+          },
+          {
+            name: "subscriber_id",
+            in: "query",
+            required: true,
+            description:
+              "The saved Subscriber whose current state should be evaluated.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/AutomationJourneyPreview",
+            "Automation journey preview returned",
+          ),
+          "404": {
+            description: "Automation not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/automations/{automation_id}/test": {
+      post: {
+        method: "POST",
+        path: "/v1/automations/{automation_id}/test",
+        summary: "Send automation test messages",
+        description:
+          "Sends up to five selected saved Automation email steps to one explicit test address. This does not start the Automation or run other actions.",
+        tags: ["Automations"],
+        operationId: "testAutomation",
+        security,
+        parameters: [
+          {
+            name: "automation_id",
+            in: "path",
+            required: true,
+            description: "The Automation identifier.",
+            schema: { type: "string" },
+          },
+          {
+            name: "Idempotency-Key",
+            in: "header",
+            description: "Optional idempotency key to make retries safe.",
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/WorkflowTestRequest" },
+            },
+          },
+        },
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/WorkflowTestResult",
+            "Automation test messages sent",
+          ),
+          "400": {
+            description: "Request is invalid",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "404": {
+            description: "Automation not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "429": {
+            description: "Too many test messages were requested",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
     "/v1/magic-links": {
       get: {
         method: "GET",
@@ -5183,6 +8556,13 @@ export const publicApiSpec: PublicApiSpec = {
         operationId: "listMagicLinks",
         security,
         parameters: [
+          {
+            name: "search",
+            in: "query",
+            description:
+              "Filter Magic Links by name, destination, or success message.",
+            schema: { type: "string", maxLength: 200 },
+          },
           {
             name: "limit",
             in: "query",
@@ -5198,7 +8578,9 @@ export const publicApiSpec: PublicApiSpec = {
           },
         ],
         responses: {
-          "200": listOperationResponse("#/components/schemas/MagicLink"),
+          "200": listOperationResponse(
+            "#/components/schemas/MagicLinkSummary",
+          ),
           "401": {
             description: "Authentication is required or invalid",
             content: {
@@ -5309,7 +8691,7 @@ export const publicApiSpec: PublicApiSpec = {
           required: true,
           content: {
             "application/json": {
-              schema: { $ref: "#/components/schemas/MagicLinkUpsertRequest" },
+              schema: { $ref: "#/components/schemas/MagicLinkUpdateRequest" },
             },
           },
         },
@@ -5512,8 +8894,6 @@ export const publicApiSpec: PublicApiSpec = {
           "Creates a new subscriber when the email does not exist in the workspace. If the email already exists, the API updates the existing subscriber unless create_only is true.",
         tags: ["Subscribers"],
         operationId: "upsertSubscriber",
-        "x-mailrith-payload-field-scopes":
-          publicApiSubscriberPayloadFieldScopeRequirements.requiredScopesByField,
         security,
         parameters: [idempotencyKeyParameter],
         requestBody: {
@@ -5582,6 +8962,44 @@ export const publicApiSpec: PublicApiSpec = {
       },
     },
     "/v1/subscribers/{subscriber_id}": {
+      get: {
+        method: "GET",
+        path: "/v1/subscribers/{subscriber_id}",
+        summary: "Get a subscriber",
+        description:
+          "Returns one Subscriber by its stable identifier from the authenticated workspace.",
+        tags: ["Subscribers"],
+        operationId: "getSubscriber",
+        security,
+        parameters: [
+          {
+            name: "subscriber_id",
+            in: "path",
+            required: true,
+            description: "The Subscriber identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse("#/components/schemas/Subscriber"),
+          "401": {
+            description: "Authentication is required or invalid",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "404": {
+            description: "Subscriber not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
       patch: {
         method: "PATCH",
         path: "/v1/subscribers/{subscriber_id}",
@@ -5590,8 +9008,6 @@ export const publicApiSpec: PublicApiSpec = {
           "Updates profile fields, status, custom fields, tags, or sequence assignments for one subscriber. Fields omitted from the request stay unchanged. Blank optional custom field values also leave saved values unchanged, and filled-in invalid values are rejected.",
         tags: ["Subscribers"],
         operationId: "updateSubscriber",
-        "x-mailrith-payload-field-scopes":
-          publicApiSubscriberPayloadFieldScopeRequirements.requiredScopesByField,
         security,
         parameters: [
           {
@@ -5971,7 +9387,8 @@ export const publicApiSpec: PublicApiSpec = {
           {
             name: "search",
             in: "query",
-            description: "Filter tags by ID, name, or description.",
+            description:
+              "Filter Tags by name or description. Retrieve a known Tag ID through the item endpoint.",
             schema: { type: "string" },
           },
           {
@@ -6105,7 +9522,7 @@ export const publicApiSpec: PublicApiSpec = {
           required: true,
           content: {
             "application/json": {
-              schema: { $ref: "#/components/schemas/TagCreateRequest" },
+              schema: { $ref: "#/components/schemas/TagUpdateRequest" },
             },
           },
         },
@@ -6187,6 +9604,12 @@ export const publicApiSpec: PublicApiSpec = {
         operationId: "listCustomFields",
         security,
         parameters: [
+          {
+            name: "search",
+            in: "query",
+            description: "Filter custom fields by label or type.",
+            schema: { type: "string", maxLength: 200 },
+          },
           {
             name: "limit",
             in: "query",
@@ -6306,7 +9729,7 @@ export const publicApiSpec: PublicApiSpec = {
           required: true,
           content: {
             "application/json": {
-              schema: { $ref: "#/components/schemas/CustomFieldUpsertRequest" },
+              schema: { $ref: "#/components/schemas/CustomFieldUpdateRequest" },
             },
           },
         },
@@ -6394,7 +9817,8 @@ export const publicApiSpec: PublicApiSpec = {
           {
             name: "search",
             in: "query",
-            description: "Filter forms by ID, name, or public URL token.",
+            description:
+              "Filter Forms by name or public URL token. Retrieve a known Form ID through the item endpoint.",
             schema: { type: "string" },
           },
           {
@@ -6411,7 +9835,7 @@ export const publicApiSpec: PublicApiSpec = {
           },
         ],
         responses: {
-          "200": listOperationResponse("#/components/schemas/Form"),
+          "200": listOperationResponse("#/components/schemas/FormSummary"),
           "401": {
             description: "The request is not authorized.",
             content: {
@@ -6514,7 +9938,7 @@ export const publicApiSpec: PublicApiSpec = {
           required: true,
           content: {
             "application/json": {
-              schema: { $ref: "#/components/schemas/FormUpsertRequest" },
+              schema: { $ref: "#/components/schemas/FormUpdateRequest" },
             },
           },
         },
@@ -6570,13 +9994,65 @@ export const publicApiSpec: PublicApiSpec = {
         },
       },
     },
+    "/v1/forms/{form_id}/double-opt-in-preview": {
+      post: {
+        method: "POST",
+        path: "/v1/forms/{form_id}/double-opt-in-preview",
+        summary: "Preview a form confirmation email for a Subscriber",
+        description:
+          "Renders the configured double opt-in email for a saved Subscriber without sending or saving anything.",
+        tags: ["Forms"],
+        operationId: "previewFormDoubleOptIn",
+        security,
+        parameters: [
+          {
+            name: "form_id",
+            in: "path",
+            required: true,
+            description: "The form identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/SubscriberPreviewRequest",
+              },
+            },
+          },
+        },
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/DoubleOptInEmailPreview",
+          ),
+          "404": {
+            description: "Form or Subscriber not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "409": {
+            description: "Double opt-in is disabled or incomplete",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
     "/v1/forms/{form_id}/submissions": {
       get: {
         method: "GET",
         path: "/v1/forms/{form_id}/submissions",
         summary: "List form submissions",
         description:
-          "Returns recent real submissions for one form, including the subscriber who submitted the form. Requires both `forms:read` and `subscribers:read`.",
+          "Returns a bounded cursor page of retained submissions for one Form, including the Subscriber who submitted it.",
         tags: ["Forms"],
         operationId: "listFormSubmissions",
         security,
@@ -6617,6 +10093,47 @@ export const publicApiSpec: PublicApiSpec = {
         },
       },
     },
+    "/v1/forms/{form_id}/submissions/{submission_id}": {
+      get: {
+        method: "GET",
+        path: "/v1/forms/{form_id}/submissions/{submission_id}",
+        summary: "Get a form submission",
+        description:
+          "Returns one retained Form submission by stable identifier.",
+        tags: ["Forms"],
+        operationId: "getFormSubmission",
+        security,
+        parameters: [
+          {
+            name: "form_id",
+            in: "path",
+            required: true,
+            description: "The Form identifier.",
+            schema: { type: "string" },
+          },
+          {
+            name: "submission_id",
+            in: "path",
+            required: true,
+            description: "The Form submission identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/FormSubmission",
+          ),
+          "404": {
+            description: "The Form or submission was not found.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
     "/v1/landing-pages": {
       get: {
         method: "GET",
@@ -6631,7 +10148,7 @@ export const publicApiSpec: PublicApiSpec = {
             name: "search",
             in: "query",
             description:
-              "Filter landing pages by ID, name, slug, custom path, or public URL token.",
+              "Filter Landing Pages by name, slug, custom path, or public URL token. Retrieve a known Landing Page ID through the item endpoint.",
             schema: { type: "string" },
           },
           {
@@ -6649,7 +10166,9 @@ export const publicApiSpec: PublicApiSpec = {
           },
         ],
         responses: {
-          "200": listOperationResponse("#/components/schemas/LandingPage"),
+          "200": listOperationResponse(
+            "#/components/schemas/LandingPageSummary",
+          ),
           "401": {
             description: "The request is not authorized.",
             content: {
@@ -6763,7 +10282,7 @@ export const publicApiSpec: PublicApiSpec = {
           required: true,
           content: {
             "application/json": {
-              schema: { $ref: "#/components/schemas/LandingPageUpsertRequest" },
+              schema: { $ref: "#/components/schemas/LandingPageUpdateRequest" },
             },
           },
         },
@@ -6828,13 +10347,65 @@ export const publicApiSpec: PublicApiSpec = {
         },
       },
     },
+    "/v1/landing-pages/{landing_page_id}/double-opt-in-preview": {
+      post: {
+        method: "POST",
+        path: "/v1/landing-pages/{landing_page_id}/double-opt-in-preview",
+        summary: "Preview a landing page confirmation email for a Subscriber",
+        description:
+          "Renders the configured double opt-in email for a saved Subscriber without sending or saving anything.",
+        tags: ["Landing Pages"],
+        operationId: "previewLandingPageDoubleOptIn",
+        security,
+        parameters: [
+          {
+            name: "landing_page_id",
+            in: "path",
+            required: true,
+            description: "The landing page identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/SubscriberPreviewRequest",
+              },
+            },
+          },
+        },
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/DoubleOptInEmailPreview",
+          ),
+          "404": {
+            description: "Landing page or Subscriber not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "409": {
+            description: "Double opt-in is disabled or incomplete",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
     "/v1/landing-pages/{landing_page_id}/submissions": {
       get: {
         method: "GET",
         path: "/v1/landing-pages/{landing_page_id}/submissions",
         summary: "List landing page submissions",
         description:
-          "Returns recent real submissions for one landing page, including the subscriber who submitted the landing page. Requires both `landing_pages:read` and `subscribers:read`.",
+          "Returns a bounded cursor page of retained submissions for one Landing Page, including the Subscriber who submitted it.",
         tags: ["Landing Pages"],
         operationId: "listLandingPageSubmissions",
         security,
@@ -6877,6 +10448,48 @@ export const publicApiSpec: PublicApiSpec = {
         },
       },
     },
+    "/v1/landing-pages/{landing_page_id}/submissions/{submission_id}": {
+      get: {
+        method: "GET",
+        path:
+          "/v1/landing-pages/{landing_page_id}/submissions/{submission_id}",
+        summary: "Get a landing page submission",
+        description:
+          "Returns one retained Landing Page submission by stable identifier.",
+        tags: ["Landing Pages"],
+        operationId: "getLandingPageSubmission",
+        security,
+        parameters: [
+          {
+            name: "landing_page_id",
+            in: "path",
+            required: true,
+            description: "The Landing Page identifier.",
+            schema: { type: "string" },
+          },
+          {
+            name: "submission_id",
+            in: "path",
+            required: true,
+            description: "The Landing Page submission identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/LandingPageSubmission",
+          ),
+          "404": {
+            description: "The Landing Page or submission was not found.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
     "/v1/segments": {
       get: {
         method: "GET",
@@ -6887,6 +10500,12 @@ export const publicApiSpec: PublicApiSpec = {
         operationId: "listSegments",
         security,
         parameters: [
+          {
+            name: "search",
+            in: "query",
+            description: "Filter Segments by name or description.",
+            schema: { type: "string", maxLength: 200 },
+          },
           {
             name: "limit",
             in: "query",
@@ -6902,7 +10521,7 @@ export const publicApiSpec: PublicApiSpec = {
           },
         ],
         responses: {
-          "200": listOperationResponse("#/components/schemas/Segment"),
+          "200": listOperationResponse("#/components/schemas/SegmentSummary"),
           "401": {
             description: "The request is not authorized.",
             content: {
@@ -7015,7 +10634,7 @@ export const publicApiSpec: PublicApiSpec = {
           required: true,
           content: {
             "application/json": {
-              schema: { $ref: "#/components/schemas/SegmentUpsertRequest" },
+              schema: { $ref: "#/components/schemas/SegmentUpdateRequest" },
             },
           },
         },
@@ -7135,12 +10754,41 @@ export const publicApiSpec: PublicApiSpec = {
       },
     },
     "/v1/jobs/subscriber-imports": {
+      get: {
+        method: "GET",
+        path: "/v1/jobs/subscriber-imports",
+        summary: "List subscriber import jobs",
+        description:
+          "Returns a bounded cursor page of recent Subscriber import job summaries without loading stored CSV data or mapping payloads.",
+        tags: ["Jobs"],
+        operationId: "listSubscriberImportJobs",
+        security,
+        parameters: [
+          {
+            name: "limit",
+            in: "query",
+            description: "Maximum number of jobs to return.",
+            schema: { type: "integer", minimum: 1, maximum: 100 },
+          },
+          {
+            name: "starting_after",
+            in: "query",
+            description: "Opaque cursor returned by the previous page.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": listOperationResponse(
+            "#/components/schemas/SubscriberImportJobSummary",
+          ),
+        },
+      },
       post: {
         method: "POST",
         path: "/v1/jobs/subscriber-imports",
         summary: "Create a subscriber import job",
         description:
-          "Queues an asynchronous import job that creates or updates subscribers from CSV text.",
+          "Queues an asynchronous import job from a ready short-lived browser upload. CSV contents never pass through the agent request.",
         tags: ["Jobs"],
         operationId: "createSubscriberImportJob",
         security,
@@ -7180,6 +10828,57 @@ export const publicApiSpec: PublicApiSpec = {
           },
           "400": {
             description: "The request is invalid.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/v1/jobs/subscriber-import-uploads": {
+      post: {
+        method: "POST",
+        path: "/v1/jobs/subscriber-import-uploads",
+        summary: "Start a subscriber import upload",
+        description:
+          "Creates a short-lived browser handoff where a signed-in user can choose a CSV file. Starting the handoff does not import Subscribers.",
+        tags: ["Jobs"],
+        operationId: "startSubscriberImportUpload",
+        security,
+        responses: {
+          "201": itemOperationResponse(
+            "#/components/schemas/SubscriberImportUpload",
+          ),
+        },
+      },
+    },
+    "/v1/jobs/subscriber-import-uploads/{upload_id}": {
+      get: {
+        method: "GET",
+        path: "/v1/jobs/subscriber-import-uploads/{upload_id}",
+        summary: "Get a subscriber import upload",
+        description:
+          "Returns upload readiness, bounded column metadata, and the row count without returning CSV contents.",
+        tags: ["Jobs"],
+        operationId: "getSubscriberImportUpload",
+        security,
+        parameters: [
+          {
+            name: "upload_id",
+            in: "path",
+            required: true,
+            description: "The short-lived upload identifier.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": itemOperationResponse(
+            "#/components/schemas/SubscriberImportUpload",
+          ),
+          "404": {
+            description: "The upload was not found or has expired.",
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },
@@ -7235,12 +10934,41 @@ export const publicApiSpec: PublicApiSpec = {
       },
     },
     "/v1/jobs/subscriber-exports": {
+      get: {
+        method: "GET",
+        path: "/v1/jobs/subscriber-exports",
+        summary: "List subscriber export jobs",
+        description:
+          "Returns a bounded cursor page of recent Subscriber export job summaries without loading selection payloads or generating download URLs.",
+        tags: ["Jobs"],
+        operationId: "listSubscriberExportJobs",
+        security,
+        parameters: [
+          {
+            name: "limit",
+            in: "query",
+            description: "Maximum number of jobs to return.",
+            schema: { type: "integer", minimum: 1, maximum: 100 },
+          },
+          {
+            name: "starting_after",
+            in: "query",
+            description: "Opaque cursor returned by the previous page.",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": listOperationResponse(
+            "#/components/schemas/SubscriberExportJobSummary",
+          ),
+        },
+      },
       post: {
         method: "POST",
         path: "/v1/jobs/subscriber-exports",
         summary: "Create a subscriber export job",
         description:
-          "Queues an asynchronous Subscriber export for the authenticated workspace. Requires `subscribers:bulk_export` because the finished file contains bulk Subscriber data.",
+          "Queues an asynchronous Subscriber export for the authenticated workspace. Requires `subscribers:export` because the finished file contains bulk Subscriber data.",
         tags: ["Jobs"],
         operationId: "createSubscriberExportJob",
         security,
@@ -7295,7 +11023,7 @@ export const publicApiSpec: PublicApiSpec = {
         path: "/v1/jobs/subscriber-exports/{job_id}",
         summary: "Get a subscriber export job",
         description:
-          "Returns the current state of a previously created export job. Requires `subscribers:bulk_export` because completed jobs include a Subscriber CSV download URL.",
+          "Returns the current state of a previously created export job. Requires `subscribers:export` because completed jobs include a Subscriber CSV download URL.",
         tags: ["Jobs"],
         operationId: "getSubscriberExportJob",
         security,
@@ -7342,10 +11070,13 @@ export type PublicApiSdkOperation = {
   namespace:
     | "discovery"
     | "workspace"
+    | "senderIdentities"
+    | "emailDeliveryConnections"
     | "subscribers"
     | "tags"
     | "customFields"
     | "emailTemplates"
+    | "startingPoints"
     | "forms"
     | "landingPages"
     | "sequences"
@@ -7355,7 +11086,6 @@ export type PublicApiSdkOperation = {
     | "segments"
     | "webhookSubscriptions"
     | "jobs"
-    | "agentActivity"
     | "analytics"
     | "diagnostics";
   methodName: string;
@@ -7369,6 +11099,7 @@ export type PublicApiSdkOperation = {
   mcpToolName: string;
   risk: PublicApiAgentRiskClass;
   externalSideEffect: boolean;
+  requiresLiveAction: boolean;
   sideEffectClass: PublicApiAgentSideEffectClass;
   retryMode: PublicApiAgentRetryMode;
   idempotencyPolicy: PublicApiAgentIdempotencyPolicy;
@@ -7380,8 +11111,6 @@ export type PublicApiSdkOperation = {
   headerParams: string[];
   hasRequestBody: boolean;
   requestBodyRequired: boolean;
-  eventPatternScopeRequirements?: PublicApiWebhookEventPatternScopeRequirements;
-  payloadFieldScopeRequirements?: PublicApiPayloadFieldScopeRequirements;
 };
 
 export type PublicApiSdkResource = {
@@ -7407,8 +11136,6 @@ const createSdkOperation = (
   method: string,
   path: string,
   requiredScopes: string[] = [],
-  eventPatternScopeRequirements?: PublicApiWebhookEventPatternScopeRequirements,
-  payloadFieldScopeRequirements?: PublicApiPayloadFieldScopeRequirements,
 ): PublicApiSdkOperation => {
   const operation = getSpecOperation(path, method);
   if (!operation) {
@@ -7439,6 +11166,7 @@ const createSdkOperation = (
     mcpToolName: `${toSnakeCase(namespace)}_${toSnakeCase(methodName)}`,
     risk: risk.risk,
     externalSideEffect: risk.externalSideEffect,
+    requiresLiveAction: risk.requiresLiveAction,
     sideEffectClass: risk.sideEffectClass,
     retryMode: risk.retryMode,
     idempotencyPolicy: risk.idempotencyPolicy,
@@ -7456,10 +11184,6 @@ const createSdkOperation = (
       .map((parameter) => parameter.name),
     hasRequestBody: Boolean(operation.requestBody),
     requestBodyRequired: operation.requestBody?.required === true,
-    ...(eventPatternScopeRequirements ? { eventPatternScopeRequirements } : {}),
-    ...(payloadFieldScopeRequirements
-      ? { payloadFieldScopeRequirements }
-      : {}),
   };
 };
 
@@ -7489,8 +11213,6 @@ const createSdkResource = (
         operation.method,
         operation.path,
         [...operation.requiredScopes],
-        operation.eventPatternScopeRequirements,
-        operation.payloadFieldScopeRequirements,
       ),
     ),
   };
@@ -7521,10 +11243,26 @@ export const publicApiSdkResources: PublicApiSdkResource[] = [
   createSdkResource("workspace", "workspace", {
     getWorkspace: "get",
   }),
-  createSdkResource("agentActivity", "agent_activity", {
-    listAgentActivity: "list",
-    getAgentActivity: "get",
+  createSdkResource("senderIdentities", "sender_identities", {
+    listSenderIdentities: "list",
+    getSenderIdentity: "get",
   }),
+  createSdkResource(
+    "emailDeliveryConnections",
+    "email_delivery_connections",
+    {
+      listEmailDeliveryConnections: "list",
+      startEmailDeliveryConnectionSetup: "startSetup",
+      getEmailDeliveryConnectionSetup: "getSetup",
+      renewEmailDeliveryConnectionSetup: "renewSetup",
+      getEmailDeliveryConnection: "get",
+      updateEmailDeliveryConnection: "update",
+      updateEmailDeliveryConnectionStatus: "updateStatus",
+      verifyEmailDeliveryConnection: "verify",
+      testEmailDeliveryConnection: "sendTest",
+      deleteEmailDeliveryConnection: "delete",
+    },
+  ),
   createSdkResource("analytics", "analytics", {
     createAnalyticsReport: "createReport",
     getAnalyticsReport: "getReport",
@@ -7538,6 +11276,7 @@ export const publicApiSdkResources: PublicApiSdkResource[] = [
   }),
   createSdkResource("subscribers", "subscribers", {
     listSubscribers: "list",
+    getSubscriber: "get",
     upsertSubscriber: "upsert",
     updateSubscriber: "update",
     deleteSubscriber: "delete",
@@ -7565,14 +11304,25 @@ export const publicApiSdkResources: PublicApiSdkResource[] = [
     listEmailTemplates: "list",
     createEmailTemplate: "create",
     getEmailTemplate: "get",
+    previewEmailTemplate: "preview",
     updateEmailTemplate: "update",
     deleteEmailTemplate: "delete",
+  }),
+  createSdkResource("startingPoints", "starting_points", {
+    listEmailStartingPoints: "listEmailTemplates",
+    getEmailStartingPoint: "getEmailTemplate",
+    listFormStartingPoints: "listForms",
+    getFormStartingPoint: "getForm",
+    listLandingPageStartingPoints: "listLandingPages",
+    getLandingPageStartingPoint: "getLandingPage",
   }),
   createSdkResource("forms", "forms", {
     listForms: "list",
     createForm: "create",
     getForm: "get",
     listFormSubmissions: "listSubmissions",
+    getFormSubmission: "getSubmission",
+    previewFormDoubleOptIn: "previewDoubleOptIn",
     updateForm: "update",
     deleteForm: "delete",
   }),
@@ -7581,6 +11331,8 @@ export const publicApiSdkResources: PublicApiSdkResource[] = [
     createLandingPage: "create",
     getLandingPage: "get",
     listLandingPageSubmissions: "listSubmissions",
+    getLandingPageSubmission: "getSubmission",
+    previewLandingPageDoubleOptIn: "previewDoubleOptIn",
     updateLandingPage: "update",
     deleteLandingPage: "delete",
   }),
@@ -7588,6 +11340,9 @@ export const publicApiSdkResources: PublicApiSdkResource[] = [
     listSequences: "list",
     createSequence: "create",
     getSequence: "get",
+    preflightSequence: "preflight",
+    previewSequenceJourney: "previewJourney",
+    testSequence: "sendTest",
     updateSequence: "update",
     updateSequenceStatus: "updateStatus",
     deleteSequence: "delete",
@@ -7596,6 +11351,9 @@ export const publicApiSdkResources: PublicApiSdkResource[] = [
     listAutomations: "list",
     createAutomation: "create",
     getAutomation: "get",
+    preflightAutomation: "preflight",
+    previewAutomationJourney: "previewJourney",
+    testAutomation: "sendTest",
     updateAutomation: "update",
     updateAutomationStatus: "updateStatus",
     deleteAutomation: "delete",
@@ -7616,6 +11374,8 @@ export const publicApiSdkResources: PublicApiSdkResource[] = [
     updateBroadcast: "update",
     deleteBroadcast: "delete",
     preflightBroadcast: "preflight",
+    scheduleBroadcast: "schedule",
+    unscheduleBroadcast: "unschedule",
     sendBroadcast: "send",
     cancelBroadcastSend: "cancel",
     testBroadcast: "sendTest",
@@ -7637,8 +11397,12 @@ export const publicApiSdkResources: PublicApiSdkResource[] = [
     rotateWebhookSubscriptionSecret: "rotateSecret",
   }),
   createSdkResource("jobs", "jobs", {
+    startSubscriberImportUpload: "startImportUpload",
+    getSubscriberImportUpload: "getImportUpload",
+    listSubscriberImportJobs: "listImports",
     createSubscriberImportJob: "createImport",
     getSubscriberImportJob: "getImport",
+    listSubscriberExportJobs: "listExports",
     createSubscriberExportJob: "createExport",
     getSubscriberExportJob: "getExport",
   }),

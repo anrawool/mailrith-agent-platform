@@ -7,10 +7,13 @@ default_tools_approval_mode = "never"
 startup_timeout_sec = 20
 tool_timeout_sec = 60
 enabled_tools = [
-  "discovery_get_metadata",
-  "discovery_get_capabilities",
-  "workspace_get",
-  "subscribers_list",
+  "mailrith_check_connection",
+  "mailrith_search_operations",
+  "mailrith_get_operation",
+  "mailrith_read",
+  "mailrith_write",
+  "mailrith_delete",
+  "mailrith_live",
 ]
 
 # Run `codex mcp login mailrith` after adding this block.

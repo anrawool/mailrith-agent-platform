@@ -1,6 +1,6 @@
 {
   "name": "@mailrith/cli",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Official command-line interface for Mailrith agent workflows.",
   "license": "MIT",
   "homepage": "https://mailrith.com/developers/agent-quickstarts",
@@ -44,6 +44,7 @@
     "test": "vitest run --root ../.. packages/cli/src/index.test.ts"
   },
   "dependencies": {
+    "@mailrith/public-api": "workspace:^",
     "@mailrith/sdk": "workspace:^"
   },
   "devDependencies": {

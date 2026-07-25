@@ -3,8 +3,12 @@ import { stdin as processStdin } from "node:process";
 import {
   MailrithApiError,
   createMailrithClient,
-  mailrithAgentReadQuickstartScopeKeys,
+  getMailrithOperationCategory,
+  mailrithDefaultWorkProfileKey,
+  mailrithOperationDiscovery,
   mailrithSdkResources,
+  mailrithWorkProfiles,
+  type MailrithOperationCategory,
   type MailrithOperationRequest,
   type MailrithResponseMetadata,
   type MailrithSdkOperationDescriptor,
@@ -16,9 +20,13 @@ import {
   writeMailrithCliConfig,
 } from "./config.js";
 
-export const mailrithCliVersion = "0.1.2";
+export const mailrithCliVersion = "0.2.0";
+export const mailrithCliDefaultOAuthProfile = mailrithDefaultWorkProfileKey;
+export const mailrithCliOAuthProfiles = Object.fromEntries(
+  mailrithWorkProfiles.map((profile) => [profile.key, profile.scopeKeys]),
+);
 export const mailrithCliDefaultOAuthScopes =
-  mailrithAgentReadQuickstartScopeKeys;
+  mailrithCliOAuthProfiles[mailrithCliDefaultOAuthProfile] ?? [];
 
 const inputMaxBytes = 1024 * 1024;
 const diagnosticResponseMaxBytes = 128 * 1024;
@@ -28,6 +36,7 @@ const secretFieldPattern = /(?:^|_)(?:access_?token|refresh_?token|authorization
 const booleanFlags = new Set([
   "all",
   "help",
+  "include-output-schema",
   "json",
   "no-browser",
   "show-version",
@@ -85,6 +94,26 @@ const usageError = (message: string, details?: unknown) =>
     exitCode: mailrithCliExitCodes.usage,
     details,
   });
+
+export const resolveMailrithCliOAuthScopes = (params: {
+  scopes?: readonly string[];
+  profile?: string;
+}) => {
+  const explicitScopes = (params.scopes ?? [])
+    .map((scope) => scope.trim())
+    .filter(Boolean);
+  if (explicitScopes.length > 0) {
+    return [...new Set(explicitScopes)];
+  }
+  const profile = params.profile?.trim() || mailrithCliDefaultOAuthProfile;
+  const profileScopes = mailrithCliOAuthProfiles[profile];
+  if (!profileScopes) {
+    throw usageError(
+      `--profile must be ${Object.keys(mailrithCliOAuthProfiles).join(" or ")}.`,
+    );
+  }
+  return [...profileScopes];
+};
 
 const parseArguments = (argv: string[]): ParsedArguments => {
   const positionals: string[] = [];
@@ -251,6 +280,7 @@ const emit = (params: {
   payload: unknown;
   metadata?: MailrithResponseMetadata | null;
   event?: string;
+  pagination?: unknown;
 }) => {
   const safePayload = redactSecrets(params.payload);
   if (hasFlag(params.args, "json")) {
@@ -261,6 +291,9 @@ const emit = (params: {
         request_id: params.metadata?.requestId ?? null,
         status: params.metadata?.status ?? null,
         data: safePayload,
+        ...(params.pagination === undefined
+          ? {}
+          : { pagination: redactSecrets(params.pagination) }),
       }),
     );
     return;
@@ -282,6 +315,125 @@ const findOperation = (namespace: string, methodName: string) => {
     throw usageError(`Unknown SDK operation ${namespace}.${methodName}.`);
   }
   return operation as MailrithSdkOperationDescriptor;
+};
+
+const operationExecutionTools: Record<MailrithOperationCategory, string> = {
+  read: "mailrith_read",
+  write: "mailrith_write",
+  delete: "mailrith_delete",
+  live: "mailrith_live",
+};
+
+const parseOperationCategory = (value: string | undefined) => {
+  if (value === undefined) return undefined;
+  if (
+    value !== "read" &&
+    value !== "write" &&
+    value !== "delete" &&
+    value !== "live"
+  ) {
+    throw usageError(
+      "--category must be read, write, delete, or live.",
+    );
+  }
+  return value;
+};
+
+const describeCliOperation = (operation: MailrithSdkOperationDescriptor) => {
+  const category = getMailrithOperationCategory(operation);
+  return {
+    operation_id: operation.operationId,
+    resource: operation.namespace,
+    method_name: operation.methodName,
+    summary: operation.summary,
+    category,
+    cli_command: `mailrith operations run ${operation.operationId}`,
+    mcp_execution_tool: operationExecutionTools[category],
+    required_scopes: operation.requiredScopes,
+  };
+};
+
+const runOperationSearch = (params: {
+  args: ParsedArguments;
+  query: string;
+  stdout: (line: string) => void;
+}) => {
+  const limit = parseBoundedInteger(getStringFlag(params.args, "limit"), {
+    label: "--limit",
+    minimum: 1,
+    maximum: 25,
+    fallback: 12,
+  });
+  const discovery = mailrithOperationDiscovery.search({
+    query: params.query,
+    resource: getStringFlag(params.args, "resource"),
+    category: parseOperationCategory(
+      getStringFlag(params.args, "category"),
+    ),
+  });
+  const matches = discovery.matches.slice(0, limit);
+  emit({
+    args: params.args,
+    stdout: params.stdout,
+    event: "operation_search",
+    payload: {
+      data: matches.map((match) =>
+        describeCliOperation(match.operation),
+      ),
+      selection: discovery.selection,
+      pagination: {
+        returned: matches.length,
+        total_matches: discovery.matches.length,
+        truncated: discovery.matches.length > limit,
+      },
+    },
+  });
+};
+
+const runOperationDescribe = async (params: {
+  args: ParsedArguments;
+  operationId: string;
+  stdout: (line: string) => void;
+}) => {
+  const operation = mailrithOperationDiscovery.getOperation(
+    params.operationId,
+  );
+  if (!operation) {
+    throw usageError(`Unknown operation ID ${params.operationId}.`);
+  }
+
+  // The exact JSON schemas are intentionally loaded only for this command.
+  // Normal CLI startup and operation search therefore avoid evaluating the
+  // larger public API schema contract.
+  const { publicApiMcpOperationContractMap } =
+    await import("@mailrith/public-api");
+  const contract = publicApiMcpOperationContractMap.get(
+    operation.operationId,
+  );
+  if (!contract) {
+    throw new MailrithCliError({
+      message: `The schema for ${operation.operationId} is unavailable.`,
+      code: "operation_contract_missing",
+      exitCode: mailrithCliExitCodes.transient,
+    });
+  }
+  emit({
+    args: params.args,
+    stdout: params.stdout,
+    event: "operation_schema",
+    payload: {
+      ...describeCliOperation(operation),
+      method: operation.method,
+      path: operation.path,
+      description: operation.description,
+      retry_mode: operation.retryMode,
+      idempotency_policy: operation.idempotencyPolicy,
+      input_schema: contract.inputSchema,
+      ...(hasFlag(params.args, "include-output-schema")
+        ? { output_schema: contract.outputSchema }
+        : {}),
+    },
+  });
 };
 
 const normalizeApiBaseUrl = (value: string) => {
@@ -318,6 +470,21 @@ const getNextCursor = (payload: unknown) => {
     : null;
 };
 
+const getPagination = (payload: unknown) => {
+  if (!payload || typeof payload !== "object") return undefined;
+  const pagination = (payload as Record<string, unknown>).pagination;
+  return pagination && typeof pagination === "object"
+    ? pagination
+    : undefined;
+};
+
+const unwrapApiResponseData = (payload: unknown) =>
+  payload &&
+  typeof payload === "object" &&
+  Object.prototype.hasOwnProperty.call(payload, "data")
+    ? (payload as { data: unknown }).data
+    : payload;
+
 const invokeOperation = async (params: {
   args: ParsedArguments;
   operation: MailrithSdkOperationDescriptor;
@@ -352,12 +519,14 @@ const invokeOperation = async (params: {
     emit({
       args: params.args,
       stdout: params.stdout,
-      payload,
+      payload: unwrapApiResponseData(payload),
+      pagination: getPagination(payload),
       metadata,
       event: maxPages > 1 ? "page" : "result",
     });
     const nextCursor = getNextCursor(payload);
     if (!nextCursor) return;
+    if (!hasFlag(params.args, "all")) return;
     if (page === maxPages) {
       throw usageError(
         `Pagination stopped at the configured ${maxPages}-page limit. Continue with --query starting_after=${nextCursor}.`,
@@ -470,15 +639,16 @@ const runDoctor = async (params: {
 const helpText = `Mailrith CLI ${mailrithCliVersion}
 
 Commands:
-  auth login [--scope workspace:read --scope subscribers:read] [--no-browser]
+  auth login [--profile <work-profile>] [--scope <permission>] [--no-browser]
   auth set-key [--from-env MAILRITH_API_KEY]
   auth logout
   discovery
   capabilities
+  operations search "<task>" [--resource <name>] [--category <effect>] [--limit <n>]
+  operations describe <operation-id> [--include-output-schema]
+  operations run <operation-id> [request options]
   subscribers sync --body-file <path|->
   broadcasts draft --body-file <path|->
-  activity list [--all --max-pages 10] [--query name=value]
-  activity show <activity-id>
   progress broadcast <broadcast-id>
   call <namespace> <method> [request options]
   doctor
@@ -490,6 +660,9 @@ Common options:
   --body-file <path|->     Read at most 1 MiB of JSON from a file or stdin.
   --idempotency-key <key>  Preserve one key across safe retries.
   --all --max-pages <n>    Follow cursors for at most 100 pages.
+
+OAuth Work Profiles:
+${Object.keys(mailrithCliOAuthProfiles).map((profile) => `  ${profile}`).join("\n")}
 `;
 
 export const runMailrithCli = async (
@@ -548,9 +721,10 @@ export const runMailrithCli = async (
               "https://api.mailrith.com",
           ),
           scopes:
-            getStringFlags(args, "scope").length > 0
-              ? getStringFlags(args, "scope")
-              : [...mailrithCliDefaultOAuthScopes],
+            resolveMailrithCliOAuthScopes({
+              scopes: getStringFlags(args, "scope"),
+              profile: getStringFlag(args, "profile"),
+            }),
           noBrowser: hasFlag(args, "no-browser"),
           port: parseBoundedInteger(getStringFlag(args, "port"), {
             label: "--port",
@@ -584,6 +758,26 @@ export const runMailrithCli = async (
             "https://api.mailrith.com",
         ),
         fetchImpl,
+        stdout,
+      });
+      return mailrithCliExitCodes.success;
+    }
+
+    if (command === "operations" && subcommand === "search") {
+      const query = args.positionals.slice(2).join(" ").trim();
+      if (!query) {
+        throw usageError(
+          "Use operations search followed by a task description.",
+        );
+      }
+      runOperationSearch({ args, query, stdout });
+      return mailrithCliExitCodes.success;
+    }
+
+    if (command === "operations" && subcommand === "describe" && third) {
+      await runOperationDescribe({
+        args,
+        operationId: third,
         stdout,
       });
       return mailrithCliExitCodes.success;
@@ -625,15 +819,16 @@ export const runMailrithCli = async (
     } else if (command === "broadcasts" && subcommand === "draft") {
       operation = findOperation("broadcasts", "create");
       request = await buildOperationRequest(args);
-    } else if (command === "activity" && subcommand === "list") {
-      operation = findOperation("agentActivity", "list");
-      request = await buildOperationRequest(args);
-    } else if (command === "activity" && subcommand === "show" && third) {
-      operation = findOperation("agentActivity", "get");
-      request = { path: { activity_id: third } };
     } else if (command === "progress" && subcommand === "broadcast" && third) {
       operation = findOperation("broadcasts", "getSendProgress");
       request = { path: { broadcast_id: third } };
+    } else if (command === "operations" && subcommand === "run" && third) {
+      const discovered = mailrithOperationDiscovery.getOperation(third);
+      if (!discovered) {
+        throw usageError(`Unknown operation ${third}.`);
+      }
+      operation = discovered as MailrithSdkOperationDescriptor;
+      request = await buildOperationRequest(args);
     } else if (command === "call" && subcommand && third) {
       operation = findOperation(subcommand, third);
       request = await buildOperationRequest(args);
@@ -669,6 +864,12 @@ export const runMailrithCli = async (
     } else {
       stderr(`${payload.error.code}: ${payload.error.message}`);
       if (payload.error.request_id) stderr(`Request ID: ${payload.error.request_id}`);
+      if (apiError?.credentialRecovery) {
+        stderr(`Next step: ${apiError.credentialRecovery.message}`);
+        if (apiError.credentialRecovery.accessUpdateUrl) {
+          stderr(`Update access: ${apiError.credentialRecovery.accessUpdateUrl}`);
+        }
+      }
     }
     return exitCode;
   }
