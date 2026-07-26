@@ -29,14 +29,18 @@ required identity, legal, privacy, and data-handling statements.
 5. Package `openai/mailrith` from the exact reviewed commit.
 6. Import `chatgpt-app-submission.json` and enter the public MCP URL,
    `https://api.mailrith.com/mcp`.
-7. Use the OAuth callback URL generated for that draft. Do not reuse a callback
+7. When the portal displays a domain-verification token, set it on the
+   production API Worker as `OPENAI_APPS_CHALLENGE_TOKEN`. Confirm
+   `https://api.mailrith.com/.well-known/openai-apps-challenge` returns only
+   that token, then complete the portal check.
+8. Use the OAuth callback URL generated for that draft. Do not reuse a callback
    URL from another plugin draft.
-8. Connect Mailrith from ChatGPT developer mode using a clean reviewer session.
-9. Run all five positive cases and all three negative cases.
-10. Run the OpenAI production scan and correct every blocking result.
-11. Review every tool annotation, justification, starter prompt, public URL,
+9. Connect Mailrith from ChatGPT developer mode using a clean reviewer session.
+10. Run all five positive cases and all three negative cases.
+11. Run the OpenAI production scan and correct every blocking result.
+12. Review every tool annotation, justification, starter prompt, public URL,
     country selection, and policy statement.
-12. Submit the plugin for review. After OpenAI approves it, return to the same
+13. Submit the plugin for review. After OpenAI approves it, return to the same
     draft and publish it to the Plugins Directory for ChatGPT and Codex.
 
 ## Submit The Claude Connector
