@@ -625,7 +625,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
           "openWorldHint": true
         },
@@ -698,12 +698,12 @@
           "analytics:read"
         ],
         "mcp_tool_name": "analytics_create_report",
-        "risk": "read",
+        "risk": "draft",
         "external_side_effect": false,
         "requires_live_action": false,
-        "side_effect_class": "none",
-        "retry_mode": "safe",
-        "idempotency_policy": "safe-read",
+        "side_effect_class": "workspace-change",
+        "retry_mode": "resource-state",
+        "idempotency_policy": "resource-state",
         "toolsets": [
           "full_email_marketing_access",
           "reporting",
@@ -712,7 +712,7 @@
           "automations"
         ],
         "annotations": {
-          "readOnlyHint": true,
+          "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
           "openWorldHint": false
@@ -1102,9 +1102,9 @@
         ],
         "mcp_tool_name": "subscribers_upsert",
         "risk": "execute",
-        "external_side_effect": false,
+        "external_side_effect": true,
         "requires_live_action": true,
-        "side_effect_class": "subscriber-change",
+        "side_effect_class": "external-email",
         "retry_mode": "idempotency-key",
         "idempotency_policy": "idempotency-key",
         "toolsets": [
@@ -1114,11 +1114,11 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
-          "openWorldHint": false
+          "openWorldHint": true
         },
-        "risk_rationale": "Creates or changes one Subscriber and can change sending eligibility.",
+        "risk_rationale": "Creates or changes one Subscriber and can trigger confirmation email or an active Automation.",
         "path_params": [],
         "query_params": [],
         "header_params": [
@@ -1153,7 +1153,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -1220,9 +1220,9 @@
         ],
         "mcp_tool_name": "subscribers_update_status",
         "risk": "execute",
-        "external_side_effect": false,
+        "external_side_effect": true,
         "requires_live_action": true,
-        "side_effect_class": "subscriber-change",
+        "side_effect_class": "external-email",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
@@ -1232,11 +1232,11 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
-          "openWorldHint": false
+          "openWorldHint": true
         },
-        "risk_rationale": "Changes whether one Subscriber can receive email.",
+        "risk_rationale": "Changes whether one Subscriber can receive email and can trigger an active Automation.",
         "path_params": [
           "subscriber_id"
         ],
@@ -1260,9 +1260,9 @@
         ],
         "mcp_tool_name": "subscribers_add_tag",
         "risk": "execute",
-        "external_side_effect": false,
+        "external_side_effect": true,
         "requires_live_action": true,
-        "side_effect_class": "subscriber-change",
+        "side_effect_class": "external-email",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
@@ -1272,11 +1272,11 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
-          "openWorldHint": false
+          "openWorldHint": true
         },
-        "risk_rationale": "Changes one Subscriber's targeting and Automation eligibility.",
+        "risk_rationale": "Changes one Subscriber's targeting and can trigger an active Automation.",
         "path_params": [
           "subscriber_id",
           "tag_id"
@@ -1301,9 +1301,9 @@
         ],
         "mcp_tool_name": "subscribers_remove_tag",
         "risk": "execute",
-        "external_side_effect": false,
+        "external_side_effect": true,
         "requires_live_action": true,
-        "side_effect_class": "subscriber-change",
+        "side_effect_class": "external-email",
         "retry_mode": "resource-state",
         "idempotency_policy": "resource-state",
         "toolsets": [
@@ -1313,11 +1313,11 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
-          "openWorldHint": false
+          "openWorldHint": true
         },
-        "risk_rationale": "Changes one Subscriber's targeting and automation eligibility.",
+        "risk_rationale": "Changes one Subscriber's targeting and can trigger an active Automation.",
         "path_params": [
           "subscriber_id",
           "tag_id"
@@ -1354,7 +1354,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": true
         },
@@ -1395,7 +1395,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -2036,7 +2036,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -3217,7 +3217,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
           "openWorldHint": true
         },
@@ -3257,7 +3257,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -3296,7 +3296,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": true
         },
@@ -3580,7 +3580,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
           "openWorldHint": true
         },
@@ -3620,7 +3620,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -3659,7 +3659,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": true
         },
@@ -4145,7 +4145,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -4261,7 +4261,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": true
         },
@@ -4300,7 +4300,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -4339,7 +4339,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
           "openWorldHint": true
         },
@@ -4380,7 +4380,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
           "openWorldHint": true
         },
@@ -4422,7 +4422,7 @@
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
           "openWorldHint": true
         },

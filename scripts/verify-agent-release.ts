@@ -5,6 +5,8 @@ import path from "node:path";
 
 const repositoryRoot = process.cwd();
 const manifestPath = path.join(repositoryRoot, "packages", "agent-release-manifest.json");
+const chatGptAppSubmissionSchemaUrl =
+  "https://developers.openai.com/apps-sdk/schemas/chatgpt-app-submission.v1.json";
 
 type JsonObject = Record<string, unknown>;
 type AgentReleaseConfig = {
@@ -68,14 +70,38 @@ const hashFiles = async (relativePaths: string[]) => {
   return hash.digest("hex");
 };
 
-const listFiles = async (relativeDirectory: string) => {
-  const directory = path.join(repositoryRoot, relativeDirectory);
+const releaseDigestIgnoredDirectoryNames = new Set([
+  ".cache",
+  ".turbo",
+  "coverage",
+  "dist",
+  "node_modules",
+]);
+const releaseDigestIgnoredFileNames = new Set([".DS_Store"]);
+
+export const listReleaseDigestFiles = async (
+  relativeDirectory: string,
+  rootDirectory = repositoryRoot,
+) => {
+  const directory = path.join(rootDirectory, relativeDirectory);
   const entries = await readdir(directory, { withFileTypes: true });
   const files: string[] = [];
   for (const entry of entries) {
     const relativePath = path.posix.join(relativeDirectory, entry.name);
-    if (entry.isDirectory()) files.push(...(await listFiles(relativePath)));
-    else if (entry.isFile()) files.push(relativePath);
+    if (entry.isDirectory()) {
+      if (releaseDigestIgnoredDirectoryNames.has(entry.name)) {
+        continue;
+      }
+      files.push(
+        ...(await listReleaseDigestFiles(relativePath, rootDirectory)),
+      );
+    } else if (
+      entry.isFile() &&
+      !releaseDigestIgnoredFileNames.has(entry.name) &&
+      !entry.name.endsWith(".tsbuildinfo")
+    ) {
+      files.push(relativePath);
+    }
   }
   return files.sort();
 };
@@ -127,6 +153,83 @@ const verifyRuntimeVersion = async (
   }
 };
 
+const verifyAgentIntegrations = async (releaseVersion: string) => {
+  const submittedProfile = await readJson(
+    "packages/agent-integrations/submitted-profile.json",
+  );
+  if (
+    submittedProfile.profile !== "submitted" ||
+    submittedProfile.contract_version !== "1.0" ||
+    submittedProfile.mcp_server_url !== "https://api.mailrith.com/mcp" ||
+    !Array.isArray(submittedProfile.tools) ||
+    submittedProfile.tool_count !== submittedProfile.tools.length
+  ) {
+    throw new Error(
+      "Agent integrations must use the complete submitted MCP 1.0 profile.",
+    );
+  }
+  const expectedDigest = submittedProfile.submitted_schema_digest;
+  for (const pluginContractPath of [
+    "packages/agent-integrations/openai/mailrith/mailrith-mcp-contract.json",
+    "packages/agent-integrations/cursor/mailrith/mailrith-mcp-contract.json",
+  ]) {
+    const pluginContract = await readJson(pluginContractPath);
+    if (
+      pluginContract.submitted_schema_digest !== expectedDigest ||
+      pluginContract.tool_count !== submittedProfile.tool_count
+    ) {
+      throw new Error(
+        `${pluginContractPath} must match the submitted MCP profile digest.`,
+      );
+    }
+  }
+  for (const pluginManifestPath of [
+    "packages/agent-integrations/openai/mailrith/.codex-plugin/plugin.json",
+    "packages/agent-integrations/cursor/mailrith/.cursor-plugin/plugin.json",
+  ]) {
+    const pluginManifest = await readJson(pluginManifestPath);
+    if (
+      pluginManifest.name !== "mailrith" ||
+      pluginManifest.version !== releaseVersion ||
+      pluginManifest.license !== "MIT"
+    ) {
+      throw new Error(
+        `${pluginManifestPath} must describe Mailrith ${releaseVersion} under MIT.`,
+      );
+    }
+  }
+  const claudeListing = await readJson(
+    "packages/agent-integrations/claude/connector-listing.json",
+  );
+  if (
+    claudeListing.mcp_server_url !== "https://api.mailrith.com/mcp" ||
+    !Array.isArray(claudeListing.use_cases) ||
+    claudeListing.use_cases.length < 3
+  ) {
+    throw new Error(
+      "The Claude Connector listing must use the submitted endpoint and include at least three use cases.",
+    );
+  }
+  const chatGptSubmission = await readJson("chatgpt-app-submission.json");
+  const chatGptSubmissionTools = chatGptSubmission.tools;
+  const submittedToolNames = submittedProfile.tools.map(
+    (tool) => (tool as JsonObject).name,
+  );
+  if (
+    chatGptSubmission.$schema !== chatGptAppSubmissionSchemaUrl ||
+    chatGptSubmission.schema_version !== 1 ||
+    !chatGptSubmissionTools ||
+    typeof chatGptSubmissionTools !== "object" ||
+    Array.isArray(chatGptSubmissionTools) ||
+    JSON.stringify(Object.keys(chatGptSubmissionTools)) !==
+      JSON.stringify(submittedToolNames)
+  ) {
+    throw new Error(
+      "The ChatGPT submission import must use the current official schema and exact submitted tool catalog.",
+    );
+  }
+};
+
 const buildManifest = async () => {
   const releaseConfig = parseAgentReleaseConfig(
     await readJson("packages/agent-release-config.json"),
@@ -147,6 +250,7 @@ const buildManifest = async () => {
       'version: "{version}",',
       releaseConfig.release_version,
     ),
+    verifyAgentIntegrations(releaseConfig.release_version),
   ]);
   const pyproject = await readFile(
     path.join(repositoryRoot, "packages/python-sdk/pyproject.toml"),
@@ -172,9 +276,14 @@ const buildManifest = async () => {
   }
   await readFile(path.join(repositoryRoot, "packages/python-sdk/mailrith_sdk/py.typed"));
 
-  const skillFiles = await listFiles("packages/agent-skill/mailrith-email-marketing");
-  const connectorFiles = (await listFiles("packages/agent-skill/connectors")).filter(
-    (file) => !file.endsWith("README.md"),
+  const skillFiles = await listReleaseDigestFiles(
+    "packages/agent-skill/mailrith-email-marketing",
+  );
+  const connectorFiles = (
+    await listReleaseDigestFiles("packages/agent-skill/connectors")
+  ).filter((file) => !file.endsWith("README.md"));
+  const integrationFiles = await listReleaseDigestFiles(
+    "packages/agent-integrations",
   );
   const packageVersions = Object.fromEntries(
     publishedNpmPackages.map((item) => [item.name, item.version]),
@@ -196,6 +305,7 @@ const buildManifest = async () => {
         "packages/public-api/src/index.ts",
         "packages/public-api/src/resource-contract.ts",
         "packages/public-api/src/mcp-contract.ts",
+        "packages/public-api/src/mcp-submitted-profile.ts",
       ]),
       risk_catalog_sha256: await hashFiles(["packages/public-api/src/agent-risk.ts"]),
       typescript_sdk_manifest_sha256: await hashFiles(["packages/sdk/src/generated.ts"]),
@@ -208,6 +318,21 @@ const buildManifest = async () => {
       ]),
       agent_skill_sha256: await hashFiles(skillFiles),
       connector_templates_sha256: await hashFiles(connectorFiles),
+      platform_integrations_sha256: await hashFiles([
+        ...integrationFiles,
+        ".github/workflows/release-agent-packages.yml",
+        "chatgpt-app-submission.json",
+        "scripts/agent-client-conformance.ts",
+        "scripts/generate-agent-integrations.ts",
+        "scripts/verify-agent-release.ts",
+      ]),
+      agent_discovery_and_guidance_sha256: await hashFiles([
+        "packages/agent-integrations/SUBMISSION.md",
+        "packages/mcp-server/README.md",
+        "packages/public-api/README.md",
+        "packages/agent-skill/mailrith-email-marketing/SKILL.md",
+        "packages/agent-skill/mailrith-email-marketing/references/workflows.md",
+      ]),
     },
     compatibility: {
       node: ">=20",
@@ -215,7 +340,16 @@ const buildManifest = async () => {
       mcp_transport: "streamable_http",
       mcp_typescript_sdk: "1.29.0",
       claude_mcp_protocol: "mcp-client-2025-11-20",
-      supported_clients: ["openai_responses", "claude_messages", "codex", "n8n", "pipedream"],
+      supported_clients: [
+        "chatgpt",
+        "openai_responses",
+        "claude_connector",
+        "claude_messages",
+        "codex",
+        "cursor",
+        "n8n",
+        "pipedream",
+      ],
     },
   } as const;
 

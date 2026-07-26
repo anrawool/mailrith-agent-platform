@@ -3,68 +3,14 @@
 import http from "node:http";
 import { Readable } from "node:stream";
 import {
+  parseMailrithMcpCliOptions,
+  requireMailrithMcpStdioCredential,
+  type MailrithMcpCliOptions,
+} from "./cli-options.js";
+import {
   handleMailrithMcpHttpRequest,
   runMailrithMcpStdioServer,
 } from "./index.js";
-
-type CliOptions = {
-  transport: "stdio" | "http";
-  baseUrl?: string;
-  apiKey?: string;
-  host: string;
-  port: number;
-};
-
-const parseCliOptions = (argv: string[]): CliOptions => {
-  const options: CliOptions = {
-    transport: "stdio",
-    host: "127.0.0.1",
-    port: 8788,
-  };
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const value = argv[index];
-    const nextValue = argv[index + 1];
-
-    if (!value?.startsWith("--")) {
-      continue;
-    }
-
-    if (value === "--transport" && nextValue) {
-      options.transport = nextValue === "http" ? "http" : "stdio";
-      index += 1;
-      continue;
-    }
-
-    if (value === "--base-url" && nextValue) {
-      options.baseUrl = nextValue;
-      index += 1;
-      continue;
-    }
-
-    if (value === "--api-key" && nextValue) {
-      options.apiKey = nextValue;
-      index += 1;
-      continue;
-    }
-
-    if (value === "--host" && nextValue) {
-      options.host = nextValue;
-      index += 1;
-      continue;
-    }
-
-    if (value === "--port" && nextValue) {
-      const parsed = Number(nextValue);
-      if (!Number.isNaN(parsed) && Number.isFinite(parsed)) {
-        options.port = parsed;
-      }
-      index += 1;
-    }
-  }
-
-  return options;
-};
 
 const hasRequestBody = (method: string | undefined) =>
   method !== undefined && method !== "GET" && method !== "HEAD";
@@ -127,7 +73,7 @@ const writeNodeResponse = async (
   });
 };
 
-const startHttpServer = async (options: CliOptions) => {
+const startHttpServer = async (options: MailrithMcpCliOptions) => {
   const origin = `http://${options.host}:${options.port}`;
   const server = http.createServer(async (req, res) => {
     try {
@@ -167,18 +113,21 @@ const startHttpServer = async (options: CliOptions) => {
   );
 };
 
-const main = async () => {
-  const options = parseCliOptions(process.argv.slice(2));
+export const runMailrithMcpCli = async (
+  argv: string[] = process.argv.slice(2),
+) => {
+  const options = parseMailrithMcpCliOptions(argv);
 
   if (options.transport === "http") {
     await startHttpServer(options);
     return;
   }
 
+  requireMailrithMcpStdioCredential(options);
   await runMailrithMcpStdioServer({
     baseUrl: options.baseUrl,
     apiKey: options.apiKey,
   });
 };
 
-await main();
+await runMailrithMcpCli();

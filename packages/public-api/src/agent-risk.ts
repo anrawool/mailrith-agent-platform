@@ -58,6 +58,7 @@ export type PublicApiAgentOperationRisk = {
   operationId: string;
   resourceKey: string;
   risk: PublicApiAgentRiskClass;
+  destructive: boolean;
   externalSideEffect: boolean;
   requiresLiveAction: boolean;
   sideEffectClass: PublicApiAgentSideEffectClass;
@@ -76,6 +77,7 @@ const read = (
   operationId,
   resourceKey,
   risk: "read",
+  destructive: false,
   externalSideEffect: false,
   requiresLiveAction: false,
   sideEffectClass: "none",
@@ -90,6 +92,7 @@ const change = (
   resourceKey: string,
   risk: Exclude<PublicApiAgentRiskClass, "read">,
   options: {
+    destructive?: boolean;
     externalSideEffect?: boolean;
     requiresLiveAction?: boolean;
     sideEffectClass?: Exclude<PublicApiAgentSideEffectClass, "none">;
@@ -123,6 +126,7 @@ const change = (
     operationId,
     resourceKey,
     risk,
+    destructive: options.destructive ?? risk === "delete",
     externalSideEffect,
     requiresLiveAction,
     sideEffectClass,
@@ -278,6 +282,7 @@ export const publicApiAgentOperationRiskCatalog = [
     "email_delivery_connections",
     "test",
     {
+      destructive: true,
       externalSideEffect: true,
       sideEffectClass: "external-email",
       rationale: "Sends one real test email to a controlled recipient.",
@@ -293,11 +298,15 @@ export const publicApiAgentOperationRiskCatalog = [
         "Deletes one eligible workspace-only delivery connection and its saved provider credentials.",
     },
   ),
-  read(
+  change(
     "createAnalyticsReport",
     "analytics",
-    "workspace",
-    "Creates or reuses one bounded, expiring aggregate report from compact rollups.",
+    "draft",
+    {
+      retryMode: "resource-state",
+      rationale:
+        "Creates or reuses one bounded, expiring aggregate report from compact rollups.",
+    },
   ),
   read(
     "getAnalyticsReport",
@@ -348,11 +357,15 @@ export const publicApiAgentOperationRiskCatalog = [
     "Reads one Subscriber by its stable identifier.",
   ),
   change("upsertSubscriber", "subscribers", "execute", {
+    destructive: true,
+    externalSideEffect: true,
+    sideEffectClass: "external-email",
     dataScope: "subscriber",
     rationale:
-      "Creates or changes one Subscriber and can change sending eligibility.",
+      "Creates or changes one Subscriber and can trigger confirmation email or an active Automation.",
   }),
   change("updateSubscriber", "subscribers", "draft", {
+    destructive: true,
     retryMode: "resource-state",
     dataScope: "subscriber",
     rationale:
@@ -369,9 +382,13 @@ export const publicApiAgentOperationRiskCatalog = [
     "subscribers",
     "execute",
     {
+      destructive: true,
+      externalSideEffect: true,
+      sideEffectClass: "external-email",
       retryMode: "resource-state",
       dataScope: "subscriber",
-      rationale: "Changes whether one Subscriber can receive email.",
+      rationale:
+        "Changes whether one Subscriber can receive email and can trigger an active Automation.",
     },
   ),
   change(
@@ -379,10 +396,13 @@ export const publicApiAgentOperationRiskCatalog = [
     "subscribers",
     "execute",
     {
+      destructive: true,
+      externalSideEffect: true,
+      sideEffectClass: "external-email",
       retryMode: "resource-state",
       dataScope: "subscriber",
       rationale:
-        "Changes one Subscriber's targeting and Automation eligibility.",
+        "Changes one Subscriber's targeting and can trigger an active Automation.",
     },
   ),
   change(
@@ -390,10 +410,13 @@ export const publicApiAgentOperationRiskCatalog = [
     "subscribers",
     "execute",
     {
+      destructive: true,
+      externalSideEffect: true,
+      sideEffectClass: "external-email",
       retryMode: "resource-state",
       dataScope: "subscriber",
       rationale:
-        "Changes one Subscriber's targeting and automation eligibility.",
+        "Changes one Subscriber's targeting and can trigger an active Automation.",
     },
   ),
   change(
@@ -401,6 +424,7 @@ export const publicApiAgentOperationRiskCatalog = [
     "subscribers",
     "execute",
     {
+      destructive: true,
       externalSideEffect: true,
       sideEffectClass: "external-email",
       retryMode: "resource-state",
@@ -414,6 +438,7 @@ export const publicApiAgentOperationRiskCatalog = [
     "subscribers",
     "execute",
     {
+      destructive: true,
       retryMode: "resource-state",
       dataScope: "subscriber",
       rationale: "Removes one Subscriber from a lifecycle workflow.",
@@ -498,6 +523,7 @@ export const publicApiAgentOperationRiskCatalog = [
     "email_templates",
     "draft",
     {
+      destructive: true,
       retryMode: "resource-state",
       rationale: "Changes reusable draft content without sending email.",
     },
@@ -638,16 +664,19 @@ export const publicApiAgentOperationRiskCatalog = [
     "Returns a bounded, side-effect-free timeline of the Sequence emails.",
   ),
   change("testSequence", "sequences", "test", {
+    destructive: true,
     externalSideEffect: true,
     sideEffectClass: "external-email",
     rationale:
       "Sends at most five selected Sequence messages to one explicit test address without enrolling Subscribers.",
   }),
   change("updateSequence", "sequences", "draft", {
+    destructive: true,
     retryMode: "resource-state",
     rationale: "Changes a paused Sequence without starting delivery.",
   }),
   change("updateSequenceStatus", "sequences", "execute", {
+    destructive: true,
     externalSideEffect: true,
     sideEffectClass: "external-email",
     retryMode: "resource-state",
@@ -690,6 +719,7 @@ export const publicApiAgentOperationRiskCatalog = [
     "Returns a bounded, side-effect-free view of Automation triggers, steps, and branches.",
   ),
   change("testAutomation", "automations", "test", {
+    destructive: true,
     externalSideEffect: true,
     sideEffectClass: "external-email",
     rationale:
@@ -700,6 +730,7 @@ export const publicApiAgentOperationRiskCatalog = [
     "automations",
     "draft",
     {
+      destructive: true,
       retryMode: "resource-state",
       rationale: "Changes an inactive Automation without running actions.",
     },
@@ -709,6 +740,7 @@ export const publicApiAgentOperationRiskCatalog = [
     "automations",
     "execute",
     {
+      destructive: true,
       externalSideEffect: true,
       sideEffectClass: "external-email",
       retryMode: "resource-state",
@@ -781,6 +813,7 @@ export const publicApiAgentOperationRiskCatalog = [
     "Reads one Broadcast and aggregate results.",
   ),
   change("updateBroadcast", "broadcasts", "draft", {
+    destructive: true,
     retryMode: "resource-state",
     rationale: "Changes a Broadcast draft without scheduling or sending it.",
   }),
@@ -795,6 +828,7 @@ export const publicApiAgentOperationRiskCatalog = [
     "Runs bounded readiness checks and returns counts rather than Subscriber rows.",
   ),
   change("scheduleBroadcast", "broadcasts", "execute", {
+    destructive: true,
     externalSideEffect: true,
     retryMode: "resource-state",
     rationale:
@@ -805,12 +839,14 @@ export const publicApiAgentOperationRiskCatalog = [
     "broadcasts",
     "execute",
     {
+      destructive: true,
       retryMode: "resource-state",
       rationale:
         "Cancels future delivery before it starts and returns the Broadcast to draft state.",
     },
   ),
   change("sendBroadcast", "broadcasts", "execute", {
+    destructive: true,
     externalSideEffect: true,
     rationale: "Starts durable delivery to real Subscribers.",
   }),
@@ -819,6 +855,7 @@ export const publicApiAgentOperationRiskCatalog = [
     "broadcasts",
     "execute",
     {
+      destructive: true,
       externalSideEffect: true,
       requiresLiveAction: true,
       rationale:
@@ -826,6 +863,7 @@ export const publicApiAgentOperationRiskCatalog = [
     },
   ),
   change("testBroadcast", "broadcasts", "test", {
+    destructive: true,
     externalSideEffect: true,
     rationale: "Sends one real test email to a controlled recipient.",
   }),

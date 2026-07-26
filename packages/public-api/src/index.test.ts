@@ -42,6 +42,8 @@ import {
   publicApiOAuthProtectedResourcePath,
   publicApiMcpOAuthProtectedResourcePath,
   publicApiAgentOperationRiskCatalog,
+  publicApiSubmittedMcpOperationIds,
+  publicApiSubmittedMcpProfile,
 } from "./index";
 
 type PublicApiSchemaObject = {
@@ -919,6 +921,49 @@ describe("@mailrith/public-api", () => {
     expect(JSON.stringify(upsert?.outputSchema)).toContain('"type":"null"');
   });
 
+  it("keeps Automation webhook credentials write-only in MCP schemas", () => {
+    const getAutomation =
+      publicApiMcpOperationContractMap.get("getAutomation");
+    const updateAutomation =
+      publicApiMcpOperationContractMap.get("updateAutomation");
+    const outputDefinitions = getAutomation?.outputSchema.$defs as
+      | Record<string, Record<string, unknown>>
+      | undefined;
+    const inputDefinitions = updateAutomation?.inputSchema.$defs as
+      | Record<string, Record<string, unknown>>
+      | undefined;
+    const outputConfig = outputDefinitions?.AutomationStepConfig;
+    const inputConfig = inputDefinitions?.AutomationStepConfig;
+    const outputProperties = outputConfig?.properties as
+      | Record<string, Record<string, unknown>>
+      | undefined;
+    const inputProperties = inputConfig?.properties as
+      | Record<string, Record<string, unknown>>
+      | undefined;
+    const outputHeaderItems = (
+      outputProperties?.headers?.items as Record<string, unknown> | undefined
+    )?.properties as Record<string, Record<string, unknown>> | undefined;
+    const inputHeaderItems = (
+      inputProperties?.headers?.items as Record<string, unknown> | undefined
+    )?.properties as Record<string, Record<string, unknown>> | undefined;
+
+    expect(outputProperties).not.toHaveProperty("bearerToken");
+    expect(outputProperties).toHaveProperty("bearerTokenConfigured");
+    expect(outputHeaderItems).not.toHaveProperty("value");
+    expect(outputHeaderItems).toHaveProperty("configured");
+    expect(
+      (outputProperties?.headers?.items as Record<string, unknown>)?.required,
+    ).toEqual(["key"]);
+
+    expect(inputProperties).toHaveProperty("bearerToken");
+    expect(inputProperties).toHaveProperty("bearerTokenConfigured");
+    expect(inputHeaderItems).toHaveProperty("value");
+    expect(inputHeaderItems).toHaveProperty("configured");
+    expect(
+      (inputProperties?.headers?.items as Record<string, unknown>)?.required,
+    ).toEqual(["key"]);
+  });
+
   it("publishes exact rich-object schemas and omission-safe update contracts", () => {
     for (const schemaName of [
       "AudienceDefinition",
@@ -1006,7 +1051,7 @@ describe("@mailrith/public-api", () => {
       );
       expect(operation.annotations, operation.operationId).toEqual({
         readOnlyHint: operation.risk === "read",
-        destructiveHint: operation.risk === "delete",
+        destructiveHint: risk?.destructive,
         idempotentHint: operation.idempotencyPolicy !== "idempotency-key",
         openWorldHint: operation.externalSideEffect,
       });
@@ -1015,6 +1060,80 @@ describe("@mailrith/public-api", () => {
           "Idempotency-Key",
         );
       }
+    }
+
+    const operationIds = new Set(
+      sdkOperations.map((operation) => operation.operationId),
+    );
+    expect(publicApiSubmittedMcpProfile.contractVersion).toBe("1.0");
+    expect(new Set(publicApiSubmittedMcpOperationIds).size).toBe(
+      publicApiSubmittedMcpOperationIds.length,
+    );
+    expect(
+      publicApiSubmittedMcpOperationIds.every((operationId) =>
+        operationIds.has(operationId),
+      ),
+    ).toBe(true);
+    expect(publicApiSubmittedMcpOperationIds).toContain("sendBroadcast");
+    expect(publicApiSubmittedMcpOperationIds).toContain(
+      "updateAutomationStatus",
+    );
+    expect(publicApiSubmittedMcpOperationIds).not.toContain("deleteSubscriber");
+    expect(publicApiSubmittedMcpProfile.instructions).toContain(
+      "Call discovery_get_capabilities first",
+    );
+    expect(riskByOperation.get("createAnalyticsReport")).toMatchObject({
+      risk: "draft",
+      destructive: false,
+      externalSideEffect: false,
+    });
+
+    for (const operationId of [
+      "upsertSubscriber",
+      "updateSubscriber",
+      "updateSubscriberStatus",
+      "addSubscriberTag",
+      "removeSubscriberTag",
+      "addSubscriberSequence",
+      "removeSubscriberSequence",
+      "updateEmailTemplate",
+      "updateSequence",
+      "testSequence",
+      "updateSequenceStatus",
+      "updateAutomation",
+      "testAutomation",
+      "updateAutomationStatus",
+      "updateBroadcast",
+      "scheduleBroadcast",
+      "unscheduleBroadcast",
+      "sendBroadcast",
+      "cancelBroadcastSend",
+      "testBroadcast",
+    ]) {
+      expect(
+        riskByOperation.get(operationId)?.destructive,
+        operationId,
+      ).toBe(true);
+    }
+    for (const operationId of [
+      "upsertSubscriber",
+      "updateSubscriberStatus",
+      "addSubscriberTag",
+      "removeSubscriberTag",
+      "addSubscriberSequence",
+      "testSequence",
+      "updateSequenceStatus",
+      "testAutomation",
+      "updateAutomationStatus",
+      "scheduleBroadcast",
+      "sendBroadcast",
+      "cancelBroadcastSend",
+      "testBroadcast",
+    ]) {
+      expect(
+        riskByOperation.get(operationId)?.externalSideEffect,
+        operationId,
+      ).toBe(true);
     }
 
     expect(

@@ -7,6 +7,10 @@
 - Add credential-free `operations search` and `operations describe` commands backed by the same bounded discovery contract as MCP.
 - Treat a bounded collection page as a successful result and include its continuation cursor; only `--all` safety-limit exhaustion returns an incomplete result.
 
+## 1.0.0 - 2026-07-26
+
+- Coordinate the CLI with the Mailrith MCP 1.0 release while preserving API-key and OAuth behavior and every existing command signature.
+
 ## 0.2.0 - 2026-07-24
 
 - Use the final resource-permission contract and complete Work Profiles.

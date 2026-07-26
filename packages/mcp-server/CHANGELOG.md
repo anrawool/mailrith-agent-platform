@@ -2,9 +2,22 @@
 
 ## Unreleased
 
+- Restore Full Email Marketing Access as the submitted OAuth bootstrap default
+  while keeping exact operation scopes on normal tools and exact call-time
+  authorization.
+- Read `MAILRITH_API_KEY` in the local CLI and let the public API enforce
+  permissions for direct credential-backed runtimes that do not preload a
+  capability response.
 - Route every permanent delete through `mailrith_delete`, including deletes that also require Perform Live Actions.
 - Use effective workspace capabilities for connection, operation-search, and exact-schema availability instead of checking permissions alone.
 - Reuse the shared bounded intent catalog for common Subscriber status, delivery setup, Broadcast scheduling, data transfer, analytics, and capture tasks.
+
+## 1.0.0 - 2026-07-26
+
+- Make the fixed submitted profile the default hosted and package surface, with focused tools, exact input and output schemas, human-readable titles, explicit annotations, and per-tool OAuth scopes.
+- Allow anonymous static discovery for platform linking while rejecting every anonymous tool call before product access.
+- Return tool-level OAuth challenges for missing connections and narrow grants, and keep scoped API-key support for direct and code-first clients.
+- Preserve the compact seven-tool and configurable focused profiles as explicit compatibility options.
 
 ## 0.2.0 - 2026-07-24
 

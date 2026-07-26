@@ -1,6 +1,6 @@
 {
   "name": "@mailrith/sdk",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Official generated TypeScript SDK for Mailrith.",
   "license": "MIT",
   "homepage": "https://mailrith.com/developers/sdks",

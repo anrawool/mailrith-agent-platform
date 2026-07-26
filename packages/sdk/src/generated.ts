@@ -837,7 +837,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
           "openWorldHint": true
         },
@@ -910,12 +910,12 @@ export const generatedMailrithSdkResources = [
           "analytics:read"
         ],
         "mcpToolName": "analytics_create_report",
-        "risk": "read",
+        "risk": "draft",
         "externalSideEffect": false,
         "requiresLiveAction": false,
-        "sideEffectClass": "none",
-        "retryMode": "safe",
-        "idempotencyPolicy": "safe-read",
+        "sideEffectClass": "workspace-change",
+        "retryMode": "resource-state",
+        "idempotencyPolicy": "resource-state",
         "toolsets": [
           "full_email_marketing_access",
           "reporting",
@@ -924,7 +924,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
-          "readOnlyHint": true,
+          "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
           "openWorldHint": false
@@ -1314,9 +1314,9 @@ export const generatedMailrithSdkResources = [
         ],
         "mcpToolName": "subscribers_upsert",
         "risk": "execute",
-        "externalSideEffect": false,
+        "externalSideEffect": true,
         "requiresLiveAction": true,
-        "sideEffectClass": "subscriber-change",
+        "sideEffectClass": "external-email",
         "retryMode": "idempotency-key",
         "idempotencyPolicy": "idempotency-key",
         "toolsets": [
@@ -1326,11 +1326,11 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
-          "openWorldHint": false
+          "openWorldHint": true
         },
-        "riskRationale": "Creates or changes one Subscriber and can change sending eligibility.",
+        "riskRationale": "Creates or changes one Subscriber and can trigger confirmation email or an active Automation.",
         "pathParams": [],
         "queryParams": [],
         "headerParams": [
@@ -1365,7 +1365,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -1432,9 +1432,9 @@ export const generatedMailrithSdkResources = [
         ],
         "mcpToolName": "subscribers_update_status",
         "risk": "execute",
-        "externalSideEffect": false,
+        "externalSideEffect": true,
         "requiresLiveAction": true,
-        "sideEffectClass": "subscriber-change",
+        "sideEffectClass": "external-email",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
@@ -1444,11 +1444,11 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
-          "openWorldHint": false
+          "openWorldHint": true
         },
-        "riskRationale": "Changes whether one Subscriber can receive email.",
+        "riskRationale": "Changes whether one Subscriber can receive email and can trigger an active Automation.",
         "pathParams": [
           "subscriber_id"
         ],
@@ -1472,9 +1472,9 @@ export const generatedMailrithSdkResources = [
         ],
         "mcpToolName": "subscribers_add_tag",
         "risk": "execute",
-        "externalSideEffect": false,
+        "externalSideEffect": true,
         "requiresLiveAction": true,
-        "sideEffectClass": "subscriber-change",
+        "sideEffectClass": "external-email",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
@@ -1484,11 +1484,11 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
-          "openWorldHint": false
+          "openWorldHint": true
         },
-        "riskRationale": "Changes one Subscriber's targeting and Automation eligibility.",
+        "riskRationale": "Changes one Subscriber's targeting and can trigger an active Automation.",
         "pathParams": [
           "subscriber_id",
           "tag_id"
@@ -1513,9 +1513,9 @@ export const generatedMailrithSdkResources = [
         ],
         "mcpToolName": "subscribers_remove_tag",
         "risk": "execute",
-        "externalSideEffect": false,
+        "externalSideEffect": true,
         "requiresLiveAction": true,
-        "sideEffectClass": "subscriber-change",
+        "sideEffectClass": "external-email",
         "retryMode": "resource-state",
         "idempotencyPolicy": "resource-state",
         "toolsets": [
@@ -1525,11 +1525,11 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
-          "openWorldHint": false
+          "openWorldHint": true
         },
-        "riskRationale": "Changes one Subscriber's targeting and automation eligibility.",
+        "riskRationale": "Changes one Subscriber's targeting and can trigger an active Automation.",
         "pathParams": [
           "subscriber_id",
           "tag_id"
@@ -1566,7 +1566,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": true
         },
@@ -1607,7 +1607,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -2248,7 +2248,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -3429,7 +3429,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
           "openWorldHint": true
         },
@@ -3469,7 +3469,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -3508,7 +3508,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": true
         },
@@ -3792,7 +3792,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
           "openWorldHint": true
         },
@@ -3832,7 +3832,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -3871,7 +3871,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": true
         },
@@ -4357,7 +4357,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -4473,7 +4473,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": true
         },
@@ -4512,7 +4512,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
@@ -4551,7 +4551,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
           "openWorldHint": true
         },
@@ -4592,7 +4592,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
           "openWorldHint": true
         },
@@ -4634,7 +4634,7 @@ export const generatedMailrithSdkResources = [
         ],
         "annotations": {
           "readOnlyHint": false,
-          "destructiveHint": false,
+          "destructiveHint": true,
           "idempotentHint": false,
           "openWorldHint": true
         },

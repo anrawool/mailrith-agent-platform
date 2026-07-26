@@ -1,0 +1,20 @@
+{
+  "name": "@mailrith/agent-integrations",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "pnpm -w exec eslint packages/agent-integrations scripts/generate-agent-integrations.ts scripts/agent-client-conformance.ts scripts/verify-agent-release.ts --ext .ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --root ../.. packages/agent-integrations/src"
+  },
+  "dependencies": {
+    "@mailrith/mcp-server": "workspace:*",
+    "@mailrith/public-api": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  }
+}

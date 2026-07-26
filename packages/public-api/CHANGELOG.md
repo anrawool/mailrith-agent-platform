@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.0.0 - 2026-07-26
+
+- Publish the fixed submitted MCP profile as a reviewed subset of the generated public operation contract.
+- Add an explicit destructive-action decision to the risk catalog and conservatively classify overwrites, removals, scheduling, tests, sends, Subscriber-triggered Automations, and workflow lifecycle changes.
+- Keep the REST API, SDKs, CLI, and custom MCP profiles compatible with scoped workspace API keys while submitted platforms use OAuth.
+
 ## 0.2.0 - 2026-07-24
 
 - Replace fragmented action permissions with 33 stable resource permissions and 10 complete Work Profiles generated from one canonical resource contract, including one centrally derived Live Actions permission and one full-access default for general-purpose agents.

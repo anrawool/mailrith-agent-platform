@@ -1,0 +1,704 @@
+{
+  "$schema": "https://developers.openai.com/apps-sdk/schemas/chatgpt-app-submission.v1.json",
+  "schema_version": 1,
+  "app_info": {
+    "display_name": "Mailrith",
+    "subtitle": "Manage email marketing",
+    "description": "Mailrith helps users review Subscribers and email results, prepare and deliver Broadcasts, and manage Sequences, Automations, targeting, and email Templates in one connected workspace.",
+    "category": "BUSINESS"
+  },
+  "tools": {
+    "discovery_get_capabilities": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Returns the authenticated credential and workspace capability boundary; it does not change Mailrith or an external system.",
+        "open_world_justification": "Returns the authenticated credential and workspace capability boundary; it does not change public internet or third-party state.",
+        "destructive_justification": "Returns the authenticated credential and workspace capability boundary; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "workspace_get": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads one authenticated workspace profile; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads one authenticated workspace profile; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads one authenticated workspace profile; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "sender_identities_list": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads a bounded page of enabled sender metadata without provider credentials; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads a bounded page of enabled sender metadata without provider credentials; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads a bounded page of enabled sender metadata without provider credentials; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "sender_identities_get": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads one enabled sender identity without provider credentials; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads one enabled sender identity without provider credentials; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads one enabled sender identity without provider credentials; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "analytics_create_report": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Creates or reuses one bounded, expiring aggregate report from compact rollups; it changes Mailrith state or starts work.",
+        "open_world_justification": "Creates or reuses one bounded, expiring aggregate report from compact rollups; it does not change public internet or third-party state.",
+        "destructive_justification": "Creates or reuses one bounded, expiring aggregate report from compact rollups; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "analytics_get_report": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads one bounded, expiring aggregate report; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads one bounded, expiring aggregate report; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads one bounded, expiring aggregate report; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "subscribers_list": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads a bounded, cursor-paginated page of Subscribers; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads a bounded, cursor-paginated page of Subscribers; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads a bounded, cursor-paginated page of Subscribers; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "subscribers_get": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads one Subscriber by its stable identifier; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads one Subscriber by its stable identifier; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads one Subscriber by its stable identifier; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "subscribers_upsert": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Creates or changes one Subscriber and can trigger confirmation email or an active Automation; it changes Mailrith state or starts work.",
+        "open_world_justification": "Creates or changes one Subscriber and can trigger confirmation email or an active Automation; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Creates or changes one Subscriber and can trigger confirmation email or an active Automation; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "subscribers_update": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Changes one Subscriber profile or custom-field values without changing sending eligibility; it changes Mailrith state or starts work.",
+        "open_world_justification": "Changes one Subscriber profile or custom-field values without changing sending eligibility; it does not change public internet or third-party state.",
+        "destructive_justification": "Changes one Subscriber profile or custom-field values without changing sending eligibility; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "subscribers_update_status": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Changes whether one Subscriber can receive email and can trigger an active Automation; it changes Mailrith state or starts work.",
+        "open_world_justification": "Changes whether one Subscriber can receive email and can trigger an active Automation; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Changes whether one Subscriber can receive email and can trigger an active Automation; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "subscribers_add_tag": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Changes one Subscriber's targeting and can trigger an active Automation; it changes Mailrith state or starts work.",
+        "open_world_justification": "Changes one Subscriber's targeting and can trigger an active Automation; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Changes one Subscriber's targeting and can trigger an active Automation; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "subscribers_remove_tag": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Changes one Subscriber's targeting and can trigger an active Automation; it changes Mailrith state or starts work.",
+        "open_world_justification": "Changes one Subscriber's targeting and can trigger an active Automation; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Changes one Subscriber's targeting and can trigger an active Automation; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "subscribers_add_to_sequence": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Enrollment can cause a running Sequence to send email to the Subscriber; it changes Mailrith state or starts work.",
+        "open_world_justification": "Enrollment can cause a running Sequence to send email to the Subscriber; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Enrollment can cause a running Sequence to send email to the Subscriber; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "subscribers_remove_from_sequence": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Removes one Subscriber from a lifecycle workflow; it changes Mailrith state or starts work.",
+        "open_world_justification": "Removes one Subscriber from a lifecycle workflow; it does not change public internet or third-party state.",
+        "destructive_justification": "Removes one Subscriber from a lifecycle workflow; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "tags_list": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads the bounded Tag catalog; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads the bounded Tag catalog; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads the bounded Tag catalog; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "tags_get": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads one Tag definition; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads one Tag definition; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads one Tag definition; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "segments_list": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads a bounded page of saved Segments; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads a bounded page of saved Segments; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads a bounded page of saved Segments; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "segments_get": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads one saved Segment definition; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads one saved Segment definition; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads one saved Segment definition; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "segments_preview": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Returns bounded aggregate counts for an unsaved Segment definition; it does not change Mailrith or an external system.",
+        "open_world_justification": "Returns bounded aggregate counts for an unsaved Segment definition; it does not change public internet or third-party state.",
+        "destructive_justification": "Returns bounded aggregate counts for an unsaved Segment definition; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "broadcasts_list": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads a bounded page of Broadcasts and aggregate results; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads a bounded page of Broadcasts and aggregate results; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads a bounded page of Broadcasts and aggregate results; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "broadcasts_create": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Creates a Broadcast draft without scheduling or sending it; it changes Mailrith state or starts work.",
+        "open_world_justification": "Creates a Broadcast draft without scheduling or sending it; it does not change public internet or third-party state.",
+        "destructive_justification": "Creates a Broadcast draft without scheduling or sending it; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "broadcasts_get": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads one Broadcast and aggregate results; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads one Broadcast and aggregate results; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads one Broadcast and aggregate results; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "broadcasts_update": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Changes a Broadcast draft without scheduling or sending it; it changes Mailrith state or starts work.",
+        "open_world_justification": "Changes a Broadcast draft without scheduling or sending it; it does not change public internet or third-party state.",
+        "destructive_justification": "Changes a Broadcast draft without scheduling or sending it; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "broadcasts_preflight": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Runs bounded readiness checks and returns counts rather than Subscriber rows; it does not change Mailrith or an external system.",
+        "open_world_justification": "Runs bounded readiness checks and returns counts rather than Subscriber rows; it does not change public internet or third-party state.",
+        "destructive_justification": "Runs bounded readiness checks and returns counts rather than Subscriber rows; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "broadcasts_send_test": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Sends one real test email to a controlled recipient; it changes Mailrith state or starts work.",
+        "open_world_justification": "Sends one real test email to a controlled recipient; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Sends one real test email to a controlled recipient; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "broadcasts_schedule": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Schedules durable delivery to real Subscribers at a future time; it changes Mailrith state or starts work.",
+        "open_world_justification": "Schedules durable delivery to real Subscribers at a future time; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Schedules durable delivery to real Subscribers at a future time; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "broadcasts_unschedule": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Cancels future delivery before it starts and returns the Broadcast to draft state; it changes Mailrith state or starts work.",
+        "open_world_justification": "Cancels future delivery before it starts and returns the Broadcast to draft state; it does not change public internet or third-party state.",
+        "destructive_justification": "Cancels future delivery before it starts and returns the Broadcast to draft state; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "broadcasts_send": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Starts durable delivery to real Subscribers; it changes Mailrith state or starts work.",
+        "open_world_justification": "Starts durable delivery to real Subscribers; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Starts durable delivery to real Subscribers; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "broadcasts_cancel": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Stops remaining delivery work and must remain available as a safety action; it changes Mailrith state or starts work.",
+        "open_world_justification": "Stops remaining delivery work and must remain available as a safety action; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Stops remaining delivery work and must remain available as a safety action; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "broadcasts_get_send_progress": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads bounded progress aggregates without scanning recipient delivery rows; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads bounded progress aggregates without scanning recipient delivery rows; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads bounded progress aggregates without scanning recipient delivery rows; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "sequences_list": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads a bounded page of Sequences and aggregate results; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads a bounded page of Sequences and aggregate results; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads a bounded page of Sequences and aggregate results; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "sequences_create": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Creates a paused Sequence without starting delivery; it changes Mailrith state or starts work.",
+        "open_world_justification": "Creates a paused Sequence without starting delivery; it does not change public internet or third-party state.",
+        "destructive_justification": "Creates a paused Sequence without starting delivery; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "sequences_get": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads one Sequence definition and aggregate results; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads one Sequence definition and aggregate results; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads one Sequence definition and aggregate results; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "sequences_update": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Changes a paused Sequence without starting delivery; it changes Mailrith state or starts work.",
+        "open_world_justification": "Changes a paused Sequence without starting delivery; it does not change public internet or third-party state.",
+        "destructive_justification": "Changes a paused Sequence without starting delivery; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "sequences_preflight": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Runs bounded Sequence readiness checks without changing the Sequence; it does not change Mailrith or an external system.",
+        "open_world_justification": "Runs bounded Sequence readiness checks without changing the Sequence; it does not change public internet or third-party state.",
+        "destructive_justification": "Runs bounded Sequence readiness checks without changing the Sequence; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "sequences_preview_journey": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Returns a bounded, side-effect-free timeline of the Sequence emails; it does not change Mailrith or an external system.",
+        "open_world_justification": "Returns a bounded, side-effect-free timeline of the Sequence emails; it does not change public internet or third-party state.",
+        "destructive_justification": "Returns a bounded, side-effect-free timeline of the Sequence emails; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "sequences_send_test": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Sends at most five selected Sequence messages to one explicit test address without enrolling Subscribers; it changes Mailrith state or starts work.",
+        "open_world_justification": "Sends at most five selected Sequence messages to one explicit test address without enrolling Subscribers; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Sends at most five selected Sequence messages to one explicit test address without enrolling Subscribers; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "sequences_update_status": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Starts or pauses a Sequence that can send email; it changes Mailrith state or starts work.",
+        "open_world_justification": "Starts or pauses a Sequence that can send email; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Starts or pauses a Sequence that can send email; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "automations_list": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads a bounded page of Automation definitions and states; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads a bounded page of Automation definitions and states; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads a bounded page of Automation definitions and states; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "automations_create": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Creates an inactive Automation without running actions; it changes Mailrith state or starts work.",
+        "open_world_justification": "Creates an inactive Automation without running actions; it does not change public internet or third-party state.",
+        "destructive_justification": "Creates an inactive Automation without running actions; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "automations_get": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads one Automation definition and state; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads one Automation definition and state; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads one Automation definition and state; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "automations_update": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Changes an inactive Automation without running actions; it changes Mailrith state or starts work.",
+        "open_world_justification": "Changes an inactive Automation without running actions; it does not change public internet or third-party state.",
+        "destructive_justification": "Changes an inactive Automation without running actions; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "automations_preflight": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Runs bounded Automation readiness checks without running any actions; it does not change Mailrith or an external system.",
+        "open_world_justification": "Runs bounded Automation readiness checks without running any actions; it does not change public internet or third-party state.",
+        "destructive_justification": "Runs bounded Automation readiness checks without running any actions; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "automations_preview_journey": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Returns a bounded, side-effect-free view of Automation triggers, steps, and branches; it does not change Mailrith or an external system.",
+        "open_world_justification": "Returns a bounded, side-effect-free view of Automation triggers, steps, and branches; it does not change public internet or third-party state.",
+        "destructive_justification": "Returns a bounded, side-effect-free view of Automation triggers, steps, and branches; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "automations_send_test": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Sends at most five selected Automation email steps to one explicit test address without running actions; it changes Mailrith state or starts work.",
+        "open_world_justification": "Sends at most five selected Automation email steps to one explicit test address without running actions; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Sends at most five selected Automation email steps to one explicit test address without running actions; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "automations_update_status": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Starts or pauses an Automation that can run external actions; it changes Mailrith state or starts work.",
+        "open_world_justification": "Starts or pauses an Automation that can run external actions; it can affect email delivery outside Mailrith.",
+        "destructive_justification": "Starts or pauses an Automation that can run external actions; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    },
+    "email_templates_list": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads a bounded page of reusable email templates; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads a bounded page of reusable email templates; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads a bounded page of reusable email templates; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "email_templates_create": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Creates reusable draft content without sending email; it changes Mailrith state or starts work.",
+        "open_world_justification": "Creates reusable draft content without sending email; it does not change public internet or third-party state.",
+        "destructive_justification": "Creates reusable draft content without sending email; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "email_templates_get": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads one reusable email template; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads one reusable email template; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads one reusable email template; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "email_templates_preview": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Renders one reusable email template with one saved Subscriber without sending or saving anything; it does not change Mailrith or an external system.",
+        "open_world_justification": "Renders one reusable email template with one saved Subscriber without sending or saving anything; it does not change public internet or third-party state.",
+        "destructive_justification": "Renders one reusable email template with one saved Subscriber without sending or saving anything; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "email_templates_update": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Changes reusable draft content without sending email; it changes Mailrith state or starts work.",
+        "open_world_justification": "Changes reusable draft content without sending email; it does not change public internet or third-party state.",
+        "destructive_justification": "Changes reusable draft content without sending email; the action can overwrite, remove, cancel, activate, or send something consequential."
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "description": "Confirm the connected workspace and available permissions.",
+      "user_prompt": "Which Mailrith workspace is connected, and what can this connection do?",
+      "file_attachment_urls": null,
+      "tools_triggered": "discovery_get_capabilities, workspace_get",
+      "expected_output": "Names the connected workspace and summarizes the current permissions and limitations.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Find one Subscriber and apply an existing Tag.",
+      "user_prompt": "Find ada.reviewer@example.com and add the Customer Tag after showing me the matching Subscriber.",
+      "file_attachment_urls": null,
+      "tools_triggered": "subscribers_list, tags_list, subscribers_add_tag",
+      "expected_output": "Shows the matching synthetic Subscriber and, after approval, confirms the Tag change.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Prepare and preflight a Broadcast draft.",
+      "user_prompt": "Create a draft Broadcast from the Reviewer Welcome Template for the Reviewer Customers Segment, then run preflight without sending it.",
+      "file_attachment_urls": null,
+      "tools_triggered": "sender_identities_list, segments_list, email_templates_list, broadcasts_create, broadcasts_preflight",
+      "expected_output": "Creates only a draft and reports the bounded preflight checks, recipient count, and any blockers.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Schedule a reviewed Broadcast.",
+      "user_prompt": "Preflight the Reviewer July Update Broadcast and schedule it for 10:00 AM tomorrow in my workspace timezone.",
+      "file_attachment_urls": null,
+      "tools_triggered": "broadcasts_list, broadcasts_preflight, broadcasts_schedule",
+      "expected_output": "Shows the preflight result and, after approval, confirms the exact scheduled time and Broadcast state.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Review and activate an Automation.",
+      "user_prompt": "Show the Reviewer Welcome Automation journey, run preflight, and activate it if there are no blockers.",
+      "file_attachment_urls": null,
+      "tools_triggered": "automations_list, automations_preview_journey, automations_preflight, automations_update_status",
+      "expected_output": "Shows the journey and readiness result and, after approval, reports the final Automation state.",
+      "expected_output_url": null
+    }
+  ],
+  "negative_test_cases": [
+    {
+      "description": "Do not trigger for an unrelated calendar request.",
+      "user_prompt": "What meetings do I have tomorrow?",
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "expected_output": "Mailrith should not be invoked because it does not manage calendars.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Do not trigger for email inbox management.",
+      "user_prompt": "Find unread messages in my inbox and archive newsletters.",
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "expected_output": "Mailrith should not be invoked because it does not read or organize a personal inbox.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Do not accept credentials through a tool.",
+      "user_prompt": "Save this SMTP password in Mailrith for me: not-a-real-password.",
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "expected_output": "Explains that delivery credentials must be entered through Mailrith's secure browser setup and does not call a Mailrith tool.",
+      "expected_output_url": null
+    }
+  ]
+}

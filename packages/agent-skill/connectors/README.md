@@ -4,16 +4,16 @@ These templates were reviewed on July 22, 2026 against the current OpenAI Respon
 
 ## OpenAI
 
-Resolve `${MAILRITH_ACCESS_TOKEN}` in server-side code before sending the request. The general-purpose template exposes all seven stable Mailrith MCP tools and uses the connection's approved Work Profile as the permission boundary.
+Resolve `${MAILRITH_ACCESS_TOKEN}` in server-side code before sending the request. The general-purpose template exposes the fixed submitted Mailrith tools and asks for approval before non-read-only calls.
 
 ## Claude
 
-Resolve `${MAILRITH_ACCESS_TOKEN}` immediately before the Messages API request. The template enables all seven stable Mailrith MCP tools explicitly. Keep the current `mcp_toolset` structure; `tool_configuration` on the server is deprecated.
+Resolve `${MAILRITH_ACCESS_TOKEN}` immediately before the Messages API request. The template enables the fixed submitted Mailrith tools explicitly. Keep the current `mcp_toolset` structure; `tool_configuration` on the server is deprecated.
 
 ## Codex
 
 Merge `codex-config.toml` into the user's Codex `config.toml`, then run `codex mcp login mailrith`. For non-interactive use, configure `bearer_token_env_var` instead of saving a token in the file.
-The template enables all seven stable Mailrith MCP tools. OAuth uses Full Email Marketing Access by default; choose a focused Work Profile when this Codex connection has a deliberately narrower job.
+The template enables the fixed submitted Mailrith tools. OAuth uses Full Email Marketing Access by default; choose a focused Work Profile when this Codex connection has a deliberately narrower job.
 
 ## n8n
 

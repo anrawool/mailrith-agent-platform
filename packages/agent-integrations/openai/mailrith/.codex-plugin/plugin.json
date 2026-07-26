@@ -1,0 +1,44 @@
+{
+  "name": "mailrith",
+  "version": "1.0.0",
+  "description": "Manage Mailrith email marketing through focused, permission-scoped tools.",
+  "author": {
+    "name": "Mailrith",
+    "email": "support@mailrith.com",
+    "url": "https://mailrith.com"
+  },
+  "homepage": "https://mailrith.com/developers/mcp",
+  "repository": "https://github.com/anrawool/mailrith-agent-platform",
+  "license": "MIT",
+  "keywords": [
+    "email-marketing",
+    "subscribers",
+    "broadcasts",
+    "automations",
+    "sequences"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Mailrith",
+    "shortDescription": "Manage email marketing",
+    "longDescription": "Review Subscribers and reports, prepare and deliver Broadcasts, and manage Sequences, Automations, targeting, and email Templates in the connected Mailrith workspace.",
+    "developerName": "Mailrith",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://mailrith.com",
+    "privacyPolicyURL": "https://mailrith.com/privacy-policy",
+    "termsOfServiceURL": "https://mailrith.com/terms-of-service",
+    "defaultPrompt": [
+      "Show my recent Broadcast results.",
+      "Prepare and preflight a Broadcast.",
+      "Find a Subscriber and update their Tags."
+    ],
+    "brandColor": "#F97316",
+    "composerIcon": "./assets/logo.svg",
+    "logo": "./assets/logo.svg"
+  },
+  "mcpServers": "./.mcp.json"
+}

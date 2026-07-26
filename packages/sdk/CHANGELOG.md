@@ -7,6 +7,10 @@
 
 - Export a bounded shared operation-discovery index with common task-language intent matching and stable effect categories for MCP and CLI clients.
 
+## 1.0.0 - 2026-07-26
+
+- Regenerate the SDK from the Mailrith MCP 1.0 risk and submitted-profile contract without changing the direct API-key or OAuth client methods.
+
 ## 0.2.0 - 2026-07-24
 
 - Use the final resource-permission contract and complete Work Profiles without action-scope aliases.

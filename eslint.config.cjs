@@ -18,6 +18,18 @@ module.exports = [
     },
     rules: {
       "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              regex: "^\\.\\./(?:\\.\\./)*packages/",
+              message:
+                "Use a public @mailrith/* package export instead of another package's source. Generated-artifact scripts must document and narrowly disable intentional source imports.",
+            },
+          ],
+        },
+      ],
     },
   },
   {

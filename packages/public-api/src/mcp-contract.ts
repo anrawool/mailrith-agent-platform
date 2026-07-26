@@ -59,11 +59,11 @@ export type PublicApiMcpToolAnnotations = {
 export const createPublicApiMcpToolAnnotations = (
   risk: Pick<
     PublicApiAgentOperationRisk,
-    "risk" | "externalSideEffect" | "idempotencyPolicy"
+    "risk" | "destructive" | "externalSideEffect" | "idempotencyPolicy"
   >,
 ): PublicApiMcpToolAnnotations => ({
   readOnlyHint: risk.risk === "read",
-  destructiveHint: risk.risk === "delete",
+  destructiveHint: risk.destructive,
   idempotentHint: risk.idempotencyPolicy !== "idempotency-key",
   openWorldHint: risk.externalSideEffect,
 });
@@ -121,7 +121,17 @@ class JsonSchemaDocumentBuilder {
       string,
       Record<string, unknown>
     >,
+    private readonly accessMode: "input" | "output",
   ) {}
+
+  private excludesProperty(value: unknown) {
+    if (!isRecord(value)) {
+      return false;
+    }
+    return this.accessMode === "input"
+      ? value.readOnly === true
+      : value.writeOnly === true;
+  }
 
   private addComponentReference(name: string) {
     const source = this.componentSchemas[name];
@@ -143,9 +153,37 @@ class JsonSchemaDocumentBuilder {
       return value;
     }
 
+    const propertySchemas = isRecord(value.properties)
+      ? value.properties
+      : undefined;
+    const excludedPropertyNames = new Set(
+      propertySchemas
+        ? Object.entries(propertySchemas)
+            .filter(([, schema]) => this.excludesProperty(schema))
+            .map(([name]) => name)
+        : [],
+    );
     const normalized: Record<string, unknown> = {};
     for (const [key, item] of Object.entries(value)) {
       if (key === "nullable") {
+        continue;
+      }
+      if (key === "properties" && propertySchemas) {
+        normalized.properties = Object.fromEntries(
+          Object.entries(propertySchemas)
+            .filter(([name]) => !excludedPropertyNames.has(name))
+            .map(([name, schema]) => [name, this.normalize(schema)]),
+        );
+        continue;
+      }
+      if (key === "required" && Array.isArray(item)) {
+        const required = item.filter(
+          (name): name is string =>
+            typeof name === "string" && !excludedPropertyNames.has(name),
+        );
+        if (required.length > 0) {
+          normalized.required = required;
+        }
         continue;
       }
       if (key === "$ref" && typeof item === "string") {
@@ -208,7 +246,10 @@ export const createPublicApiMcpOperationContract = (
   operation: OpenApiOperation,
   componentSchemas: Record<string, Record<string, unknown>>,
 ): PublicApiMcpOperationContract => {
-  const inputBuilder = new JsonSchemaDocumentBuilder(componentSchemas);
+  const inputBuilder = new JsonSchemaDocumentBuilder(
+    componentSchemas,
+    "input",
+  );
   const inputProperties: Record<string, unknown> = {};
   const requiredInputNames = new Set<string>();
 
@@ -248,7 +289,10 @@ export const createPublicApiMcpOperationContract = (
       : {}),
   });
 
-  const outputBuilder = new JsonSchemaDocumentBuilder(componentSchemas);
+  const outputBuilder = new JsonSchemaDocumentBuilder(
+    componentSchemas,
+    "output",
+  );
   const successfulResponseSchemas = Object.entries(operation.responses)
     .filter(([status]) => /^2\d\d$/.test(status))
     .sort(([left], [right]) => left.localeCompare(right))

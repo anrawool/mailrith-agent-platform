@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "name": "Mailrith",
+  "description": "Review Subscribers and email results, prepare and deliver Broadcasts, and manage Sequences, Automations, targeting, and email Templates.",
+  "category": "Marketing",
+  "mcp_server_url": "https://api.mailrith.com/mcp",
+  "authentication": "oauth",
+  "website_url": "https://mailrith.com",
+  "support_url": "https://mailrith.com/contact",
+  "privacy_policy_url": "https://mailrith.com/privacy-policy",
+  "terms_of_service_url": "https://mailrith.com/terms-of-service",
+  "use_cases": [
+    {
+      "title": "Review Email Performance",
+      "prompt": "Show my recent Broadcast results and summarize what changed."
+    },
+    {
+      "title": "Prepare A Broadcast",
+      "prompt": "Create a draft Broadcast from my welcome Template and run preflight."
+    },
+    {
+      "title": "Manage A Subscriber",
+      "prompt": "Find ada@example.com and add the Customer Tag."
+    }
+  ],
+  "data_handling": {
+    "connection_scope": "One Mailrith workspace selected during OAuth",
+    "credentials": "OAuth tokens are never returned by Mailrith tools",
+    "subscriber_data": "Tools return only the requested bounded page or selected Subscriber",
+    "retention": "The connector adds no Mailrith database storage beyond normal product records and OAuth authorization records"
+  }
+}

@@ -1,0 +1,707 @@
+{
+  "schema_version": 1,
+  "profile": "submitted",
+  "contract_version": "1.0",
+  "source_contract_version": "v1",
+  "source_schema_digest": "sha256:708d23ebf1795135c3befd29035be23ed8b56622890fb5b2568459fb7271b7d0",
+  "submitted_schema_digest": "sha256:fc256409a01425ebfcb694c211bcbc0ebf3b0563af277a083a4b5b01315cc284",
+  "mcp_server_url": "https://api.mailrith.com/mcp",
+  "tool_count": 52,
+  "tools": [
+    {
+      "operation_id": "getPublicApiCapabilities",
+      "name": "discovery_get_capabilities",
+      "required_scopes": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "getWorkspace",
+      "name": "workspace_get",
+      "required_scopes": [
+        "workspace:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "listSenderIdentities",
+      "name": "sender_identities_list",
+      "required_scopes": [
+        "workspace:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "getSenderIdentity",
+      "name": "sender_identities_get",
+      "required_scopes": [
+        "workspace:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "createAnalyticsReport",
+      "name": "analytics_create_report",
+      "required_scopes": [
+        "analytics:read"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "getAnalyticsReport",
+      "name": "analytics_get_report",
+      "required_scopes": [
+        "analytics:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "listSubscribers",
+      "name": "subscribers_list",
+      "required_scopes": [
+        "subscribers:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "getSubscriber",
+      "name": "subscribers_get",
+      "required_scopes": [
+        "subscribers:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "upsertSubscriber",
+      "name": "subscribers_upsert",
+      "required_scopes": [
+        "live_actions:write",
+        "subscribers:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "updateSubscriber",
+      "name": "subscribers_update",
+      "required_scopes": [
+        "subscribers:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "updateSubscriberStatus",
+      "name": "subscribers_update_status",
+      "required_scopes": [
+        "live_actions:write",
+        "subscribers:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "addSubscriberTag",
+      "name": "subscribers_add_tag",
+      "required_scopes": [
+        "live_actions:write",
+        "subscribers:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "removeSubscriberTag",
+      "name": "subscribers_remove_tag",
+      "required_scopes": [
+        "live_actions:write",
+        "subscribers:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "addSubscriberSequence",
+      "name": "subscribers_add_to_sequence",
+      "required_scopes": [
+        "live_actions:write",
+        "subscribers:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "removeSubscriberSequence",
+      "name": "subscribers_remove_from_sequence",
+      "required_scopes": [
+        "live_actions:write",
+        "subscribers:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "listTags",
+      "name": "tags_list",
+      "required_scopes": [
+        "tags:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "getTag",
+      "name": "tags_get",
+      "required_scopes": [
+        "tags:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "listSegments",
+      "name": "segments_list",
+      "required_scopes": [
+        "segments:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "getSegment",
+      "name": "segments_get",
+      "required_scopes": [
+        "segments:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "previewSegment",
+      "name": "segments_preview",
+      "required_scopes": [
+        "segments:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "listBroadcasts",
+      "name": "broadcasts_list",
+      "required_scopes": [
+        "broadcasts:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "createBroadcast",
+      "name": "broadcasts_create",
+      "required_scopes": [
+        "broadcasts:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "getBroadcast",
+      "name": "broadcasts_get",
+      "required_scopes": [
+        "broadcasts:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "updateBroadcast",
+      "name": "broadcasts_update",
+      "required_scopes": [
+        "broadcasts:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "preflightBroadcast",
+      "name": "broadcasts_preflight",
+      "required_scopes": [
+        "broadcasts:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "testBroadcast",
+      "name": "broadcasts_send_test",
+      "required_scopes": [
+        "live_actions:write",
+        "subscribers:read",
+        "broadcasts:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "scheduleBroadcast",
+      "name": "broadcasts_schedule",
+      "required_scopes": [
+        "live_actions:write",
+        "broadcasts:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "unscheduleBroadcast",
+      "name": "broadcasts_unschedule",
+      "required_scopes": [
+        "live_actions:write",
+        "broadcasts:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "sendBroadcast",
+      "name": "broadcasts_send",
+      "required_scopes": [
+        "live_actions:write",
+        "broadcasts:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "cancelBroadcastSend",
+      "name": "broadcasts_cancel",
+      "required_scopes": [
+        "live_actions:write",
+        "broadcasts:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "getBroadcastSendProgress",
+      "name": "broadcasts_get_send_progress",
+      "required_scopes": [
+        "broadcasts:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "listSequences",
+      "name": "sequences_list",
+      "required_scopes": [
+        "sequences:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "createSequence",
+      "name": "sequences_create",
+      "required_scopes": [
+        "sequences:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "getSequence",
+      "name": "sequences_get",
+      "required_scopes": [
+        "sequences:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "updateSequence",
+      "name": "sequences_update",
+      "required_scopes": [
+        "sequences:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "preflightSequence",
+      "name": "sequences_preflight",
+      "required_scopes": [
+        "sequences:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "previewSequenceJourney",
+      "name": "sequences_preview_journey",
+      "required_scopes": [
+        "subscribers:read",
+        "sequences:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "testSequence",
+      "name": "sequences_send_test",
+      "required_scopes": [
+        "live_actions:write",
+        "subscribers:read",
+        "sequences:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "updateSequenceStatus",
+      "name": "sequences_update_status",
+      "required_scopes": [
+        "live_actions:write",
+        "sequences:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "listAutomations",
+      "name": "automations_list",
+      "required_scopes": [
+        "automations:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "createAutomation",
+      "name": "automations_create",
+      "required_scopes": [
+        "automations:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "getAutomation",
+      "name": "automations_get",
+      "required_scopes": [
+        "automations:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "updateAutomation",
+      "name": "automations_update",
+      "required_scopes": [
+        "automations:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "preflightAutomation",
+      "name": "automations_preflight",
+      "required_scopes": [
+        "automations:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "previewAutomationJourney",
+      "name": "automations_preview_journey",
+      "required_scopes": [
+        "subscribers:read",
+        "automations:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "testAutomation",
+      "name": "automations_send_test",
+      "required_scopes": [
+        "live_actions:write",
+        "subscribers:read",
+        "automations:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "updateAutomationStatus",
+      "name": "automations_update_status",
+      "required_scopes": [
+        "live_actions:write",
+        "automations:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "operation_id": "listEmailTemplates",
+      "name": "email_templates_list",
+      "required_scopes": [
+        "email_templates:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "createEmailTemplate",
+      "name": "email_templates_create",
+      "required_scopes": [
+        "email_templates:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "getEmailTemplate",
+      "name": "email_templates_get",
+      "required_scopes": [
+        "email_templates:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "previewEmailTemplate",
+      "name": "email_templates_preview",
+      "required_scopes": [
+        "subscribers:read",
+        "email_templates:read"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "updateEmailTemplate",
+      "name": "email_templates_update",
+      "required_scopes": [
+        "email_templates:write"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    }
+  ]
+}

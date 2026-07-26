@@ -94,26 +94,24 @@ describe("Mailrith connector templates", () => {
     const openAi = JSON.parse(openAiSource) as Record<string, any>;
     const claude = JSON.parse(claudeSource) as Record<string, any>;
     const n8n = JSON.parse(n8nSource) as Record<string, any>;
-    const compactReadTools = [
-      "mailrith_check_connection",
-      "mailrith_search_operations",
-      "mailrith_get_operation",
-      "mailrith_read",
-    ];
-    const compactTools = [
-      ...compactReadTools,
-      "mailrith_write",
-      "mailrith_delete",
-      "mailrith_live",
-    ];
+    const submittedTools = openAi.tools[0].allowed_tools as string[];
 
     expect(openAi.store).toBe(false);
     expect(openAi.tools[0]).toMatchObject({
       type: "mcp",
       server_url: "https://api.mailrith.com/mcp",
-      allowed_tools: compactTools,
-      require_approval: "never",
+      allowed_tools: submittedTools,
+      require_approval: {
+        always: {
+          read_only: false,
+        },
+      },
     });
+    expect(submittedTools).toHaveLength(52);
+    expect(new Set(submittedTools).size).toBe(submittedTools.length);
+    expect(submittedTools).toContain("broadcasts_send");
+    expect(submittedTools).toContain("automations_update_status");
+    expect(submittedTools).not.toContain("mailrith_live");
     expect(claude.betas).toEqual(["mcp-client-2025-11-20"]);
     expect(claude.mcp_servers[0].url).toBe(
       "https://api.mailrith.com/mcp",
@@ -122,20 +120,19 @@ describe("Mailrith connector templates", () => {
       enabled: false,
       defer_loading: true,
     });
-    expect(Object.keys(claude.tools[0].configs)).toEqual(compactTools);
+    expect(Object.keys(claude.tools[0].configs)).toEqual(submittedTools);
     expect(n8n.active).toBe(false);
     expect(n8n.nodes[1].parameters.url).toBe("https://api.mailrith.com/v1/capabilities");
     expect(n8n.nodes[1].parameters.options.timeout).toBe(10_000);
     expect(codexSource).toContain(
       'url = "https://api.mailrith.com/mcp"',
     );
-    for (const tool of compactTools) {
+    for (const tool of submittedTools) {
       expect(codexSource).toContain(`"${tool}"`);
     }
-    expect(codexSource).toContain('default_tools_approval_mode = "never"');
-    for (const tool of compactReadTools) {
-      expect(codexSource).toContain(`"${tool}"`);
-    }
+    expect(codexSource).not.toContain(
+      'default_tools_approval_mode = "never"',
+    );
     expect(pipedreamSource).toContain('url: "https://api.mailrith.com/v1/capabilities"');
     expect(pipedreamSource).toContain("secret: true");
     expect(connectionGuidance).toContain(
@@ -149,9 +146,8 @@ describe("Mailrith connector templates", () => {
       expect(source).not.toMatch(/(?:mrk|mra|mrt)_[A-Za-z0-9_-]{12,}/);
     }
     for (const source of [openAiSource, claudeSource, codexSource]) {
-      expect(source).not.toMatch(
-        /\b(?:discovery|workspace|subscribers|broadcasts|sequences|automations)_[a-z][a-z_]+\b/,
-      );
+      expect(source).not.toContain("mailrith_search_operations");
+      expect(source).not.toContain("mailrith_live");
     }
   });
 });

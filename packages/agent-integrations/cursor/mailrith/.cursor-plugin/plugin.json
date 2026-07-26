@@ -1,0 +1,30 @@
+{
+  "name": "mailrith",
+  "displayName": "Mailrith",
+  "version": "1.0.0",
+  "description": "Manage Mailrith email marketing through focused, permission-scoped tools.",
+  "author": {
+    "name": "Mailrith",
+    "email": "support@mailrith.com"
+  },
+  "publisher": "Mailrith",
+  "homepage": "https://mailrith.com/developers/mcp",
+  "repository": "https://github.com/anrawool/mailrith-agent-platform",
+  "license": "MIT",
+  "logo": "assets/logo.svg",
+  "keywords": [
+    "email-marketing",
+    "subscribers",
+    "broadcasts",
+    "automations",
+    "sequences"
+  ],
+  "category": "productivity",
+  "tags": [
+    "marketing",
+    "email",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./mcp.json"
+}

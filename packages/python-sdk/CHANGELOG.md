@@ -7,6 +7,11 @@
 
 - Generate Python operation discovery from the shared Mailrith intent catalog,
   including aliases, plural handling, category filters, and ranking parity.
+
+## 1.0.0 - 2026-07-26
+
+- Regenerate the Python SDK from the Mailrith MCP 1.0 risk and submitted-profile contract without changing direct API-key or OAuth client methods.
+
 ## 0.2.0 - 2026-07-24
 
 - Use the final resource-permission contract and complete Work Profiles without action-scope aliases.

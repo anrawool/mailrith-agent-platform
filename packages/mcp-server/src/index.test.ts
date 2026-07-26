@@ -1,20 +1,649 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import { publicApiScopeKeys } from "@mailrith/public-api";
+import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+import {
+  publicApiScopeKeys,
+  publicApiSubmittedMcpOperationIds,
+} from "@mailrith/public-api";
 import { MailrithApiError, mailrithSdkResources } from "@mailrith/sdk";
 import { describe, expect, it, vi } from "vitest";
 import {
+  parseMailrithMcpCliOptions,
+  requireMailrithMcpStdioCredential,
+} from "./cli-options";
+import {
   createMcpCapabilityContextHeaders,
   createMailrithMcpCompactToolDefinitions,
+  createMailrithMcpServer,
   createMailrithMcpToolDefinitions,
   handleMailrithMcpHttpRequest,
+  mailrithMcpMaxAuthenticatedBatchItems,
   mailrithMcpStandardOAuthScopes,
+  mailrithSubmittedMcpOAuthScopes,
+  mailrithSubmittedMcpOperationOAuthScopes,
+  mailrithSubmittedMcpToolNames,
   resolveMailrithMcpApiKey,
   resolveEnabledMcpToolsets,
 } from "./index";
 import { createLazyMcpSchemaCache } from "./lazy-schema-cache";
 
 describe("@mailrith/mcp-server", () => {
+  it("builds one fixed submitted catalog from canonical focused operations", () => {
+    const client = { request: vi.fn() } as never;
+    const submitted = createMailrithMcpToolDefinitions(client, {
+      profile: "submitted",
+    });
+    const submittedWithNarrowScopes = createMailrithMcpToolDefinitions(client, {
+      profile: "submitted",
+      grantedScopes: ["workspace:read"],
+      enabledToolsets: ["reporting"],
+      readOnly: true,
+    });
+
+    expect(submitted.map((tool) => tool.name)).toEqual(
+      mailrithSubmittedMcpToolNames,
+    );
+    expect(submittedWithNarrowScopes.map((tool) => tool.name)).toEqual(
+      mailrithSubmittedMcpToolNames,
+    );
+    expect(submitted).toHaveLength(publicApiSubmittedMcpOperationIds.length);
+    expect(submitted).toHaveLength(52);
+    expect(new Set(mailrithSubmittedMcpToolNames).size).toBe(submitted.length);
+    expect(
+      submitted.find((tool) => tool.name === "broadcasts_send"),
+    ).toMatchObject({
+      title: "Send a broadcast now",
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        openWorldHint: true,
+      },
+      securitySchemes: [
+        {
+          type: "oauth2",
+          scopes: ["live_actions:write", "broadcasts:write"],
+        },
+      ],
+      meta: {
+        securitySchemes: [
+          {
+            type: "oauth2",
+            scopes: ["live_actions:write", "broadcasts:write"],
+          },
+        ],
+      },
+    });
+    expect(
+      submitted.find(
+        (tool) => tool.name === "discovery_get_capabilities",
+      ),
+    ).toMatchObject({
+      securitySchemes: [
+        {
+          type: "oauth2",
+          scopes: publicApiScopeKeys,
+        },
+      ],
+      meta: {
+        "mailrith/requiredScopes": [],
+      },
+    });
+    for (const tool of submitted) {
+      expect(tool.meta["mailrith/requiredScopes"]).toEqual(
+        tool.operation.requiredScopes,
+      );
+      if (tool.name !== "discovery_get_capabilities") {
+        expect(tool.securitySchemes[0].scopes).toEqual(
+          tool.operation.requiredScopes,
+        );
+      }
+    }
+    expect(mailrithSubmittedMcpOAuthScopes).toEqual(publicApiScopeKeys);
+    expect(mailrithSubmittedMcpOperationOAuthScopes).toEqual(
+      expect.arrayContaining([
+        "workspace:read",
+        "subscribers:read",
+        "subscribers:write",
+        "broadcasts:read",
+        "broadcasts:write",
+        "automations:write",
+        "sequences:write",
+        "live_actions:write",
+      ]),
+    );
+    expect(mailrithSubmittedMcpOperationOAuthScopes.length).toBeLessThan(
+      mailrithSubmittedMcpOAuthScopes.length,
+    );
+  });
+
+  it("uses a configured API credential for every submitted tool without requiring a preloaded capability response", async () => {
+    const request = vi.fn().mockResolvedValue({ data: {} });
+    const tools = createMailrithMcpToolDefinitions(
+      { request } as never,
+      {
+        profile: "submitted",
+        apiKey: "mrk_local",
+        enforceRuntimeAuthorization: true,
+      },
+    );
+
+    for (const tool of tools) {
+      const result = await tool.invoke({});
+      expect(
+        (
+          result.structuredContent as
+            | { error?: { code?: string } }
+            | undefined
+        )?.error?.code,
+        `${tool.name} incorrectly rejected the configured API credential`,
+      ).not.toBe("authentication_required");
+    }
+  });
+
+  it("blocks every submitted tool before validation when no credential or capability context exists", async () => {
+    const request = vi.fn();
+    const tools = createMailrithMcpToolDefinitions(
+      { request } as never,
+      {
+        profile: "submitted",
+        enforceRuntimeAuthorization: true,
+      },
+    );
+
+    for (const tool of tools) {
+      const result = await tool.invoke({});
+      expect(result).toMatchObject({
+        isError: true,
+        structuredContent: {
+          error: {
+            code: "authentication_required",
+          },
+        },
+      });
+    }
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  it("propagates a local API credential through the complete submitted server", async () => {
+    const request = vi.fn().mockResolvedValue({
+      data: [],
+      pagination: { has_more: false, next_cursor: null },
+    });
+    const server = createMailrithMcpServer({
+      apiKey: "mrk_local",
+      client: { request } as never,
+    });
+    const [clientTransport, serverTransport] =
+      InMemoryTransport.createLinkedPair();
+    const client = new Client(
+      { name: "mailrith-local-api-key-test", version: "1.0.0" },
+      { capabilities: {} },
+    );
+
+    await server.connect(serverTransport);
+    await client.connect(clientTransport);
+    const result = await client.callTool({
+      name: "subscribers_list",
+      arguments: { limit: 1 },
+    });
+
+    expect(request).toHaveBeenCalledWith(
+      expect.objectContaining({
+        operationId: "listSubscribers",
+        method: "GET",
+      }),
+      expect.objectContaining({
+        query: { limit: 1 },
+      }),
+    );
+    expect(result).not.toMatchObject({ isError: true });
+
+    await client.close();
+    await server.close().catch(() => undefined);
+  });
+
+  it("reads the local API key from the environment and lets an explicit flag override it", () => {
+    expect(
+      parseMailrithMcpCliOptions([], {
+        MAILRITH_API_KEY: "  mrk_environment  ",
+      }),
+    ).toMatchObject({
+      transport: "stdio",
+      apiKey: "mrk_environment",
+    });
+    expect(
+      parseMailrithMcpCliOptions(
+        ["--transport", "http", "--api-key", "mrk_flag"],
+        { MAILRITH_API_KEY: "mrk_environment" },
+      ),
+    ).toMatchObject({
+      transport: "http",
+      apiKey: "mrk_flag",
+    });
+    expect(
+      parseMailrithMcpCliOptions([], {
+        MAILRITH_API_KEY: "   ",
+      }),
+    ).not.toHaveProperty("apiKey");
+    expect(() =>
+      requireMailrithMcpStdioCredential({}),
+    ).toThrow("Set MAILRITH_API_KEY");
+    expect(() =>
+      requireMailrithMcpStdioCredential({
+        apiKey: "mrk_environment",
+      }),
+    ).not.toThrow();
+  });
+
+  it("serves anonymous static submitted discovery with exact schemas and OAuth metadata", async () => {
+    const unavailableFetch = vi.fn(() => {
+      throw new Error("Anonymous discovery must not call the Mailrith API.");
+    });
+    const response = await handleMailrithMcpHttpRequest(
+      new Request("https://mailrith.test/mcp", {
+        method: "POST",
+        headers: {
+          accept: "application/json, text/event-stream",
+          "content-type": "application/json",
+          "mailrith-mcp-toolsets": "not-a-real-toolset",
+          "mailrith-mcp-read-only": "not-a-boolean",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/list",
+        }),
+      }),
+      {
+        baseUrl: "https://api.mailrith.com",
+        fetch: unavailableFetch as unknown as typeof fetch,
+      },
+    );
+    const responseText = await response.text();
+    const payload = JSON.parse(responseText) as {
+      result?: {
+        tools?: Array<{
+          name: string;
+          title?: string;
+          inputSchema?: unknown;
+          outputSchema?: unknown;
+          securitySchemes?: unknown;
+          annotations?: unknown;
+          _meta?: Record<string, unknown>;
+        }>;
+      };
+    };
+    const tools = payload.result?.tools ?? [];
+
+    expect(response.status, responseText).toBe(200);
+    expect(unavailableFetch).not.toHaveBeenCalled();
+    expect(tools.map((tool) => tool.name)).toEqual(
+      mailrithSubmittedMcpToolNames,
+    );
+    expect(tools).toHaveLength(52);
+    expect(
+      new TextEncoder().encode(responseText).byteLength,
+    ).toBeLessThanOrEqual(512 * 1024);
+    expect(
+      tools.every(
+        (tool) =>
+          typeof tool.title === "string" &&
+          tool.inputSchema !== undefined &&
+          tool.outputSchema !== undefined &&
+          tool.securitySchemes !== undefined &&
+          tool.annotations !== undefined,
+      ),
+    ).toBe(true);
+    expect(
+      tools.find((tool) => tool.name === "broadcasts_send"),
+    ).toMatchObject({
+      securitySchemes: [
+        {
+          type: "oauth2",
+          scopes: ["live_actions:write", "broadcasts:write"],
+        },
+      ],
+      _meta: {
+        securitySchemes: [
+          {
+            type: "oauth2",
+            scopes: ["live_actions:write", "broadcasts:write"],
+          },
+        ],
+      },
+    });
+  });
+
+  it("returns transport and tool-level OAuth challenges without executing an anonymous call", async () => {
+    const unavailableFetch = vi.fn(() => {
+      throw new Error("An unauthenticated tool call must not reach the API.");
+    });
+    const response = await handleMailrithMcpHttpRequest(
+      new Request("https://mailrith.test/mcp", {
+        method: "POST",
+        headers: {
+          accept: "application/json, text/event-stream",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/call",
+          params: {
+            name: "subscribers_list",
+            arguments: { limit: 1 },
+          },
+        }),
+      }),
+      {
+        baseUrl: "https://api.mailrith.com",
+        fetch: unavailableFetch as unknown as typeof fetch,
+      },
+    );
+    const payload = (await response.json()) as {
+      result?: {
+        isError?: boolean;
+        structuredContent?: {
+          error?: Record<string, unknown>;
+        };
+        _meta?: Record<string, unknown>;
+      };
+    };
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get("www-authenticate")).toContain(
+      'error="invalid_token"',
+    );
+    expect(response.headers.get("www-authenticate")).toContain(
+      'scope="subscribers:read"',
+    );
+    expect(unavailableFetch).not.toHaveBeenCalled();
+    expect(payload.result).toMatchObject({
+      isError: true,
+      structuredContent: {
+        error: {
+          category: "authentication",
+          code: "authentication_required",
+          required_scopes: ["subscribers:read"],
+        },
+      },
+      _meta: {
+        "mcp/www_authenticate": [
+          expect.stringContaining('error="invalid_token"'),
+        ],
+      },
+    });
+  });
+
+  it("uses the full Work Profile catalog when capability discovery starts OAuth", async () => {
+    const unavailableFetch = vi.fn(() => {
+      throw new Error("An unauthenticated tool call must not reach the API.");
+    });
+    const response = await handleMailrithMcpHttpRequest(
+      new Request("https://mailrith.test/mcp", {
+        method: "POST",
+        headers: {
+          accept: "application/json, text/event-stream",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/call",
+          params: {
+            name: "discovery_get_capabilities",
+            arguments: {},
+          },
+        }),
+      }),
+      {
+        baseUrl: "https://api.mailrith.com",
+        fetch: unavailableFetch as unknown as typeof fetch,
+      },
+    );
+    const challengeScopes = response.headers
+      .get("www-authenticate")
+      ?.match(/scope="([^"]+)"/)?.[1]
+      ?.split(" ");
+    const payload = (await response.json()) as {
+      result?: {
+        structuredContent?: {
+          error?: {
+            required_scopes?: string[];
+          };
+        };
+      };
+    };
+
+    expect(response.status).toBe(401);
+    expect(challengeScopes).toEqual(publicApiScopeKeys);
+    expect(
+      payload.result?.structuredContent?.error?.required_scopes,
+    ).toEqual(publicApiScopeKeys);
+    expect(unavailableFetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects anonymous MCP batches before server or API work", async () => {
+    const unavailableFetch = vi.fn(() => {
+      throw new Error("Rejected anonymous batches must not reach the API.");
+    });
+    const messages = Array.from({ length: 2 }, (_, index) => ({
+      jsonrpc: "2.0",
+      id: index + 1,
+      method: "tools/call",
+      params: {
+        name: "subscribers_list",
+        arguments: { limit: 1 },
+      },
+    }));
+    const response = await handleMailrithMcpHttpRequest(
+      new Request("https://mailrith.test/mcp", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(messages),
+      }),
+      {
+        baseUrl: "https://api.mailrith.com",
+        fetch: unavailableFetch as unknown as typeof fetch,
+      },
+    );
+    const responseText = await response.text();
+
+    expect(response.status).toBe(413);
+    expect(new TextEncoder().encode(responseText).byteLength).toBeLessThan(256);
+    expect(JSON.parse(responseText)).toMatchObject({
+      error: {
+        message:
+          "Anonymous MCP requests must contain one JSON-RPC message.",
+      },
+    });
+    expect(unavailableFetch).not.toHaveBeenCalled();
+  });
+
+  it("caps authenticated MCP batches before credential validation", async () => {
+    const unavailableFetch = vi.fn(() => {
+      throw new Error("Oversized authenticated batches must not reach the API.");
+    });
+    const messages = Array.from(
+      { length: mailrithMcpMaxAuthenticatedBatchItems + 1 },
+      (_, index) => ({
+        jsonrpc: "2.0",
+        id: index + 1,
+        method: "tools/list",
+      }),
+    );
+    const response = await handleMailrithMcpHttpRequest(
+      new Request("https://mailrith.test/mcp", {
+        method: "POST",
+        headers: {
+          accept: "application/json, text/event-stream",
+          authorization: "Bearer mrat_token",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(messages),
+      }),
+      {
+        baseUrl: "https://api.mailrith.com",
+        fetch: unavailableFetch as unknown as typeof fetch,
+      },
+    );
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toMatchObject({
+      error: {
+        message: `MCP batches cannot contain more than ${mailrithMcpMaxAuthenticatedBatchItems} messages.`,
+      },
+    });
+    expect(unavailableFetch).not.toHaveBeenCalled();
+  });
+
+  it("accepts authenticated MCP batches at the documented boundary", async () => {
+    const mailrithApiFetch = vi.fn(
+      async (input: RequestInfo | URL, init?: RequestInit) => {
+        const nestedRequest =
+          input instanceof Request
+            ? new Request(input, init)
+            : new Request(input, init);
+        expect(new URL(nestedRequest.url).pathname).toBe("/v1/capabilities");
+        return new Response(
+          JSON.stringify({
+            data: {
+              workspace: { id: "workspace-1", name: "Review" },
+              credential: {
+                type: "oauth_access_token",
+                scopes: publicApiScopeKeys,
+              },
+            },
+          }),
+          {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          },
+        );
+      },
+    );
+    const messages = Array.from(
+      { length: mailrithMcpMaxAuthenticatedBatchItems },
+      (_, index) => ({
+        jsonrpc: "2.0",
+        id: index + 1,
+        method: "ping",
+      }),
+    );
+    const response = await handleMailrithMcpHttpRequest(
+      new Request("https://mailrith.test/mcp", {
+        method: "POST",
+        headers: {
+          accept: "application/json, text/event-stream",
+          authorization: "Bearer mrat_token",
+          "content-type": "application/json",
+          "mcp-protocol-version": "2025-06-18",
+        },
+        body: JSON.stringify(messages),
+      }),
+      {
+        baseUrl: "https://api.mailrith.com",
+        fetch: mailrithApiFetch as unknown as typeof fetch,
+      },
+    );
+    const payload = (await response.json()) as unknown[];
+
+    expect(response.status).toBe(200);
+    expect(payload).toHaveLength(mailrithMcpMaxAuthenticatedBatchItems);
+    expect(payload).toEqual(
+      messages.map((message) => ({
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {},
+      })),
+    );
+    expect(mailrithApiFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps submitted tools listed and returns a step-up challenge for a narrow OAuth grant", async () => {
+    const mailrithApiFetch = vi.fn(
+      async (input: RequestInfo | URL, init?: RequestInit) => {
+        const nestedRequest =
+          input instanceof Request
+            ? new Request(input, init)
+            : new Request(input, init);
+        expect(new URL(nestedRequest.url).pathname).toBe("/v1/capabilities");
+        return new Response(
+          JSON.stringify({
+            data: {
+              workspace: { id: "workspace-1", name: "Review" },
+              credential: {
+                type: "oauth_access_token",
+                scopes: ["workspace:read"],
+              },
+            },
+          }),
+          {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          },
+        );
+      },
+    );
+    const response = await handleMailrithMcpHttpRequest(
+      new Request("https://mailrith.test/mcp", {
+        method: "POST",
+        headers: {
+          accept: "application/json, text/event-stream",
+          authorization: "Bearer mrat_narrow",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/call",
+          params: {
+            name: "broadcasts_send",
+            arguments: { broadcast_id: "broadcast-1" },
+          },
+        }),
+      }),
+      {
+        baseUrl: "https://api.mailrith.com",
+        fetch: mailrithApiFetch as unknown as typeof fetch,
+      },
+    );
+    const payload = (await response.json()) as {
+      result?: Record<string, unknown>;
+    };
+
+    expect(response.status).toBe(403);
+    expect(response.headers.get("www-authenticate")).toContain(
+      'error="insufficient_scope"',
+    );
+    expect(response.headers.get("www-authenticate")).toContain(
+      'scope="live_actions:write broadcasts:write workspace:read"',
+    );
+    expect(mailrithApiFetch).toHaveBeenCalledTimes(1);
+    expect(payload.result).toMatchObject({
+      isError: true,
+      structuredContent: {
+        error: {
+          category: "permission",
+          code: "insufficient_scope",
+          missing_scopes: ["live_actions:write", "broadcasts:write"],
+          replacement_scopes: [
+            "live_actions:write",
+            "broadcasts:write",
+            "workspace:read",
+          ],
+          credential_type: "oauth_access_token",
+          reconnect_required: true,
+        },
+      },
+      _meta: {
+        "mcp/www_authenticate": [
+          expect.stringContaining('error="insufficient_scope"'),
+        ],
+      },
+    });
+  });
+
   it("uses the canonical full-access profile for a standard connection", () => {
     expect(
       resolveEnabledMcpToolsets(
@@ -1080,7 +1709,7 @@ describe("@mailrith/mcp-server", () => {
       tools.find((tool) => tool.name === "broadcasts_send")?.annotations,
     ).toMatchObject({
       readOnlyHint: false,
-      destructiveHint: false,
+      destructiveHint: true,
       idempotentHint: false,
       openWorldHint: true,
     });
@@ -1258,6 +1887,7 @@ describe("@mailrith/mcp-server", () => {
       return handleMailrithMcpHttpRequest(request, {
         baseUrl: "https://api.mailrith.com",
         fetch: mailrithApiFetch as unknown as typeof fetch,
+        profile: "compact",
       });
     };
 
@@ -1421,6 +2051,7 @@ describe("@mailrith/mcp-server", () => {
       return handleMailrithMcpHttpRequest(request, {
         baseUrl: "https://api.mailrith.com",
         fetch: mailrithApiFetch as unknown as typeof fetch,
+        profile: "compact",
       });
     };
     const transport = new StreamableHTTPClientTransport(
@@ -1549,6 +2180,7 @@ describe("@mailrith/mcp-server", () => {
       }),
       {
         baseUrl: "https://api.mailrith.com",
+        profile: "compact",
       },
     );
 
@@ -1587,6 +2219,7 @@ describe("@mailrith/mcp-server", () => {
       }),
       {
         baseUrl: "https://api.mailrith.com",
+        profile: "compact",
       },
     );
 
@@ -1662,6 +2295,7 @@ describe("@mailrith/mcp-server", () => {
         {
           baseUrl: "https://api.mailrith.com",
           fetch: mailrithApiFetch as unknown as typeof fetch,
+          profile: "compact",
         },
       );
       const text = await response.text();
@@ -1698,7 +2332,7 @@ describe("@mailrith/mcp-server", () => {
           method: "tools/list",
         }),
       }),
-      { baseUrl: "https://api.mailrith.com" },
+      { baseUrl: "https://api.mailrith.com", profile: "compact" },
     );
 
     expect(response.status).toBe(400);
@@ -1758,6 +2392,7 @@ describe("@mailrith/mcp-server", () => {
       {
         baseUrl: "https://api.mailrith.com",
         fetch: mailrithApiFetch as unknown as typeof fetch,
+        profile: "custom",
       },
     );
 
@@ -1766,7 +2401,7 @@ describe("@mailrith/mcp-server", () => {
       'error="insufficient_scope"',
     );
     expect(response.headers.get("www-authenticate")).toContain(
-      'scope="subscribers:read"',
+      'scope="subscribers:read workspace:read"',
     );
     await expect(response.json()).resolves.toMatchObject({
       required_scopes: ["subscribers:read"],
@@ -1845,6 +2480,7 @@ describe("@mailrith/mcp-server", () => {
       {
         baseUrl: "https://api.mailrith.com",
         fetch: mailrithApiFetch as unknown as typeof fetch,
+        profile: "compact",
       },
     );
 
@@ -1911,6 +2547,7 @@ describe("@mailrith/mcp-server", () => {
       {
         baseUrl: "https://api.mailrith.com",
         fetch: mailrithApiFetch as unknown as typeof fetch,
+        profile: "compact",
       },
     );
 

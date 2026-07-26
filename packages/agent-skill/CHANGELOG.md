@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 1.0.0 - 2026-07-26
+
+- Replace the seven compact routing tools with the fixed submitted catalog of focused Mailrith tools.
+- Keep Broadcast scheduling, sending, tests, cancellation, Sequence and Automation activation, and individual Subscriber targeting available as normal scoped workflows.
+- Ask OpenAI API clients to approve non-read-only tools and rely on each host's confirmation behavior for consequential actions.
+- Keep credentials and bulk import or export work in secure browser, CLI, SDK, or API workflows instead of passing sensitive files or secrets through agent context.
+
 ## 0.2.0 - 2026-07-24
 
 - Teach agents that resource write permissions cover the complete public resource lifecycle and that client tool limits narrow preparation-only workflows.

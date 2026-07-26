@@ -1,19 +1,126 @@
-import { readFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { listReleaseDigestFiles } from "../scripts/verify-agent-release";
 
 const workflow = readFileSync(
   join(process.cwd(), ".github/workflows/release-agent-packages.yml"),
   "utf8",
 );
+const mainWorkflow = readFileSync(
+  join(process.cwd(), ".github/workflows/ci.yml"),
+  "utf8",
+);
+const rootPackage = readFileSync(
+  join(process.cwd(), "package.json"),
+  "utf8",
+);
 
 describe("agent release workflow", () => {
+  it("keeps release digests independent of local dependencies and build output", async () => {
+    const root = mkdtempSync(join(tmpdir(), "mailrith-release-digest-"));
+    try {
+      for (const directory of [
+        "package/.cache",
+        "package/.cursor-plugin",
+        "package/.turbo",
+        "package/coverage",
+        "package/dist",
+        "package/node_modules/.bin",
+      ]) {
+        mkdirSync(join(root, directory), { recursive: true });
+      }
+      for (const file of [
+        "package/.cache/cache.json",
+        "package/.DS_Store",
+        "package/.turbo/state.json",
+        "package/coverage/coverage.json",
+        "package/dist/index.js",
+        "package/node_modules/.bin/tool",
+        "package/project.tsbuildinfo",
+      ]) {
+        writeFileSync(join(root, file), "local-only");
+      }
+      for (const file of [
+        "package/.cursor-plugin/plugin.json",
+        "package/README.md",
+      ]) {
+        writeFileSync(join(root, file), "release");
+      }
+
+      await expect(listReleaseDigestFiles("package", root)).resolves.toEqual([
+        "package/.cursor-plugin/plugin.json",
+        "package/README.md",
+      ]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("keeps non-publishing preparation usable for private repositories", () => {
     expect(workflow).toContain(
       "if: github.event.repository.visibility == 'public'",
     );
     expect(workflow).toContain("Record Private Repository Attestation Gate");
     expect(workflow).toContain("uses: actions/upload-artifact@v4");
+  });
+
+  it("regenerates and validates every submitted platform artifact", () => {
+    expect(workflow).toContain("pnpm generate:agent-integrations");
+    expect(workflow).toContain("packages/agent-integrations");
+    expect(workflow).toContain("chatgpt-app-submission.json");
+    expect(workflow).toContain(
+      "pnpm --filter @mailrith/agent-integrations test",
+    );
+    expect(workflow).toContain(
+      "pnpm agent:clients:conformance -- --profile static",
+    );
+    expect(workflow).toContain("release/platform");
+    expect(workflow).toContain(
+      "mailrith-openai-plugin-$RELEASE_VERSION.tar.gz",
+    );
+    expect(workflow).toContain(
+      "mailrith-claude-connector-$RELEASE_VERSION.tar.gz",
+    );
+    expect(workflow).toContain(
+      "mailrith-cursor-plugin-$RELEASE_VERSION.tar.gz",
+    );
+    expect(workflow).toContain(
+      "chatgpt-app-submission-$RELEASE_VERSION.json",
+    );
+  });
+
+  it("keeps the public release independently reproducible", () => {
+    const integrationGenerator = readFileSync(
+      join(process.cwd(), "scripts/generate-agent-integrations.ts"),
+      "utf8",
+    );
+    const releaseVerifier = readFileSync(
+      join(process.cwd(), "scripts/verify-agent-release.ts"),
+      "utf8",
+    );
+
+    expect(integrationGenerator).toContain(
+      '"assets",\n  "mailrith-logo.svg"',
+    );
+    expect(integrationGenerator).not.toContain('"apps",\n  "marketing"');
+    expect(releaseVerifier).not.toContain(".github/workflows/ci-cd.yml");
+    expect(releaseVerifier).not.toContain("apps/marketing/");
+  });
+
+  it("keeps normal CI aligned with every generated platform artifact", () => {
+    expect(mainWorkflow).toContain("pnpm validate");
+    expect(rootPackage).toContain("pnpm generate:agent-integrations");
+    expect(rootPackage).toContain("packages/agent-integrations");
+    expect(rootPackage).toContain("chatgpt-app-submission.json");
+    expect(rootPackage).toContain("pnpm agent:release:verify");
   });
 
   it("fails closed when private-repository publication is requested", () => {

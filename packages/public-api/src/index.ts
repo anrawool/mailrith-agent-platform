@@ -44,6 +44,14 @@ export {
   publicApiMcpToolsets,
   resolvePublicApiMcpToolsets,
 } from "./mcp-contract.js";
+
+export {
+  publicApiSubmittedMcpOperationIds,
+  publicApiSubmittedMcpProfile,
+} from "./mcp-submitted-profile.js";
+export type {
+  PublicApiSubmittedMcpOperationId,
+} from "./mcp-submitted-profile.js";
 export type {
   PublicApiMcpErrorCategory,
   PublicApiMcpOperationContract,
@@ -4079,15 +4087,30 @@ const schemas = {
       method: { type: "string", enum: ["POST", "PUT", "PATCH"] },
       authType: { type: "string", enum: ["none", "bearer"] },
       bearerToken: { type: "string", writeOnly: true },
+      bearerTokenConfigured: {
+        type: "boolean",
+        description:
+          "True when Mailrith has a saved webhook bearer token. Send this unchanged during an update to preserve the saved value. The token value is never returned.",
+      },
       headers: {
         type: "array",
         items: {
           type: "object",
           additionalProperties: false,
-          required: ["key", "value"],
+          required: ["key"],
           properties: {
             key: { type: "string" },
-            value: { type: "string" },
+            value: {
+              type: "string",
+              writeOnly: true,
+              description:
+                "A secret header value accepted on writes and never returned.",
+            },
+            configured: {
+              type: "boolean",
+              description:
+                "True when Mailrith has a saved value for this header. Send this unchanged during an update to preserve the saved value.",
+            },
           },
         },
       },

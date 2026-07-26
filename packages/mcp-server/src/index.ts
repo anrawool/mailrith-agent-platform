@@ -23,6 +23,8 @@ import {
   publicApiMcpToolsetKeys,
   publicApiReadScopeKeys,
   publicApiScopeKeys,
+  publicApiSubmittedMcpOperationIds,
+  publicApiSubmittedMcpProfile,
   resolvePublicApiMcpToolsets,
   type PublicApiMcpErrorCategory,
   type PublicApiMcpToolsetKey,
@@ -42,14 +44,26 @@ import * as z from "zod/v4";
 import { generatedMailrithMcpToolManifest } from "./generated-tool-manifest.js";
 import { createLazyMcpSchemaCache } from "./lazy-schema-cache.js";
 
+export { generatedMailrithMcpToolManifest };
+
 const defaultBaseUrl = "https://api.mailrith.com";
 const mcpRequestMaxBodyBytes = 1024 * 1024;
+export const mailrithMcpMaxAnonymousBatchItems = 1;
+export const mailrithMcpMaxAuthenticatedBatchItems = 25;
 const mcpServerInfo = {
   name: "mailrith",
-  version: "0.2.0",
+  version: "1.0.0",
 } as const;
 
 type MailrithFetch = typeof fetch;
+
+export const mailrithMcpProfileKeys = [
+  "submitted",
+  "compact",
+  "custom",
+] as const;
+export type MailrithMcpProfile =
+  (typeof mailrithMcpProfileKeys)[number];
 
 export type MailrithMcpServerOptions = {
   baseUrl?: string;
@@ -61,6 +75,12 @@ export type MailrithMcpServerOptions = {
   readOnly?: boolean;
   includeOutputSchemas?: boolean;
   capabilityContext?: MailrithMcpCapabilityContext;
+  /**
+   * `submitted` is the fixed public catalog used by listed platforms.
+   * `compact` preserves the legacy seven routing tools.
+   * `custom` exposes generated focused tools with caller-configured filters.
+   */
+  profile?: MailrithMcpProfile;
 };
 
 export type MailrithMcpCapabilityLimitation = {
@@ -80,6 +100,7 @@ export type MailrithMcpCapabilityContext = {
 
 export type MailrithMcpToolDefinition = {
   name: string;
+  title: string;
   operation: MailrithSdkOperationDescriptor;
   description: string;
   inputSchema: z.ZodType;
@@ -92,6 +113,12 @@ export type MailrithMcpToolDefinition = {
     idempotentHint: boolean;
     openWorldHint: boolean;
   };
+  securitySchemes: readonly [
+    {
+      type: "oauth2";
+      scopes: readonly string[];
+    },
+  ];
   meta: Record<string, unknown>;
   invoke: (
     args?: Record<string, unknown>,
@@ -99,7 +126,15 @@ export type MailrithMcpToolDefinition = {
     content: Array<{ type: "text"; text: string }>;
     structuredContent?: Record<string, unknown>;
     isError?: boolean;
+    _meta?: Record<string, unknown>;
   }>;
+};
+
+type MailrithMcpToolDescriptor = Tool & {
+  securitySchemes?: readonly {
+    type: "oauth2";
+    scopes: readonly string[];
+  }[];
 };
 
 export const mailrithMcpStandardOAuthScopes = [
@@ -505,6 +540,13 @@ const createToolDescription = (operation: MailrithSdkOperationDescriptor) => {
   return parts.join(" ");
 };
 
+const createToolTitle = (operation: MailrithSdkOperationDescriptor) => {
+  const summary = String(operation.summary).trim();
+  return summary.length > 0
+    ? `${summary.charAt(0).toUpperCase()}${summary.slice(1)}`
+    : operation.operationId;
+};
+
 const toQueryValue = (value: unknown): MailrithQueryValue | undefined => {
   if (value === undefined) {
     return undefined;
@@ -556,11 +598,29 @@ const buildOperationRequest = (
   };
 };
 
-const createDiscoveryGuideText = (baseUrl: string) => {
+const createDiscoveryGuideText = (
+  baseUrl: string,
+  profile: MailrithMcpProfile,
+) => {
   const marketingOrigin = resolveMarketingOrigin(baseUrl);
   const openApiUrl = `${baseUrl}${publicApiOpenApiPath}`;
   const metadataUrl = `${baseUrl}/${publicApiVersion}`;
   const capabilitiesUrl = `${baseUrl}${publicApiCapabilitiesPath}`;
+
+  const workflowSteps =
+    profile === "compact"
+      ? [
+          "4. Call mailrith_check_connection to confirm the current workspace, scopes, and any permissions needed for your intended operation.",
+          "5. Call mailrith_search_operations, then mailrith_get_operation for only the operation you need.",
+          "6. Run the operation through mailrith_read, mailrith_write, mailrith_delete, or mailrith_live.",
+          "7. Prefer these compact MCP tools instead of loading the complete REST or SDK manifest into the conversation.",
+        ]
+      : [
+          "4. Call discovery_get_capabilities to confirm the current workspace, scopes, and any permissions needed for your intended operation.",
+          "5. Use the narrow focused tool whose name and schema match the requested action.",
+          "6. Keep draft changes, preflight, testing, activation, and delivery as separate calls.",
+          "7. Read the current resource or progress state before retrying an uncertain mutation.",
+        ];
 
   return [
     "# Mailrith MCP Server",
@@ -571,10 +631,7 @@ const createDiscoveryGuideText = (baseUrl: string) => {
     `1. Read ${marketingOrigin}/llms.txt or ${marketingOrigin}${publicApiAgentsPath}.`,
     `2. Inspect ${metadataUrl} and ${openApiUrl} if you need the raw REST contract.`,
     `3. Authenticate this MCP server with a workspace API key or OAuth access token before calling protected tools.`,
-    `4. Call mailrith_check_connection to confirm the current workspace, scopes, and any permissions needed for your intended operation.`,
-    `5. Call mailrith_search_operations, then mailrith_get_operation for only the operation you need.`,
-    `6. Run the operation through mailrith_read, mailrith_write, mailrith_delete, or mailrith_live.`,
-    `7. Prefer these compact MCP tools instead of loading the complete REST or SDK manifest into the conversation.`,
+    ...workflowSteps,
     "",
     "Human docs:",
     `- ${marketingOrigin}${publicApiDocsPath}`,
@@ -809,6 +866,41 @@ export const resolveEnabledMcpToolsets = (
 const quoteAuthHeaderValue = (value: string) =>
   `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 
+const createMcpWwwAuthenticateChallenge = (params: {
+  baseUrl: string;
+  error: "invalid_token" | "insufficient_scope";
+  errorDescription: string;
+  requiredScopes: readonly string[];
+}) => {
+  const authParams = [
+    `realm=${quoteAuthHeaderValue("mailrith")}`,
+    `error=${quoteAuthHeaderValue(params.error)}`,
+    `error_description=${quoteAuthHeaderValue(params.errorDescription)}`,
+    `resource_metadata=${quoteAuthHeaderValue(
+      `${params.baseUrl}${publicApiMcpOAuthProtectedResourcePath}`,
+    )}`,
+  ];
+  if (params.requiredScopes.length > 0) {
+    authParams.push(
+      `scope=${quoteAuthHeaderValue(params.requiredScopes.join(" "))}`,
+    );
+  }
+  return `Bearer ${authParams.join(", ")}`;
+};
+
+const resolveMcpReplacementScopes = (
+  currentScopes: readonly string[],
+  missingScopes: readonly string[],
+) => {
+  const replacementScopeSet = new Set([
+    ...currentScopes,
+    ...missingScopes,
+  ]);
+  return publicApiScopeKeys.filter((scope) =>
+    replacementScopeSet.has(scope),
+  );
+};
+
 const createMcpAuthResponse = (
   baseUrl: string,
   status: 401 | 403,
@@ -819,17 +911,6 @@ const createMcpAuthResponse = (
   currentScopes: readonly string[] = [],
   missingScopes: readonly string[] = requiredScopes,
 ) => {
-  const resourceMetadata = `${baseUrl}${publicApiMcpOAuthProtectedResourcePath}`;
-  const authParams = [
-    `realm=${quoteAuthHeaderValue("mailrith")}`,
-    `error=${quoteAuthHeaderValue(error)}`,
-    `error_description=${quoteAuthHeaderValue(errorDescription)}`,
-    `resource_metadata=${quoteAuthHeaderValue(resourceMetadata)}`,
-  ];
-  if (requiredScopes.length > 0) {
-    authParams.push(`scope=${quoteAuthHeaderValue(requiredScopes.join(" "))}`);
-  }
-
   const isOAuth = credentialType !== "workspace_api_key";
   const accessUpdateUrl =
     credentialType === "workspace_api_key"
@@ -838,13 +919,14 @@ const createMcpAuthResponse = (
         resolveAppOrigin(baseUrl),
       ).toString()
       : null;
-  const replacementScopeSet = new Set([
-    ...currentScopes,
-    ...missingScopes,
-  ]);
-  const replacementScopes = publicApiScopeKeys.filter((scope) =>
-    replacementScopeSet.has(scope),
+  const replacementScopes = resolveMcpReplacementScopes(
+    currentScopes,
+    missingScopes,
   );
+  const challengeScopes =
+    status === 403 && replacementScopes.length > 0
+      ? replacementScopes
+      : requiredScopes;
   const recovery =
     status === 403 && credentialType
       ? {
@@ -877,7 +959,152 @@ const createMcpAuthResponse = (
       status,
       headers: {
         "content-type": "application/json",
-        "WWW-Authenticate": `Bearer ${authParams.join(", ")}`,
+        "WWW-Authenticate": createMcpWwwAuthenticateChallenge({
+          baseUrl,
+          error,
+          errorDescription,
+          requiredScopes: challengeScopes,
+        }),
+      },
+    },
+  );
+};
+
+const buildToolAuthorizationErrorResult = (params: {
+  operationId: string;
+  requestId: string;
+  baseUrl: string;
+  requiredScopes: readonly string[];
+  capabilityContext: MailrithMcpCapabilityContext | null;
+}) => {
+  const currentScopes = params.capabilityContext?.scopes ?? [];
+  const currentScopeSet = new Set(currentScopes);
+  const missingScopes = params.requiredScopes.filter(
+    (scope) => !currentScopeSet.has(scope),
+  );
+  const credentialType = params.capabilityContext?.credentialType ?? null;
+  const hasCredential = credentialType !== null;
+  const isApiKey = credentialType === "workspace_api_key";
+  const status = hasCredential ? 403 : 401;
+  const code = hasCredential ? "insufficient_scope" : "authentication_required";
+  const message = hasCredential
+    ? "This connection is missing permissions required by the selected Mailrith tool."
+    : "Connect Mailrith before using this tool.";
+  const replacementScopes = resolveMcpReplacementScopes(
+    currentScopes,
+    params.requiredScopes,
+  );
+  const accessUpdateUrl = isApiKey
+    ? new URL("/settings?tab=api-keys", resolveAppOrigin(params.baseUrl)).toString()
+    : null;
+  const permissionsHelpUrl =
+    `${resolveMarketingOrigin(params.baseUrl)}/developers/authentication#add-permissions`;
+  const payload = {
+    operation_id: params.operationId,
+    request_id: params.requestId,
+    error: {
+      category: (hasCredential ? "permission" : "authentication") as
+        | "permission"
+        | "authentication",
+      status,
+      code,
+      message,
+      retryable: false,
+      required_scopes: [...params.requiredScopes],
+      missing_scopes: missingScopes,
+      replacement_scopes: replacementScopes,
+      ...(credentialType ? { credential_type: credentialType } : {}),
+      ...(!isApiKey && hasCredential ? { reconnect_required: true } : {}),
+      permissions_help_url: permissionsHelpUrl,
+      ...(accessUpdateUrl ? { access_update_url: accessUpdateUrl } : {}),
+      recovery: {
+        action: isApiKey ? "replace_api_key" : "reconnect_oauth",
+        message: isApiKey
+          ? "Create a replacement workspace API key with the listed permissions, update the calling client, verify it, and then revoke the old key."
+          : hasCredential
+            ? "Reconnect Mailrith from the calling app and approve the listed permissions."
+            : "Connect Mailrith from the calling app and approve the listed permissions.",
+        replacement_scopes: replacementScopes,
+        ...(accessUpdateUrl ? { access_update_url: accessUpdateUrl } : {}),
+        permissions_help_url: permissionsHelpUrl,
+      },
+    },
+  };
+  const shouldAdvertiseOAuth = !isApiKey;
+  const challenge = createMcpWwwAuthenticateChallenge({
+    baseUrl: params.baseUrl,
+    error: hasCredential ? "insufficient_scope" : "invalid_token",
+    errorDescription: message,
+    requiredScopes:
+      hasCredential && replacementScopes.length > 0
+        ? replacementScopes
+        : params.requiredScopes,
+  });
+  return {
+    isError: true as const,
+    content: [
+      {
+        type: "text" as const,
+        text: JSON.stringify(payload, null, 2),
+      },
+    ],
+    structuredContent: payload,
+    ...(shouldAdvertiseOAuth
+      ? {
+          _meta: {
+            "mcp/www_authenticate": [challenge],
+          },
+        }
+      : {}),
+  };
+};
+
+const createMcpToolAuthorizationResponse = (params: {
+  id: string | number | null;
+  operationId: string;
+  baseUrl: string;
+  requiredScopes: readonly string[];
+  capabilityContext: MailrithMcpCapabilityContext | null;
+}) => {
+  const result = buildToolAuthorizationErrorResult({
+    operationId: params.operationId,
+    requestId: createToolRequestId(),
+    baseUrl: params.baseUrl,
+    requiredScopes: params.requiredScopes,
+    capabilityContext: params.capabilityContext,
+  });
+  const credentialType = params.capabilityContext?.credentialType ?? null;
+  const currentScopes = params.capabilityContext?.scopes ?? [];
+  const replacementScopes = resolveMcpReplacementScopes(
+    currentScopes,
+    params.requiredScopes,
+  );
+  const hasCredential = credentialType !== null;
+  const status = hasCredential ? 403 : 401;
+  const error = hasCredential ? "insufficient_scope" : "invalid_token";
+  const errorDescription = hasCredential
+    ? "This connection is missing permissions required by the selected Mailrith tool."
+    : "Connect Mailrith before using this tool.";
+
+  return new Response(
+    JSON.stringify({
+      jsonrpc: "2.0",
+      id: params.id,
+      result,
+    }),
+    {
+      status,
+      headers: {
+        "content-type": "application/json",
+        "WWW-Authenticate": createMcpWwwAuthenticateChallenge({
+          baseUrl: params.baseUrl,
+          error,
+          errorDescription,
+          requiredScopes:
+            hasCredential && replacementScopes.length > 0
+              ? replacementScopes
+              : params.requiredScopes,
+        }),
       },
     },
   );
@@ -905,11 +1132,73 @@ const sdkOperationById = new Map<string, MailrithSdkOperationDescriptor>(
 const sdkOperationByToolName = new Map<string, MailrithSdkOperationDescriptor>(
   sdkOperations.map((operation) => [operation.mcpToolName, operation] as const),
 );
+const submittedMcpOperationIdSet = new Set<string>(
+  publicApiSubmittedMcpOperationIds,
+);
+const submittedMcpOperationOrder = new Map<string, number>(
+  publicApiSubmittedMcpOperationIds.map((operationId, index) => [
+    operationId,
+    index,
+  ]),
+);
+if (submittedMcpOperationIdSet.size !== publicApiSubmittedMcpOperationIds.length) {
+  throw new Error("The submitted MCP profile contains duplicate operation IDs.");
+}
+for (const operationId of publicApiSubmittedMcpOperationIds) {
+  if (!sdkOperationById.has(operationId)) {
+    throw new Error(
+      `Submitted MCP operation ${operationId} is missing from the generated SDK contract.`,
+    );
+  }
+}
+
+export const mailrithSubmittedMcpToolNames =
+  publicApiSubmittedMcpOperationIds.map((operationId) => {
+    const operation = sdkOperationById.get(operationId);
+    if (!operation) {
+      throw new Error(
+        `Submitted MCP operation ${operationId} is missing from the generated SDK contract.`,
+      );
+    }
+    return operation.mcpToolName;
+  });
+
+export const mailrithSubmittedMcpOperationOAuthScopes =
+  publicApiScopeKeys.filter((scope) =>
+    publicApiSubmittedMcpOperationIds.some((operationId) =>
+      (
+        sdkOperationById.get(operationId)?.requiredScopes as
+          | readonly string[]
+          | undefined
+      )?.includes(scope),
+    ),
+  );
+
+/**
+ * The capability tool is the submitted profile's OAuth bootstrap. Requesting
+ * the complete public scope catalog lets Mailrith present every Work Profile
+ * and default a general-purpose connection to Full Email Marketing Access.
+ * Consent still grants only the profile or custom permissions the user
+ * approves, and every other submitted tool advertises its exact operation
+ * scopes for focused linking and step-up authorization.
+ */
+export const mailrithSubmittedMcpOAuthScopes = [
+  ...mailrithMcpStandardOAuthScopes,
+];
+
+const submittedMcpOAuthBootstrapOperationId = "getPublicApiCapabilities";
+
+const resolveSubmittedMcpToolOAuthScopes = (
+  operation: MailrithSdkOperationDescriptor,
+) =>
+  operation.operationId === submittedMcpOAuthBootstrapOperationId
+    ? [...mailrithSubmittedMcpOAuthScopes]
+    : [...operation.requiredScopes];
 
 const resolveMcpToolOperation = (toolName: string) =>
   sdkOperationByToolName.get(toolName) ?? null;
 
-const resolveMcpToolRequiredScopes = (toolName: string, args?: unknown) => {
+const resolveMcpToolCallOperation = (toolName: string, args?: unknown) => {
   const compactOperationId =
     (toolName === "mailrith_read" ||
       toolName === "mailrith_write" ||
@@ -924,11 +1213,49 @@ const resolveMcpToolRequiredScopes = (toolName: string, args?: unknown) => {
   const operation = compactOperationId
     ? sdkOperationById.get(compactOperationId) ?? null
     : resolveMcpToolOperation(toolName);
+  return operation;
+};
+
+const resolveMcpToolRequiredScopes = (toolName: string, args?: unknown) => {
+  const operation = resolveMcpToolCallOperation(toolName, args);
   if (!operation) {
     return [] as string[];
   }
-  void args;
   return [...operation.requiredScopes];
+};
+
+const resolveSingleMcpToolCallAuthorization = (parsedBody: unknown) => {
+  const messages = toJsonRpcMessages(parsedBody);
+  if (messages.length !== 1 || messages[0]?.method !== "tools/call") {
+    return null;
+  }
+  const message = messages[0];
+  const params = message.params;
+  if (!params || typeof params !== "object" || Array.isArray(params)) {
+    return null;
+  }
+  const paramsRecord = params as { name?: unknown; arguments?: unknown };
+  if (typeof paramsRecord.name !== "string") {
+    return null;
+  }
+  const operation = resolveMcpToolCallOperation(
+    paramsRecord.name,
+    paramsRecord.arguments,
+  );
+  if (!operation) {
+    return null;
+  }
+  const id =
+    typeof message.id === "string" || typeof message.id === "number"
+      ? message.id
+      : null;
+  return {
+    id,
+    operationId: operation.operationId,
+    requiredScopes: submittedMcpOperationIdSet.has(operation.operationId)
+      ? resolveSubmittedMcpToolOAuthScopes(operation)
+      : [...operation.requiredScopes],
+  };
 };
 
 const resolveMcpRequestRequiredScopes = (parsedBody: unknown) => {
@@ -1112,6 +1439,7 @@ const validateMcpBearerCredential = async (params: {
       requiredScopes: params.requiredScopes,
       scopes,
       credentialType: capabilityContext.credentialType,
+      capabilityContext,
     };
   }
 
@@ -1134,7 +1462,9 @@ const createToolAvailabilityFilter = (
   options: Pick<
     MailrithMcpServerOptions,
     "grantedScopes" | "enabledToolsets" | "readOnly"
-  >,
+  > & {
+    profile?: "submitted" | "custom";
+  },
 ) => {
   const grantedScopes = options.grantedScopes
     ? new Set(options.grantedScopes)
@@ -1144,6 +1474,9 @@ const createToolAvailabilityFilter = (
     : null;
 
   return (tool: (typeof generatedMailrithMcpToolManifest.tools)[number]) => {
+    if (options.profile === "submitted") {
+      return submittedMcpOperationIdSet.has(tool.operationId);
+    }
     if (
       grantedScopes &&
       !tool.requiredScopes.every((scope) => grantedScopes.has(scope))
@@ -1167,11 +1500,25 @@ export const createMailrithMcpToolDefinitions = (
   client: MailrithClient,
   options: Pick<
     MailrithMcpServerOptions,
-    "grantedScopes" | "enabledToolsets" | "readOnly"
-  > = {},
+    | "grantedScopes"
+    | "enabledToolsets"
+    | "readOnly"
+    | "capabilityContext"
+    | "baseUrl"
+    | "apiKey"
+  > & {
+    profile?: "submitted" | "custom";
+    enforceRuntimeAuthorization?: boolean;
+  } = {},
 ): MailrithMcpToolDefinition[] =>
   generatedMailrithMcpToolManifest.tools
     .filter(createToolAvailabilityFilter(options))
+    .sort((left, right) =>
+      options.profile === "submitted"
+        ? (submittedMcpOperationOrder.get(left.operationId) ?? 0) -
+          (submittedMcpOperationOrder.get(right.operationId) ?? 0)
+        : 0,
+    )
     .map((tool) => {
       const operation = sdkOperationById.get(tool.operationId);
       if (!operation) {
@@ -1180,8 +1527,19 @@ export const createMailrithMcpToolDefinitions = (
         );
       }
       const getSchemas = () => compiledMcpSchemas.get(tool);
+      const advertisedOAuthScopes =
+        options.profile === "submitted"
+          ? resolveSubmittedMcpToolOAuthScopes(operation)
+          : [...operation.requiredScopes];
+      const securitySchemes = [
+        {
+          type: "oauth2" as const,
+          scopes: advertisedOAuthScopes,
+        },
+      ] as const;
       return {
         name: tool.name,
+        title: createToolTitle(operation),
         operation,
         description: createToolDescription(operation),
         get inputSchema() {
@@ -1193,8 +1551,11 @@ export const createMailrithMcpToolDefinitions = (
         inputJsonSchema: tool.inputSchema as Record<string, unknown>,
         outputJsonSchema: tool.outputSchema as Record<string, unknown>,
         annotations: tool.annotations,
+        securitySchemes,
         meta: {
+          securitySchemes,
           "mailrith/operationId": tool.operationId,
+          "mailrith/requiredScopes": [...operation.requiredScopes],
           "mailrith/risk": tool.risk,
           "mailrith/sideEffectClass": tool.sideEffectClass,
           "mailrith/idempotencyPolicy": tool.idempotencyPolicy,
@@ -1204,6 +1565,39 @@ export const createMailrithMcpToolDefinitions = (
         },
         invoke: async (args = {}) => {
           const requestId = createToolRequestId();
+          if (options.enforceRuntimeAuthorization) {
+            const capabilityContext =
+              options.capabilityContext ??
+              (options.grantedScopes
+                ? {
+                    workspace: null,
+                    credentialType: null,
+                    scopes: options.grantedScopes,
+                    effectiveOperationIds: null,
+                    limitations: [],
+                  }
+                : null);
+            const grantedScopeSet = new Set(capabilityContext?.scopes ?? []);
+            const canDelegateAuthorizationToApi =
+              capabilityContext === null &&
+              typeof options.apiKey === "string" &&
+              options.apiKey.trim().length > 0;
+            if (
+              (!capabilityContext && !canDelegateAuthorizationToApi) ||
+              (capabilityContext !== null &&
+                !operation.requiredScopes.every((scope) =>
+                  grantedScopeSet.has(scope),
+                ))
+            ) {
+              return buildToolAuthorizationErrorResult({
+                operationId: operation.operationId,
+                requestId,
+                baseUrl: normalizeBaseUrl(options.baseUrl),
+                requiredScopes: operation.requiredScopes,
+                capabilityContext,
+              });
+            }
+          }
           const schemas = getSchemas();
           const validatedArgs = schemas.inputSchema.safeParse(args);
           if (!validatedArgs.success) {
@@ -2044,6 +2438,7 @@ export const createMailrithMcpServer = (
   options: MailrithMcpServerOptions = {},
 ) => {
   const baseUrl = normalizeBaseUrl(options.baseUrl);
+  const profile = options.profile ?? "submitted";
   const capabilityContextHeaders = createMcpCapabilityContextHeaders(options);
   const client =
     options.client ??
@@ -2057,12 +2452,35 @@ export const createMailrithMcpServer = (
       },
     });
 
-  const server = new McpServer(mcpServerInfo);
-  const tools = createMailrithMcpCompactToolDefinitions(client, {
-    ...options,
-    baseUrl,
+  const server = new McpServer(mcpServerInfo, {
+    instructions:
+      profile === "submitted"
+        ? publicApiSubmittedMcpProfile.instructions
+        : undefined,
   });
-  const catalogOperations = selectCompactCatalogOperations(options);
+  const tools =
+    profile === "compact"
+      ? createMailrithMcpCompactToolDefinitions(client, {
+          ...options,
+          baseUrl,
+        })
+      : createMailrithMcpToolDefinitions(client, {
+          ...options,
+          baseUrl,
+          profile: profile === "submitted" ? "submitted" : "custom",
+          enforceRuntimeAuthorization: profile === "submitted",
+        });
+  const catalogOperations =
+    profile === "compact"
+      ? selectCompactCatalogOperations(options)
+      : tools.map((tool) =>
+          "operation" in tool
+            ? tool.operation
+            : sdkOperationByToolName.get(tool.name),
+        ).filter(
+          (operation): operation is MailrithSdkOperationDescriptor =>
+            operation !== undefined,
+        );
   const capabilityAvailability = createCompactCapabilityAvailability(
     options.capabilityContext ??
       (options.grantedScopes
@@ -2079,13 +2497,30 @@ export const createMailrithMcpServer = (
   server.server.registerCapabilities({ tools: { listChanged: false } });
   server.server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: tools.map(
-      (tool): Tool => ({
-        name: tool.name,
-        title: tool.title,
-        description: tool.description,
-        inputSchema: tool.inputJsonSchema as Tool["inputSchema"],
-        annotations: tool.annotations,
-      }),
+      (tool): MailrithMcpToolDescriptor => {
+        const focusedTool =
+          "outputJsonSchema" in tool ? tool : null;
+        return {
+          name: tool.name,
+          title: tool.title,
+          description: tool.description,
+          inputSchema: tool.inputJsonSchema as Tool["inputSchema"],
+          ...(focusedTool &&
+          (profile === "submitted" || options.includeOutputSchemas)
+            ? {
+                outputSchema:
+                  focusedTool.outputJsonSchema as Tool["outputSchema"],
+              }
+            : {}),
+          annotations: tool.annotations,
+          ...(focusedTool
+            ? {
+                securitySchemes: focusedTool.securitySchemes,
+                _meta: focusedTool.meta,
+              }
+            : {}),
+        };
+      },
     ),
   }));
   server.server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -2144,7 +2579,7 @@ export const createMailrithMcpServer = (
         {
           uri: "mailrith://discovery",
           mimeType: "text/markdown",
-          text: createDiscoveryGuideText(baseUrl),
+          text: createDiscoveryGuideText(baseUrl, profile),
         },
       ],
     }),
@@ -2169,7 +2604,9 @@ export const createMailrithMcpServer = (
             text: [
               "You are planning work against Mailrith.",
               "Start by reading mailrith://discovery.",
-              "Then use mailrith_search_operations and mailrith_get_operation to identify only the operations needed for this goal:",
+              profile === "compact"
+                ? "Then use mailrith_search_operations and mailrith_get_operation to identify only the operations needed for this goal:"
+                : "Then select the smallest sequence of focused Mailrith tools needed for this goal:",
               goal,
             ].join("\n"),
           },
@@ -2195,6 +2632,7 @@ export const handleMailrithMcpHttpRequest = async (
   options: MailrithMcpServerOptions = {},
 ) => {
   const baseUrl = normalizeBaseUrl(options.baseUrl);
+  const profile = options.profile ?? "submitted";
   if (request.method !== "POST" && request.method !== "DELETE") {
     return createJsonRpcErrorResponse(-32000, "Method not allowed.", 405);
   }
@@ -2210,10 +2648,38 @@ export const handleMailrithMcpHttpRequest = async (
       parsedBody.status,
     );
   }
-  const enabledToolsets = resolveEnabledMcpToolsets(
-    request,
-    options.enabledToolsets,
-  );
+  const apiKey = resolveMailrithMcpApiKey(request) ?? options.apiKey;
+  const batchItemCount = Array.isArray(parsedBody?.value)
+    ? parsedBody.value.length
+    : 0;
+  if (
+    !apiKey &&
+    profile === "submitted" &&
+    batchItemCount > mailrithMcpMaxAnonymousBatchItems
+  ) {
+    return createJsonRpcErrorResponse(
+      -32000,
+      "Anonymous MCP requests must contain one JSON-RPC message.",
+      413,
+    );
+  }
+  if (batchItemCount > mailrithMcpMaxAuthenticatedBatchItems) {
+    return createJsonRpcErrorResponse(
+      -32000,
+      `MCP batches cannot contain more than ${mailrithMcpMaxAuthenticatedBatchItems} messages.`,
+      413,
+    );
+  }
+  const enabledToolsets =
+    profile === "submitted"
+      ? {
+          ok: true as const,
+          toolsets: publicApiMcpToolsetKeys,
+          challengeScopes: mailrithSubmittedMcpOAuthScopes,
+          readOnly: false,
+          includeOutputSchemas: true,
+        }
+      : resolveEnabledMcpToolsets(request, options.enabledToolsets);
   if (!enabledToolsets.ok) {
     return createJsonRpcErrorResponse(
       -32602,
@@ -2221,13 +2687,61 @@ export const handleMailrithMcpHttpRequest = async (
       400,
     );
   }
-  const apiKey = resolveMailrithMcpApiKey(request) ?? options.apiKey;
   const requiredScopes = resolveMcpRequestRequiredScopes(parsedBody?.value);
+  const messages = toJsonRpcMessages(parsedBody?.value);
+  const hasToolCall = messages.some(
+    (message) => message.method === "tools/call",
+  );
+  const singleToolCall = resolveSingleMcpToolCallAuthorization(
+    parsedBody?.value,
+  );
   const challengeScopes: string[] =
     requiredScopes.length > 0
       ? requiredScopes
       : enabledToolsets.challengeScopes;
   if (!apiKey) {
+    if (profile === "submitted") {
+      if (hasToolCall) {
+        if (singleToolCall) {
+          return createMcpToolAuthorizationResponse({
+            ...singleToolCall,
+            baseUrl,
+            capabilityContext: null,
+          });
+        }
+        return createMcpAuthResponse(
+          baseUrl,
+          401,
+          "invalid_token",
+          "Authentication is required before calling Mailrith tools.",
+          challengeScopes,
+        );
+      }
+      const server = createMailrithMcpServer({
+        ...options,
+        baseUrl,
+        profile,
+        apiKey: undefined,
+        grantedScopes: undefined,
+        enabledToolsets: undefined,
+        readOnly: false,
+        includeOutputSchemas: true,
+        capabilityContext: undefined,
+      });
+      const transport = new WebStandardStreamableHTTPServerTransport({
+        sessionIdGenerator: undefined,
+        enableJsonResponse: true,
+      });
+      await server.connect(transport);
+      try {
+        return await transport.handleRequest(request, {
+          parsedBody: parsedBody?.value,
+        });
+      } finally {
+        await transport.close().catch(() => undefined);
+        await server.close().catch(() => undefined);
+      }
+    }
     return createMcpAuthResponse(
       baseUrl,
       401,
@@ -2255,6 +2769,13 @@ export const handleMailrithMcpHttpRequest = async (
     );
   }
   if (!validation.ok && validation.reason === "insufficient_scope") {
+    if (profile === "submitted" && singleToolCall) {
+      return createMcpToolAuthorizationResponse({
+        ...singleToolCall,
+        baseUrl,
+        capabilityContext: validation.capabilityContext,
+      });
+    }
     return createMcpAuthResponse(
       baseUrl,
       403,
@@ -2286,6 +2807,7 @@ export const handleMailrithMcpHttpRequest = async (
     readOnly: enabledToolsets.readOnly,
     includeOutputSchemas: enabledToolsets.includeOutputSchemas,
     capabilityContext: validation.capabilityContext,
+    profile,
   });
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
