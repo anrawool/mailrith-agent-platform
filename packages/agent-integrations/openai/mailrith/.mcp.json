@@ -2,7 +2,8 @@
   "mcpServers": {
     "mailrith": {
       "type": "http",
-      "url": "https://api.mailrith.com/mcp"
+      "url": "https://api.mailrith.com/mcp",
+      "oauth_resource": "https://api.mailrith.com/mcp"
     }
   }
 }

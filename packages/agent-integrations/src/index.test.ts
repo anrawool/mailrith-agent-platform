@@ -125,7 +125,10 @@ describe("Mailrith Agent Integration Packages", () => {
       "utf8",
     );
     const openAiMcp = await readJson<{
-      mcpServers: Record<string, { type: string; url: string }>;
+      mcpServers: Record<
+        string,
+        { type: string; url: string; oauth_resource: string }
+      >;
     }>(
       path.join(integrationsRoot, "openai", "mailrith", ".mcp.json"),
     );
@@ -147,6 +150,7 @@ describe("Mailrith Agent Integration Packages", () => {
     expect(openAiMcp.mcpServers.mailrith).toEqual({
       type: "http",
       url: submitted.mcp_server_url,
+      oauth_resource: submitted.mcp_server_url,
     });
     expect(cursorMcp.mcpServers.mailrith).toEqual({
       type: "http",
