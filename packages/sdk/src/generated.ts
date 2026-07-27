@@ -246,6 +246,7 @@ export const generatedMailrithSdkResources = [
           "outbound_webhooks"
         ],
         "annotations": {
+          "title": "Get API metadata",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -288,6 +289,7 @@ export const generatedMailrithSdkResources = [
           "outbound_webhooks"
         ],
         "annotations": {
+          "title": "Get authenticated API capabilities",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -330,6 +332,7 @@ export const generatedMailrithSdkResources = [
           "outbound_webhooks"
         ],
         "annotations": {
+          "title": "Get the OpenAPI document",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -381,6 +384,7 @@ export const generatedMailrithSdkResources = [
           "outbound_webhooks"
         ],
         "annotations": {
+          "title": "Get the current workspace",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -432,6 +436,7 @@ export const generatedMailrithSdkResources = [
           "outbound_webhooks"
         ],
         "annotations": {
+          "title": "List sender identities",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -479,6 +484,7 @@ export const generatedMailrithSdkResources = [
           "outbound_webhooks"
         ],
         "annotations": {
+          "title": "Get a sender identity",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -528,6 +534,7 @@ export const generatedMailrithSdkResources = [
           "email_delivery_setup"
         ],
         "annotations": {
+          "title": "List email delivery connections",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -567,6 +574,7 @@ export const generatedMailrithSdkResources = [
           "email_delivery_setup"
         ],
         "annotations": {
+          "title": "Start secure email delivery connection setup",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -603,6 +611,7 @@ export const generatedMailrithSdkResources = [
           "email_delivery_setup"
         ],
         "annotations": {
+          "title": "Get secure setup status",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -641,6 +650,7 @@ export const generatedMailrithSdkResources = [
           "email_delivery_setup"
         ],
         "annotations": {
+          "title": "Renew secure email delivery setup",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -683,6 +693,7 @@ export const generatedMailrithSdkResources = [
           "email_delivery_setup"
         ],
         "annotations": {
+          "title": "Get an email delivery connection",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -721,6 +732,7 @@ export const generatedMailrithSdkResources = [
           "email_delivery_setup"
         ],
         "annotations": {
+          "title": "Update an email delivery connection",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -759,6 +771,7 @@ export const generatedMailrithSdkResources = [
           "email_delivery_setup"
         ],
         "annotations": {
+          "title": "Enable or disable an email delivery connection",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -797,6 +810,7 @@ export const generatedMailrithSdkResources = [
           "email_delivery_setup"
         ],
         "annotations": {
+          "title": "Verify an email delivery connection",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -836,6 +850,7 @@ export const generatedMailrithSdkResources = [
           "email_delivery_setup"
         ],
         "annotations": {
+          "title": "Send an email delivery connection test",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": false,
@@ -876,6 +891,7 @@ export const generatedMailrithSdkResources = [
           "email_delivery_setup"
         ],
         "annotations": {
+          "title": "Delete an email delivery connection",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -924,6 +940,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Create or reuse an analytics report",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -963,6 +980,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Get an analytics report",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1012,6 +1030,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "List Automation run diagnostics",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1053,6 +1072,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Get Automation run diagnostics",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1094,6 +1114,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Get Sequence diagnostics",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1135,6 +1156,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Get Broadcast diagnostics",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1179,6 +1201,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "Get privacy-conscious Subscriber diagnostics",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1230,6 +1253,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "List subscribers",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1285,6 +1309,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "Get a subscriber",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1325,6 +1350,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Create or upsert a subscriber",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": false,
@@ -1364,6 +1390,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Update a subscriber",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -1403,6 +1430,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Delete a subscriber",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -1443,6 +1471,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Change Subscriber sending eligibility",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -1483,6 +1512,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Add a Tag to a Subscriber",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -1524,6 +1554,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Remove a tag from a subscriber",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -1565,6 +1596,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Add a subscriber to a sequence",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -1606,6 +1638,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Remove a subscriber from a sequence",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -1658,6 +1691,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "List tags",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1699,6 +1733,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Create a tag",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -1743,6 +1778,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "Get a tag",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1782,6 +1818,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Update a tag",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1821,6 +1858,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Delete a tag",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -1872,6 +1910,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "List custom fields",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1913,6 +1952,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Create a custom field",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -1957,6 +1997,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "Get a custom field",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -1996,6 +2037,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Update a custom field",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2035,6 +2077,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Delete a custom field",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -2084,6 +2127,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "List email templates",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2124,6 +2168,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Create an email template",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -2166,6 +2211,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Get an email template",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2209,6 +2255,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Preview an email template for a Subscriber",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2247,6 +2294,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Update an email template",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -2285,6 +2333,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Delete an email template",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -2334,6 +2383,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "List email starting points",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2374,6 +2424,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Get an email starting point",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2413,6 +2464,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "List Form starting points",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2450,6 +2502,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Get a Form starting point",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2489,6 +2542,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "List Landing Page starting points",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2526,6 +2580,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Get a Landing Page starting point",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2572,6 +2627,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "List forms",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2613,6 +2669,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Create a form",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -2652,6 +2709,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Get a form",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2691,6 +2749,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "List form submissions",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2733,6 +2792,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Get a form submission",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2774,6 +2834,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Preview a form confirmation email for a Subscriber",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2813,6 +2874,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Update a form",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2852,6 +2914,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Delete a form",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -2898,6 +2961,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "List landing pages",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -2939,6 +3003,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Create a landing page",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -2978,6 +3043,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Get a landing page",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3017,6 +3083,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "List landing page submissions",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3059,6 +3126,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Get a landing page submission",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3100,6 +3168,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Preview a landing page confirmation email for a Subscriber",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3139,6 +3208,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Update a landing page",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3178,6 +3248,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Delete a landing page",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -3225,6 +3296,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "List sequences",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3265,6 +3337,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Create a sequence",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -3305,6 +3378,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Get a sequence",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3345,6 +3419,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Check sequence readiness",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3386,6 +3461,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Preview a sequence journey",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3428,6 +3504,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Send sequence test messages",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": false,
@@ -3468,6 +3545,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Update a sequence",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -3507,6 +3585,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Activate or pause a sequence",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -3545,6 +3624,7 @@ export const generatedMailrithSdkResources = [
           "sequences"
         ],
         "annotations": {
+          "title": "Delete a sequence",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -3591,6 +3671,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "List automations",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3631,6 +3712,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Create an automation",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -3670,6 +3752,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Get an automation",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3709,6 +3792,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Check automation readiness",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3749,6 +3833,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Preview an automation journey",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3791,6 +3876,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Send automation test messages",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": false,
@@ -3831,6 +3917,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Update an automation",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -3870,6 +3957,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Change an automation status",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -3908,6 +3996,7 @@ export const generatedMailrithSdkResources = [
           "automations"
         ],
         "annotations": {
+          "title": "Delete an automation",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -3954,6 +4043,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "List magic links",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -3995,6 +4085,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Create a magic link",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -4034,6 +4125,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Get a magic link",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -4073,6 +4165,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Update a magic link",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -4112,6 +4205,7 @@ export const generatedMailrithSdkResources = [
           "content_and_capture"
         ],
         "annotations": {
+          "title": "Delete a magic link",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -4158,6 +4252,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "List broadcasts",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -4198,6 +4293,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Create a broadcast",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -4237,6 +4333,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Get broadcast send progress",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -4276,6 +4373,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "List broadcast delivery errors",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -4318,6 +4416,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Get a broadcast",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -4356,6 +4455,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Update a broadcast",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -4394,6 +4494,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Delete a broadcast",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -4433,6 +4534,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Inspect broadcast readiness",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -4472,6 +4574,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Schedule or reschedule a broadcast",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -4511,6 +4614,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Unschedule a broadcast",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -4550,6 +4654,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Send a broadcast now",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": false,
@@ -4591,6 +4696,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Cancel a broadcast send",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": false,
@@ -4633,6 +4739,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Send a broadcast test email",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": false,
@@ -4683,6 +4790,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "List segments",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -4725,6 +4833,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Create a segment",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -4766,6 +4875,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Get a segment",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -4806,6 +4916,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Update a segment",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -4846,6 +4957,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Delete a segment",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -4887,6 +4999,7 @@ export const generatedMailrithSdkResources = [
           "broadcasts"
         ],
         "annotations": {
+          "title": "Preview a segment definition",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -4930,6 +5043,7 @@ export const generatedMailrithSdkResources = [
           "outbound_webhooks"
         ],
         "annotations": {
+          "title": "List webhook subscriptions",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -4967,6 +5081,7 @@ export const generatedMailrithSdkResources = [
           "outbound_webhooks"
         ],
         "annotations": {
+          "title": "Create a webhook subscription",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -5005,6 +5120,7 @@ export const generatedMailrithSdkResources = [
           "outbound_webhooks"
         ],
         "annotations": {
+          "title": "Get a webhook subscription",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -5044,6 +5160,7 @@ export const generatedMailrithSdkResources = [
           "outbound_webhooks"
         ],
         "annotations": {
+          "title": "Update a webhook subscription",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -5083,6 +5200,7 @@ export const generatedMailrithSdkResources = [
           "outbound_webhooks"
         ],
         "annotations": {
+          "title": "Delete a webhook subscription",
           "readOnlyHint": false,
           "destructiveHint": true,
           "idempotentHint": true,
@@ -5122,6 +5240,7 @@ export const generatedMailrithSdkResources = [
           "outbound_webhooks"
         ],
         "annotations": {
+          "title": "Rotate a webhook signing secret",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -5167,6 +5286,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "Start a subscriber import upload",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -5203,6 +5323,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "Get a subscriber import upload",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -5241,6 +5362,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "List subscriber import jobs",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -5281,6 +5403,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "Create a subscriber import job",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -5319,6 +5442,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "Get a subscriber import job",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -5357,6 +5481,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "List subscriber export jobs",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,
@@ -5396,6 +5521,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "Create a subscriber export job",
           "readOnlyHint": false,
           "destructiveHint": false,
           "idempotentHint": false,
@@ -5434,6 +5560,7 @@ export const generatedMailrithSdkResources = [
           "subscriber_import_export"
         ],
         "annotations": {
+          "title": "Get a subscriber export job",
           "readOnlyHint": true,
           "destructiveHint": false,
           "idempotentHint": true,

@@ -11153,6 +11153,13 @@ const toSnakeCase = (value: string) =>
     .replace(/^_+|_+$/g, "")
     .toLowerCase();
 
+const createMcpToolTitle = (summary: string, operationId: string) => {
+  const title = summary.trim();
+  return title.length > 0
+    ? `${title.charAt(0).toUpperCase()}${title.slice(1)}`
+    : operationId;
+};
+
 const createSdkOperation = (
   namespace: PublicApiSdkOperation["namespace"],
   methodName: string,
@@ -11194,7 +11201,10 @@ const createSdkOperation = (
     retryMode: risk.retryMode,
     idempotencyPolicy: risk.idempotencyPolicy,
     toolsets,
-    annotations: createPublicApiMcpToolAnnotations(risk),
+    annotations: createPublicApiMcpToolAnnotations(
+      risk,
+      createMcpToolTitle(operation.summary, operation.operationId),
+    ),
     riskRationale: risk.rationale,
     pathParams: parameters
       .filter((parameter) => parameter.in === "path")

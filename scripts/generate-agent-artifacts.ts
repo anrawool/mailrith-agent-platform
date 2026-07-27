@@ -234,6 +234,7 @@ export type GeneratedMailrithMcpToolManifest = {
     idempotencyPolicy: string;
     toolsets: readonly GeneratedMailrithMcpToolsetKey[];
     annotations: {
+      title: string;
       readOnlyHint: boolean;
       destructiveHint: boolean;
       idempotentHint: boolean;

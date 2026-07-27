@@ -870,6 +870,10 @@ describe("@mailrith/public-api", () => {
       if (operation.requestBody) {
         expect(properties?.body, operation.operationId).toBeDefined();
         expect(properties?.body, operation.operationId).not.toEqual({});
+        expect(
+          (properties?.body as Record<string, unknown>).type,
+          operation.operationId,
+        ).toBe("object");
         const required = (contract?.inputSchema.required ?? []) as string[];
         expect(required.includes("body"), operation.operationId).toBe(
           operation.requestBody.required === true,
@@ -1050,6 +1054,10 @@ describe("@mailrith/public-api", () => {
         "full_email_marketing_access",
       );
       expect(operation.annotations, operation.operationId).toEqual({
+        title:
+          operation.summary.length > 0
+            ? `${operation.summary.charAt(0).toUpperCase()}${operation.summary.slice(1)}`
+            : operation.operationId,
         readOnlyHint: operation.risk === "read",
         destructiveHint: risk?.destructive,
         idempotentHint: operation.idempotencyPolicy !== "idempotency-key",

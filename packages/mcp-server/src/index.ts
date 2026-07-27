@@ -108,6 +108,7 @@ export type MailrithMcpToolDefinition = {
   inputJsonSchema: Record<string, unknown>;
   outputJsonSchema: Record<string, unknown>;
   annotations: {
+    title: string;
     readOnlyHint: boolean;
     destructiveHint: boolean;
     idempotentHint: boolean;
@@ -1843,6 +1844,17 @@ const compactLiveAnnotations = {
   openWorldHint: true,
 };
 
+const withCompactAnnotationTitle = (
+  title: string,
+  annotations: Omit<
+    NonNullable<Tool["annotations"]>,
+    "title"
+  >,
+): NonNullable<Tool["annotations"]> => ({
+  title,
+  ...annotations,
+});
+
 type CompactCapabilityAvailability = {
   context: MailrithMcpCapabilityContext;
   scopeSet: ReadonlySet<string>;
@@ -2150,7 +2162,10 @@ export const createMailrithMcpCompactToolDefinitions = (
         "Check the authenticated workspace and permissions. Optionally diagnose one operation and return missing permissions, a suitable Work Profile, and where the user can update access.",
       inputSchema: compactConnectionInputSchema,
       inputJsonSchema: compactConnectionInputJsonSchema,
-      annotations: compactReadAnnotations,
+      annotations: withCompactAnnotationTitle(
+        "Check Mailrith connection",
+        compactReadAnnotations,
+      ),
       invoke: async (args = {}) => {
         const parsed = compactConnectionInputSchema.safeParse(args);
         if (!parsed.success) {
@@ -2283,7 +2298,10 @@ export const createMailrithMcpCompactToolDefinitions = (
         "Search the compact Mailrith operation index by task, resource, or effect. Returns bounded ranked summaries and marks ambiguous results that must be narrowed before execution. Use mailrith_get_operation for one exact schema.",
       inputSchema: compactSearchInputSchema,
       inputJsonSchema: compactSearchInputJsonSchema,
-      annotations: compactReadAnnotations,
+      annotations: withCompactAnnotationTitle(
+        "Find Mailrith operations",
+        compactReadAnnotations,
+      ),
       invoke: async (args = {}) => {
         const parsed = compactSearchInputSchema.safeParse(args);
         if (!parsed.success) {
@@ -2335,7 +2353,10 @@ export const createMailrithMcpCompactToolDefinitions = (
         "Load the exact input schema, permission boundary, effect category, and retry behavior for one operation returned by mailrith_search_operations.",
       inputSchema: compactGetOperationInputSchema,
       inputJsonSchema: compactGetOperationInputJsonSchema,
-      annotations: compactReadAnnotations,
+      annotations: withCompactAnnotationTitle(
+        "Get one Mailrith operation schema",
+        compactReadAnnotations,
+      ),
       invoke: async (args = {}) => {
         const parsed = compactGetOperationInputSchema.safeParse(args);
         if (!parsed.success) {
@@ -2383,7 +2404,10 @@ export const createMailrithMcpCompactToolDefinitions = (
         "Run one side-effect-free operation after loading its exact schema with mailrith_get_operation.",
       inputSchema: compactExecuteInputSchema,
       inputJsonSchema: compactExecuteInputJsonSchema,
-      annotations: compactReadAnnotations,
+      annotations: withCompactAnnotationTitle(
+        "Run a Mailrith read operation",
+        compactReadAnnotations,
+      ),
       invoke: (args = {}) =>
         invokeOperation("mailrith_read", "read", args),
     },
@@ -2394,7 +2418,10 @@ export const createMailrithMcpCompactToolDefinitions = (
         "Create or change draft, metadata, or workspace resources that do not immediately perform a live action.",
       inputSchema: compactExecuteInputSchema,
       inputJsonSchema: compactExecuteInputJsonSchema,
-      annotations: compactWriteAnnotations,
+      annotations: withCompactAnnotationTitle(
+        "Run a Mailrith draft or workspace operation",
+        compactWriteAnnotations,
+      ),
       invoke: (args = {}) =>
         invokeOperation("mailrith_write", "write", args),
     },
@@ -2405,7 +2432,10 @@ export const createMailrithMcpCompactToolDefinitions = (
         "Delete a Mailrith resource. Load the operation schema and current resource state first; operations that delete a live-capable resource still require Perform Live Actions access.",
       inputSchema: compactExecuteInputSchema,
       inputJsonSchema: compactExecuteInputJsonSchema,
-      annotations: compactDeleteAnnotations,
+      annotations: withCompactAnnotationTitle(
+        "Run a Mailrith delete operation",
+        compactDeleteAnnotations,
+      ),
       invoke: (args = {}) =>
         invokeOperation("mailrith_delete", "delete", args),
     },
@@ -2416,7 +2446,10 @@ export const createMailrithMcpCompactToolDefinitions = (
         "Run an operation that can send email, affect a running workflow, change Subscriber delivery or targeting state, publish a public capture surface, or configure outbound event delivery. The credential must also have Perform Live Actions access.",
       inputSchema: compactExecuteInputSchema,
       inputJsonSchema: compactExecuteInputJsonSchema,
-      annotations: compactLiveAnnotations,
+      annotations: withCompactAnnotationTitle(
+        "Run a Mailrith live action",
+        compactLiveAnnotations,
+      ),
       invoke: (args = {}) =>
         invokeOperation("mailrith_live", "live", args),
     },

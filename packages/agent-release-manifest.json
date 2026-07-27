@@ -18,15 +18,15 @@
     }
   },
   "digests": {
-    "public_contract_sha256": "6b4ddf28d058144f0c6954b382df79463600260c890a9d172337235300969221",
+    "public_contract_sha256": "5bf6dec832d968bf5943944da998993f3def1f88af070356b47e6f0b2657c908",
     "risk_catalog_sha256": "c3281694951fc94aafa217e0d7858c69da743dda3fd79fecdbdc9184e00f64e8",
-    "typescript_sdk_manifest_sha256": "e42c4f070de0b4686fe0cfbcc7a781c4fc80d519c23334e1a4f7bbd2fc85db8b",
-    "python_sdk_manifest_sha256": "6554dd9b201c245fe388c55f059a2773a5222c683a348f38ca116ac77e9bc38a",
-    "mcp_manifest_sha256": "f57ca101eaedf0ac0fc5a4bbbdc4d6a467e6feb3b1170fd7bfbf4800e1e7884a",
+    "typescript_sdk_manifest_sha256": "116f0b4b71e38f46f8c6618d896120d322fcd0a0f246ed606e0c4768275eef46",
+    "python_sdk_manifest_sha256": "c4b6cb45a3c58a260ce4462206c093e690c8e02a0dcf70b150323a0e31f2e00a",
+    "mcp_manifest_sha256": "36805433e3b1c3f7e2e2319efe6ad7630f1959b8523057e88824efbdd80ea19e",
     "agent_skill_sha256": "3683b1722f602bbc7bdffed0e1b20c193004087fa42eccd0ef25d784712891a7",
     "connector_templates_sha256": "45609bfeddc0fe2d1fe4b9466befb2b577b5d39d6937625a5b15a085f68e3108",
-    "platform_integrations_sha256": "2086d18de8c9eadf989058006cddd19cfe3c05c6a9c26b0a40f800f5065d8a03",
-    "agent_discovery_and_guidance_sha256": "c572cb9b35986645b07dc70879854529e270d90cbcd7e57b917e2e6fd5c4ffdb"
+    "platform_integrations_sha256": "3dfbb9f09a7ffb3eb4ce405067c7d9f4b3895bde601422fcaf1269c1f99e17b4",
+    "agent_discovery_and_guidance_sha256": "463e686d7e5c96096193f65421efe9c888c73d3b15077155bd049ab192c48319"
   },
   "compatibility": {
     "node": ">=20",

@@ -3,8 +3,8 @@
   "profile": "submitted",
   "contract_version": "1.0",
   "source_contract_version": "v1",
-  "source_schema_digest": "sha256:708d23ebf1795135c3befd29035be23ed8b56622890fb5b2568459fb7271b7d0",
-  "submitted_schema_digest": "sha256:fc256409a01425ebfcb694c211bcbc0ebf3b0563af277a083a4b5b01315cc284",
+  "source_schema_digest": "sha256:9972d94167ef0cfafadda210f044cdc9eb856d086be34ace63a2d7ca94828972",
+  "submitted_schema_digest": "sha256:a2f7216d0d209beee467f47d8e5a973b813e64f3c3862f40ffff50692b82e8e6",
   "mcp_server_url": "https://api.mailrith.com/mcp",
   "tool_count": 52,
   "tools": [
@@ -13,6 +13,7 @@
       "name": "discovery_get_capabilities",
       "required_scopes": [],
       "annotations": {
+        "title": "Get authenticated API capabilities",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -26,6 +27,7 @@
         "workspace:read"
       ],
       "annotations": {
+        "title": "Get the current workspace",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -39,6 +41,7 @@
         "workspace:read"
       ],
       "annotations": {
+        "title": "List sender identities",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -52,6 +55,7 @@
         "workspace:read"
       ],
       "annotations": {
+        "title": "Get a sender identity",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -65,6 +69,7 @@
         "analytics:read"
       ],
       "annotations": {
+        "title": "Create or reuse an analytics report",
         "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -78,6 +83,7 @@
         "analytics:read"
       ],
       "annotations": {
+        "title": "Get an analytics report",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -91,6 +97,7 @@
         "subscribers:read"
       ],
       "annotations": {
+        "title": "List subscribers",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -104,6 +111,7 @@
         "subscribers:read"
       ],
       "annotations": {
+        "title": "Get a subscriber",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -118,6 +126,7 @@
         "subscribers:write"
       ],
       "annotations": {
+        "title": "Create or upsert a subscriber",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": false,
@@ -131,6 +140,7 @@
         "subscribers:write"
       ],
       "annotations": {
+        "title": "Update a subscriber",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -145,6 +155,7 @@
         "subscribers:write"
       ],
       "annotations": {
+        "title": "Change Subscriber sending eligibility",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -159,6 +170,7 @@
         "subscribers:write"
       ],
       "annotations": {
+        "title": "Add a Tag to a Subscriber",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -173,6 +185,7 @@
         "subscribers:write"
       ],
       "annotations": {
+        "title": "Remove a tag from a subscriber",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -187,6 +200,7 @@
         "subscribers:write"
       ],
       "annotations": {
+        "title": "Add a subscriber to a sequence",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -201,6 +215,7 @@
         "subscribers:write"
       ],
       "annotations": {
+        "title": "Remove a subscriber from a sequence",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -214,6 +229,7 @@
         "tags:read"
       ],
       "annotations": {
+        "title": "List tags",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -227,6 +243,7 @@
         "tags:read"
       ],
       "annotations": {
+        "title": "Get a tag",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -240,6 +257,7 @@
         "segments:read"
       ],
       "annotations": {
+        "title": "List segments",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -253,6 +271,7 @@
         "segments:read"
       ],
       "annotations": {
+        "title": "Get a segment",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -266,6 +285,7 @@
         "segments:read"
       ],
       "annotations": {
+        "title": "Preview a segment definition",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -279,6 +299,7 @@
         "broadcasts:read"
       ],
       "annotations": {
+        "title": "List broadcasts",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -292,6 +313,7 @@
         "broadcasts:write"
       ],
       "annotations": {
+        "title": "Create a broadcast",
         "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": false,
@@ -305,6 +327,7 @@
         "broadcasts:read"
       ],
       "annotations": {
+        "title": "Get a broadcast",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -318,6 +341,7 @@
         "broadcasts:write"
       ],
       "annotations": {
+        "title": "Update a broadcast",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -331,6 +355,7 @@
         "broadcasts:read"
       ],
       "annotations": {
+        "title": "Inspect broadcast readiness",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -346,6 +371,7 @@
         "broadcasts:write"
       ],
       "annotations": {
+        "title": "Send a broadcast test email",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": false,
@@ -360,6 +386,7 @@
         "broadcasts:write"
       ],
       "annotations": {
+        "title": "Schedule or reschedule a broadcast",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -374,6 +401,7 @@
         "broadcasts:write"
       ],
       "annotations": {
+        "title": "Unschedule a broadcast",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -388,6 +416,7 @@
         "broadcasts:write"
       ],
       "annotations": {
+        "title": "Send a broadcast now",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": false,
@@ -402,6 +431,7 @@
         "broadcasts:write"
       ],
       "annotations": {
+        "title": "Cancel a broadcast send",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": false,
@@ -415,6 +445,7 @@
         "broadcasts:read"
       ],
       "annotations": {
+        "title": "Get broadcast send progress",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -428,6 +459,7 @@
         "sequences:read"
       ],
       "annotations": {
+        "title": "List sequences",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -441,6 +473,7 @@
         "sequences:write"
       ],
       "annotations": {
+        "title": "Create a sequence",
         "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": false,
@@ -454,6 +487,7 @@
         "sequences:read"
       ],
       "annotations": {
+        "title": "Get a sequence",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -467,6 +501,7 @@
         "sequences:write"
       ],
       "annotations": {
+        "title": "Update a sequence",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -480,6 +515,7 @@
         "sequences:read"
       ],
       "annotations": {
+        "title": "Check sequence readiness",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -494,6 +530,7 @@
         "sequences:read"
       ],
       "annotations": {
+        "title": "Preview a sequence journey",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -509,6 +546,7 @@
         "sequences:write"
       ],
       "annotations": {
+        "title": "Send sequence test messages",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": false,
@@ -523,6 +561,7 @@
         "sequences:write"
       ],
       "annotations": {
+        "title": "Activate or pause a sequence",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -536,6 +575,7 @@
         "automations:read"
       ],
       "annotations": {
+        "title": "List automations",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -549,6 +589,7 @@
         "automations:write"
       ],
       "annotations": {
+        "title": "Create an automation",
         "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": false,
@@ -562,6 +603,7 @@
         "automations:read"
       ],
       "annotations": {
+        "title": "Get an automation",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -575,6 +617,7 @@
         "automations:write"
       ],
       "annotations": {
+        "title": "Update an automation",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -588,6 +631,7 @@
         "automations:read"
       ],
       "annotations": {
+        "title": "Check automation readiness",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -602,6 +646,7 @@
         "automations:read"
       ],
       "annotations": {
+        "title": "Preview an automation journey",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -617,6 +662,7 @@
         "automations:write"
       ],
       "annotations": {
+        "title": "Send automation test messages",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": false,
@@ -631,6 +677,7 @@
         "automations:write"
       ],
       "annotations": {
+        "title": "Change an automation status",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
@@ -644,6 +691,7 @@
         "email_templates:read"
       ],
       "annotations": {
+        "title": "List email templates",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -657,6 +705,7 @@
         "email_templates:write"
       ],
       "annotations": {
+        "title": "Create an email template",
         "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": false,
@@ -670,6 +719,7 @@
         "email_templates:read"
       ],
       "annotations": {
+        "title": "Get an email template",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -684,6 +734,7 @@
         "email_templates:read"
       ],
       "annotations": {
+        "title": "Preview an email template for a Subscriber",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -697,6 +748,7 @@
         "email_templates:write"
       ],
       "annotations": {
+        "title": "Update an email template",
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,

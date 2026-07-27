@@ -50,6 +50,7 @@ export const resolvePublicApiMcpToolsets = (
     .map((toolset) => toolset.key);
 
 export type PublicApiMcpToolAnnotations = {
+  title: string;
   readOnlyHint: boolean;
   destructiveHint: boolean;
   idempotentHint: boolean;
@@ -61,7 +62,9 @@ export const createPublicApiMcpToolAnnotations = (
     PublicApiAgentOperationRisk,
     "risk" | "destructive" | "externalSideEffect" | "idempotencyPolicy"
   >,
+  title: string,
 ): PublicApiMcpToolAnnotations => ({
+  title,
   readOnlyHint: risk.risk === "read",
   destructiveHint: risk.destructive,
   idempotentHint: risk.idempotencyPolicy !== "idempotency-key",
@@ -210,6 +213,30 @@ class JsonSchemaDocumentBuilder {
     return normalized;
   }
 
+  normalizeRequestBody(
+    value: Record<string, unknown>,
+  ): Record<string, unknown> {
+    const normalized = this.normalize(value);
+    if (!isRecord(normalized) || normalized.type !== undefined) {
+      return isRecord(normalized) ? normalized : {};
+    }
+
+    const match =
+      typeof value.$ref === "string"
+        ? value.$ref.match(/^#\/components\/schemas\/([^/]+)$/)
+        : null;
+    const referencedType = match?.[1]
+      ? this.componentSchemas[match[1]]?.type
+      : undefined;
+
+    return referencedType === undefined
+      ? normalized
+      : {
+          ...normalized,
+          type: this.normalize(referencedType),
+        };
+  }
+
   build(root: Record<string, unknown>): Record<string, unknown> {
     const normalized = this.normalize(root);
     if (!isRecord(normalized)) {
@@ -272,7 +299,7 @@ export const createPublicApiMcpOperationContract = (
       );
     }
     inputProperties.body = withParameterDescription(
-      inputBuilder.normalize(bodySchema),
+      inputBuilder.normalizeRequestBody(bodySchema),
       "The exact JSON request body defined by the Mailrith public API contract.",
     );
     if (operation.requestBody.required) {

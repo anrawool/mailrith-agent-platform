@@ -268,7 +268,7 @@ describe("@mailrith/mcp-server", () => {
           inputSchema?: unknown;
           outputSchema?: unknown;
           securitySchemes?: unknown;
-          annotations?: unknown;
+          annotations?: { title?: string };
           _meta?: Record<string, unknown>;
         }>;
       };
@@ -291,9 +291,20 @@ describe("@mailrith/mcp-server", () => {
           tool.inputSchema !== undefined &&
           tool.outputSchema !== undefined &&
           tool.securitySchemes !== undefined &&
-          tool.annotations !== undefined,
+          tool.annotations?.title === tool.title,
       ),
     ).toBe(true);
+    for (const tool of tools) {
+      const inputSchema = tool.inputSchema as
+        | { properties?: Record<string, Record<string, unknown>> }
+        | undefined;
+      if (inputSchema?.properties?.body) {
+        expect(
+          inputSchema.properties.body.type,
+          `${tool.name} request body type`,
+        ).toBe("object");
+      }
+    }
     expect(
       tools.find((tool) => tool.name === "broadcasts_send"),
     ).toMatchObject({
@@ -1914,6 +1925,11 @@ describe("@mailrith/mcp-server", () => {
       "mailrith_delete",
       "mailrith_live",
     ]);
+    expect(
+      tools.tools.every(
+        (tool) => tool.annotations?.title === tool.title,
+      ),
+    ).toBe(true);
     expect(
       tools.tools.find((tool) => tool.name === "mailrith_write")
         ?.inputSchema,

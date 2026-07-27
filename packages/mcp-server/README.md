@@ -42,9 +42,12 @@ tools such as:
 - `sequences_update_status`
 - `automations_update_status`
 
-Every submitted tool has a human-readable title, a narrow description, exact
-input and output schemas, explicit safety annotations, and machine-readable
-operation permissions. Tools other than the connection check advertise their
+Every submitted tool has a human-readable top-level title and
+`annotations.title`, a narrow description, exact input and output schemas,
+explicit safety annotations, and machine-readable operation permissions.
+Request-body inputs expose their JSON type directly as well as their exact
+referenced schema so connector review tools can validate them without expanding
+`$ref` values first. Tools other than the connection check advertise their
 exact OAuth permissions. The connection check advertises the complete
 permission catalog so OAuth can offer every Work Profile; its result still
 reports the exact permissions granted to the connection. The catalog stays the
