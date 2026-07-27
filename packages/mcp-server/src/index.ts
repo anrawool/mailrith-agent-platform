@@ -492,10 +492,10 @@ const buildToolValidationErrorResult = (
   };
 };
 
-export const mailrithPublicApiReferenceUrl =
-  "https://mailrith.com/developers/api-reference";
-
-const createToolDescription = (operation: MailrithSdkOperationDescriptor) => {
+const createToolDescription = (
+  operation: MailrithSdkOperationDescriptor,
+  apiReferenceUrl: string,
+) => {
   const summary = String(operation.summary);
   const description = operation.description ? String(operation.description) : "";
   const parts = [
@@ -541,7 +541,7 @@ const createToolDescription = (operation: MailrithSdkOperationDescriptor) => {
     );
   }
 
-  parts.push(`API reference: ${mailrithPublicApiReferenceUrl}.`);
+  parts.push(`API reference: ${apiReferenceUrl}.`);
 
   return parts.join(" ");
 };
@@ -1516,8 +1516,11 @@ export const createMailrithMcpToolDefinitions = (
     profile?: "submitted" | "custom";
     enforceRuntimeAuthorization?: boolean;
   } = {},
-): MailrithMcpToolDefinition[] =>
-  generatedMailrithMcpToolManifest.tools
+): MailrithMcpToolDefinition[] => {
+  const apiReferenceUrl =
+    `${resolveMarketingOrigin(normalizeBaseUrl(options.baseUrl))}${publicApiReferencePath}`;
+
+  return generatedMailrithMcpToolManifest.tools
     .filter(createToolAvailabilityFilter(options))
     .sort((left, right) =>
       options.profile === "submitted"
@@ -1547,7 +1550,7 @@ export const createMailrithMcpToolDefinitions = (
         name: tool.name,
         title: createToolTitle(operation),
         operation,
-        description: createToolDescription(operation),
+        description: createToolDescription(operation, apiReferenceUrl),
         get inputSchema() {
           return getSchemas().inputSchema;
         },
@@ -1632,6 +1635,7 @@ export const createMailrithMcpToolDefinitions = (
         },
       };
     });
+};
 
 type MailrithCompactOperationCategory = MailrithOperationCategory;
 

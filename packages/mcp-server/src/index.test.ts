@@ -116,6 +116,40 @@ describe("@mailrith/mcp-server", () => {
     );
   });
 
+  it("links every tool to the API reference for its configured environment", () => {
+    const client = { request: vi.fn() } as never;
+    const environments = [
+      {
+        baseUrl: undefined,
+        referenceUrl: "https://mailrith.com/developers/api-reference",
+      },
+      {
+        baseUrl: "https://api-feature.mailrith.com",
+        referenceUrl: "https://feature.mailrith.com/developers/api-reference",
+      },
+      {
+        baseUrl: "https://api-stage.mailrith.com",
+        referenceUrl: "https://stage.mailrith.com/developers/api-reference",
+      },
+      {
+        baseUrl: "http://localhost:8787",
+        referenceUrl: "http://localhost:4321/developers/api-reference",
+      },
+    ] as const;
+
+    for (const environment of environments) {
+      const tools = createMailrithMcpToolDefinitions(client, {
+        profile: "submitted",
+        baseUrl: environment.baseUrl,
+      });
+      for (const tool of tools) {
+        expect(tool.description).toContain(
+          `API reference: ${environment.referenceUrl}.`,
+        );
+      }
+    }
+  });
+
   it("uses a configured API credential for every submitted tool without requiring a preloaded capability response", async () => {
     const request = vi.fn().mockResolvedValue({ data: {} });
     const tools = createMailrithMcpToolDefinitions(
