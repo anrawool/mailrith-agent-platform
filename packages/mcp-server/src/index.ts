@@ -492,6 +492,9 @@ const buildToolValidationErrorResult = (
   };
 };
 
+export const mailrithPublicApiReferenceUrl =
+  "https://mailrith.com/developers/api-reference";
+
 const createToolDescription = (operation: MailrithSdkOperationDescriptor) => {
   const summary = String(operation.summary);
   const description = operation.description ? String(operation.description) : "";
@@ -537,6 +540,8 @@ const createToolDescription = (operation: MailrithSdkOperationDescriptor) => {
       "Polling: wait at least 2 seconds, use exponential backoff up to 30 seconds, stop at a terminal state, and stop after 15 minutes.",
     );
   }
+
+  parts.push(`API reference: ${mailrithPublicApiReferenceUrl}.`);
 
   return parts.join(" ");
 };

@@ -1290,6 +1290,13 @@ describe("@mailrith/mcp-server", () => {
       "landing_pages:write",
     );
     expect(webhookCreateTool?.description).toContain("webhooks:write");
+    expect(
+      tools.every((tool) =>
+        tool.description.includes(
+          "https://mailrith.com/developers/api-reference",
+        ),
+      ),
+    ).toBe(true);
 
     await listTool?.invoke({
       email: "ada@example.com",
