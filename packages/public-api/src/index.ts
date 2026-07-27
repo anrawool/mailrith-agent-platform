@@ -2645,6 +2645,12 @@ const schemas = {
           columns: { type: "integer", enum: [1, 2, 3] },
           width: { type: "string", enum: ["default", "large", "full", "fit"] },
           backgroundColor: { type: "string" },
+          blockquoteBorderColor: { type: "string" },
+          linkColor: { type: "string" },
+          layoutAlignment: {
+            type: "string",
+            enum: ["left", "center"],
+          },
           backgroundImageUrl: { type: "string" },
           margin: { type: "string", enum: ["none", "normal", "large"] },
           padding: { type: "string", enum: ["none", "normal", "large"] },

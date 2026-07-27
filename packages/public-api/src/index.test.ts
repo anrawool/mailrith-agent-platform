@@ -985,6 +985,21 @@ describe("@mailrith/public-api", () => {
       ).not.toHaveProperty("additionalProperties", true);
     }
 
+    const emailNodeAttrs = (
+      publicApiSpec.components.schemas
+        .BroadcastEmailNode as PublicApiSchemaObject
+    ).properties?.attrs as PublicApiSchemaObject;
+    expect(emailNodeAttrs.additionalProperties).toBe(false);
+    expect(emailNodeAttrs.properties).toMatchObject({
+      backgroundColor: { type: "string" },
+      blockquoteBorderColor: { type: "string" },
+      linkColor: { type: "string" },
+      layoutAlignment: {
+        type: "string",
+        enum: ["left", "center"],
+      },
+    });
+
     for (const schemaName of [
       "TagUpdateRequest",
       "CustomFieldUpdateRequest",
