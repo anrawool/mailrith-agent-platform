@@ -11,6 +11,14 @@ Claude Desktop and other user-connected remote MCP clients authenticate through
 Mailrith OAuth. Code-first clients that can safely store credentials may send a
 workspace API key or OAuth access token as `Authorization: Bearer <credential>`.
 
+## Official MCP Registry
+
+The registry metadata in `server.json` identifies the server as
+`com.mailrith/mailrith`. Clients can use the canonical Streamable HTTP endpoint
+at `https://api.mailrith.com/mcp`, which authenticates through OAuth, or install
+the local stdio package from npm. Local installs require a workspace API key in
+`MAILRITH_API_KEY`.
+
 The hosted server requests **Full Email Marketing Access** by default for a
 general-purpose agent. It covers every public email-marketing operation in the
 selected workspace, but not billing, team, account-security,

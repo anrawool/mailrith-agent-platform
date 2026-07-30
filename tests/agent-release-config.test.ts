@@ -7,6 +7,7 @@ const validConfig = {
   schema_version: 1,
   release_version: "0.1.0",
   python_release_version: "0.1.0",
+  marketplace_submission_version: "0.1.0",
   channel: "ga",
   status: "prepared_not_published",
   documentation_revision: "2026-07-24",
@@ -77,6 +78,10 @@ describe("agent release config", () => {
     [
       { ...validConfig, documentation_revision: "July 23" },
       "documentation revision must use YYYY-MM-DD",
+    ],
+    [
+      { ...validConfig, marketplace_submission_version: "" },
+      "must declare npm, Python, and marketplace versions",
     ],
   ])("rejects an invalid release state", (config, message) => {
     expect(() => parseAgentReleaseConfig(config)).toThrow(message);

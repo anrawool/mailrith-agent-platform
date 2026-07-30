@@ -1,6 +1,6 @@
 {
   "name": "@mailrith/agent-skill",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Installable Mailrith skill for safe AI agent email marketing workflows.",
   "license": "MIT",
   "homepage": "https://mailrith.com/developers/agent-quickstarts",

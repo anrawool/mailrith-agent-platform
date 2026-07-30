@@ -13,6 +13,7 @@ type AgentReleaseConfig = {
   schema_version: 1;
   release_version: string;
   python_release_version: string;
+  marketplace_submission_version: string;
   channel: "ga";
   status: "prepared_not_published" | "published";
   documentation_revision: string;
@@ -33,9 +34,13 @@ export const parseAgentReleaseConfig = (value: unknown): AgentReleaseConfig => {
     typeof config.release_version !== "string" ||
     config.release_version.trim().length === 0 ||
     typeof config.python_release_version !== "string" ||
-    config.python_release_version.trim().length === 0
+    config.python_release_version.trim().length === 0 ||
+    typeof config.marketplace_submission_version !== "string" ||
+    config.marketplace_submission_version.trim().length === 0
   ) {
-    throw new Error("Agent release config must declare both package versions.");
+    throw new Error(
+      "Agent release config must declare npm, Python, and marketplace versions.",
+    );
   }
   if (config.channel !== "ga") {
     throw new Error("Agent release config channel must be ga.");
@@ -153,7 +158,9 @@ const verifyRuntimeVersion = async (
   }
 };
 
-const verifyAgentIntegrations = async (releaseVersion: string) => {
+const verifyAgentIntegrations = async (
+  marketplaceSubmissionVersion: string,
+) => {
   const submittedProfile = await readJson(
     "packages/agent-integrations/submitted-profile.json",
   );
@@ -190,11 +197,11 @@ const verifyAgentIntegrations = async (releaseVersion: string) => {
     const pluginManifest = await readJson(pluginManifestPath);
     if (
       pluginManifest.name !== "mailrith" ||
-      pluginManifest.version !== releaseVersion ||
+      pluginManifest.version !== marketplaceSubmissionVersion ||
       pluginManifest.license !== "MIT"
     ) {
       throw new Error(
-        `${pluginManifestPath} must describe Mailrith ${releaseVersion} under MIT.`,
+        `${pluginManifestPath} must describe Mailrith ${marketplaceSubmissionVersion} under MIT.`,
       );
     }
   }
@@ -250,7 +257,7 @@ const buildManifest = async () => {
       'version: "{version}",',
       releaseConfig.release_version,
     ),
-    verifyAgentIntegrations(releaseConfig.release_version),
+    verifyAgentIntegrations(releaseConfig.marketplace_submission_version),
   ]);
   const pyproject = await readFile(
     path.join(repositoryRoot, "packages/python-sdk/pyproject.toml"),
@@ -292,6 +299,8 @@ const buildManifest = async () => {
   const manifest = {
     schema_version: releaseConfig.schema_version,
     release_version: releaseConfig.release_version,
+    marketplace_submission_version:
+      releaseConfig.marketplace_submission_version,
     channel: releaseConfig.channel,
     status: releaseConfig.status,
     contract_version: "v1",

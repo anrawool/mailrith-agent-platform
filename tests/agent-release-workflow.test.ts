@@ -84,16 +84,16 @@ describe("agent release workflow", () => {
     );
     expect(workflow).toContain("release/platform");
     expect(workflow).toContain(
-      "mailrith-openai-plugin-$RELEASE_VERSION.tar.gz",
+      "mailrith-openai-plugin-$MARKETPLACE_SUBMISSION_VERSION.tar.gz",
     );
     expect(workflow).toContain(
-      "mailrith-claude-connector-$RELEASE_VERSION.tar.gz",
+      "mailrith-claude-connector-$MARKETPLACE_SUBMISSION_VERSION.tar.gz",
     );
     expect(workflow).toContain(
-      "mailrith-cursor-plugin-$RELEASE_VERSION.tar.gz",
+      "mailrith-cursor-plugin-$MARKETPLACE_SUBMISSION_VERSION.tar.gz",
     );
     expect(workflow).toContain(
-      "chatgpt-app-submission-$RELEASE_VERSION.json",
+      "chatgpt-app-submission-$MARKETPLACE_SUBMISSION_VERSION.json",
     );
   });
 

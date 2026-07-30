@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.0.1 - 2026-07-31
+
+- Republish the Agent Skill as part of the coordinated npm patch release.
+
 ## 1.0.0 - 2026-07-26
 
 - Replace the seven compact routing tools with the fixed submitted catalog of focused Mailrith tools.

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.0.1 - 2026-07-31
+
+- Add the verified `com.mailrith/mailrith` MCP Registry identity and local npm
+  stdio installation metadata while retaining the canonical hosted endpoint.
 - Restore Full Email Marketing Access as the submitted OAuth bootstrap default
   while keeping exact operation scopes on normal tools and exact call-time
   authorization.

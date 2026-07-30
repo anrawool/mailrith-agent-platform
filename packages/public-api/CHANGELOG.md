@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.0.1 - 2026-07-31
+
+- Republish the unchanged public contract as part of the coordinated npm patch release.
+
 ## 1.0.0 - 2026-07-26
 
 - Publish the fixed submitted MCP profile as a reviewed subset of the generated public operation contract.

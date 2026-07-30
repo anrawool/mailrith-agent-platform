@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.0.1 - 2026-07-31
+
 - Make **Full Email Marketing Access** the default OAuth login profile while
   preserving explicit Reporting-profile and custom-scope logins.
 - Add credential-free `operations search` and `operations describe` commands backed by the same bounded discovery contract as MCP.

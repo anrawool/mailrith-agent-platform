@@ -39,7 +39,11 @@ platform packages on every manual run. Publishing requires the protected
 npm and PyPI. A matching `agent-v<version>` tag or an explicitly approved
 publish run starts publication.
 
-Mailrith publishes the npm and Python packages as one coordinated stable version. The release manifest records the current version, contract digest, package digests, and public-registry status.
+The npm, Python, and marketplace submission versions advance independently
+through the coordinated workflow. This keeps already-submitted marketplace
+archives unchanged while another package channel receives a compatible
+patch release. The release manifest records each version, the contract digest,
+package digests, and public-registry status.
 
 The platform archives are submission-ready files for the OpenAI, Claude, and
 Cursor review portals. Provider review and public directory approval are

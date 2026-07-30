@@ -1,6 +1,7 @@
 {
   "name": "@mailrith/mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "mcpName": "com.mailrith/mailrith",
   "description": "Official local and self-hosted MCP server for Mailrith.",
   "license": "MIT",
   "homepage": "https://mailrith.com/developers/mcp",
@@ -41,7 +42,7 @@
     "prepack": "pnpm build",
     "lint": "pnpm -w exec eslint packages/mcp-server/src --ext .ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --root ../.. packages/mcp-server/src/index.test.ts",
+    "test": "vitest run --root ../.. packages/mcp-server/src/index.test.ts packages/mcp-server/src/registry-metadata.test.ts",
     "stdio": "tsx src/cli.ts --transport stdio",
     "http": "tsx src/cli.ts --transport http --port 8788"
   },

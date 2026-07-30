@@ -1,10 +1,11 @@
 # Changelog
 
-- Distinguish relationship actions such as adding or removing a Tag from a
-  Subscriber instead of misrouting them to Subscriber profile updates.
-
 ## Unreleased
 
+## 1.0.1 - 2026-07-31
+
+- Distinguish relationship actions such as adding or removing a Tag from a
+  Subscriber instead of misrouting them to Subscriber profile updates.
 - Export a bounded shared operation-discovery index with common task-language intent matching and stable effect categories for MCP and CLI clients.
 
 ## 1.0.0 - 2026-07-26

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.mailrith/mailrith",
+  "title": "Mailrith Email Marketing",
+  "description": "Manage Subscribers, Broadcasts, Sequences, Automations, and reporting in Mailrith.",
+  "repository": {
+    "url": "https://github.com/anrawool/mailrith-agent-platform",
+    "source": "github",
+    "id": "1308747458",
+    "subfolder": "packages/mcp-server"
+  },
+  "version": "1.0.1",
+  "websiteUrl": "https://mailrith.com/developers/mcp",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://api.mailrith.com/mcp"
+    }
+  ],
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@mailrith/mcp-server",
+      "version": "1.0.1",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "MAILRITH_API_KEY",
+          "description": "A Mailrith workspace API key.",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}
