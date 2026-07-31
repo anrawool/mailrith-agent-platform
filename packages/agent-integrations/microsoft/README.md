@@ -3,6 +3,10 @@
 This folder prepares Mailrith for Microsoft MCP server certification through
 the **Apps and Agents for M365 and Copilot** offer type in Partner Center.
 
+Use **Mailrith** as the public publisher and developer name. Keep
+**Rawool Publications** as the legal business entity in Partner Center. Use
+`support@mailrith.com` as the public support email.
+
 The committed files contain no OAuth client secret, access token, reviewer
 password, or Azure tenant identifier.
 

@@ -1,10 +1,10 @@
 {
   "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/vDevPreview/MicrosoftTeams.schema.json",
   "manifestVersion": "devPreview",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "id": "__MICROSOFT_APP_ID__",
   "developer": {
-    "name": "Rawool Publications",
+    "name": "Mailrith",
     "websiteUrl": "https://mailrith.com",
     "privacyUrl": "https://mailrith.com/privacy-policy",
     "termsOfUseUrl": "https://mailrith.com/terms-of-service"

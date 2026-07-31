@@ -441,6 +441,7 @@ describe("Mailrith Agent Integration Packages", () => {
     const microsoftRoot = path.join(integrationsRoot, "microsoft");
     const manifest = await readJson<{
       manifestVersion: string;
+      version: string;
       id: string;
       developer: {
         name: string;
@@ -472,8 +473,9 @@ describe("Mailrith Agent Integration Packages", () => {
       manifest.agentConnectors[0]?.toolSource.remoteMcpServer;
 
     expect(manifest.manifestVersion).toBe("devPreview");
+    expect(manifest.version).toBe("1.0.1");
     expect(manifest.id).toBe("__MICROSOFT_APP_ID__");
-    expect(manifest.developer.name).toBe("Rawool Publications");
+    expect(manifest.developer.name).toBe("Mailrith");
     expect(manifest.developer.privacyUrl).toMatch(/^https:\/\//);
     expect(manifest.developer.termsOfUseUrl).toMatch(/^https:\/\//);
     expect(remote).toEqual({
@@ -507,6 +509,9 @@ describe("Mailrith Agent Integration Packages", () => {
         true,
       );
     }
+    expect(
+      await readFile(path.join(microsoftRoot, "intro.md"), "utf8"),
+    ).toContain("support@mailrith.com");
   });
 
   it("provides a bounded Cline installation path", async () => {

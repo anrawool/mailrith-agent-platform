@@ -47,4 +47,5 @@ read or change.
 
 ## Support
 
-Visit [Mailrith Support](https://mailrith.com/contact) for help.
+Email [support@mailrith.com](mailto:support@mailrith.com) or visit
+[Mailrith Support](https://mailrith.com/contact) for help.
