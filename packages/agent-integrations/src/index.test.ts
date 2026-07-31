@@ -285,6 +285,14 @@ describe("Mailrith Agent Integration Packages", () => {
       mcpServers: string;
       repository: string;
     }>(path.join(claudeRoot, ".claude-plugin", "plugin.json"));
+    const copilot = await readJson<{
+      name: string;
+      version: string;
+      license: string;
+      skills: string[];
+      mcpServers: string;
+      repository: string;
+    }>(path.join(claudeRoot, ".github", "plugin", "plugin.json"));
     const gemini = await readJson<{
       name: string;
       version: string;
@@ -308,6 +316,14 @@ describe("Mailrith Agent Integration Packages", () => {
       version: "1.0.0",
       license: "MIT",
       skills: "./skills/",
+      mcpServers: "./.mcp.json",
+      repository: "https://github.com/anrawool/mailrith-agent-platform",
+    });
+    expect(copilot).toMatchObject({
+      name: "mailrith",
+      version: "1.0.0",
+      license: "MIT",
+      skills: ["./skills/mailrith-email-marketing/"],
       mcpServers: "./.mcp.json",
       repository: "https://github.com/anrawool/mailrith-agent-platform",
     });
@@ -340,6 +356,8 @@ describe("Mailrith Agent Integration Packages", () => {
     for (const relativePath of [
       claude.mcpServers,
       claude.skills,
+      copilot.mcpServers,
+      ...copilot.skills,
       "README.md",
       "LICENSE",
       "assets/logo.svg",

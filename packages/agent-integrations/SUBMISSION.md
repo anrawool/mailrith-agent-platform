@@ -117,7 +117,9 @@ required identity, legal, privacy, and data-handling statements.
 ## Submit The GitHub Copilot Plugin
 
 1. Use `claude/mailrith` as the shared Claude Code and GitHub Copilot plugin
-   root.
+   root. Keep the Claude manifest at `.claude-plugin/plugin.json` and the
+   Copilot manifest at `.github/plugin/plugin.json`; both point to the same
+   reviewed skill and `.mcp.json` connection.
 2. Install it from a clean profile with
    `copilot plugin install anrawool/mailrith-agent-platform:packages/agent-integrations/claude/mailrith`.
 3. Confirm `copilot mcp get mailrith` reports the remote HTTP server and its

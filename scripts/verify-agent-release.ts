@@ -193,6 +193,7 @@ const verifyAgentIntegrations = async (
   for (const pluginManifestPath of [
     "packages/agent-integrations/openai/mailrith/.codex-plugin/plugin.json",
     "packages/agent-integrations/cursor/mailrith/.cursor-plugin/plugin.json",
+    "packages/agent-integrations/claude/mailrith/.github/plugin/plugin.json",
   ]) {
     const pluginManifest = await readJson(pluginManifestPath);
     if (
