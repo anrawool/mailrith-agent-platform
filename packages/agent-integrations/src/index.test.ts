@@ -69,6 +69,14 @@ describe("Mailrith Agent Integration Packages", () => {
         "mailrith-mcp-contract.json",
       ),
     );
+    const claude = await readJson<typeof submitted>(
+      path.join(
+        integrationsRoot,
+        "claude",
+        "mailrith",
+        "mailrith-mcp-contract.json",
+      ),
+    );
 
     expect(submitted.profile).toBe("submitted");
     expect(submitted.contract_version).toBe("1.0");
@@ -82,6 +90,7 @@ describe("Mailrith Agent Integration Packages", () => {
     );
     expect(openAi).toEqual(submitted);
     expect(cursor).toEqual(submitted);
+    expect(claude).toEqual(submitted);
   });
 
   it("configures OpenAI, Claude, Codex, and Cursor with the exact catalog", async () => {
@@ -137,6 +146,19 @@ describe("Mailrith Agent Integration Packages", () => {
     }>(
       path.join(integrationsRoot, "cursor", "mailrith", "mcp.json"),
     );
+    const claudePluginMcp = await readJson<{
+      mcpServers: Record<string, { type: string; url: string }>;
+    }>(
+      path.join(
+        integrationsRoot,
+        "claude",
+        "mailrith",
+        ".mcp.json",
+      ),
+    );
+    const gemini = await readJson<{
+      mcpServers: Record<string, { url: string }>;
+    }>(path.join(repositoryRoot, "gemini-extension.json"));
 
     expect(openAi.tools[0]?.server_url).toBe(submitted.mcp_server_url);
     expect(openAi.tools[0]?.allowed_tools).toEqual(expectedTools);
@@ -154,6 +176,13 @@ describe("Mailrith Agent Integration Packages", () => {
     });
     expect(cursorMcp.mcpServers.mailrith).toEqual({
       type: "http",
+      url: submitted.mcp_server_url,
+    });
+    expect(claudePluginMcp.mcpServers.mailrith).toEqual({
+      type: "http",
+      url: submitted.mcp_server_url,
+    });
+    expect(gemini.mcpServers.mailrith).toEqual({
       url: submitted.mcp_server_url,
     });
   });
@@ -242,6 +271,92 @@ describe("Mailrith Agent Integration Packages", () => {
     }
   });
 
+  it("ships a Gemini extension and one shared Claude and Copilot plugin", async () => {
+    const claudeRoot = path.join(
+      integrationsRoot,
+      "claude",
+      "mailrith",
+    );
+    const claude = await readJson<{
+      name: string;
+      version: string;
+      license: string;
+      skills: string;
+      mcpServers: string;
+      repository: string;
+    }>(path.join(claudeRoot, ".claude-plugin", "plugin.json"));
+    const gemini = await readJson<{
+      name: string;
+      version: string;
+      description: string;
+      contextFileName: string;
+      mcpServers: Record<string, { url: string }>;
+    }>(path.join(repositoryRoot, "gemini-extension.json"));
+    const claudeMarketplace = await readJson<{
+      plugins: Array<{ name: string; source: string; version: string }>;
+    }>(
+      path.join(repositoryRoot, ".claude-plugin", "marketplace.json"),
+    );
+    const copilotMarketplace = await readJson<{
+      plugins: Array<{ name: string; source: string; version: string }>;
+    }>(
+      path.join(repositoryRoot, ".github", "plugin", "marketplace.json"),
+    );
+
+    expect(claude).toMatchObject({
+      name: "mailrith",
+      version: "1.0.0",
+      license: "MIT",
+      skills: "./skills/",
+      mcpServers: "./.mcp.json",
+      repository: "https://github.com/anrawool/mailrith-agent-platform",
+    });
+    expect(gemini).toMatchObject({
+      name: "mailrith",
+      version: "1.0.0",
+      contextFileName: "GEMINI.md",
+      mcpServers: {
+        mailrith: { url: "https://api.mailrith.com/mcp" },
+      },
+    });
+    expect(gemini.description.length).toBeGreaterThan(20);
+    expect(claudeMarketplace.plugins).toEqual([
+      {
+        name: "mailrith",
+        source: "./packages/agent-integrations/claude/mailrith",
+        description: expect.any(String),
+        version: "1.0.0",
+      },
+    ]);
+    expect(copilotMarketplace.plugins).toEqual([
+      {
+        name: "mailrith",
+        source: "packages/agent-integrations/claude/mailrith",
+        description: expect.any(String),
+        version: "1.0.0",
+      },
+    ]);
+
+    for (const relativePath of [
+      claude.mcpServers,
+      claude.skills,
+      "README.md",
+      "LICENSE",
+      "assets/logo.svg",
+      "mailrith-mcp-contract.json",
+    ]) {
+      expect(
+        (await stat(path.resolve(claudeRoot, relativePath))).isFile() ||
+          (await stat(path.resolve(claudeRoot, relativePath))).isDirectory(),
+      ).toBe(true);
+    }
+    expect(
+      (
+        await stat(path.join(repositoryRoot, gemini.contextFileName))
+      ).isFile(),
+    ).toBe(true);
+  });
+
   it("keeps generated skill copies byte-for-byte aligned", async () => {
     const canonical = await readFile(
       path.join(
@@ -253,7 +368,7 @@ describe("Mailrith Agent Integration Packages", () => {
       ),
       "utf8",
     );
-    for (const platform of ["openai", "cursor"]) {
+    for (const platform of ["openai", "cursor", "claude"]) {
       const copy = await readFile(
         path.join(
           integrationsRoot,
@@ -276,7 +391,7 @@ describe("Mailrith Agent Integration Packages", () => {
       ),
       "utf8",
     );
-    for (const platform of ["openai", "cursor"]) {
+    for (const platform of ["openai", "cursor", "claude"]) {
       expect(
         await readFile(
           path.join(
@@ -290,6 +405,120 @@ describe("Mailrith Agent Integration Packages", () => {
         ),
       ).toBe(canonicalLogo);
     }
+    expect(
+      await readFile(
+        path.join(
+          repositoryRoot,
+          "skills",
+          "mailrith-email-marketing",
+          "SKILL.md",
+        ),
+        "utf8",
+      ),
+    ).toBe(canonical);
+  });
+
+  it("prepares the Microsoft certification package from the submitted catalog", async () => {
+    const submitted = await readSubmittedProfile();
+    const microsoftRoot = path.join(integrationsRoot, "microsoft");
+    const manifest = await readJson<{
+      manifestVersion: string;
+      id: string;
+      developer: {
+        name: string;
+        privacyUrl: string;
+        termsOfUseUrl: string;
+      };
+      agentConnectors: Array<{
+        toolSource: {
+          remoteMcpServer: {
+            mcpServerUrl: string;
+            mcpToolDescription: { file: string };
+            authorization: { type: string; referenceId: string };
+          };
+        };
+      }>;
+      icons: { outline: string; color: string };
+    }>(path.join(microsoftRoot, "manifest.template.json"));
+    const tools = await readJson<{
+      tools: Array<{
+        name: string;
+        title: string;
+        description: string;
+        inputSchema: unknown;
+        outputSchema: unknown;
+        annotations: unknown;
+      }>;
+    }>(path.join(microsoftRoot, "mcptools.json"));
+    const remote =
+      manifest.agentConnectors[0]?.toolSource.remoteMcpServer;
+
+    expect(manifest.manifestVersion).toBe("devPreview");
+    expect(manifest.id).toBe("__MICROSOFT_APP_ID__");
+    expect(manifest.developer.name).toBe("Rawool Publications");
+    expect(manifest.developer.privacyUrl).toMatch(/^https:\/\//);
+    expect(manifest.developer.termsOfUseUrl).toMatch(/^https:\/\//);
+    expect(remote).toEqual({
+      mcpServerUrl: submitted.mcp_server_url,
+      mcpToolDescription: { file: "mcptools.json" },
+      authorization: {
+        type: "AzureKeyVault",
+        referenceId: "__MICROSOFT_KEY_VAULT_URI__",
+      },
+    });
+    expect(tools.tools.map((tool) => tool.name)).toEqual(
+      submitted.tools.map((tool) => tool.name),
+    );
+    expect(
+      tools.tools.every(
+        (tool) =>
+          Boolean(tool.title) &&
+          Boolean(tool.description) &&
+          Boolean(tool.inputSchema) &&
+          Boolean(tool.outputSchema) &&
+          Boolean(tool.annotations),
+      ),
+    ).toBe(true);
+    for (const filename of [
+      manifest.icons.color,
+      manifest.icons.outline,
+      "intro.md",
+      "README.md",
+    ]) {
+      expect((await stat(path.join(microsoftRoot, filename))).isFile()).toBe(
+        true,
+      );
+    }
+  });
+
+  it("provides a bounded Cline installation path", async () => {
+    const instructions = await readFile(
+      path.join(repositoryRoot, "packages", "mcp-server", "llms-install.md"),
+      "utf8",
+    );
+    const release = await readJson<{ release_version: string }>(
+      path.join(repositoryRoot, "packages", "agent-release-config.json"),
+    );
+
+    expect(instructions).toContain(
+      `@mailrith/mcp-server@${release.release_version}`,
+    );
+    expect(instructions).toContain('"autoApprove": []');
+    expect(instructions).toContain("discovery_get_capabilities");
+    expect(instructions).not.toContain("mrk_");
+    expect(instructions).not.toContain("mra_");
+    expect(instructions).not.toContain("mrt_");
+    expect(
+      (
+        await stat(
+          path.join(
+            integrationsRoot,
+            "cline",
+            "mailrith-logo-400.png",
+          ),
+        )
+      ).isFile(),
+    ).toBe(true);
   });
 
   it("provides valid submission cases and synthetic reviewer data", async () => {
@@ -383,6 +612,27 @@ describe("Mailrith Agent Integration Packages", () => {
       ),
       readFile(
         path.join(integrationsRoot, "cursor", "mailrith", "mcp.json"),
+        "utf8",
+      ),
+      readFile(
+        path.join(
+          integrationsRoot,
+          "claude",
+          "mailrith",
+          ".mcp.json",
+        ),
+        "utf8",
+      ),
+      readFile(
+        path.join(repositoryRoot, "gemini-extension.json"),
+        "utf8",
+      ),
+      readFile(
+        path.join(integrationsRoot, "microsoft", "manifest.template.json"),
+        "utf8",
+      ),
+      readFile(
+        path.join(repositoryRoot, "packages", "mcp-server", "llms-install.md"),
         "utf8",
       ),
     ]);

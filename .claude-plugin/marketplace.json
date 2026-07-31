@@ -1,0 +1,19 @@
+{
+  "name": "mailrith-plugins",
+  "owner": {
+    "name": "Mailrith",
+    "email": "support@mailrith.com"
+  },
+  "metadata": {
+    "description": "Official Mailrith plugins for AI agent clients.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "mailrith",
+      "source": "./packages/agent-integrations/claude/mailrith",
+      "description": "Manage Mailrith email marketing through focused, permission-scoped tools.",
+      "version": "1.0.0"
+    }
+  ]
+}

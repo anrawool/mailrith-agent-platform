@@ -1,0 +1,11 @@
+{
+  "name": "mailrith",
+  "version": "1.0.0",
+  "description": "Manage Subscribers, Broadcasts, Sequences, Automations, and email reports with Mailrith.",
+  "mcpServers": {
+    "mailrith": {
+      "url": "https://api.mailrith.com/mcp"
+    }
+  },
+  "contextFileName": "GEMINI.md"
+}

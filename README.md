@@ -7,8 +7,11 @@ This public repository contains the versioned developer surfaces for building sa
 - The local and self-hosted MCP server
 - The Mailrith CLI
 - The installable Mailrith Agent Skill and supported-client connection templates
-- The installable ChatGPT/Codex and Cursor plugin packages
-- The Claude Connector listing and shared submission materials
+- The installable ChatGPT/Codex, Claude Code, GitHub Copilot CLI, and Cursor
+  plugin packages
+- The Gemini CLI extension
+- The Claude Connector listing, Microsoft certification package, Cline
+  installation guide, and shared submission materials
 
 The hosted Mailrith application and its private infrastructure remain in a separate private repository. This repository intentionally contains no application source, database migrations, deployment credentials, customer data, or private operational configuration.
 
@@ -45,9 +48,9 @@ archives unchanged while another package channel receives a compatible
 patch release. The release manifest records each version, the contract digest,
 package digests, and public-registry status.
 
-The platform archives are submission-ready files for the OpenAI, Claude, and
-Cursor review portals. Provider review and public directory approval are
-separate from npm and PyPI publication.
+The platform archives are submission-ready files for OpenAI, Claude, Cursor,
+Gemini CLI, GitHub Copilot CLI, Microsoft, and Cline. Provider review and
+public directory approval are separate from npm and PyPI publication.
 
 ## Security
 

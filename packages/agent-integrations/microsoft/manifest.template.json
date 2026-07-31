@@ -1,0 +1,44 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/vDevPreview/MicrosoftTeams.schema.json",
+  "manifestVersion": "devPreview",
+  "version": "1.0.0",
+  "id": "__MICROSOFT_APP_ID__",
+  "developer": {
+    "name": "Rawool Publications",
+    "websiteUrl": "https://mailrith.com",
+    "privacyUrl": "https://mailrith.com/privacy-policy",
+    "termsOfUseUrl": "https://mailrith.com/terms-of-service"
+  },
+  "name": {
+    "short": "Mailrith",
+    "full": "Mailrith Email Marketing"
+  },
+  "description": {
+    "short": "Manage Mailrith email marketing with Microsoft agents.",
+    "full": "Review Subscribers and email results, prepare and deliver Broadcasts, and manage Sequences, Automations, targeting, and email Templates in one connected Mailrith workspace."
+  },
+  "agentConnectors": [
+    {
+      "id": "mailrith-email-marketing",
+      "displayName": "Mailrith",
+      "description": "Manage Subscribers, Broadcasts, Sequences, Automations, Templates, and email reports in Mailrith.",
+      "toolSource": {
+        "remoteMcpServer": {
+          "mcpServerUrl": "https://api.mailrith.com/mcp",
+          "mcpToolDescription": {
+            "file": "mcptools.json"
+          },
+          "authorization": {
+            "type": "AzureKeyVault",
+            "referenceId": "__MICROSOFT_KEY_VAULT_URI__"
+          }
+        }
+      }
+    }
+  ],
+  "icons": {
+    "outline": "Outline.png",
+    "color": "Color.png"
+  },
+  "accentColor": "#F97316"
+}

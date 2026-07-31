@@ -134,6 +134,26 @@ jobs:
             PRIVACY.md \
             SUBMISSION.md \
             submitted-profile.json
+          tar -czf "release/platform/mailrith-claude-copilot-plugin-$MARKETPLACE_SUBMISSION_VERSION.tar.gz" \
+            -C packages/agent-integrations/claude \
+            mailrith
+          tar -czf "release/platform/mailrith-gemini-cli-extension-$MARKETPLACE_SUBMISSION_VERSION.tar.gz" \
+            gemini-extension.json \
+            GEMINI.md \
+            skills/mailrith-email-marketing
+          tar -czf "release/platform/mailrith-microsoft-mcp-certification-$MARKETPLACE_SUBMISSION_VERSION.tar.gz" \
+            -C packages/agent-integrations/microsoft \
+            manifest.template.json \
+            mcptools.json \
+            intro.md \
+            README.md \
+            Color.png \
+            Outline.png \
+            assets
+          tar -czf "release/platform/mailrith-cline-submission-$MARKETPLACE_SUBMISSION_VERSION.tar.gz" \
+            -C packages \
+            agent-integrations/cline \
+            mcp-server/llms-install.md
           cp chatgpt-app-submission.json \
             "release/platform/chatgpt-app-submission-$MARKETPLACE_SUBMISSION_VERSION.json"
           cd release

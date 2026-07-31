@@ -16,7 +16,7 @@ required identity, legal, privacy, and data-handling statements.
 5. Run the repository tests, client conformance checks, MCP Inspector, and the
    current provider-specific scanner.
 6. Confirm the privacy policy, terms, support URL, product name, logo, and
-   descriptions match across all three submissions.
+   descriptions match across every submission.
 7. Share reviewer credentials only through an approved secret-sharing service.
 
 ## Submit ChatGPT And Codex
@@ -65,6 +65,27 @@ required identity, legal, privacy, and data-handling statements.
 10. Submit the Connector. Do not make a separate Claude companion plugin a
     requirement.
 
+## Submit The Claude Community Plugin
+
+1. Use `claude/mailrith` as the plugin root. The plugin complements the Claude
+   Connector and is not required to use it.
+2. Run `claude plugin validate --strict claude/mailrith` from
+   `packages/agent-integrations`.
+3. Load the plugin with `claude --plugin-dir claude/mailrith` from a clean
+   profile.
+4. Open `/mcp`, connect Mailrith through OAuth, and confirm the intended
+   workspace and permissions.
+5. Run the draft, preflight, prompt-injection, and unrelated evaluation cases.
+6. Push the exact reviewed source to the public
+   `anrawool/mailrith-agent-platform` repository.
+7. Submit the public repository and plugin path through
+   `https://platform.claude.com/plugins/submit`. Use the Claude organization
+   form instead only when the owning Team or Enterprise organization will own
+   the listing.
+8. Record the submitted commit and review receipt. Approval publishes the
+   plugin to Anthropic's community marketplace, not the separately curated
+   official marketplace.
+
 ## Submit The Cursor Plugin
 
 1. Validate `cursor/mailrith` against Cursor's current plugin schema. The
@@ -75,6 +96,67 @@ required identity, legal, privacy, and data-handling statements.
 4. Run the draft, preflight, test, schedule, and activation evaluation cases.
 5. Complete the Cursor publisher application and Marketplace terms.
 6. Submit the reviewed package and request re-indexing only when needed.
+
+## List The Gemini CLI Extension
+
+1. Confirm `gemini-extension.json` is at the absolute root of the public
+   `anrawool/mailrith-agent-platform` repository.
+2. Confirm the root `GEMINI.md` and `skills/mailrith-email-marketing` copy
+   match the reviewed extension.
+3. Install the extension from a clean profile with
+   `gemini extensions install https://github.com/anrawool/mailrith-agent-platform`.
+4. Restart Gemini CLI, complete OAuth, and confirm **mailrith** is connected
+   with `/mcp list`.
+5. Run the read-only connection check plus the draft, preflight,
+   prompt-injection, and unrelated evaluation cases.
+6. Add the `gemini-cli-extension` GitHub topic to the public repository.
+7. Confirm the repository is public and the default branch is the stable
+   release. Gemini's gallery crawler checks qualifying repositories daily; no
+   separate submission form is required.
+
+## Submit The GitHub Copilot Plugin
+
+1. Use `claude/mailrith` as the shared Claude Code and GitHub Copilot plugin
+   root.
+2. Install it from a clean profile with
+   `copilot plugin install anrawool/mailrith-agent-platform:packages/agent-integrations/claude/mailrith`.
+3. Confirm `copilot mcp get mailrith` reports the remote HTTP server and its
+   tools after OAuth.
+4. Run the draft, preflight, prompt-injection, and unrelated evaluation cases.
+5. Create an immutable public release tag and record its full commit SHA.
+6. Submit the external plugin through the `github/awesome-copilot` issue form
+   with the public repository, plugin path, semantic version, MIT license,
+   immutable tag, and full SHA.
+7. Confirm the automated `vally lint` and Copilot CLI install smoke tests pass
+   before maintainer review.
+
+## Prepare Microsoft MCP Certification
+
+1. Follow `microsoft/README.md` to complete Partner Center verification,
+   Microsoft 365 and Copilot enrollment, Azure Key Vault setup, and the fixed
+   OAuth client registration.
+2. Replace the two placeholders in `microsoft/manifest.template.json` and save
+   the rendered file as `manifest.json` outside the repository.
+3. Package `manifest.json`, `mcptools.json`, `intro.md`, `Color.png`, and
+   `Outline.png` at the archive root.
+4. Validate the package in the Microsoft 365 Developer Portal.
+5. Use a synthetic reviewer workspace and run the shared functional and
+   safety evaluation cases.
+6. In Partner Center, create an **Apps and Agents for M365 and Copilot** offer,
+   upload the validated package, and complete the legal, support, privacy, and
+   certification fields.
+
+## Submit To Cline
+
+1. Give a clean Cline profile only `packages/mcp-server/README.md` and
+   `packages/mcp-server/llms-install.md`.
+2. Confirm Cline installs `@mailrith/mcp-server@1.0.1` without cloning or
+   building the monorepo.
+3. Use a synthetic workspace API key and run only
+   `discovery_get_capabilities`. Keep `autoApprove` empty.
+4. Open a submission issue in `cline/mcp-marketplace` with the nested public
+   repository URL, `cline/mailrith-logo-400.png`, the reason in
+   `cline/README.md`, and the clean-install confirmation.
 
 ## Roll Back A Bad Release
 

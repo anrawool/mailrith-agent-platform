@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mailrith Email Marketing"
+  short_description: "Run safe Mailrith agent workflows"
+  default_prompt: "Use $mailrith-email-marketing to plan and run a safe Mailrith email workflow."

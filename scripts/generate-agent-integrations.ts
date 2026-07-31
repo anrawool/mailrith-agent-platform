@@ -43,7 +43,29 @@ const canonicalLogoPath = path.join(
 const pluginRoots = [
   path.join(integrationsRoot, "openai", "mailrith"),
   path.join(integrationsRoot, "cursor", "mailrith"),
+  path.join(integrationsRoot, "claude", "mailrith"),
 ];
+const geminiSkillRoot = path.join(
+  repositoryRoot,
+  "skills",
+  "mailrith-email-marketing",
+);
+const microsoftToolsPath = path.join(
+  integrationsRoot,
+  "microsoft",
+  "mcptools.json",
+);
+const microsoftColorIconPath = path.join(
+  integrationsRoot,
+  "microsoft",
+  "assets",
+  "Color.svg",
+);
+const clineLogoPath = path.join(
+  integrationsRoot,
+  "cline",
+  "mailrith-logo.svg",
+);
 
 const canonicalizeJson = (value: unknown): unknown => {
   if (Array.isArray(value)) {
@@ -102,6 +124,17 @@ const submittedProfileManifest = {
     operation_id: tool.operation_id,
     name: tool.name,
     required_scopes: tool.required_scopes,
+    annotations: tool.annotations,
+  })),
+};
+
+const microsoftToolsDescription = {
+  tools: submittedTools.map((tool) => ({
+    name: tool.name,
+    title: tool.annotations.title,
+    description: tool.summary,
+    inputSchema: tool.input_schema,
+    outputSchema: tool.output_schema,
     annotations: tool.annotations,
   })),
 };
@@ -263,6 +296,15 @@ const main = async () => {
       submittedProfileManifest,
     );
   }
+  await rm(geminiSkillRoot, { recursive: true, force: true });
+  await mkdir(path.dirname(geminiSkillRoot), { recursive: true });
+  await cp(canonicalSkillDirectory, geminiSkillRoot, { recursive: true });
+  await mkdir(path.dirname(microsoftToolsPath), { recursive: true });
+  await writeJson(microsoftToolsPath, microsoftToolsDescription);
+  await mkdir(path.dirname(microsoftColorIconPath), { recursive: true });
+  await cp(canonicalLogoPath, microsoftColorIconPath);
+  await mkdir(path.dirname(clineLogoPath), { recursive: true });
+  await cp(canonicalLogoPath, clineLogoPath);
   await writeJson(
     path.join(integrationsRoot, "submitted-profile.json"),
     submittedProfileManifest,
