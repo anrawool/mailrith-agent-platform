@@ -3,7 +3,7 @@
   "release_version": "1.0.2",
   "marketplace_submission_version": "1.0.1",
   "channel": "ga",
-  "status": "prepared_not_published",
+  "status": "published",
   "contract_version": "v1",
   "documentation_revision": "2026-08-14",
   "packages": {
