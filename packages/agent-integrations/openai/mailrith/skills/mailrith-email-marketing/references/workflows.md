@@ -25,7 +25,10 @@
 2. Use `sender_identities_list`, the relevant targeting reads, and `email_templates_list` or `email_templates_get` to choose saved resources.
 3. Run `broadcasts_create` or `broadcasts_update`. Keep the Broadcast as a draft.
 4. Confirm subject, sender, recipients, exclusions, and unsubscribe behavior.
-5. Run `broadcasts_preflight`. Creating or updating a draft does not send it. Run `broadcasts_send_test`, `broadcasts_schedule`, or `broadcasts_send` only when the user's task requires that separate action.
+5. Before sending a test, select a saved Subscriber for personalization. The test recipient may be a different email address.
+6. Run `broadcasts_preflight`. Creating or updating a draft does not send it. Run `broadcasts_send_test`, `broadcasts_schedule`, or `broadcasts_send` only when the user's task requires that separate action.
+7. Before changing a scheduled Broadcast, run `broadcasts_get` and retain its `scheduled_at` in the current task only. If that time is no longer safely in the future, ask the user for a new time before changing anything. Otherwise run `broadcasts_unschedule`, update the draft, schedule it for the same time, and run `broadcasts_get` again to verify both `status` and `scheduled_at`.
+8. If an update fails after unscheduling, restore the unchanged Broadcast to the same future time when possible. If the schedule cannot be restored, leave it as a draft and immediately tell the user that it will not send. Never choose a replacement time without the user.
 
 ## Email Delivery Setup
 
@@ -55,6 +58,8 @@
 4. Run `sequences_update_status` to activate or pause. Use the focused Subscriber Sequence tools to change one enrollment.
 5. Treat activation and enrollment as live email operations.
 6. Confirm the saved status and Subscriber count after each operation.
+7. Before changing a running Sequence, run `sequences_get` and retain whether it was running in the current task only. Pause it, apply the update, and use bounded `sequences_get` reads until `is_updating` is false. Run `sequences_preflight`, return it to running only if it was running before and preflight passes, and verify the final status.
+8. If the update fails before changing the Sequence, restore its prior running status when preflight passes. If readiness or the prior status cannot be restored, leave it paused and immediately tell the user. Never activate a Sequence that was not already running.
 
 ## Automations
 
@@ -63,6 +68,8 @@
 3. Use `automations_send_test` only for the user's explicit test address.
 4. Run `automations_update_status` as a separate live action to activate, pause, or deactivate.
 5. Read the Automation after the change and report its saved status.
+6. Before changing a running Automation, run `automations_get` and retain whether it was running in the current task only. Pause it, apply the update, and use bounded `automations_get` reads until `is_updating` is false. Run `automations_preflight`, return it to running only if it was running before and preflight passes, and verify the final status.
+7. If the update fails before changing the Automation, restore its prior running status when preflight passes. If readiness or the prior status cannot be restored, leave it paused and immediately tell the user. Never activate an Automation that was not already running.
 
 ## Personalized Previews And Tests
 

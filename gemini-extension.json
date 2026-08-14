@@ -1,6 +1,6 @@
 {
   "name": "mailrith",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Manage Subscribers, Broadcasts, Sequences, Automations, and email reports with Mailrith.",
   "mcpServers": {
     "mailrith": {

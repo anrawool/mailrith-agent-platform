@@ -14206,11 +14206,12 @@
             "properties": {
               "recipient": {
                 "type": "string",
-                "format": "email"
+                "format": "email",
+                "description": "The inbox that receives the test message. It may differ from the saved Subscriber used for personalization."
               },
               "subscriber_id": {
                 "type": "string",
-                "description": "The saved Subscriber whose personalization should be rendered in the test message."
+                "description": "Required saved Subscriber ID whose profile supplies personalization. Use subscribers_list to find one before sending the test when needed."
               }
             }
           }
@@ -18217,6 +18218,7 @@
               "phase",
               "selected",
               "materialized",
+              "sent",
               "accepted",
               "skipped",
               "retrying",
@@ -18257,6 +18259,9 @@
                 "type": "integer"
               },
               "materialized": {
+                "type": "integer"
+              },
+              "sent": {
                 "type": "integer"
               },
               "accepted": {
@@ -20883,6 +20888,7 @@
               "phase",
               "selected",
               "materialized",
+              "sent",
               "accepted",
               "skipped",
               "retrying",
@@ -20923,6 +20929,9 @@
                 "type": "integer"
               },
               "materialized": {
+                "type": "integer"
+              },
+              "sent": {
                 "type": "integer"
               },
               "accepted": {
@@ -22304,6 +22313,7 @@
               "phase",
               "selected",
               "materialized",
+              "sent",
               "accepted",
               "skipped",
               "retrying",
@@ -22344,6 +22354,9 @@
                 "type": "integer"
               },
               "materialized": {
+                "type": "integer"
+              },
+              "sent": {
                 "type": "integer"
               },
               "accepted": {
@@ -24567,6 +24580,7 @@
               "phase",
               "selected",
               "materialized",
+              "sent",
               "accepted",
               "skipped",
               "retrying",
@@ -24607,6 +24621,9 @@
                 "type": "integer"
               },
               "materialized": {
+                "type": "integer"
+              },
+              "sent": {
                 "type": "integer"
               },
               "accepted": {
@@ -27136,6 +27153,7 @@
               "phase",
               "selected",
               "materialized",
+              "sent",
               "accepted",
               "skipped",
               "retrying",
@@ -27176,6 +27194,9 @@
                 "type": "integer"
               },
               "materialized": {
+                "type": "integer"
+              },
+              "sent": {
                 "type": "integer"
               },
               "accepted": {

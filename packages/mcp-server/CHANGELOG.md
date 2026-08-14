@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.0.2 - 2026-08-14
+
+- Teach update tools to retain and verify the existing Broadcast schedule or
+  workflow running status without broad searches or unbounded polling.
+
 ## 1.0.1 - 2026-07-31
 
 - Add the verified `com.mailrith/mailrith` MCP Registry identity and local npm

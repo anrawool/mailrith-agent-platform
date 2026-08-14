@@ -1,33 +1,33 @@
 {
   "schema_version": 1,
-  "release_version": "1.0.1",
-  "marketplace_submission_version": "1.0.0",
+  "release_version": "1.0.2",
+  "marketplace_submission_version": "1.0.1",
   "channel": "ga",
-  "status": "published",
+  "status": "prepared_not_published",
   "contract_version": "v1",
-  "documentation_revision": "2026-07-31",
+  "documentation_revision": "2026-08-14",
   "packages": {
     "npm": {
-      "@mailrith/public-api": "1.0.1",
-      "@mailrith/sdk": "1.0.1",
-      "@mailrith/mcp-server": "1.0.1",
-      "@mailrith/cli": "1.0.1",
-      "@mailrith/agent-skill": "1.0.1"
+      "@mailrith/public-api": "1.0.2",
+      "@mailrith/sdk": "1.0.2",
+      "@mailrith/mcp-server": "1.0.2",
+      "@mailrith/cli": "1.0.2",
+      "@mailrith/agent-skill": "1.0.2"
     },
     "pypi": {
-      "mailrith-sdk": "1.0.0"
+      "mailrith-sdk": "1.0.1"
     }
   },
   "digests": {
-    "public_contract_sha256": "089505f919e87319dc0b0e2af232b75dc84133c358aad80e9633cbc956d70542",
+    "public_contract_sha256": "fabbedb75e51e24b8f8ecd8a3aafea60b22d8829ef53512e7ecae5ab956a08db",
     "risk_catalog_sha256": "c3281694951fc94aafa217e0d7858c69da743dda3fd79fecdbdc9184e00f64e8",
-    "typescript_sdk_manifest_sha256": "116f0b4b71e38f46f8c6618d896120d322fcd0a0f246ed606e0c4768275eef46",
-    "python_sdk_manifest_sha256": "c4b6cb45a3c58a260ce4462206c093e690c8e02a0dcf70b150323a0e31f2e00a",
-    "mcp_manifest_sha256": "e346e992fd41af76698e33d30e58e380d581be2d0ce9a4bd1f5c303f7388cba7",
-    "agent_skill_sha256": "3683b1722f602bbc7bdffed0e1b20c193004087fa42eccd0ef25d784712891a7",
+    "typescript_sdk_manifest_sha256": "2fbbf8821a191d715228a61c878a849e44d466d259c68d6bc366d2fa50b0338a",
+    "python_sdk_manifest_sha256": "8922188e59f584435fde2f93d828cee34824e47d32e0b6b6e4ad478317abe30d",
+    "mcp_manifest_sha256": "aee2ff1a63faf3a468ecc9d276a7f42942511b6c99d9b4e24f9a6cc511b7d2e4",
+    "agent_skill_sha256": "1ba507bff313ca4bfbdd0162dc7f002159795e90e152822ea98af3483661d603",
     "connector_templates_sha256": "45609bfeddc0fe2d1fe4b9466befb2b577b5d39d6937625a5b15a085f68e3108",
-    "platform_integrations_sha256": "5d74f8710cff61c701dea4651fa4e2c1cc3f2e87b54ca414d24eb400e721a052",
-    "agent_discovery_and_guidance_sha256": "08344613ee8ae34c811fa1b79dbcdb7251b2726d586c3822dbc502fe6baac2e8"
+    "platform_integrations_sha256": "ddbc0256ea142bb9c50c10642675d6851fd834b2702edabcdc6a9eff8d285d7b",
+    "agent_discovery_and_guidance_sha256": "faab86b3c4ed9ecd8a69cf129955d390040fc24daeb2c3ea284f9916ca487a4e"
   },
   "compatibility": {
     "node": ">=20",

@@ -3316,7 +3316,7 @@
         "method": "PUT",
         "path": "/v1/sequences/{sequence_id}",
         "summary": "Update a sequence",
-        "description": "Updates an existing sequence.",
+        "description": "Updates an existing paused Sequence. Before changing a running Sequence, read it by ID, retain its status in the current task only, pause it, apply the update, and use bounded direct item reads until is_updating is false. Run preflight, return it to running only if it was running before and preflight passes, and verify the final status. If the update fails before changing the Sequence, restore its prior running status when preflight passes. If readiness or the prior status cannot be restored, leave it paused and immediately report the failure; never activate a Sequence that was not already running.",
         "auth_required": true,
         "required_scopes": [
           "sequences:write"
@@ -3688,7 +3688,7 @@
         "method": "PUT",
         "path": "/v1/automations/{automation_id}",
         "summary": "Update an automation",
-        "description": "Updates an existing automation.",
+        "description": "Updates an existing draft or paused Automation. Before changing a running Automation, read it by ID, retain its status in the current task only, pause it, apply the update, and use bounded direct item reads until is_updating is false. Run preflight, return it to running only if it was running before and preflight passes, and verify the final status. If the update fails before changing the Automation, restore its prior running status when preflight passes. If readiness or the prior status cannot be restored, leave it paused and immediately report the failure; never activate an Automation that was not already running.",
         "auth_required": true,
         "required_scopes": [
           "automations:write"
@@ -4226,7 +4226,7 @@
         "method": "PUT",
         "path": "/v1/broadcasts/{broadcast_id}",
         "summary": "Update a broadcast",
-        "description": "Updates a broadcast draft or scheduled send in place.",
+        "description": "Updates an existing Broadcast draft. Scheduled, running, completed, and failed Broadcasts cannot be changed here. Before changing a scheduled Broadcast, read it by ID and retain its scheduled_at in the current task only. If the saved time is no longer safely in the future, ask the user for a new time before unscheduling. Otherwise unschedule it, apply the update, reschedule it for the same time, and verify both status and scheduled_at. If the update fails after unscheduling, restore the unchanged Broadcast to the same future time when possible. If the schedule cannot be restored, leave it as a Draft and immediately report that it will not send; never choose a replacement time without the user.",
         "auth_required": true,
         "required_scopes": [
           "broadcasts:write"
@@ -4508,7 +4508,7 @@
         "method": "POST",
         "path": "/v1/broadcasts/{broadcast_id}/test",
         "summary": "Send a broadcast test email",
-        "description": "Sends a test message from an existing broadcast to one recipient.",
+        "description": "Sends a test message from an existing Broadcast that has an email delivery connection. Provide a saved Subscriber ID for personalization; use subscribers_list to find one when needed. The recipient may be any test inbox and does not have to match the saved Subscriber.",
         "auth_required": true,
         "required_scopes": [
           "live_actions:write",

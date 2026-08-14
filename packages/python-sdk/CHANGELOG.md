@@ -1,12 +1,15 @@
 # Changelog
 
-- Add bounded task-language operation discovery and exact operation-ID lookup,
-  including relationship-aware Tag and Sequence actions.
-
 ## Unreleased
 
+## 1.0.1 - 2026-08-14
+
+- Add bounded task-language operation discovery and exact operation-ID lookup,
+  including relationship-aware Tag and Sequence actions.
 - Generate Python operation discovery from the shared Mailrith intent catalog,
   including aliases, plural handling, category filters, and ranking parity.
+- Regenerate Broadcast, Sequence, and Automation update descriptions with
+  schedule and running-status restoration guidance.
 
 ## 1.0.0 - 2026-07-26
 

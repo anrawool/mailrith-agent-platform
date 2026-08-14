@@ -245,7 +245,7 @@ describe("Mailrith CLI", () => {
       "Bearer mailrith_test_secret",
     );
     expect(requests[0]?.headers.get("x-mailrith-client")).toBe(
-      "cli/1.0.1",
+      "cli/1.0.2",
     );
     expect(stdout.join("\n")).not.toContain("mailrith_test_secret");
     expect(JSON.parse(stdout[0] ?? "{}")).toMatchObject({

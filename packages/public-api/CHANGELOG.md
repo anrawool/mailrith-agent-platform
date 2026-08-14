@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.0.2 - 2026-08-14
+
+- Describe how agents preserve the existing schedule or running status when
+  changing Broadcasts, Sequences, and Automations.
+- Include the same safe recovery guidance in update conflict responses.
+
 ## 1.0.1 - 2026-07-31
 
 - Republish the unchanged public contract as part of the coordinated npm patch release.

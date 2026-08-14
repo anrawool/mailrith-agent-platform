@@ -1,7 +1,7 @@
 # Install Mailrith In Cline
 
-Use the published Mailrith MCP server over stdio. Do not clone or build the
-repository.
+After this prepared version is published, use the pinned Mailrith MCP server
+over stdio. Do not clone or build the repository.
 
 ## Before Installation
 
@@ -19,7 +19,7 @@ Add this entry under `mcpServers` in Cline's MCP settings:
     "command": "npx",
     "args": [
       "-y",
-      "@mailrith/mcp-server@1.0.1",
+      "@mailrith/mcp-server@1.0.2",
       "--transport",
       "stdio"
     ],

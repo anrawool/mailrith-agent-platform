@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.0.2 - 2026-08-14
+
+- Regenerate Broadcast, Sequence, and Automation update descriptions with
+  schedule and running-status restoration guidance.
+
 ## 1.0.1 - 2026-07-31
 
 - Distinguish relationship actions such as adding or removing a Tag from a

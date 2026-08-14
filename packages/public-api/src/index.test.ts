@@ -4,6 +4,8 @@ import {
   publicApiAgentReadQuickstartScopeKeys,
   publicApiAgentSkillsIndexPath,
   publicApiAgentStatusPath,
+  publicApiAutomationUpdateStateGuidance,
+  publicApiBroadcastUpdateStateGuidance,
   publicApiCapabilityResources,
   publicApiCatalogPath,
   publicApiBasePath,
@@ -18,6 +20,7 @@ import {
   publicApiMcpServerCardPath,
   publicApiSdkDocsPath,
   publicApiSdkResources,
+  publicApiSequenceUpdateStateGuidance,
   publicApiWebhookSubscriptionsPath,
   publicApiScopeDefinitions,
   publicApiScopeDisplaySections,
@@ -135,6 +138,48 @@ describe("@mailrith/public-api", () => {
         operationId: "cancelBroadcastSend",
       }),
     );
+    expect(
+      publicApiSpec.paths["/v1/broadcasts/{broadcast_id}"]?.put.description,
+    ).toContain(publicApiBroadcastUpdateStateGuidance);
+    expect(
+      publicApiSpec.paths["/v1/broadcasts/{broadcast_id}"]?.put.responses["409"]
+        .description,
+    ).toContain(publicApiBroadcastUpdateStateGuidance);
+    expect(
+      publicApiSpec.paths["/v1/sequences/{sequence_id}"]?.put.description,
+    ).toContain(publicApiSequenceUpdateStateGuidance);
+    expect(
+      publicApiSpec.paths["/v1/sequences/{sequence_id}"]?.put.responses["409"]
+        .description,
+    ).toContain(publicApiSequenceUpdateStateGuidance);
+    expect(
+      publicApiSpec.paths["/v1/automations/{automation_id}"]?.put.description,
+    ).toContain(publicApiAutomationUpdateStateGuidance);
+    expect(
+      publicApiSpec.paths["/v1/automations/{automation_id}"]?.put.responses[
+        "409"
+      ].description,
+    ).toContain(publicApiAutomationUpdateStateGuidance);
+    expect(
+      publicApiSpec.paths["/v1/broadcasts/{broadcast_id}/test"]?.post
+        .description,
+    ).toContain("Provide a saved Subscriber ID for personalization");
+    const broadcastTestRequest = publicApiSpec.components.schemas
+      .BroadcastTestRequest as PublicApiSchemaObject;
+    expect(
+      (
+        broadcastTestRequest.properties?.recipient as {
+          description?: string;
+        }
+      ).description,
+    ).toContain("may differ from the saved Subscriber");
+    expect(
+      (
+        broadcastTestRequest.properties?.subscriber_id as {
+          description?: string;
+        }
+      ).description,
+    ).toContain("Use subscribers_list to find one");
     expect(
       (
         publicApiSpec.paths["/v1/broadcasts/{broadcast_id}/cancel"]?.post
@@ -579,6 +624,7 @@ describe("@mailrith/public-api", () => {
     ).toMatchObject({
       required: expect.arrayContaining([
         "selected",
+        "sent",
         "provider",
         "estimated_completion_basis",
         "next_retry_at",
@@ -586,6 +632,7 @@ describe("@mailrith/public-api", () => {
       ]),
       properties: {
         selected: { type: "integer" },
+        sent: { type: "integer" },
         provider: { type: "string", nullable: true },
         estimated_completion_basis: {
           type: "string",

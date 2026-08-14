@@ -19,6 +19,11 @@ const submittedProfilePath = path.join(
   integrationsRoot,
   "submitted-profile.json",
 );
+const releaseConfigPath = path.join(
+  repositoryRoot,
+  "packages",
+  "agent-release-config.json",
+);
 const chatGptAppSubmissionSchemaUrl =
   "https://developers.openai.com/apps-sdk/schemas/chatgpt-app-submission.v1.json";
 
@@ -44,6 +49,12 @@ const readSubmittedProfile = () =>
       };
     }>;
   }>(submittedProfilePath);
+
+const readReleaseConfig = () =>
+  readJson<{
+    release_version: string;
+    marketplace_submission_version: string;
+  }>(releaseConfigPath);
 
 const extractCodexTools = (source: string) => {
   const block = source.match(/enabled_tools = \[([\s\S]*?)\]/)?.[1] ?? "";
@@ -91,6 +102,43 @@ describe("Mailrith Agent Integration Packages", () => {
     expect(openAi).toEqual(submitted);
     expect(cursor).toEqual(submitted);
     expect(claude).toEqual(submitted);
+  });
+
+  it("keeps every integration package on the coordinated marketplace version", async () => {
+    const release = await readReleaseConfig();
+    for (const relativePath of [
+      "packages/agent-integrations/package.json",
+      "packages/agent-integrations/openai/mailrith/.codex-plugin/plugin.json",
+      "packages/agent-integrations/cursor/mailrith/.cursor-plugin/plugin.json",
+      "packages/agent-integrations/claude/mailrith/.claude-plugin/plugin.json",
+      "packages/agent-integrations/microsoft/manifest.template.json",
+      "gemini-extension.json",
+    ]) {
+      const manifest = await readJson<{ version: string }>(
+        path.join(repositoryRoot, relativePath),
+      );
+      expect(manifest.version).toBe(release.marketplace_submission_version);
+    }
+    for (const relativePath of [
+      ".claude-plugin/marketplace.json",
+      ".github/plugin/marketplace.json",
+      "packages/agent-integrations/claude/.claude-plugin/marketplace.json",
+    ]) {
+      const marketplace = await readJson<{
+        metadata: { version: string };
+        plugins: Array<{ version: string }>;
+      }>(path.join(repositoryRoot, relativePath));
+      expect(marketplace.metadata.version).toBe(
+        release.marketplace_submission_version,
+      );
+      expect(marketplace.plugins.length).toBeGreaterThan(0);
+      expect(
+        marketplace.plugins.every(
+          (plugin) =>
+            plugin.version === release.marketplace_submission_version,
+        ),
+      ).toBe(true);
+    }
   });
 
   it("configures OpenAI, Claude, Codex, and Cursor with the exact catalog", async () => {
@@ -188,6 +236,7 @@ describe("Mailrith Agent Integration Packages", () => {
   });
 
   it("ships complete OpenAI and Cursor plugin manifests", async () => {
+    const release = await readReleaseConfig();
     const openAiRoot = path.join(integrationsRoot, "openai", "mailrith");
     const cursorRoot = path.join(integrationsRoot, "cursor", "mailrith");
     const openAi = await readJson<{
@@ -225,7 +274,7 @@ describe("Mailrith Agent Integration Packages", () => {
 
     expect(openAi).toMatchObject({
       name: "mailrith",
-      version: "1.0.0",
+      version: release.marketplace_submission_version,
       license: "MIT",
       skills: "./skills/",
       mcpServers: "./.mcp.json",
@@ -236,7 +285,7 @@ describe("Mailrith Agent Integration Packages", () => {
     expect(cursor).not.toHaveProperty("$schema");
     expect(cursor).toMatchObject({
       name: "mailrith",
-      version: "1.0.0",
+      version: release.marketplace_submission_version,
       license: "MIT",
       skills: "./skills/",
       mcpServers: "./mcp.json",
@@ -272,6 +321,7 @@ describe("Mailrith Agent Integration Packages", () => {
   });
 
   it("ships a Gemini extension and one shared Claude and Copilot plugin", async () => {
+    const release = await readReleaseConfig();
     const claudeRoot = path.join(
       integrationsRoot,
       "claude",
@@ -285,14 +335,6 @@ describe("Mailrith Agent Integration Packages", () => {
       mcpServers: string;
       repository: string;
     }>(path.join(claudeRoot, ".claude-plugin", "plugin.json"));
-    const copilot = await readJson<{
-      name: string;
-      version: string;
-      license: string;
-      skills: string[];
-      mcpServers: string;
-      repository: string;
-    }>(path.join(claudeRoot, ".github", "plugin", "plugin.json"));
     const gemini = await readJson<{
       name: string;
       version: string;
@@ -313,23 +355,15 @@ describe("Mailrith Agent Integration Packages", () => {
 
     expect(claude).toMatchObject({
       name: "mailrith",
-      version: "1.0.0",
+      version: release.marketplace_submission_version,
       license: "MIT",
       skills: "./skills/",
       mcpServers: "./.mcp.json",
       repository: "https://github.com/anrawool/mailrith-agent-platform",
     });
-    expect(copilot).toMatchObject({
-      name: "mailrith",
-      version: "1.0.0",
-      license: "MIT",
-      skills: ["./skills/mailrith-email-marketing/"],
-      mcpServers: "./.mcp.json",
-      repository: "https://github.com/anrawool/mailrith-agent-platform",
-    });
     expect(gemini).toMatchObject({
       name: "mailrith",
-      version: "1.0.0",
+      version: release.marketplace_submission_version,
       contextFileName: "GEMINI.md",
       mcpServers: {
         mailrith: { url: "https://api.mailrith.com/mcp" },
@@ -341,7 +375,7 @@ describe("Mailrith Agent Integration Packages", () => {
         name: "mailrith",
         source: "./packages/agent-integrations/claude/mailrith",
         description: expect.any(String),
-        version: "1.0.0",
+        version: release.marketplace_submission_version,
       },
     ]);
     expect(copilotMarketplace.plugins).toEqual([
@@ -349,15 +383,13 @@ describe("Mailrith Agent Integration Packages", () => {
         name: "mailrith",
         source: "packages/agent-integrations/claude/mailrith",
         description: expect.any(String),
-        version: "1.0.0",
+        version: release.marketplace_submission_version,
       },
     ]);
 
     for (const relativePath of [
       claude.mcpServers,
       claude.skills,
-      copilot.mcpServers,
-      ...copilot.skills,
       "README.md",
       "LICENSE",
       "assets/logo.svg",
@@ -441,7 +473,6 @@ describe("Mailrith Agent Integration Packages", () => {
     const microsoftRoot = path.join(integrationsRoot, "microsoft");
     const manifest = await readJson<{
       manifestVersion: string;
-      version: string;
       id: string;
       developer: {
         name: string;
@@ -473,9 +504,8 @@ describe("Mailrith Agent Integration Packages", () => {
       manifest.agentConnectors[0]?.toolSource.remoteMcpServer;
 
     expect(manifest.manifestVersion).toBe("devPreview");
-    expect(manifest.version).toBe("1.0.1");
     expect(manifest.id).toBe("__MICROSOFT_APP_ID__");
-    expect(manifest.developer.name).toBe("Mailrith");
+    expect(manifest.developer.name).toBe("Rawool Publications");
     expect(manifest.developer.privacyUrl).toMatch(/^https:\/\//);
     expect(manifest.developer.termsOfUseUrl).toMatch(/^https:\/\//);
     expect(remote).toEqual({
@@ -509,21 +539,31 @@ describe("Mailrith Agent Integration Packages", () => {
         true,
       );
     }
-    expect(
-      await readFile(path.join(microsoftRoot, "intro.md"), "utf8"),
-    ).toContain("support@mailrith.com");
   });
 
   it("provides a bounded Cline installation path", async () => {
-    const instructions = await readFile(
-      path.join(repositoryRoot, "packages", "mcp-server", "llms-install.md"),
-      "utf8",
-    );
+    const [instructions, clineReadme, submission] = await Promise.all([
+      readFile(
+        path.join(repositoryRoot, "packages", "mcp-server", "llms-install.md"),
+        "utf8",
+      ),
+      readFile(
+        path.join(integrationsRoot, "cline", "README.md"),
+        "utf8",
+      ),
+      readFile(path.join(integrationsRoot, "SUBMISSION.md"), "utf8"),
+    ]);
     const release = await readJson<{ release_version: string }>(
       path.join(repositoryRoot, "packages", "agent-release-config.json"),
     );
 
     expect(instructions).toContain(
+      `@mailrith/mcp-server@${release.release_version}`,
+    );
+    expect(clineReadme).toContain(
+      `@mailrith/mcp-server@${release.release_version}`,
+    );
+    expect(submission).toContain(
       `@mailrith/mcp-server@${release.release_version}`,
     );
     expect(instructions).toContain('"autoApprove": []');

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.0.2 - 2026-08-14
+
+- Preserve scheduled Broadcast times and previously running Sequence or
+  Automation states when agents make an update.
+- Keep reconciliation checks bounded and use direct item reads by ID.
+
 ## 1.0.1 - 2026-07-31
 
 - Republish the Agent Skill as part of the coordinated npm patch release.

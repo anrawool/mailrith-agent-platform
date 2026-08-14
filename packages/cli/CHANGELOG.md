@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.0.2 - 2026-08-14
+
+- Coordinate operation descriptions with the updated Broadcast, Sequence, and
+  Automation state-restoration guidance.
+
 ## 1.0.1 - 2026-07-31
 
 - Make **Full Email Marketing Access** the default OAuth login profile while

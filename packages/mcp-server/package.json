@@ -1,6 +1,6 @@
 {
   "name": "@mailrith/mcp-server",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "mcpName": "com.mailrith/mailrith",
   "description": "Official local and self-hosted MCP server for Mailrith.",
   "license": "MIT",

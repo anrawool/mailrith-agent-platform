@@ -117,9 +117,7 @@ required identity, legal, privacy, and data-handling statements.
 ## Submit The GitHub Copilot Plugin
 
 1. Use `claude/mailrith` as the shared Claude Code and GitHub Copilot plugin
-   root. Keep the Claude manifest at `.claude-plugin/plugin.json` and the
-   Copilot manifest at `.github/plugin/plugin.json`; both point to the same
-   reviewed skill and `.mcp.json` connection.
+   root.
 2. Install it from a clean profile with
    `copilot plugin install anrawool/mailrith-agent-platform:packages/agent-integrations/claude/mailrith`.
 3. Confirm `copilot mcp get mailrith` reports the remote HTTP server and its
@@ -152,8 +150,8 @@ required identity, legal, privacy, and data-handling statements.
 
 1. Give a clean Cline profile only `packages/mcp-server/README.md` and
    `packages/mcp-server/llms-install.md`.
-2. Confirm Cline installs `@mailrith/mcp-server@1.0.1` without cloning or
-   building the monorepo.
+2. After publishing, confirm Cline installs `@mailrith/mcp-server@1.0.2`
+   without cloning or building the monorepo.
 3. Use a synthetic workspace API key and run only
    `discovery_get_capabilities`. Keep `autoApprove` empty.
 4. Open a submission issue in `cline/mcp-marketplace` with the nested public

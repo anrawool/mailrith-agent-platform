@@ -1,7 +1,7 @@
 # Mailrith For Cline
 
-Mailrith is ready for Cline through the published
-`@mailrith/mcp-server` package.
+Mailrith connects to Cline through the versioned `@mailrith/mcp-server`
+package.
 
 ## Marketplace Source
 
@@ -25,13 +25,14 @@ configuration. The package contains no credential.
 
 Mailrith gives Cline permission-scoped tools for reviewing Subscribers and
 email results, preparing and delivering Broadcasts, and managing Sequences,
-Automations, targeting, and email Templates. The server is published to npm
-with provenance, documents a bounded read-only verification step, and keeps
-live actions behind the user's Mailrith permissions and Cline's tool approval.
+Automations, targeting, and email Templates. The release process publishes the
+server to npm with provenance, documents a bounded read-only verification
+step, and keeps live actions behind the user's Mailrith permissions and Cline's
+tool approval.
 
 **Installation confirmation**
 
-Before submitting, confirm from a clean Cline profile that giving Cline only
-the package README and `llms-install.md` is enough to install
-`@mailrith/mcp-server@1.0.1`, connect with a synthetic workspace API key, and
+After publishing, confirm from a clean Cline profile that giving Cline only the
+package README and `llms-install.md` is enough to install
+`@mailrith/mcp-server@1.0.2`, connect with a synthetic workspace API key, and
 run only `discovery_get_capabilities`.

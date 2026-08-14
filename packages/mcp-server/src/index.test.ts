@@ -1298,6 +1298,15 @@ describe("@mailrith/mcp-server", () => {
       (candidate) => candidate.name === "subscribers_upsert",
     );
     const updateTool = tools.find((candidate) => candidate.name === "broadcasts_update");
+    const sequenceUpdateTool = tools.find(
+      (candidate) => candidate.name === "sequences_update",
+    );
+    const automationUpdateTool = tools.find(
+      (candidate) => candidate.name === "automations_update",
+    );
+    const sendTestTool = tools.find(
+      (candidate) => candidate.name === "broadcasts_send_test",
+    );
     const landingPageCreateTool = tools.find(
       (candidate) => candidate.name === "landing_pages_create",
     );
@@ -1318,7 +1327,28 @@ describe("@mailrith/mcp-server", () => {
     );
     expect(updateTool).toBeDefined();
     expect(updateTool?.description).toContain(
+      "reschedule it for the same time",
+    );
+    expect(updateTool?.description).toContain(
       "broadcasts:write",
+    );
+    expect(sequenceUpdateTool?.description).toContain(
+      "return it to running only if it was running before",
+    );
+    expect(sequenceUpdateTool?.description).toContain(
+      "bounded direct item reads",
+    );
+    expect(automationUpdateTool?.description).toContain(
+      "return it to running only if it was running before",
+    );
+    expect(automationUpdateTool?.description).toContain(
+      "bounded direct item reads",
+    );
+    expect(sendTestTool?.description).toContain(
+      "Provide a saved Subscriber ID for personalization",
+    );
+    expect(sendTestTool?.description).toContain(
+      "does not have to match the saved Subscriber",
     );
     expect(landingPageCreateTool?.description).toContain(
       "landing_pages:write",

@@ -255,6 +255,15 @@ export const publicApiAgentSkillsIndexPath =
 export const publicApiAgentSkillPath =
   "/.well-known/agent-skills/mailrith-api/SKILL.md";
 
+export const publicApiBroadcastUpdateStateGuidance =
+  "Before changing a scheduled Broadcast, read it by ID and retain its scheduled_at in the current task only. If the saved time is no longer safely in the future, ask the user for a new time before unscheduling. Otherwise unschedule it, apply the update, reschedule it for the same time, and verify both status and scheduled_at. If the update fails after unscheduling, restore the unchanged Broadcast to the same future time when possible. If the schedule cannot be restored, leave it as a Draft and immediately report that it will not send; never choose a replacement time without the user.";
+
+export const publicApiSequenceUpdateStateGuidance =
+  "Before changing a running Sequence, read it by ID, retain its status in the current task only, pause it, apply the update, and use bounded direct item reads until is_updating is false. Run preflight, return it to running only if it was running before and preflight passes, and verify the final status. If the update fails before changing the Sequence, restore its prior running status when preflight passes. If readiness or the prior status cannot be restored, leave it paused and immediately report the failure; never activate a Sequence that was not already running.";
+
+export const publicApiAutomationUpdateStateGuidance =
+  "Before changing a running Automation, read it by ID, retain its status in the current task only, pause it, apply the update, and use bounded direct item reads until is_updating is false. Run preflight, return it to running only if it was running before and preflight passes, and verify the final status. If the update fails before changing the Automation, restore its prior running status when preflight passes. If readiness or the prior status cannot be restored, leave it paused and immediately report the failure; never activate an Automation that was not already running.";
+
 export const publicApiGuides: PublicApiSection[] = [
   {
     id: "quickstart",
@@ -4360,6 +4369,7 @@ const schemas = {
       "phase",
       "selected",
       "materialized",
+      "sent",
       "accepted",
       "skipped",
       "retrying",
@@ -4396,6 +4406,7 @@ const schemas = {
       },
       selected: { type: "integer" },
       materialized: { type: "integer" },
+      sent: { type: "integer" },
       accepted: { type: "integer" },
       skipped: { type: "integer" },
       retrying: { type: "integer" },
@@ -5140,11 +5151,16 @@ const schemas = {
     required: ["recipient", "subscriber_id"],
     additionalProperties: false,
     properties: {
-      recipient: { type: "string", format: "email" },
+      recipient: {
+        type: "string",
+        format: "email",
+        description:
+          "The inbox that receives the test message. It may differ from the saved Subscriber used for personalization.",
+      },
       subscriber_id: {
         type: "string",
         description:
-          "The saved Subscriber whose personalization should be rendered in the test message.",
+          "Required saved Subscriber ID whose profile supplies personalization. Use subscribers_list to find one before sending the test when needed.",
       },
     },
   },
@@ -7265,7 +7281,7 @@ export const publicApiSpec: PublicApiSpec = {
         method: "PUT",
         path: "/v1/broadcasts/{broadcast_id}",
         summary: "Update a broadcast",
-        description: "Updates a broadcast draft or scheduled send in place.",
+        description: `Updates an existing Broadcast draft. Scheduled, running, completed, and failed Broadcasts cannot be changed here. ${publicApiBroadcastUpdateStateGuidance}`,
         tags: ["Broadcasts"],
         operationId: "updateBroadcast",
         security,
@@ -7298,6 +7314,14 @@ export const publicApiSpec: PublicApiSpec = {
           },
           "404": {
             description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "409": {
+            description: `The Broadcast must be a draft before it can be updated. ${publicApiBroadcastUpdateStateGuidance}`,
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },
@@ -7758,7 +7782,7 @@ export const publicApiSpec: PublicApiSpec = {
         path: "/v1/broadcasts/{broadcast_id}/test",
         summary: "Send a broadcast test email",
         description:
-          "Sends a test message from an existing broadcast to one recipient.",
+          "Sends a test message from an existing Broadcast that has an email delivery connection. Provide a saved Subscriber ID for personalization; use subscribers_list to find one when needed. The recipient may be any test inbox and does not have to match the saved Subscriber.",
         tags: ["Broadcasts"],
         operationId: "testBroadcast",
         security,
@@ -7928,7 +7952,7 @@ export const publicApiSpec: PublicApiSpec = {
         method: "PUT",
         path: "/v1/sequences/{sequence_id}",
         summary: "Update a sequence",
-        description: "Updates an existing sequence.",
+        description: `Updates an existing paused Sequence. ${publicApiSequenceUpdateStateGuidance}`,
         tags: ["Sequences"],
         operationId: "updateSequence",
         security,
@@ -7961,6 +7985,14 @@ export const publicApiSpec: PublicApiSpec = {
           },
           "404": {
             description: "Resource not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "409": {
+            description: `A running Sequence must be paused before it can be updated. ${publicApiSequenceUpdateStateGuidance}`,
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },
@@ -8311,7 +8343,7 @@ export const publicApiSpec: PublicApiSpec = {
         method: "PUT",
         path: "/v1/automations/{automation_id}",
         summary: "Update an automation",
-        description: "Updates an existing automation.",
+        description: `Updates an existing draft or paused Automation. ${publicApiAutomationUpdateStateGuidance}`,
         tags: ["Automations"],
         operationId: "updateAutomation",
         security,
@@ -8344,6 +8376,14 @@ export const publicApiSpec: PublicApiSpec = {
           },
           "404": {
             description: "Resource not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "409": {
+            description: `A running Automation must be paused before it can be updated. ${publicApiAutomationUpdateStateGuidance}`,
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },

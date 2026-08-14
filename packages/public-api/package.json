@@ -1,6 +1,6 @@
 {
   "name": "@mailrith/public-api",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Versioned Mailrith public API, OAuth, MCP, scope, and risk contract.",
   "license": "MIT",
   "homepage": "https://mailrith.com/developers",
