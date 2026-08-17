@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  broadcastEmailPersonalizationGuidance,
   getPublicApiOperations,
   publicApiAgentReadQuickstartScopeKeys,
   publicApiAgentSkillsIndexPath,
@@ -98,6 +99,146 @@ describe("@mailrith/public-api", () => {
     expect(
       publicApiExamplePayloads.webhookSubscription.event_patterns,
     ).toEqual(["subscriber.created", "subscriber.updated"]);
+  });
+
+  it("publishes the exact Mailrith personalization syntax to API and MCP clients", () => {
+    const personalizationToken = '[Subscriber_Name, fallback="friend"]';
+    const serializedPersonalizationToken = personalizationToken.replaceAll(
+      '"',
+      '\\"',
+    );
+    const unsupportedHandlebarsToken = "{{ subscriber.name }}";
+    const broadcastDocument = publicApiSpec.components.schemas
+      .BroadcastEmailDocument as { description?: string; example?: unknown };
+    const broadcastUpsert = publicApiSpec.components.schemas
+      .BroadcastUpsertRequest as PublicApiSchemaObject;
+    const broadcastUpdate = publicApiSpec.components.schemas
+      .BroadcastUpdateRequest as PublicApiSchemaObject;
+    const sequenceEmail = publicApiSpec.components.schemas
+      .SequenceEmail as PublicApiSchemaObject;
+    const automationStepConfig = publicApiSpec.components.schemas
+      .AutomationStepConfig as PublicApiSchemaObject;
+    const doubleOptIn = publicApiSpec.components.schemas
+      .DoubleOptInSettings as PublicApiSchemaObject;
+    const customField = publicApiSpec.components.schemas
+      .CustomField as PublicApiSchemaObject;
+    const serializedExamplePayload = JSON.stringify(
+      publicApiExamplePayloads.broadcastDraft,
+    );
+
+    expect(broadcastEmailPersonalizationGuidance).toContain(
+      personalizationToken,
+    );
+    expect(broadcastEmailPersonalizationGuidance).toContain(
+      unsupportedHandlebarsToken,
+    );
+    expect(broadcastEmailPersonalizationGuidance).toContain(
+      "custom_fields_list",
+    );
+    expect(broadcastEmailPersonalizationGuidance).toContain(
+      "personalization_token",
+    );
+    expect(broadcastDocument.description).toContain(personalizationToken);
+    expect(JSON.stringify(broadcastDocument.example)).toContain(
+      serializedPersonalizationToken,
+    );
+    expect(
+      (
+        broadcastUpsert.properties?.body_document as
+          | { description?: string }
+          | undefined
+      )?.description,
+    ).toContain(personalizationToken);
+    for (const subjectSchema of [
+      broadcastUpsert.properties?.subject,
+      broadcastUpdate.properties?.subject,
+      sequenceEmail.properties?.subject,
+      automationStepConfig.properties?.subject,
+      doubleOptIn.properties?.confirmationEmailSubject,
+    ]) {
+      expect((subjectSchema as { description?: string })?.description).toContain(
+        personalizationToken,
+      );
+    }
+    expect(
+      (
+        doubleOptIn.properties?.confirmationEmailBodyDocument as
+          | { description?: string }
+          | undefined
+      )?.description,
+    ).toContain("custom_fields_list");
+    expect(customField.required).toContain("personalization_token");
+    expect(
+      (
+        customField.properties?.personalization_token as
+          | { description?: string }
+          | undefined
+      )?.description,
+    ).toContain("not stored separately");
+    expect(serializedExamplePayload).toContain(serializedPersonalizationToken);
+    expect(serializedExamplePayload).not.toContain(unsupportedHandlebarsToken);
+  });
+
+  it("documents MCP catalog bounds and consent timestamps for agents", () => {
+    const capabilities = publicApiSpec.components.schemas.Capabilities as {
+      properties?: Record<string, { description?: string }>;
+    };
+    const publicApiMcp = publicApiSpec.components.schemas.PublicApiMcp as {
+      properties?: Record<string, { description?: string }>;
+    };
+    const consentEvidence = publicApiSpec.components.schemas
+      .ConsentEvidence as {
+      properties?: Record<string, { description?: string }>;
+    };
+    const updateStatus = getPublicApiOperations().find(
+      (operation) => operation.operationId === "updateSubscriberStatus",
+    );
+
+    expect(capabilities.properties?.capability_mode?.description).toContain(
+      "active MCP client catalog",
+    );
+    expect(publicApiMcp.properties?.active_operation_ids?.description).toContain(
+      "Exact operation IDs",
+    );
+    expect(consentEvidence.properties?.collected_at?.description).toContain(
+      "must not be later than Mailrith's server time",
+    );
+    expect(consentEvidence.properties?.collected_at?.description).toContain(
+      "workspace-local clock",
+    );
+    expect(updateStatus?.description).toContain("consent_evidence");
+    expect(updateStatus?.description).toContain("correct UTC offset");
+  });
+
+  it("requires every user-supplied date-time to include an explicit timezone", () => {
+    const scheduleRequest = publicApiSpec.components.schemas
+      .BroadcastScheduleRequest as PublicApiSchemaObject;
+    const consentEvidence = publicApiSpec.components.schemas
+      .ConsentEvidence as PublicApiSchemaObject;
+    const landingPageBlock = publicApiSpec.components.schemas
+      .LandingPageBlock as PublicApiSchemaObject;
+    const dateTimeInputs = [
+      scheduleRequest.properties?.scheduled_at,
+      consentEvidence.properties?.collected_at,
+      landingPageBlock.properties?.targetDate,
+    ] as Array<{ pattern?: string; format?: string; description?: string }>;
+
+    const expectedPattern = dateTimeInputs[0]?.pattern;
+    expect(expectedPattern).toBeTruthy();
+
+    for (const dateTimeInput of dateTimeInputs) {
+      expect(dateTimeInput?.pattern).toBe(expectedPattern);
+      expect(dateTimeInput?.format).toBeUndefined();
+      expect(dateTimeInput?.description).toMatch(/explicit UTC offset|UTC offset/);
+
+      const pattern = new RegExp(dateTimeInput.pattern ?? "");
+      expect(pattern.test("2024-02-29T14:30:45.123+05:30")).toBe(true);
+      expect(pattern.test("2024-02-29T09:00:00Z")).toBe(true);
+      expect(pattern.test("2023-02-29T09:00:00Z")).toBe(false);
+      expect(pattern.test("2024-13-01T09:00:00Z")).toBe(false);
+      expect(pattern.test("2024-02-29T09:00:00+24:00")).toBe(false);
+      expect(pattern.test("2024-02-29T09:00:00")).toBe(false);
+    }
   });
 
   it("publishes a versioned OpenAPI document", () => {
@@ -1145,6 +1286,9 @@ describe("@mailrith/public-api", () => {
       ),
     ).toBe(true);
     expect(publicApiSubmittedMcpOperationIds).toContain("sendBroadcast");
+    expect(publicApiSubmittedMcpOperationIds).toContain("createTag");
+    expect(publicApiSubmittedMcpOperationIds).toContain("listCustomFields");
+    expect(publicApiSubmittedMcpOperationIds).toContain("getCustomField");
     expect(publicApiSubmittedMcpOperationIds).toContain(
       "updateAutomationStatus",
     );

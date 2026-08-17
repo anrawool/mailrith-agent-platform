@@ -175,10 +175,27 @@ type PublicApiCapabilityResourceDefinition = Omit<
 
 export const emailTemplateNameMaxLength = 160;
 export const emailTemplateBodyDocumentMaxBytes = 500 * 1024;
+export const broadcastEmailPersonalizationGuidance =
+  'For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback="friend"] or [Subscriber_Email, fallback=""]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.';
+
+const personalizedEmailSubjectSchema = {
+  type: "string",
+  description: broadcastEmailPersonalizationGuidance,
+};
 
 const dateTimeSchema = {
   type: "string",
   format: "date-time",
+};
+
+const isoCalendarDatePattern =
+  "(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))";
+const explicitOffsetDateTimePattern =
+  `^${isoCalendarDatePattern}T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)$`;
+
+const explicitOffsetDateTimeSchema = {
+  type: "string",
+  pattern: explicitOffsetDateTimePattern,
 };
 
 const nullableDateTimeSchema = {
@@ -1808,7 +1825,7 @@ const schemas = {
         type: "string",
         enum: ["effective"],
         description:
-          "Resources contain only operations currently available to this credential, plan, workspace state, and rollout state.",
+          "Resources contain only operations currently available to this credential, plan, workspace state, rollout state, and active MCP client catalog when called through MCP.",
       },
       limitations: {
         type: "array",
@@ -1889,6 +1906,13 @@ const schemas = {
         nullable: true,
         description:
           "Toolsets selected for this MCP request. Omitted for direct REST requests.",
+        items: { type: "string" },
+      },
+      active_operation_ids: {
+        type: "array",
+        nullable: true,
+        description:
+          "Exact operation IDs exposed by this MCP client's active tool catalog. Omitted for direct REST requests and unrestricted MCP clients.",
         items: { type: "string" },
       },
       read_only: {
@@ -2427,7 +2451,11 @@ const schemas = {
     properties: {
       lawful_basis: { type: "string", maxLength: 64 },
       consent_text_version: { type: "string", maxLength: 128, nullable: true },
-      collected_at: dateTimeSchema,
+      collected_at: {
+        ...explicitOffsetDateTimeSchema,
+        description:
+          "When the consent evidence was collected, as ISO 8601 with an explicit UTC offset. This must not be later than Mailrith's server time. Do not treat a workspace-local clock as UTC; use the evidence record's confirmed timestamp.",
+      },
       source_url: { type: "string", format: "uri", maxLength: 2048, nullable: true },
       evidence_reference: { type: "string", maxLength: 512 },
       technical_evidence_hash: {
@@ -2716,21 +2744,33 @@ const schemas = {
   },
   BroadcastEmailDocument: {
     allOf: [{ $ref: "#/components/schemas/BroadcastEmailNode" }],
-    description:
-      "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+    description: `A structured email document. The root node must use type \`doc\` and contain supported block nodes. ${broadcastEmailPersonalizationGuidance}`,
     example: {
       type: "doc",
       content: [
         {
           type: "paragraph",
-          content: [{ type: "text", text: "Hello from Mailrith." }],
+          content: [
+            {
+              type: "text",
+              text: 'Hello [Subscriber_Name, fallback="friend"].',
+            },
+          ],
         },
       ],
     },
   },
   CustomField: {
     type: "object",
-    required: ["id", "label", "type", "settings", "created_at", "updated_at"],
+    required: [
+      "id",
+      "label",
+      "type",
+      "settings",
+      "personalization_token",
+      "created_at",
+      "updated_at",
+    ],
     properties: {
       id: { type: "string" },
       label: { type: "string" },
@@ -2741,6 +2781,11 @@ const schemas = {
         properties: {
           options: stringArraySchema,
         },
+      },
+      personalization_token: {
+        type: "string",
+        description:
+          "The exact ready-to-use token for this custom field. Copy it into an email subject or body text node and replace only the fallback text when needed. This value is computed from the current field label and is not stored separately.",
       },
       created_at: dateTimeSchema,
       updated_at: dateTimeSchema,
@@ -2980,8 +3025,12 @@ const schemas = {
     additionalProperties: false,
     properties: {
       enabled: { type: "boolean" },
-      confirmationEmailSubject: { type: ["string", "null"] },
+      confirmationEmailSubject: {
+        type: ["string", "null"],
+        description: broadcastEmailPersonalizationGuidance,
+      },
       confirmationEmailBodyDocument: {
+        description: broadcastEmailPersonalizationGuidance,
         anyOf: [
           { $ref: "#/components/schemas/BroadcastEmailDocument" },
           { type: "null" },
@@ -3175,7 +3224,11 @@ const schemas = {
       },
       title: { type: "string" },
       aspectRatio: { type: "string", enum: ["16:9", "4:3", "1:1", "9:16"] },
-      targetDate: { type: "string", format: "date-time" },
+      targetDate: {
+        ...explicitOffsetDateTimeSchema,
+        description:
+          "The countdown target as an ISO 8601 date and time with an explicit UTC offset or Z suffix.",
+      },
       label: { type: "string" },
       expiredMessage: { type: "string" },
       design: {
@@ -3664,7 +3717,7 @@ const schemas = {
       },
       body: { type: "string" },
       body_document: {
-        description: `Structured email editor content. The serialized document must be ${emailTemplateBodyDocumentMaxBytes} bytes or less.`,
+        description: `Structured email editor content. The serialized document must be ${emailTemplateBodyDocumentMaxBytes} bytes or less. ${broadcastEmailPersonalizationGuidance}`,
         allOf: [{ $ref: "#/components/schemas/BroadcastEmailDocument" }],
       },
       enabled: { type: "boolean" },
@@ -3751,7 +3804,7 @@ const schemas = {
         maxLength: emailTemplateNameMaxLength,
       },
       body_document: {
-        description: `Structured email editor content. The serialized document must be ${emailTemplateBodyDocumentMaxBytes} bytes or less.`,
+        description: `Structured email editor content. The serialized document must be ${emailTemplateBodyDocumentMaxBytes} bytes or less. ${broadcastEmailPersonalizationGuidance}`,
         allOf: [{ $ref: "#/components/schemas/BroadcastEmailDocument" }],
       },
       starting_point_id: {
@@ -3833,7 +3886,7 @@ const schemas = {
         maxLength: emailTemplateNameMaxLength,
       },
       body_document: {
-        description: `Structured email editor content. The serialized document must be ${emailTemplateBodyDocumentMaxBytes} bytes or less.`,
+        description: `Structured email editor content. The serialized document must be ${emailTemplateBodyDocumentMaxBytes} bytes or less. ${broadcastEmailPersonalizationGuidance}`,
         allOf: [{ $ref: "#/components/schemas/BroadcastEmailDocument" }],
       },
       enabled: { type: "boolean" },
@@ -3879,7 +3932,7 @@ const schemas = {
     ],
     properties: {
       id: { type: "string" },
-      subject: { type: "string" },
+      subject: personalizedEmailSubjectSchema,
       previewText: { type: ["string", "null"] },
       body: {
         type: "string",
@@ -4087,7 +4140,7 @@ const schemas = {
       exitNextStepId: { type: ["string", "null"] },
       lookbackDays: { type: "integer", minimum: 1 },
       recipientEmail: { type: "string", format: "email" },
-      subject: { type: "string" },
+      subject: personalizedEmailSubjectSchema,
       previewText: { type: "string" },
       bodyDocument: { $ref: "#/components/schemas/BroadcastEmailDocument" },
       replyToEmail: { type: "string" },
@@ -5097,10 +5150,11 @@ const schemas = {
     required: ["subject", "body_document"],
     additionalProperties: false,
     properties: {
-      subject: { type: "string" },
+      subject: personalizedEmailSubjectSchema,
       preview_text: { type: "string", nullable: true },
       body_document: {
-        $ref: "#/components/schemas/BroadcastEmailDocument",
+        description: broadcastEmailPersonalizationGuidance,
+        allOf: [{ $ref: "#/components/schemas/BroadcastEmailDocument" }],
       },
       connection_id: { type: "string", nullable: true },
       reply_to_email: { type: "string", nullable: true },
@@ -5124,10 +5178,11 @@ const schemas = {
     minProperties: 1,
     additionalProperties: false,
     properties: {
-      subject: { type: "string" },
+      subject: personalizedEmailSubjectSchema,
       preview_text: { type: "string", nullable: true },
       body_document: {
-        $ref: "#/components/schemas/BroadcastEmailDocument",
+        description: broadcastEmailPersonalizationGuidance,
+        allOf: [{ $ref: "#/components/schemas/BroadcastEmailDocument" }],
       },
       connection_id: { type: "string", nullable: true },
       reply_to_email: { type: "string", nullable: true },
@@ -5170,8 +5225,7 @@ const schemas = {
     required: ["scheduled_at"],
     properties: {
       scheduled_at: {
-        type: "string",
-        format: "date-time",
+        ...explicitOffsetDateTimeSchema,
         description:
           "A future date and time. Include an explicit UTC offset or Z suffix.",
       },
@@ -9177,7 +9231,7 @@ export const publicApiSpec: PublicApiSpec = {
         path: "/v1/subscribers/{subscriber_id}/status",
         summary: "Change Subscriber sending eligibility",
         description:
-          "Changes the delivery status for one Subscriber without changing profile, targeting, or Sequence enrollment fields.",
+          "Changes the delivery status for one Subscriber without changing profile, targeting, or Sequence enrollment fields. Making a Subscriber Active requires consent_evidence; its collected_at value must include the correct UTC offset and must not be later than Mailrith's server time.",
         tags: ["Subscribers"],
         operationId: "updateSubscriberStatus",
         security,
@@ -9668,7 +9722,8 @@ export const publicApiSpec: PublicApiSpec = {
         method: "GET",
         path: "/v1/custom-fields",
         summary: "List custom fields",
-        description: "Returns custom fields in the authenticated workspace.",
+        description:
+          "Returns a bounded page of custom fields in the authenticated workspace, including each field's exact ready-to-use email personalization token.",
         tags: ["Custom Fields"],
         operationId: "listCustomFields",
         security,
@@ -9751,7 +9806,7 @@ export const publicApiSpec: PublicApiSpec = {
         path: "/v1/custom-fields/{custom_field_id}",
         summary: "Get a custom field",
         description:
-          "Returns one custom field from the authenticated workspace.",
+          "Returns one custom field from the authenticated workspace, including its exact ready-to-use email personalization token.",
         tags: ["Custom Fields"],
         operationId: "getCustomField",
         security,
@@ -11561,7 +11616,7 @@ export const publicApiExamplePayloads = {
           content: [
             {
               type: "text",
-              text: "Hello {{ subscriber.name }}",
+              text: 'Hello [Subscriber_Name, fallback="friend"]',
             },
           ],
         },

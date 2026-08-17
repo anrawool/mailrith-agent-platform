@@ -72,6 +72,7 @@ jobs:
           pnpm generate:agent-artifacts
           pnpm generate:agent-integrations
           git diff --exit-code -- \
+            packages/agent-discovery-snapshot.json \
             packages/sdk/src/generated.ts \
             packages/python-sdk/mailrith_sdk/contract.json \
             packages/python-sdk/mailrith_sdk/manifest.json \

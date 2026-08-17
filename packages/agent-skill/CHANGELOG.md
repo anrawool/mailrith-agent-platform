@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 1.1.0 - 2026-08-17
+
+- Enable `tags_create`, `custom_fields_list`, and `custom_fields_get` in the
+  Claude, OpenAI, and Codex connector templates.
+- Teach agents to create a missing Tag before applying it and to copy the exact
+  Custom Field personalization token returned by Mailrith.
+- Keep personalization guidance shared across Templates, Broadcasts,
+  Sequences, Automations, Forms, and Landing Pages.
+
 ## 1.0.2 - 2026-08-14
 
 - Preserve scheduled Broadcast times and previously running Sequence or

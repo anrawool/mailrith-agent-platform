@@ -1,33 +1,33 @@
 {
   "schema_version": 1,
-  "release_version": "1.0.2",
-  "marketplace_submission_version": "1.0.1",
+  "release_version": "1.1.0",
+  "marketplace_submission_version": "1.1.0",
   "channel": "ga",
-  "status": "published",
+  "status": "prepared_not_published",
   "contract_version": "v1",
-  "documentation_revision": "2026-08-14",
+  "documentation_revision": "2026-08-17",
   "packages": {
     "npm": {
-      "@mailrith/public-api": "1.0.2",
-      "@mailrith/sdk": "1.0.2",
-      "@mailrith/mcp-server": "1.0.2",
-      "@mailrith/cli": "1.0.2",
-      "@mailrith/agent-skill": "1.0.2"
+      "@mailrith/public-api": "1.1.0",
+      "@mailrith/sdk": "1.1.0",
+      "@mailrith/mcp-server": "1.1.0",
+      "@mailrith/cli": "1.1.0",
+      "@mailrith/agent-skill": "1.1.0"
     },
     "pypi": {
-      "mailrith-sdk": "1.0.1"
+      "mailrith-sdk": "1.1.0"
     }
   },
   "digests": {
-    "public_contract_sha256": "fabbedb75e51e24b8f8ecd8a3aafea60b22d8829ef53512e7ecae5ab956a08db",
+    "public_contract_sha256": "ee47a2def67989be9f9d37200121800cd2864c2339f330d19d3adc874852e175",
     "risk_catalog_sha256": "c3281694951fc94aafa217e0d7858c69da743dda3fd79fecdbdc9184e00f64e8",
-    "typescript_sdk_manifest_sha256": "2fbbf8821a191d715228a61c878a849e44d466d259c68d6bc366d2fa50b0338a",
-    "python_sdk_manifest_sha256": "8922188e59f584435fde2f93d828cee34824e47d32e0b6b6e4ad478317abe30d",
-    "mcp_manifest_sha256": "aee2ff1a63faf3a468ecc9d276a7f42942511b6c99d9b4e24f9a6cc511b7d2e4",
-    "agent_skill_sha256": "1ba507bff313ca4bfbdd0162dc7f002159795e90e152822ea98af3483661d603",
-    "connector_templates_sha256": "45609bfeddc0fe2d1fe4b9466befb2b577b5d39d6937625a5b15a085f68e3108",
-    "platform_integrations_sha256": "ddbc0256ea142bb9c50c10642675d6851fd834b2702edabcdc6a9eff8d285d7b",
-    "agent_discovery_and_guidance_sha256": "faab86b3c4ed9ecd8a69cf129955d390040fc24daeb2c3ea284f9916ca487a4e"
+    "typescript_sdk_manifest_sha256": "3187f3fa1bc64d9b84f88c5b8e8516230f7d320ca488560a5875912a38bf467f",
+    "python_sdk_manifest_sha256": "55123bae3f11ca40cfd0b37c3af6015423f61e859723d6afb8bfafc9205f8413",
+    "mcp_manifest_sha256": "fd878e224290a225bbf229bd813ba1df501c8018a6d4e2c981cf00c5f46b88f7",
+    "agent_skill_sha256": "b22b0999a1b170db1666a0ce4e3047d809745b74b6e3d1b58447a1e957032cad",
+    "connector_templates_sha256": "282b81077101f6e37b5bd7e7ec153853fe2caddba774f211e3c32a3f4f3d18c7",
+    "platform_integrations_sha256": "06d56ed64652cd589765dd21cec8cd9e42528713ad3e2c7d3ee93e14f1ce189a",
+    "agent_discovery_and_guidance_sha256": "5556ed0b5baa24856f2ea77e85ea22db30a478eeb0abf5013d3419efda4be06b"
   },
   "compatibility": {
     "node": ">=20",

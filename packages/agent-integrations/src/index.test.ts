@@ -599,6 +599,7 @@ describe("Mailrith Agent Integration Packages", () => {
     }>(path.join(repositoryRoot, "chatgpt-app-submission.json"));
     const evaluations = await readJson<{
       cases: Array<{
+        id: string;
         category: string;
         expected_tools: string[];
         forbidden_tools: string[];
@@ -644,6 +645,17 @@ describe("Mailrith Agent Integration Packages", () => {
         expect(knownTools.has(tool)).toBe(true);
       }
     }
+    for (const evaluationId of ["broadcast-draft", "automation-authoring"]) {
+      expect(
+        evaluations.cases.find((item) => item.id === evaluationId)
+          ?.expected_tools,
+      ).toContain("email_templates_get");
+    }
+    expect(
+      submission.test_cases.find((testCase) =>
+        testCase.tools_triggered.includes("broadcasts_create"),
+      )?.tools_triggered,
+    ).toContain("email_templates_get");
     expect(reviewer.synthetic_only).toBe(true);
     expect(reviewer.secrets).toEqual([]);
     expect(

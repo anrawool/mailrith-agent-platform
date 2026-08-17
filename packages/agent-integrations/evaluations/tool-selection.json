@@ -46,6 +46,7 @@
         "sender_identities_list",
         "segments_list",
         "email_templates_list",
+        "email_templates_get",
         "broadcasts_create",
         "broadcasts_preflight"
       ],
@@ -64,6 +65,18 @@
         "broadcasts_send_test"
       ],
       "forbidden_tools": [
+        "broadcasts_send"
+      ]
+    },
+    {
+      "id": "custom-field-personalization",
+      "category": "direct",
+      "prompt": "What exact Mailrith personalization token should I use for the Plan / Tier custom field? Do not change anything.",
+      "expected_tools": [
+        "custom_fields_list"
+      ],
+      "forbidden_tools": [
+        "email_templates_update",
         "broadcasts_send"
       ]
     },
@@ -113,6 +126,7 @@
       "expected_tools": [
         "tags_list",
         "email_templates_list",
+        "email_templates_get",
         "automations_create",
         "automations_preflight"
       ],

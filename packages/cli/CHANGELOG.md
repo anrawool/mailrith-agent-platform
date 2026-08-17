@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 1.1.0 - 2026-08-17
+
+- Coordinate CLI discovery with the Mailrith 1.1 public contract, including
+  exact Custom Field personalization-token guidance.
+- Preserve every existing command and authentication flow while republishing
+  the coordinated SDK and public-contract dependencies.
+
 ## 1.0.2 - 2026-08-14
 
 - Coordinate operation descriptions with the updated Broadcast, Sequence, and

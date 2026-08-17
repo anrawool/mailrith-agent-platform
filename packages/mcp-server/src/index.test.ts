@@ -47,8 +47,12 @@ describe("@mailrith/mcp-server", () => {
       mailrithSubmittedMcpToolNames,
     );
     expect(submitted).toHaveLength(publicApiSubmittedMcpOperationIds.length);
-    expect(submitted).toHaveLength(52);
+    expect(submitted).toHaveLength(55);
     expect(new Set(mailrithSubmittedMcpToolNames).size).toBe(submitted.length);
+    expect(submitted.map((tool) => tool.name)).toContain("tags_create");
+    expect(submitted.map((tool) => tool.name)).toEqual(
+      expect.arrayContaining(["custom_fields_list", "custom_fields_get"]),
+    );
     expect(
       submitted.find((tool) => tool.name === "broadcasts_send"),
     ).toMatchObject({
@@ -314,7 +318,7 @@ describe("@mailrith/mcp-server", () => {
     expect(tools.map((tool) => tool.name)).toEqual(
       mailrithSubmittedMcpToolNames,
     );
-    expect(tools).toHaveLength(52);
+    expect(tools).toHaveLength(55);
     expect(
       new TextEncoder().encode(responseText).byteLength,
     ).toBeLessThanOrEqual(512 * 1024);
@@ -550,6 +554,9 @@ describe("@mailrith/mcp-server", () => {
             ? new Request(input, init)
             : new Request(input, init);
         expect(new URL(nestedRequest.url).pathname).toBe("/v1/capabilities");
+        expect(
+          nestedRequest.headers.get("mailrith-mcp-operation-ids"),
+        ).toBe(publicApiSubmittedMcpOperationIds.join(","));
         return new Response(
           JSON.stringify({
             data: {
@@ -713,6 +720,12 @@ describe("@mailrith/mcp-server", () => {
       "mailrith-mcp-read-only": "true",
     });
     expect(createMcpCapabilityContextHeaders({})).toEqual({});
+    expect(
+      createMcpCapabilityContextHeaders({ profile: "submitted" }),
+    ).toEqual({
+      "mailrith-mcp-operation-ids":
+        publicApiSubmittedMcpOperationIds.join(","),
+    });
   });
 
   it("keeps write operations discoverable but unavailable in read-only compact discovery", async () => {
@@ -1494,6 +1507,125 @@ describe("@mailrith/mcp-server", () => {
         body: { email: "ada@example.com" },
         unexpected: true,
       }).success,
+    ).toBe(false);
+  });
+
+  it("accepts explicit timezone offsets for every user-supplied date-time", () => {
+    const tools = createMailrithMcpToolDefinitions(
+      { request: vi.fn() } as never,
+      { profile: "submitted" },
+    );
+    const schedule = tools.find(
+      (candidate) => candidate.name === "broadcasts_schedule",
+    );
+
+    expect(schedule).toBeDefined();
+    expect(
+      schedule?.inputSchema.safeParse({
+        broadcast_id: "broadcast-123",
+        body: { scheduled_at: "2026-08-19T12:00:00+05:30" },
+      }).success,
+    ).toBe(true);
+    expect(
+      schedule?.inputSchema.safeParse({
+        broadcast_id: "broadcast-123",
+        body: { scheduled_at: "2026-08-19T12:00:00Z" },
+      }).success,
+    ).toBe(true);
+    expect(
+      schedule?.inputSchema.safeParse({
+        broadcast_id: "broadcast-123",
+        body: { scheduled_at: "2026-08-19T12:00:00" },
+      }).success,
+    ).toBe(false);
+    expect(
+      schedule?.inputSchema.safeParse({
+        broadcast_id: "broadcast-123",
+        body: { scheduled_at: "2026-13-19T12:00:00+05:30" },
+      }).success,
+    ).toBe(false);
+    expect(
+      schedule?.inputSchema.safeParse({
+        broadcast_id: "broadcast-123",
+        body: { scheduled_at: "2026-08-19T12:00:00+24:00" },
+      }).success,
+    ).toBe(false);
+
+    const updateSubscriberStatus = tools.find(
+      (candidate) => candidate.name === "subscribers_update_status",
+    );
+    const consentInput = (collectedAt: string) => ({
+      subscriber_id: "subscriber-123",
+      body: {
+        status: "Active",
+        consent_evidence: {
+          lawful_basis: "consent",
+          collected_at: collectedAt,
+          evidence_reference: "consent-record-123",
+        },
+      },
+    });
+    expect(
+      updateSubscriberStatus?.inputSchema.safeParse(
+        consentInput("2024-04-11T14:30:00+05:30"),
+      ).success,
+    ).toBe(true);
+    expect(
+      updateSubscriberStatus?.inputSchema.safeParse(
+        consentInput("2024-04-11T09:00:00Z"),
+      ).success,
+    ).toBe(true);
+    expect(
+      updateSubscriberStatus?.inputSchema.safeParse(
+        consentInput("2024-04-11T14:30:00"),
+      ).success,
+    ).toBe(false);
+    expect(
+      updateSubscriberStatus?.inputSchema.safeParse(
+        consentInput("2023-02-29T14:30:00+05:30"),
+      ).success,
+    ).toBe(false);
+
+    const allTools = createMailrithMcpToolDefinitions({
+      request: vi.fn(),
+    } as never);
+    const createLandingPage = allTools.find(
+      (candidate) => candidate.name === "landing_pages_create",
+    );
+    const countdownInput = (targetDate: string) => ({
+      body: {
+        name: "Launch Countdown",
+        slug: "launch-countdown",
+        definition: {
+          blocks: [
+            {
+              id: "countdown",
+              type: "countdown",
+              targetDate,
+            },
+          ],
+        },
+      },
+    });
+    expect(
+      createLandingPage?.inputSchema.safeParse(
+        countdownInput("2026-08-19T12:00:00+05:30"),
+      ).success,
+    ).toBe(true);
+    expect(
+      createLandingPage?.inputSchema.safeParse(
+        countdownInput("2026-08-19T06:30:00Z"),
+      ).success,
+    ).toBe(true);
+    expect(
+      createLandingPage?.inputSchema.safeParse(
+        countdownInput("2026-08-19T12:00:00"),
+      ).success,
+    ).toBe(false);
+    expect(
+      createLandingPage?.inputSchema.safeParse(
+        countdownInput("2026-08-19T12:00:00+99:99"),
+      ).success,
     ).toBe(false);
   });
 

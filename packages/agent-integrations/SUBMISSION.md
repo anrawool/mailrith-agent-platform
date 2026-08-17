@@ -65,6 +65,11 @@ required identity, legal, privacy, and data-handling statements.
 10. Submit the Connector. Do not make a separate Claude companion plugin a
     requirement.
 
+For an already published Connector, deploy and verify the new tools against
+the existing connection; a tool-only server update does not require a new
+Connector submission. For a Connector that is still under review, confirm the
+portal shows all `55` live tools before continuing the existing submission.
+
 ## Submit The Claude Community Plugin
 
 1. Use `claude/mailrith` as the plugin root. The plugin complements the Claude
@@ -142,15 +147,16 @@ required identity, legal, privacy, and data-handling statements.
 4. Validate the package in the Microsoft 365 Developer Portal.
 5. Use a synthetic reviewer workspace and run the shared functional and
    safety evaluation cases.
-6. In Partner Center, create an **Apps and Agents for M365 and Copilot** offer,
-   upload the validated package, and complete the legal, support, privacy, and
-   certification fields.
+6. In Partner Center, update the existing **Apps and Agents for M365 and
+   Copilot** offer when one exists. Create a new offer only for the first
+   submission. Upload the validated package and complete the legal, support,
+   privacy, and certification fields.
 
 ## Submit To Cline
 
 1. Give a clean Cline profile only `packages/mcp-server/README.md` and
    `packages/mcp-server/llms-install.md`.
-2. After publishing, confirm Cline installs `@mailrith/mcp-server@1.0.2`
+2. After publishing, confirm Cline installs `@mailrith/mcp-server@1.1.0`
    without cloning or building the monorepo.
 3. Use a synthetic workspace API key and run only
    `discovery_get_capabilities`. Keep `autoApprove` empty.

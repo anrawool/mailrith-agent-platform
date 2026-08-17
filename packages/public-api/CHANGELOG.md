@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 1.1.0 - 2026-08-17
+
+- Add Tag creation and bounded Custom Field listing and retrieval to the fixed
+  submitted MCP tool catalog without changing existing tool names or schemas.
+- Return an exact, computed `personalization_token` with every Custom Field so
+  clients can use Mailrith email variables without storing duplicate data.
+- Document valid Subscriber and Custom Field personalization in email subject
+  and body schemas, including timestamp validation for consent evidence.
+
 ## 1.0.2 - 2026-08-14
 
 - Describe how agents preserve the existing schedule or running status when

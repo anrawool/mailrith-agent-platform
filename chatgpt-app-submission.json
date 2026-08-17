@@ -212,6 +212,42 @@
         "destructive_justification": "Reads one Tag definition; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
       }
     },
+    "tags_create": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Creates targeting metadata without contacting Subscribers; it changes Mailrith state or starts work.",
+        "open_world_justification": "Creates targeting metadata without contacting Subscribers; it does not change public internet or third-party state.",
+        "destructive_justification": "Creates targeting metadata without contacting Subscribers; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "custom_fields_list": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads the bounded custom-field schema; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads the bounded custom-field schema; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads the bounded custom-field schema; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
+    "custom_fields_get": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads one custom-field definition; it does not change Mailrith or an external system.",
+        "open_world_justification": "Reads one custom-field definition; it does not change public internet or third-party state.",
+        "destructive_justification": "Reads one custom-field definition; it does not permanently delete, irreversibly send, revoke access, or destructively replace something."
+      }
+    },
     "segments_list": {
       "annotations": {
         "readOnlyHint": true,
@@ -654,7 +690,7 @@
       "description": "Prepare and preflight a Broadcast draft.",
       "user_prompt": "Create a draft Broadcast from the Reviewer Welcome Template for the Reviewer Customers Segment, then run preflight without sending it.",
       "file_attachment_urls": null,
-      "tools_triggered": "sender_identities_list, segments_list, email_templates_list, broadcasts_create, broadcasts_preflight",
+      "tools_triggered": "sender_identities_list, segments_list, email_templates_list, email_templates_get, broadcasts_create, broadcasts_preflight",
       "expected_output": "Creates only a draft and reports the bounded preflight checks, recipient count, and any blockers.",
       "expected_output_url": null
     },

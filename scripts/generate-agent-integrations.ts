@@ -211,7 +211,7 @@ const chatGptAppSubmission = {
         "Create a draft Broadcast from the Reviewer Welcome Template for the Reviewer Customers Segment, then run preflight without sending it.",
       file_attachment_urls: null,
       tools_triggered:
-        "sender_identities_list, segments_list, email_templates_list, broadcasts_create, broadcasts_preflight",
+        "sender_identities_list, segments_list, email_templates_list, email_templates_get, broadcasts_create, broadcasts_preflight",
       expected_output:
         "Creates only a draft and reports the bounded preflight checks, recipient count, and any blockers.",
       expected_output_url: null,

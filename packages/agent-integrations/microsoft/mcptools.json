@@ -655,7 +655,7 @@
                 "enum": [
                   "effective"
                 ],
-                "description": "Resources contain only operations currently available to this credential, plan, workspace state, and rollout state."
+                "description": "Resources contain only operations currently available to this credential, plan, workspace state, rollout state, and active MCP client catalog when called through MCP."
               },
               "limitations": {
                 "type": "array",
@@ -792,6 +792,20 @@
                   {
                     "type": "array",
                     "description": "Toolsets selected for this MCP request. Omitted for direct REST requests.",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "active_operation_ids": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "description": "Exact operation IDs exposed by this MCP client's active tool catalog. Omitted for direct REST requests and unrestricted MCP clients.",
                     "items": {
                       "type": "string"
                     }
@@ -3801,7 +3815,8 @@
               },
               "collected_at": {
                 "type": "string",
-                "format": "date-time"
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)$",
+                "description": "When the consent evidence was collected, as ISO 8601 with an explicit UTC offset. This must not be later than Mailrith's server time. Do not treat a workspace-local clock as UTC; use the evidence record's confirmed timestamp."
               },
               "source_url": {
                 "anyOf": [
@@ -4776,7 +4791,8 @@
               },
               "collected_at": {
                 "type": "string",
-                "format": "date-time"
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)$",
+                "description": "When the consent evidence was collected, as ISO 8601 with an explicit UTC offset. This must not be later than Mailrith's server time. Do not treat a workspace-local clock as UTC; use the evidence record's confirmed timestamp."
               },
               "source_url": {
                 "anyOf": [
@@ -7595,6 +7611,1133 @@
       }
     },
     {
+      "name": "tags_create",
+      "title": "Create a tag",
+      "description": "Create a tag",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "description": "Optional idempotency key to retry the request safely."
+          },
+          "body": {
+            "$ref": "#/$defs/TagCreateRequest",
+            "type": "object",
+            "description": "The exact JSON request body defined by the Mailrith public API contract."
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "$defs": {
+          "TagCreateRequest": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Tag name to create. You can also create the GDPR consent tag names when you need to apply consent collected outside Mailrith."
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "request_id"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "response"
+            ]
+          },
+          {
+            "required": [
+              "error"
+            ]
+          }
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "const": "createTag",
+            "description": "The stable Mailrith public API operation ID."
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^mcp_[0-9a-f-]{36}$",
+            "description": "The stable correlation ID for this MCP tool invocation."
+          },
+          "response": {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/Tag"
+              }
+            }
+          },
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "category",
+              "status",
+              "code",
+              "message",
+              "retryable"
+            ],
+            "properties": {
+              "category": {
+                "type": "string",
+                "enum": [
+                  "validation",
+                  "authentication",
+                  "permission",
+                  "conflict",
+                  "rate_limit",
+                  "transient",
+                  "unknown"
+                ]
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "required_scopes": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "missing_scopes": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "replacement_scopes": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "credential_type": {
+                "type": "string",
+                "enum": [
+                  "workspace_api_key",
+                  "oauth_access_token"
+                ]
+              },
+              "recommended_work_profiles": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "access_update_url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "reconnect_required": {
+                "type": "boolean"
+              },
+              "permissions_help_url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "recovery": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "action",
+                  "message"
+                ],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "replace_api_key",
+                      "reconnect_oauth"
+                    ]
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "replacement_scopes": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "access_update_url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "permissions_help_url": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              },
+              "details": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "resource": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type",
+                      "id"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "issues": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "prerequisite": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "resource",
+                  "state"
+                ],
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "missing",
+                      "disabled"
+                    ]
+                  },
+                  "required_scopes": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "work_profile": {
+                    "type": "string"
+                  },
+                  "setup_url": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              },
+              "retry": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "safe",
+                  "guidance"
+                ],
+                "properties": {
+                  "safe": {
+                    "type": "boolean"
+                  },
+                  "guidance": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "$defs": {
+          "Tag": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "gdpr_consent_purpose",
+              "subscriber_count",
+              "created_at",
+              "updated_at",
+              "self"
+            ],
+            "properties": {
+              "self": {
+                "type": "string",
+                "description": "Stable relative Public API path for retrieving this resource."
+              },
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "gdpr_consent_purpose": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "email_marketing",
+                      "ads_personalization"
+                    ],
+                    "description": "Read-only GDPR consent purpose for Mailrith consent tags. Null for ordinary tags."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "subscriber_count": {
+                "type": "integer"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      },
+      "annotations": {
+        "title": "Create a tag",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "custom_fields_list",
+      "title": "List custom fields",
+      "description": "List custom fields",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "search": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Filter custom fields by label or type."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of custom fields to return."
+          },
+          "starting_after": {
+            "type": "string",
+            "description": "Use the opaque cursor from the previous page to request the next page."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "request_id"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "response"
+            ]
+          },
+          {
+            "required": [
+              "error"
+            ]
+          }
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "const": "listCustomFields",
+            "description": "The stable Mailrith public API operation ID."
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^mcp_[0-9a-f-]{36}$",
+            "description": "The stable correlation ID for this MCP tool invocation."
+          },
+          "response": {
+            "type": "object",
+            "required": [
+              "data",
+              "pagination"
+            ],
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/CustomField"
+                }
+              },
+              "pagination": {
+                "$ref": "#/$defs/Pagination"
+              }
+            }
+          },
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "category",
+              "status",
+              "code",
+              "message",
+              "retryable"
+            ],
+            "properties": {
+              "category": {
+                "type": "string",
+                "enum": [
+                  "validation",
+                  "authentication",
+                  "permission",
+                  "conflict",
+                  "rate_limit",
+                  "transient",
+                  "unknown"
+                ]
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "required_scopes": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "missing_scopes": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "replacement_scopes": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "credential_type": {
+                "type": "string",
+                "enum": [
+                  "workspace_api_key",
+                  "oauth_access_token"
+                ]
+              },
+              "recommended_work_profiles": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "access_update_url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "reconnect_required": {
+                "type": "boolean"
+              },
+              "permissions_help_url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "recovery": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "action",
+                  "message"
+                ],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "replace_api_key",
+                      "reconnect_oauth"
+                    ]
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "replacement_scopes": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "access_update_url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "permissions_help_url": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              },
+              "details": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "resource": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type",
+                      "id"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "issues": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "prerequisite": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "resource",
+                  "state"
+                ],
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "missing",
+                      "disabled"
+                    ]
+                  },
+                  "required_scopes": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "work_profile": {
+                    "type": "string"
+                  },
+                  "setup_url": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              },
+              "retry": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "safe",
+                  "guidance"
+                ],
+                "properties": {
+                  "safe": {
+                    "type": "boolean"
+                  },
+                  "guidance": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "$defs": {
+          "CustomField": {
+            "type": "object",
+            "required": [
+              "id",
+              "label",
+              "type",
+              "settings",
+              "personalization_token",
+              "created_at",
+              "updated_at",
+              "self"
+            ],
+            "properties": {
+              "self": {
+                "type": "string",
+                "description": "Stable relative Public API path for retrieving this resource."
+              },
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "settings": {
+                "type": "object",
+                "required": [
+                  "options"
+                ],
+                "properties": {
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "personalization_token": {
+                "type": "string",
+                "description": "The exact ready-to-use token for this custom field. Copy it into an email subject or body text node and replace only the fallback text when needed. This value is computed from the current field label and is not stored separately."
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "Pagination": {
+            "type": "object",
+            "required": [
+              "has_more",
+              "next_cursor"
+            ],
+            "properties": {
+              "has_more": {
+                "type": "boolean"
+              },
+              "next_cursor": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "annotations": {
+        "title": "List custom fields",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "custom_fields_get",
+      "title": "Get a custom field",
+      "description": "Get a custom field",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "custom_field_id": {
+            "type": "string",
+            "description": "The custom field identifier."
+          }
+        },
+        "required": [
+          "custom_field_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "request_id"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "response"
+            ]
+          },
+          {
+            "required": [
+              "error"
+            ]
+          }
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "const": "getCustomField",
+            "description": "The stable Mailrith public API operation ID."
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^mcp_[0-9a-f-]{36}$",
+            "description": "The stable correlation ID for this MCP tool invocation."
+          },
+          "response": {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/CustomField"
+              }
+            }
+          },
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "category",
+              "status",
+              "code",
+              "message",
+              "retryable"
+            ],
+            "properties": {
+              "category": {
+                "type": "string",
+                "enum": [
+                  "validation",
+                  "authentication",
+                  "permission",
+                  "conflict",
+                  "rate_limit",
+                  "transient",
+                  "unknown"
+                ]
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "required_scopes": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "missing_scopes": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "replacement_scopes": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "credential_type": {
+                "type": "string",
+                "enum": [
+                  "workspace_api_key",
+                  "oauth_access_token"
+                ]
+              },
+              "recommended_work_profiles": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "access_update_url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "reconnect_required": {
+                "type": "boolean"
+              },
+              "permissions_help_url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "recovery": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "action",
+                  "message"
+                ],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "replace_api_key",
+                      "reconnect_oauth"
+                    ]
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "replacement_scopes": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "access_update_url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "permissions_help_url": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              },
+              "details": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "resource": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type",
+                      "id"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "issues": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "prerequisite": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "resource",
+                  "state"
+                ],
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "missing",
+                      "disabled"
+                    ]
+                  },
+                  "required_scopes": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "work_profile": {
+                    "type": "string"
+                  },
+                  "setup_url": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              },
+              "retry": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "safe",
+                  "guidance"
+                ],
+                "properties": {
+                  "safe": {
+                    "type": "boolean"
+                  },
+                  "guidance": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "$defs": {
+          "CustomField": {
+            "type": "object",
+            "required": [
+              "id",
+              "label",
+              "type",
+              "settings",
+              "personalization_token",
+              "created_at",
+              "updated_at",
+              "self"
+            ],
+            "properties": {
+              "self": {
+                "type": "string",
+                "description": "Stable relative Public API path for retrieving this resource."
+              },
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "settings": {
+                "type": "object",
+                "required": [
+                  "options"
+                ],
+                "properties": {
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "personalization_token": {
+                "type": "string",
+                "description": "The exact ready-to-use token for this custom field. Copy it into an email subject or body text node and replace only the fallback text when needed. This value is computed from the current field label and is not stored separately."
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      },
+      "annotations": {
+        "title": "Get a custom field",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
       "name": "segments_list",
       "title": "List segments",
       "description": "List segments",
@@ -9494,7 +10637,8 @@
             "additionalProperties": false,
             "properties": {
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "preview_text": {
                 "anyOf": [
@@ -9507,7 +10651,12 @@
                 ]
               },
               "body_document": {
-                "$ref": "#/$defs/BroadcastEmailDocument"
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/BroadcastEmailDocument"
+                  }
+                ]
               },
               "connection_id": {
                 "anyOf": [
@@ -9603,7 +10752,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -9612,7 +10761,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -9627,7 +10776,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -10583,7 +11732,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -10592,7 +11741,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -10607,7 +11756,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -11588,7 +12737,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -11597,7 +12746,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -11612,7 +12761,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -12103,7 +13252,8 @@
             "additionalProperties": false,
             "properties": {
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "preview_text": {
                 "anyOf": [
@@ -12116,7 +13266,12 @@
                 ]
               },
               "body_document": {
-                "$ref": "#/$defs/BroadcastEmailDocument"
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/BroadcastEmailDocument"
+                  }
+                ]
               },
               "connection_id": {
                 "anyOf": [
@@ -12212,7 +13367,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -12221,7 +13376,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -12236,7 +13391,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -13192,7 +14347,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -13201,7 +14356,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -13216,7 +14371,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -14548,7 +15703,7 @@
             "properties": {
               "scheduled_at": {
                 "type": "string",
-                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)$",
                 "description": "A future date and time. Include an explicit UTC offset or Z suffix."
               }
             },
@@ -15065,7 +16220,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -15074,7 +16229,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -15089,7 +16244,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -16070,7 +17225,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -16079,7 +17234,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -16094,7 +17249,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -17110,7 +18265,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -17119,7 +18274,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -17134,7 +18289,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -19065,7 +20220,8 @@
                 "type": "string"
               },
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "previewText": {
                 "type": [
@@ -19140,7 +20296,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -19149,7 +20305,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -19164,7 +20320,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -20274,7 +21430,8 @@
                 "type": "string"
               },
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "previewText": {
                 "type": [
@@ -20354,7 +21511,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -20363,7 +21520,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -20378,7 +21535,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -21699,7 +22856,8 @@
                 "type": "string"
               },
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "previewText": {
                 "type": [
@@ -21779,7 +22937,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -21788,7 +22946,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -21803,7 +22961,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -22757,7 +23915,8 @@
                 "type": "string"
               },
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "previewText": {
                 "type": [
@@ -22832,7 +23991,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -22841,7 +24000,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -22856,7 +24015,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -23966,7 +25125,8 @@
                 "type": "string"
               },
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "previewText": {
                 "type": [
@@ -24046,7 +25206,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -24055,7 +25215,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -24070,7 +25230,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -26539,7 +27699,8 @@
                 "type": "string"
               },
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "previewText": {
                 "type": [
@@ -26619,7 +27780,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -26628,7 +27789,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -26643,7 +27804,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -28227,7 +29388,8 @@
                 "format": "email"
               },
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "previewText": {
                 "type": "string"
@@ -28327,7 +29489,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -28336,7 +29498,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -28351,7 +29513,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -29495,7 +30657,8 @@
                 "format": "email"
               },
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "previewText": {
                 "type": "string"
@@ -29586,7 +30749,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -29595,7 +30758,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -29610,7 +30773,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -30779,7 +31942,8 @@
                 "format": "email"
               },
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "previewText": {
                 "type": "string"
@@ -30870,7 +32034,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -30879,7 +32043,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -30894,7 +32058,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -31760,7 +32924,8 @@
                 "format": "email"
               },
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "previewText": {
                 "type": "string"
@@ -31860,7 +33025,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -31869,7 +33034,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -31884,7 +33049,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -33028,7 +34193,8 @@
                 "format": "email"
               },
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "previewText": {
                 "type": "string"
@@ -33119,7 +34285,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -33128,7 +34294,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -33143,7 +34309,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -35493,7 +36659,8 @@
                 "format": "email"
               },
               "subject": {
-                "type": "string"
+                "type": "string",
+                "description": "For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text."
               },
               "previewText": {
                 "type": "string"
@@ -35584,7 +36751,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -35593,7 +36760,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -35608,7 +36775,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -36411,7 +37578,7 @@
                 "maxLength": 160
               },
               "body_document": {
-                "description": "Structured email editor content. The serialized document must be 512000 bytes or less.",
+                "description": "Structured email editor content. The serialized document must be 512000 bytes or less. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
                 "allOf": [
                   {
                     "$ref": "#/$defs/BroadcastEmailDocument"
@@ -36434,7 +37601,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -36443,7 +37610,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -36458,7 +37625,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -37036,7 +38203,7 @@
                 "type": "string"
               },
               "body_document": {
-                "description": "Structured email editor content. The serialized document must be 512000 bytes or less.",
+                "description": "Structured email editor content. The serialized document must be 512000 bytes or less. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
                 "allOf": [
                   {
                     "$ref": "#/$defs/BroadcastEmailDocument"
@@ -37068,7 +38235,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -37077,7 +38244,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -37092,7 +38259,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -37710,7 +38877,7 @@
                 "type": "string"
               },
               "body_document": {
-                "description": "Structured email editor content. The serialized document must be 512000 bytes or less.",
+                "description": "Structured email editor content. The serialized document must be 512000 bytes or less. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
                 "allOf": [
                   {
                     "$ref": "#/$defs/BroadcastEmailDocument"
@@ -37742,7 +38909,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -37751,7 +38918,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -37766,7 +38933,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -38442,7 +39609,7 @@
                 "maxLength": 160
               },
               "body_document": {
-                "description": "Structured email editor content. The serialized document must be 512000 bytes or less.",
+                "description": "Structured email editor content. The serialized document must be 512000 bytes or less. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
                 "allOf": [
                   {
                     "$ref": "#/$defs/BroadcastEmailDocument"
@@ -38461,7 +39628,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -38470,7 +39637,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -38485,7 +39652,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }
@@ -39063,7 +40230,7 @@
                 "type": "string"
               },
               "body_document": {
-                "description": "Structured email editor content. The serialized document must be 512000 bytes or less.",
+                "description": "Structured email editor content. The serialized document must be 512000 bytes or less. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
                 "allOf": [
                   {
                     "$ref": "#/$defs/BroadcastEmailDocument"
@@ -39095,7 +40262,7 @@
                 "$ref": "#/$defs/BroadcastEmailNode"
               }
             ],
-            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes.",
+            "description": "A structured email document. The root node must use type `doc` and contain supported block nodes. For Subscriber personalization in email subjects and body text nodes, use Mailrith bracket tokens such as [Subscriber_Name, fallback=\"friend\"] or [Subscriber_Email, fallback=\"\"]. Before using a custom field, call custom_fields_list or custom_fields_get and copy its personalization_token exactly. Do not use Handlebars-style variables such as {{ subscriber.name }}; Mailrith sends them as literal text.",
             "example": {
               "type": "doc",
               "content": [
@@ -39104,7 +40271,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Hello from Mailrith."
+                      "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                     }
                   ]
                 }
@@ -39119,7 +40286,7 @@
                     "content": [
                       {
                         "type": "text",
-                        "text": "Hello from Mailrith."
+                        "text": "Hello [Subscriber_Name, fallback=\"friend\"]."
                       }
                     ]
                   }

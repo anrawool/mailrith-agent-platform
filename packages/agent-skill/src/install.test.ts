@@ -107,10 +107,13 @@ describe("Mailrith connector templates", () => {
         },
       },
     });
-    expect(submittedTools).toHaveLength(52);
+    expect(submittedTools).toHaveLength(55);
     expect(new Set(submittedTools).size).toBe(submittedTools.length);
     expect(submittedTools).toContain("broadcasts_send");
     expect(submittedTools).toContain("automations_update_status");
+    expect(submittedTools).toEqual(
+      expect.arrayContaining(["custom_fields_list", "custom_fields_get"]),
+    );
     expect(submittedTools).not.toContain("mailrith_live");
     expect(claude.betas).toEqual(["mcp-client-2025-11-20"]);
     expect(claude.mcp_servers[0].url).toBe(

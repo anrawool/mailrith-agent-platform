@@ -10,7 +10,7 @@
 
 ## Subscriber Management
 
-1. Read the Subscriber and inspect available Tags or Sequences before changing targeting.
+1. Read the Subscriber and inspect available Tags or Sequences before changing targeting. If the user needs a new Tag, use `tags_create` before applying it to a Subscriber.
 2. Separate profile updates from sending-eligibility or targeting changes.
 3. Use `subscribers_upsert` for one record. Use `subscribers_update_status`, `subscribers_add_tag`, `subscribers_remove_tag`, `subscribers_add_to_sequence`, or `subscribers_remove_from_sequence` only for the matching explicit request.
 4. For a CSV, use the Mailrith UI or CLI import workflow and give any short-lived browser link to the signed-in user. Do not ask the user to send the CSV through the chat or agent.
@@ -73,11 +73,14 @@
 
 ## Personalized Previews And Tests
 
-1. Select a saved Subscriber before previewing or testing a Template, Broadcast, Sequence, Automation, Form, or Landing Page email.
-2. Use the returned preview to review real saved personalization without changing the Subscriber or workflow.
-3. For Sequences, confirm the Subscriber and per-email eligibility.
-4. For Automations, confirm the evaluated branch and remember that the preview uses the Subscriber's current saved state.
-5. Send a test only to the explicit test address supplied by the user.
+1. Write Subscriber personalization in email subjects and body text nodes with Mailrith bracket tokens. Use `[Subscriber_Name, fallback="friend"]` for the Subscriber's name and `[Subscriber_Email, fallback=""]` for the email address.
+2. Before using a custom field in any Template, Broadcast, Sequence, Automation, Form, or Landing Page email, call `custom_fields_list` or `custom_fields_get` and copy the returned `personalization_token` exactly. Change only its fallback text when needed.
+3. Never invent Handlebars-style variables such as `{{ subscriber.name }}`. Mailrith sends unsupported variables as literal text.
+4. Select a saved Subscriber before previewing or testing a Template, Broadcast, Sequence, Automation, Form, or Landing Page email.
+5. Use the returned preview to review real saved personalization without changing the Subscriber or workflow.
+6. For Sequences, confirm the Subscriber and per-email eligibility.
+7. For Automations, confirm the evaluated branch and remember that the preview uses the Subscriber's current saved state.
+8. Send a test only to the explicit test address supplied by the user.
 
 ## Preflight And Scoped Execution
 

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 1.1.0 - 2026-08-17
+
+- Add `tags_create`, `custom_fields_list`, and `custom_fields_get` to the fixed
+  submitted catalog, increasing it from 52 to 55 focused tools.
+- Keep capability validation aligned with the exact submitted operation list so
+  newly added tools are not rejected before execution.
+- Teach agents to use Mailrith's exact Subscriber and Custom Field
+  personalization tokens instead of unsupported variable formats.
+
 ## 1.0.2 - 2026-08-14
 
 - Teach update tools to retain and verify the existing Broadcast schedule or

@@ -376,6 +376,7 @@ const buildManifest = async () => {
         "scripts/verify-agent-release.ts",
       ]),
       agent_discovery_and_guidance_sha256: await hashFiles([
+        "packages/agent-discovery-snapshot.json",
         "packages/agent-integrations/SUBMISSION.md",
         "packages/mcp-server/README.md",
         "packages/public-api/README.md",

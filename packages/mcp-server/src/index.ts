@@ -52,7 +52,7 @@ export const mailrithMcpMaxAnonymousBatchItems = 1;
 export const mailrithMcpMaxAuthenticatedBatchItems = 25;
 const mcpServerInfo = {
   name: "mailrith",
-  version: "1.0.2",
+  version: "1.1.0",
 } as const;
 
 type MailrithFetch = typeof fetch;
@@ -144,6 +144,7 @@ export const mailrithMcpStandardOAuthScopes = [
 
 export const mailrithMcpToolsetsHeader = "mailrith-mcp-toolsets";
 export const mailrithMcpReadOnlyHeader = "mailrith-mcp-read-only";
+export const mailrithMcpOperationIdsHeader = "mailrith-mcp-operation-ids";
 export const mailrithMcpIncludeOutputSchemasHeader =
   "mailrith-mcp-include-output-schemas";
 
@@ -1404,6 +1405,7 @@ const validateMcpBearerCredential = async (params: {
   requiredScopes: string[];
   enabledToolsets: readonly PublicApiMcpToolsetKey[];
   readOnly: boolean;
+  profile: MailrithMcpProfile;
 }) => {
   const response = await params.fetch(
     `${params.baseUrl}${publicApiCapabilitiesPath}`,
@@ -1415,6 +1417,7 @@ const validateMcpBearerCredential = async (params: {
         ...createMcpCapabilityContextHeaders({
           enabledToolsets: params.enabledToolsets,
           readOnly: params.readOnly,
+          profile: params.profile,
         }),
       },
     },
@@ -2466,7 +2469,10 @@ export const createMailrithMcpCompactToolDefinitions = (
 };
 
 export const createMcpCapabilityContextHeaders = (
-  options: Pick<MailrithMcpServerOptions, "enabledToolsets" | "readOnly">,
+  options: Pick<
+    MailrithMcpServerOptions,
+    "enabledToolsets" | "readOnly" | "profile"
+  >,
 ) => ({
   ...(options.enabledToolsets
     ? {
@@ -2474,6 +2480,12 @@ export const createMcpCapabilityContextHeaders = (
       }
     : {}),
   ...(options.readOnly ? { [mailrithMcpReadOnlyHeader]: "true" } : {}),
+  ...(options.profile === "submitted"
+    ? {
+        [mailrithMcpOperationIdsHeader]:
+          publicApiSubmittedMcpOperationIds.join(","),
+      }
+    : {}),
 });
 
 export const createMailrithMcpServer = (
@@ -2481,7 +2493,10 @@ export const createMailrithMcpServer = (
 ) => {
   const baseUrl = normalizeBaseUrl(options.baseUrl);
   const profile = options.profile ?? "submitted";
-  const capabilityContextHeaders = createMcpCapabilityContextHeaders(options);
+  const capabilityContextHeaders = createMcpCapabilityContextHeaders({
+    ...options,
+    profile,
+  });
   const client =
     options.client ??
     createMailrithClient({
@@ -2800,6 +2815,7 @@ export const handleMailrithMcpHttpRequest = async (
     requiredScopes,
     enabledToolsets: enabledToolsets.toolsets,
     readOnly: enabledToolsets.readOnly,
+    profile,
   });
   if (!validation.ok && validation.reason === "invalid_token") {
     return createMcpAuthResponse(

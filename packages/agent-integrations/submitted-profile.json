@@ -3,10 +3,10 @@
   "profile": "submitted",
   "contract_version": "1.0",
   "source_contract_version": "v1",
-  "source_schema_digest": "sha256:d5820c9714fc10691d3afeae854a376cf9ec16d842a2ee568d17a531ac8a522e",
-  "submitted_schema_digest": "sha256:db16e638a07f9e86c33df333deebfc73e5e9ab03a6cbf79a1a0b7a92c9243a87",
+  "source_schema_digest": "sha256:d70eff37edaa258e6634c209fc3b9edd76f0e5cd11caa54b3c07de01f2049f11",
+  "submitted_schema_digest": "sha256:d4ac9bcd930f9a3d97fbb31c27464af9c24d740fbe87c35b54213a2aa698a084",
   "mcp_server_url": "https://api.mailrith.com/mcp",
-  "tool_count": 52,
+  "tool_count": 55,
   "tools": [
     {
       "operation_id": "getPublicApiCapabilities",
@@ -244,6 +244,48 @@
       ],
       "annotations": {
         "title": "Get a tag",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "createTag",
+      "name": "tags_create",
+      "required_scopes": [
+        "tags:write"
+      ],
+      "annotations": {
+        "title": "Create a tag",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "listCustomFields",
+      "name": "custom_fields_list",
+      "required_scopes": [
+        "custom_fields:read"
+      ],
+      "annotations": {
+        "title": "List custom fields",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "operation_id": "getCustomField",
+      "name": "custom_fields_get",
+      "required_scopes": [
+        "custom_fields:read"
+      ],
+      "annotations": {
+        "title": "Get a custom field",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,

@@ -1452,7 +1452,7 @@ export const generatedMailrithSdkResources = [
         "method": "PUT",
         "path": "/v1/subscribers/{subscriber_id}/status",
         "summary": "Change Subscriber sending eligibility",
-        "description": "Changes the delivery status for one Subscriber without changing profile, targeting, or Sequence enrollment fields.",
+        "description": "Changes the delivery status for one Subscriber without changing profile, targeting, or Sequence enrollment fields. Making a Subscriber Active requires consent_evidence; its collected_at value must include the correct UTC offset and must not be later than Mailrith's server time.",
         "authRequired": true,
         "requiredScopes": [
           "live_actions:write",
@@ -1887,7 +1887,7 @@ export const generatedMailrithSdkResources = [
         "method": "GET",
         "path": "/v1/custom-fields",
         "summary": "List custom fields",
-        "description": "Returns custom fields in the authenticated workspace.",
+        "description": "Returns a bounded page of custom fields in the authenticated workspace, including each field's exact ready-to-use email personalization token.",
         "authRequired": true,
         "requiredScopes": [
           "custom_fields:read"
@@ -1974,7 +1974,7 @@ export const generatedMailrithSdkResources = [
         "method": "GET",
         "path": "/v1/custom-fields/{custom_field_id}",
         "summary": "Get a custom field",
-        "description": "Returns one custom field from the authenticated workspace.",
+        "description": "Returns one custom field from the authenticated workspace, including its exact ready-to-use email personalization token.",
         "authRequired": true,
         "requiredScopes": [
           "custom_fields:read"

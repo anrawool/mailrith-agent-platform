@@ -34,5 +34,5 @@ tool approval.
 
 After publishing, confirm from a clean Cline profile that giving Cline only the
 package README and `llms-install.md` is enough to install
-`@mailrith/mcp-server@1.0.2`, connect with a synthetic workspace API key, and
+`@mailrith/mcp-server@1.1.0`, connect with a synthetic workspace API key, and
 run only `discovery_get_capabilities`.

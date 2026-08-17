@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 1.1.0 - 2026-08-17
+
+- Regenerate bounded operation discovery with exact Mailrith
+  personalization-token guidance and consent-evidence timestamp requirements.
+- Keep Tag and Custom Field operations available through their existing Python
+  methods while the submitted MCP profile exposes the three new focused tools.
+
 ## 1.0.1 - 2026-08-14
 
 - Add bounded task-language operation discovery and exact operation-ID lookup,

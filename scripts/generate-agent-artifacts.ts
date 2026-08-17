@@ -12,6 +12,7 @@ import {
   publicApiAgentReadQuickstartScopeKeys,
   publicApiDefaultWorkProfileKey,
   publicApiSdkResources,
+  publicApiSubmittedMcpOperationIds,
   publicApiVersion,
   publicApiWorkProfiles,
 } from "../packages/public-api/src/index.js";
@@ -129,6 +130,38 @@ export const buildPythonOperationDiscoveryCatalogJson = () =>
 
 export const buildAgentContractVersionJson = () =>
   `${JSON.stringify({ contract_version: publicApiVersion }, null, 2)}\n`;
+
+export const buildAgentDiscoverySnapshot = () => {
+  const operations = publicApiSdkResources.flatMap((resource) =>
+    resource.operations.map((operation) => operation),
+  );
+  const operationById = new Map(
+    operations.map((operation) => [operation.operationId, operation]),
+  );
+  const submittedMcpToolNames = publicApiSubmittedMcpOperationIds.map(
+    (operationId) => {
+      const operation = operationById.get(operationId);
+      if (!operation) {
+        throw new Error(
+          `Submitted MCP operation ${operationId} is missing from the public API contract.`,
+        );
+      }
+      return operation.mcpToolName;
+    },
+  );
+
+  return {
+    schema_version: 1,
+    contract_version: publicApiVersion,
+    openapi_operation_ids: operations.map(
+      (operation) => operation.operationId,
+    ),
+    submitted_mcp_tool_names: submittedMcpToolNames,
+  };
+};
+
+export const buildAgentDiscoverySnapshotJson = () =>
+  `${JSON.stringify(buildAgentDiscoverySnapshot(), null, 2)}\n`;
 
 const canonicalizeJson = (value: unknown): unknown => {
   if (Array.isArray(value)) {
@@ -266,6 +299,10 @@ const main = async () => {
   await writeGeneratedFile(
     "packages/python-sdk/mailrith_sdk/contract.json",
     buildAgentContractVersionJson(),
+  );
+  await writeGeneratedFile(
+    "packages/agent-discovery-snapshot.json",
+    buildAgentDiscoverySnapshotJson(),
   );
   await writeGeneratedFile(
     "packages/mcp-server/src/generated-tool-manifest.ts",
