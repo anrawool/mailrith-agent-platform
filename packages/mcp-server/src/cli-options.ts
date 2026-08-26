@@ -21,10 +21,8 @@ export const parseMailrithMcpCliOptions = (
   argv: string[],
   env: MailrithMcpCliEnvironment = process.env,
 ): MailrithMcpCliOptions => {
-  const environmentApiKey = resolveEnvironmentApiKey(env);
   const options: MailrithMcpCliOptions = {
     transport: "stdio",
-    ...(environmentApiKey ? { apiKey: environmentApiKey } : {}),
     host: "127.0.0.1",
     port: 8788,
   };
@@ -35,6 +33,12 @@ export const parseMailrithMcpCliOptions = (
 
     if (!value?.startsWith("--")) {
       continue;
+    }
+
+    if (value === "--api-key" || value.startsWith("--api-key=")) {
+      throw new Error(
+        "Do not pass Mailrith credentials as command arguments. Set MAILRITH_API_KEY in the client secret environment for local stdio use.",
+      );
     }
 
     if (value === "--transport" && nextValue) {
@@ -49,13 +53,6 @@ export const parseMailrithMcpCliOptions = (
       continue;
     }
 
-    if (value === "--api-key" && nextValue) {
-      const apiKey = nextValue.trim();
-      options.apiKey = apiKey ? apiKey : options.apiKey;
-      index += 1;
-      continue;
-    }
-
     if (value === "--host" && nextValue) {
       options.host = nextValue;
       index += 1;
@@ -64,11 +61,27 @@ export const parseMailrithMcpCliOptions = (
 
     if (value === "--port" && nextValue) {
       const parsed = Number(nextValue);
-      if (!Number.isNaN(parsed) && Number.isFinite(parsed)) {
-        options.port = parsed;
+      if (!Number.isInteger(parsed) || parsed < 1 || parsed > 65535) {
+        throw new Error("The MCP HTTP port must be an integer from 1 to 65535.");
       }
+      options.port = parsed;
       index += 1;
     }
+  }
+
+  if (
+    options.transport === "http" &&
+    options.host !== "127.0.0.1" &&
+    options.host !== "localhost"
+  ) {
+    throw new Error(
+      "The built-in MCP HTTP server must listen on 127.0.0.1 or localhost. Put a TLS reverse proxy in front of it for remote access.",
+    );
+  }
+
+  const environmentApiKey = resolveEnvironmentApiKey(env);
+  if (options.transport === "stdio" && environmentApiKey) {
+    options.apiKey = environmentApiKey;
   }
 
   return options;
@@ -79,7 +92,7 @@ export const requireMailrithMcpStdioCredential = (
 ) => {
   if (!options.apiKey) {
     throw new Error(
-      "Local stdio requires a Mailrith credential. Set MAILRITH_API_KEY in the client secret environment or pass --api-key.",
+      "Local stdio requires a Mailrith credential. Set MAILRITH_API_KEY in the client secret environment.",
     );
   }
 };

@@ -33,21 +33,21 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
 
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3
         with:
           version: 11.7.0
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 24
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.13"
 
@@ -141,6 +141,7 @@ jobs:
           tar -czf "release/platform/mailrith-gemini-cli-extension-$MARKETPLACE_SUBMISSION_VERSION.tar.gz" \
             gemini-extension.json \
             GEMINI.md \
+            TRADEMARKS.md \
             skills/mailrith-email-marketing
           tar -czf "release/platform/mailrith-microsoft-mcp-certification-$MARKETPLACE_SUBMISSION_VERSION.tar.gz" \
             -C packages/agent-integrations/microsoft \
@@ -150,6 +151,7 @@ jobs:
             README.md \
             Color.png \
             Outline.png \
+            TRADEMARKS.md \
             assets
           tar -czf "release/platform/mailrith-cline-submission-$MARKETPLACE_SUBMISSION_VERSION.tar.gz" \
             -C packages \
@@ -169,7 +171,7 @@ jobs:
 
       - name: Attest Package Provenance
         if: github.event.repository.visibility == 'public'
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
         with:
           subject-path: "release/**/*"
 
@@ -178,7 +180,7 @@ jobs:
         run: |
           echo "::notice title=Package provenance gate::GitHub artifact attestations are unavailable for this user-owned private repository. Package preparation can continue, but publication remains blocked until the repository is public."
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: mailrith-agent-packages
           path: release
@@ -194,11 +196,11 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: mailrith-agent-packages
           path: release
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
@@ -229,7 +231,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: mailrith-agent-packages
           path: release
@@ -237,7 +239,7 @@ jobs:
         run: sha256sum --check SHA256SUMS
         working-directory: release
       - name: Publish Python Package With Trusted Publishing
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
         with:
           packages-dir: release/python
           print-hash: true
@@ -254,11 +256,11 @@ jobs:
       (needs.publish-python.result == 'success' || needs.publish-python.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.13"
       - name: Clean Install From Public Registries

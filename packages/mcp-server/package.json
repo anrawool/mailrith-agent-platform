@@ -28,7 +28,8 @@
     "dist",
     "CHANGELOG.md",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "TRADEMARKS.md"
   ],
   "engines": {
     "node": ">=20"
@@ -49,8 +50,8 @@
   "dependencies": {
     "@mailrith/public-api": "workspace:^",
     "@mailrith/sdk": "workspace:^",
-    "@modelcontextprotocol/sdk": "1.29.0",
-    "zod": "^4.1.12"
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@types/node": "^24.5.2",

@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -18,6 +18,33 @@ const createTemporaryConfigPath = async () => {
   const directory = await mkdtemp(path.join(tmpdir(), "mailrith-cli-test-"));
   temporaryDirectories.push(directory);
   return path.join(directory, "mailrith", "config.json");
+};
+
+const writeTemporaryConfig = async (
+  configPath: string,
+  credential:
+    | { kind: "api_key"; token: string }
+    | {
+        kind: "oauth";
+        accessToken: string;
+        refreshToken: string;
+        expiresAt: string;
+        clientId: string;
+        tokenEndpoint: string;
+        resource: string;
+        redirectUri: string;
+        scopes: string[];
+      },
+) => {
+  await mkdir(path.dirname(configPath), { recursive: true });
+  await writeFile(
+    configPath,
+    `${JSON.stringify({
+      version: 1,
+      baseUrl: "https://api.mailrith.com",
+      credential,
+    })}\n`,
+  );
 };
 
 afterEach(async () => {
@@ -255,6 +282,179 @@ describe("Mailrith CLI", () => {
     });
   });
 
+  it.each([
+    ["command flag", ["capabilities", "--base-url", "https://other.example", "--json"], {}],
+    ["environment", ["capabilities", "--json"], { MAILRITH_API_BASE_URL: "https://other.example" }],
+    ["doctor", ["doctor", "--base-url", "https://other.example", "--json"], {}],
+  ])(
+    "never sends a saved API key to a different API URL from the %s",
+    async (_label, args, extraEnvironment) => {
+      const configPath = await createTemporaryConfigPath();
+      await writeTemporaryConfig(configPath, {
+        kind: "api_key",
+        token: "mailrith_saved_secret",
+      });
+      const fetchMock = vi.fn();
+      const stderr: string[] = [];
+
+      const exitCode = await runMailrithCli(args, {
+        environment: {
+          MAILRITH_CONFIG_FILE: configPath,
+          ...extraEnvironment,
+        },
+        fetch: fetchMock as typeof fetch,
+        stderr: (line) => stderr.push(line),
+      });
+
+      expect(exitCode).toBe(mailrithCliExitCodes.usage);
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(stderr.join("\n")).toContain("saved credential belongs to");
+      expect(stderr.join("\n")).not.toContain("mailrith_saved_secret");
+    },
+  );
+
+  it("rejects a saved OAuth URL mismatch before attempting token refresh", async () => {
+    const configPath = await createTemporaryConfigPath();
+    await writeTemporaryConfig(configPath, {
+      kind: "oauth",
+      accessToken: "expired_access_token",
+      refreshToken: "saved_refresh_token",
+      expiresAt: "2000-01-01T00:00:00.000Z",
+      clientId: "client_123",
+      tokenEndpoint: "https://api.mailrith.com/oauth/token",
+      resource: "https://api.mailrith.com/v1",
+      redirectUri: "http://127.0.0.1:53682/callback",
+      scopes: ["workspace:read"],
+    });
+    const fetchMock = vi.fn();
+
+    const exitCode = await runMailrithCli(
+      ["capabilities", "--base-url", "https://other.example", "--json"],
+      {
+        environment: { MAILRITH_CONFIG_FILE: configPath },
+        fetch: fetchMock as typeof fetch,
+        stderr: () => undefined,
+      },
+    );
+
+    expect(exitCode).toBe(mailrithCliExitCodes.usage);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    {
+      label: "token endpoint",
+      tokenEndpoint: "https://different.example/oauth/token",
+      resource: "https://api.mailrith.com/v1",
+    },
+    {
+      label: "resource",
+      tokenEndpoint: "https://api.mailrith.com/oauth/token",
+      resource: "https://different.example/v1",
+    },
+    {
+      label: "token endpoint credentials",
+      tokenEndpoint: "https://user:password@api.mailrith.com/oauth/token",
+      resource: "https://api.mailrith.com/v1",
+    },
+  ])(
+    "rejects a saved OAuth $label mismatch before sending a refresh token",
+    async ({ tokenEndpoint, resource }) => {
+      const configPath = await createTemporaryConfigPath();
+      await writeTemporaryConfig(configPath, {
+        kind: "oauth",
+        accessToken: "expired_access_token",
+        refreshToken: "saved_refresh_token",
+        expiresAt: "2000-01-01T00:00:00.000Z",
+        clientId: "client_123",
+        tokenEndpoint,
+        resource,
+        redirectUri: "http://127.0.0.1:53682/callback",
+        scopes: ["workspace:read"],
+      });
+      const fetchMock = vi.fn();
+
+      const exitCode = await runMailrithCli(["capabilities", "--json"], {
+        environment: { MAILRITH_CONFIG_FILE: configPath },
+        fetch: fetchMock as typeof fetch,
+        stderr: () => undefined,
+      });
+
+      expect(exitCode).toBe(mailrithCliExitCodes.usage);
+      expect(fetchMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it("uses an unexpired OAuth credential created for the saved API URL", async () => {
+    const configPath = await createTemporaryConfigPath();
+    await writeTemporaryConfig(configPath, {
+      kind: "oauth",
+      accessToken: "saved_access_token",
+      refreshToken: "saved_refresh_token",
+      expiresAt: "2999-01-01T00:00:00.000Z",
+      clientId: "client_123",
+      tokenEndpoint: "https://api.mailrith.com/oauth/token",
+      resource: "https://api.mailrith.com/v1",
+      redirectUri: "http://127.0.0.1:53682/callback",
+      scopes: ["workspace:read"],
+    });
+    const requests: Request[] = [];
+    const fetchMock = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      requests.push(new Request(input, init));
+      return Response.json({ data: {} });
+    });
+
+    const exitCode = await runMailrithCli(["capabilities", "--json"], {
+      environment: { MAILRITH_CONFIG_FILE: configPath },
+      fetch: fetchMock as typeof fetch,
+      stdout: () => undefined,
+    });
+
+    expect(exitCode).toBe(mailrithCliExitCodes.success);
+    expect(requests).toHaveLength(1);
+    expect(requests[0]?.url).toBe("https://api.mailrith.com/v1/capabilities");
+    expect(requests[0]?.headers.get("authorization")).toBe(
+      "Bearer saved_access_token",
+    );
+  });
+
+  it("allows an equivalent saved URL and environment credentials for alternate URLs", async () => {
+    const configPath = await createTemporaryConfigPath();
+    await writeTemporaryConfig(configPath, {
+      kind: "api_key",
+      token: "mailrith_saved_secret",
+    });
+    const requestUrls: string[] = [];
+    const fetchMock = vi.fn(async (input: string | URL | Request) => {
+      requestUrls.push(new Request(input).url);
+      return Response.json({ data: {} });
+    });
+
+    const savedExitCode = await runMailrithCli(
+      ["capabilities", "--base-url", "https://api.mailrith.com/", "--json"],
+      {
+        environment: { MAILRITH_CONFIG_FILE: configPath },
+        fetch: fetchMock as typeof fetch,
+        stdout: () => undefined,
+      },
+    );
+    const environmentExitCode = await runMailrithCli(
+      ["capabilities", "--base-url", "https://other.example", "--json"],
+      {
+        environment: { MAILRITH_ACCESS_TOKEN: "environment_token" },
+        fetch: fetchMock as typeof fetch,
+        stdout: () => undefined,
+      },
+    );
+
+    expect(savedExitCode).toBe(mailrithCliExitCodes.success);
+    expect(environmentExitCode).toBe(mailrithCliExitCodes.success);
+    expect(requestUrls).toEqual([
+      "https://api.mailrith.com/v1/capabilities",
+      "https://other.example/v1/capabilities",
+    ]);
+  });
+
   it("stops cursor pagination at the configured bounded page count", async () => {
     const requestedUrls: string[] = [];
     const stderr: string[] = [];
@@ -358,6 +558,34 @@ describe("Mailrith CLI", () => {
     });
   });
 
+  it("does not print secrets echoed by API or network errors", async () => {
+    const secret = "mailrith_secret_that_must_not_be_logged";
+    for (const fetchImpl of [
+      vi.fn(async () =>
+        Response.json(
+          { error: { code: "request_failed", message: secret } },
+          { status: 500 },
+        ),
+      ),
+      vi.fn(async () => {
+        throw new Error(secret);
+      }),
+    ]) {
+      const stderr: string[] = [];
+      const exitCode = await runMailrithCli(["capabilities", "--json"], {
+        environment: {
+          MAILRITH_API_KEY: secret,
+          MAILRITH_API_BASE_URL: "https://api.mailrith.test",
+        },
+        fetch: fetchImpl as typeof fetch,
+        stderr: (line) => stderr.push(line),
+      });
+
+      expect(exitCode).toBe(mailrithCliExitCodes.transient);
+      expect(stderr.join("\n")).not.toContain(secret);
+    }
+  });
+
   it("prints the credential-specific recovery step for permission failures", async () => {
     const stderr: string[] = [];
     const exitCode = await runMailrithCli(["capabilities"], {
@@ -393,7 +621,43 @@ describe("Mailrith CLI", () => {
       "Next step: Create and install a replacement API key with the missing permission.",
     );
     expect(stderr).toContain(
-      "Update access: https://app.mailrith.test/settings?tab=api-keys",
+      "Permission help: https://mailrith.com/developers/authentication#add-permissions",
+    );
+  });
+
+  it("does not print server-provided credential recovery text or URLs", async () => {
+    const secret = "mailrith_recovery_secret";
+    const stderr: string[] = [];
+
+    const exitCode = await runMailrithCli(["capabilities"], {
+      environment: {
+        MAILRITH_API_KEY: "mailrith_test_secret",
+        MAILRITH_API_BASE_URL: "https://api.mailrith.test",
+      },
+      fetch: vi.fn(async () =>
+        Response.json(
+          {
+            error: {
+              code: "insufficient_scope",
+              message: secret,
+              credential_type: "workspace_api_key",
+              recovery: {
+                action: "replace_api_key",
+                message: secret,
+                access_update_url: `https://example.test/${secret}`,
+              },
+            },
+          },
+          { status: 403 },
+        ),
+      ) as typeof fetch,
+      stderr: (line) => stderr.push(line),
+    });
+
+    expect(exitCode).toBe(mailrithCliExitCodes.permission);
+    expect(stderr.join("\n")).not.toContain(secret);
+    expect(stderr).toContain(
+      "Next step: Create and install a replacement API key with the missing permission.",
     );
   });
 

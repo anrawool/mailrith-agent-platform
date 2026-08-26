@@ -1,6 +1,7 @@
 import {
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -18,9 +19,25 @@ const mainWorkflow = readFileSync(
   join(process.cwd(), ".github/workflows/ci.yml"),
   "utf8",
 );
+const workflowSources = readdirSync(join(process.cwd(), ".github/workflows"))
+  .filter((fileName) => /\.ya?ml$/.test(fileName))
+  .map((fileName) =>
+    readFileSync(join(process.cwd(), ".github/workflows", fileName), "utf8"),
+  );
 const rootPackage = readFileSync(
   join(process.cwd(), "package.json"),
   "utf8",
+);
+const publicNpmPackageFiles = [
+  "packages/public-api/package.json",
+  "packages/sdk/package.json",
+  "packages/mcp-server/package.json",
+  "packages/cli/package.json",
+  "packages/agent-skill/package.json",
+].map((fileName) =>
+  JSON.parse(readFileSync(join(process.cwd(), fileName), "utf8")) as {
+    files?: string[];
+  },
 );
 
 describe("agent release workflow", () => {
@@ -69,7 +86,9 @@ describe("agent release workflow", () => {
       "if: github.event.repository.visibility == 'public'",
     );
     expect(workflow).toContain("Record Private Repository Attestation Gate");
-    expect(workflow).toContain("uses: actions/upload-artifact@v4");
+    expect(workflow).toMatch(
+      /uses: actions\/upload-artifact@[0-9a-f]{40} # v4/,
+    );
   });
 
   it("regenerates and validates every submitted platform artifact", () => {
@@ -95,6 +114,13 @@ describe("agent release workflow", () => {
     expect(workflow).toContain(
       "chatgpt-app-submission-$MARKETPLACE_SUBMISSION_VERSION.json",
     );
+    expect(workflow).toContain("TRADEMARKS.md");
+  });
+
+  it("includes the canonical trademark policy in every public npm package", () => {
+    for (const packageJson of publicNpmPackageFiles) {
+      expect(packageJson.files).toContain("TRADEMARKS.md");
+    }
   });
 
   it("keeps the public release independently reproducible", () => {
@@ -110,6 +136,7 @@ describe("agent release workflow", () => {
     expect(integrationGenerator).toContain(
       '"assets",\n  "mailrith-logo.svg"',
     );
+    expect(integrationGenerator).toContain('"TRADEMARKS.md"');
     expect(integrationGenerator).not.toContain('"apps",\n  "marketing"');
     expect(releaseVerifier).not.toContain(".github/workflows/ci-cd.yml");
     expect(releaseVerifier).not.toContain("apps/marketing/");
@@ -133,14 +160,28 @@ describe("agent release workflow", () => {
   });
 
   it("preserves registry provenance and trusted publishing", () => {
-    expect(workflow).toContain("uses: actions/setup-node@v6");
+    expect(workflow).toMatch(/uses: actions\/setup-node@[0-9a-f]{40} # v6/);
     expect(workflow).toContain('NPM_CONFIG_PROVENANCE: "true"');
     expect(workflow).toContain(
       'npm publish "$archive" --access public --provenance --tag latest',
     );
-    expect(workflow).toContain("uses: pypa/gh-action-pypi-publish@release/v1");
+    expect(workflow).toMatch(
+      /uses: pypa\/gh-action-pypi-publish@[0-9a-f]{40} # release\/v1/,
+    );
     expect(workflow).not.toContain("NODE_AUTH_TOKEN");
     expect(workflow).not.toContain("secrets.NPM_TOKEN");
+  });
+
+  it("pins every remote workflow action to an immutable commit", () => {
+    for (const source of workflowSources) {
+      for (const match of source.matchAll(/^\s*-?\s*uses:\s*([^\s#]+)/gm)) {
+        const reference = match[1] ?? "";
+        if (reference.startsWith("./") || reference.startsWith("docker://")) {
+          continue;
+        }
+        expect(reference).toMatch(/^[^@\s]+@[0-9a-f]{40}$/);
+      }
+    }
   });
 
   it("publishes local npm archives instead of treating paths as Git repository specifications", () => {

@@ -80,11 +80,9 @@ const startHttpServer = async (options: MailrithMcpCliOptions) => {
       const request = createRequestFromNode(req, origin);
       const response = await handleMailrithMcpHttpRequest(request, {
         baseUrl: options.baseUrl,
-        apiKey: options.apiKey,
       });
       await writeNodeResponse(res, response);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch {
       res.statusCode = 500;
       res.setHeader("content-type", "application/json");
       res.end(
@@ -93,7 +91,7 @@ const startHttpServer = async (options: MailrithMcpCliOptions) => {
             jsonrpc: "2.0",
             error: {
               code: -32603,
-              message,
+              message: "Internal server error.",
             },
             id: null,
           },

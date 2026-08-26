@@ -15,6 +15,14 @@ const repositoryRoot = path.resolve(
 );
 const maximumResponseBytes = 5 * 1024 * 1024;
 const requestTimeoutMilliseconds = 10_000;
+
+const removeTrailingSlashes = (value: string) => {
+  let end = value.length;
+  while (end > 0 && value.charCodeAt(end - 1) === 47) {
+    end -= 1;
+  }
+  return value.slice(0, end);
+};
 const supportedClients = [
   "chatgpt",
   "openai",
@@ -83,6 +91,18 @@ const connectorFilesByClient: Record<SupportedClient, string[]> = {
     "packages/agent-skill/connectors/pipedream-read-capabilities.mjs",
   ],
 };
+const connectorEndpointFileByClient: Record<SupportedClient, string> = {
+  chatgpt: "packages/agent-integrations/openai/mailrith/.mcp.json",
+  openai: "packages/agent-skill/connectors/openai-responses.json",
+  claude_connector:
+    "packages/agent-integrations/claude/connector-listing.json",
+  claude: "packages/agent-skill/connectors/claude-messages.json",
+  codex: "packages/agent-skill/connectors/codex-config.toml",
+  cursor: "packages/agent-integrations/cursor/mailrith/mcp.json",
+  n8n: "packages/agent-skill/connectors/n8n-read-capabilities.workflow.json",
+  pipedream:
+    "packages/agent-skill/connectors/pipedream-read-capabilities.mjs",
+};
 const conformanceStepNameByClient: Record<SupportedClient, string> = {
   chatgpt: "chatgpt_plugin",
   openai: "openai_responses_template",
@@ -102,6 +122,87 @@ const readConnector = async (fileNames: string[]) =>
       ),
     )
   ).join("\n");
+
+const endpointKeys = new Set([
+  "mcp_server_url",
+  "oauth_resource",
+  "server_url",
+  "url",
+]);
+
+const collectJsonEndpoints = (value: unknown, endpoints: string[]) => {
+  if (Array.isArray(value)) {
+    for (const item of value) collectJsonEndpoints(item, endpoints);
+    return;
+  }
+  if (!value || typeof value !== "object") return;
+  for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+    if (endpointKeys.has(key) && typeof item === "string") {
+      endpoints.push(item);
+    } else {
+      collectJsonEndpoints(item, endpoints);
+    }
+  }
+};
+
+const readQuotedAssignment = (source: string, marker: string) => {
+  const line = source
+    .split("\n")
+    .map((candidate) => candidate.trim())
+    .find((candidate) => candidate.startsWith(marker));
+  if (!line) return [];
+  let literal = line.slice(marker.length).trim();
+  if (literal.endsWith(",")) literal = literal.slice(0, -1).trim();
+  try {
+    const value = JSON.parse(literal) as unknown;
+    return typeof value === "string" ? [value] : [];
+  } catch {
+    return [];
+  }
+};
+
+const extractConnectorEndpoints = (
+  client: SupportedClient,
+  source: string,
+) => {
+  if (client === "codex") return readQuotedAssignment(source, "url =");
+  if (client === "pipedream") return readQuotedAssignment(source, "url:");
+  try {
+    const endpoints: string[] = [];
+    collectJsonEndpoints(JSON.parse(source) as unknown, endpoints);
+    return endpoints;
+  } catch {
+    return [];
+  }
+};
+
+export const connectorEndpointsAreCanonical = (
+  client: SupportedClient,
+  source: string,
+) => {
+  const expectedPath =
+    client === "n8n" || client === "pipedream"
+      ? "/v1/capabilities"
+      : "/mcp";
+  const endpoints = extractConnectorEndpoints(client, source);
+  return endpoints.length > 0 && endpoints.every((endpoint) => {
+    try {
+      const url = new URL(endpoint);
+      return (
+        url.protocol === "https:" &&
+        url.username === "" &&
+        url.password === "" &&
+        url.hostname === "api.mailrith.com" &&
+        url.port === "" &&
+        url.pathname === expectedPath &&
+        url.search === "" &&
+        url.hash === ""
+      );
+    } catch {
+      return false;
+    }
+  });
+};
 
 const hasSafeConnectorDefault = (
   client: SupportedClient,
@@ -160,8 +261,14 @@ export const runStaticAgentClientConformance = async (
 
   for (const selectedClient of selectedClients) {
     const source = await readConnector(connectorFilesByClient[selectedClient]);
+    const endpointSource = await readConnector([
+      connectorEndpointFileByClient[selectedClient],
+    ]);
     const hasResolvedSecret = /(?:mrk|mra|mrt)_[A-Za-z0-9_-]{12,}/.test(source);
-    const pointsToMailrith = source.includes("https://api.mailrith.com/");
+    const pointsToMailrith = connectorEndpointsAreCanonical(
+      selectedClient,
+      endpointSource,
+    );
     const hasSubmittedTools =
       submittedTools.every((tool) => source.includes(tool));
     const safeDefault = hasSafeConnectorDefault(
@@ -261,7 +368,9 @@ export const runReadAgentClientConformance = async (params: {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
 }): Promise<AgentClientConformanceReport> => {
-  const baseUrl = new URL((params.baseUrl ?? "https://api.mailrith.com").replace(/\/+$/, ""));
+  const baseUrl = new URL(
+    removeTrailingSlashes(params.baseUrl ?? "https://api.mailrith.com"),
+  );
   const marketingOrigin = resolveMarketingOrigin(baseUrl);
   const steps: ConformanceStep[] = [];
 

@@ -147,9 +147,11 @@ describe("@mailrith/mcp-server", () => {
         baseUrl: environment.baseUrl,
       });
       for (const tool of tools) {
-        expect(tool.description).toContain(
-          `API reference: ${environment.referenceUrl}.`,
-        );
+        expect(
+          tool.description.endsWith(
+            `API reference: ${environment.referenceUrl}.`,
+          ),
+        ).toBe(true);
       }
     }
   });
@@ -240,7 +242,7 @@ describe("@mailrith/mcp-server", () => {
     await server.close().catch(() => undefined);
   });
 
-  it("reads the local API key from the environment and lets an explicit flag override it", () => {
+  it("reads local stdio credentials only from the environment", () => {
     expect(
       parseMailrithMcpCliOptions([], {
         MAILRITH_API_KEY: "  mrk_environment  ",
@@ -250,14 +252,16 @@ describe("@mailrith/mcp-server", () => {
       apiKey: "mrk_environment",
     });
     expect(
-      parseMailrithMcpCliOptions(
-        ["--transport", "http", "--api-key", "mrk_flag"],
-        { MAILRITH_API_KEY: "mrk_environment" },
-      ),
-    ).toMatchObject({
-      transport: "http",
-      apiKey: "mrk_flag",
-    });
+      parseMailrithMcpCliOptions(["--transport", "http"], {
+        MAILRITH_API_KEY: "mrk_environment",
+      }),
+    ).not.toHaveProperty("apiKey");
+    expect(() =>
+      parseMailrithMcpCliOptions(["--api-key", "mrk_flag"], {}),
+    ).toThrow("Do not pass Mailrith credentials as command arguments");
+    expect(() =>
+      parseMailrithMcpCliOptions(["--api-key=mrk_flag"], {}),
+    ).toThrow("Do not pass Mailrith credentials as command arguments");
     expect(
       parseMailrithMcpCliOptions([], {
         MAILRITH_API_KEY: "   ",
@@ -271,6 +275,32 @@ describe("@mailrith/mcp-server", () => {
         apiKey: "mrk_environment",
       }),
     ).not.toThrow();
+  });
+
+  it("keeps the built-in HTTP listener on loopback with a valid port", () => {
+    expect(
+      parseMailrithMcpCliOptions([
+        "--transport",
+        "http",
+        "--host",
+        "localhost",
+        "--port",
+        "8789",
+      ]),
+    ).toMatchObject({ transport: "http", host: "localhost", port: 8789 });
+    expect(() =>
+      parseMailrithMcpCliOptions([
+        "--transport",
+        "http",
+        "--host",
+        "0.0.0.0",
+      ]),
+    ).toThrow("must listen on 127.0.0.1 or localhost");
+    for (const port of ["0", "65536", "8788.5", "invalid"]) {
+      expect(() =>
+        parseMailrithMcpCliOptions(["--transport", "http", "--port", port]),
+      ).toThrow("must be an integer from 1 to 65535");
+    }
   });
 
   it("serves anonymous static submitted discovery with exact schemas and OAuth metadata", async () => {
@@ -384,10 +414,11 @@ describe("@mailrith/mcp-server", () => {
           },
         }),
       }),
-      {
+      ({
         baseUrl: "https://api.mailrith.com",
         fetch: unavailableFetch as unknown as typeof fetch,
-      },
+        apiKey: "ambient_process_secret",
+      } as unknown) as Parameters<typeof handleMailrithMcpHttpRequest>[1],
     );
     const payload = (await response.json()) as {
       result?: {
@@ -1369,8 +1400,8 @@ describe("@mailrith/mcp-server", () => {
     expect(webhookCreateTool?.description).toContain("webhooks:write");
     expect(
       tools.every((tool) =>
-        tool.description.includes(
-          "https://mailrith.com/developers/api-reference",
+        tool.description.endsWith(
+          "API reference: https://mailrith.com/developers/api-reference.",
         ),
       ),
     ).toBe(true);

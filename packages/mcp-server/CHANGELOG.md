@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Require every self-hosted HTTP request to provide its own bearer credential;
+  process-wide API keys remain available only to local stdio clients.
+- Remove the `--api-key` command option so credentials do not appear in process
+  listings or shell history.
+- Keep the built-in HTTP listener on loopback and require a TLS reverse proxy
+  for remote self-hosted access.
+
 ## 1.1.0 - 2026-08-17
 
 - Add `tags_create`, `custom_fields_list`, and `custom_fields_get` to the fixed

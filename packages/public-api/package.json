@@ -29,7 +29,8 @@
     "dist",
     "CHANGELOG.md",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "TRADEMARKS.md"
   ],
   "sideEffects": false,
   "engines": {

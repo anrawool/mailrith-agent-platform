@@ -13,7 +13,17 @@ import {
   type MailrithResponseMetadata,
   type MailrithSdkOperationDescriptor,
 } from "@mailrith/sdk";
-import { loginWithOAuth, resolveBearerCredential } from "./auth.js";
+import {
+  MailrithCredentialBaseUrlMismatchError,
+  MailrithCredentialConfigurationError,
+  MailrithCredentialNotConfiguredError,
+  loginWithOAuth,
+  resolveBearerCredential,
+} from "./auth.js";
+import {
+  InvalidMailrithApiBaseUrlError,
+  normalizeMailrithApiBaseUrl,
+} from "./base-url.js";
 import {
   removeMailrithCliConfig,
   resolveMailrithConfigPath,
@@ -437,15 +447,14 @@ const runOperationDescribe = async (params: {
 };
 
 const normalizeApiBaseUrl = (value: string) => {
-  const url = new URL(value);
-  const isLocal = url.hostname === "127.0.0.1" || url.hostname === "localhost";
-  if (url.protocol !== "https:" && !(isLocal && url.protocol === "http:")) {
-    throw usageError("Mailrith API URLs must use HTTPS or localhost HTTP.");
+  try {
+    return normalizeMailrithApiBaseUrl(value);
+  } catch (error) {
+    if (error instanceof InvalidMailrithApiBaseUrlError) {
+      throw usageError(error.message);
+    }
+    throw error;
   }
-  url.pathname = url.pathname.replace(/\/+$/, "");
-  url.search = "";
-  url.hash = "";
-  return url.toString().replace(/\/$/, "");
 };
 
 const buildOperationRequest = async (
@@ -615,11 +624,11 @@ const runDoctor = async (params: {
             ? (body as { version: unknown }).version
             : null,
       });
-    } catch (error) {
+    } catch {
       results.push({
         name: endpoint.name,
         status: "failed",
-        error: error instanceof Error ? error.message : String(error),
+        error: "Request failed.",
       });
     } finally {
       clearTimeout(timeout);
@@ -783,16 +792,32 @@ export const runMailrithCli = async (
       return mailrithCliExitCodes.success;
     }
 
+    const requestedBaseUrl =
+      getStringFlag(args, "base-url") ?? environment.MAILRITH_API_BASE_URL;
     let credential: Awaited<ReturnType<typeof resolveBearerCredential>> | null = null;
     try {
-      credential = await resolveBearerCredential({ fetch: fetchImpl, environment });
+      credential = await resolveBearerCredential({
+        fetch: fetchImpl,
+        environment,
+        requestedBaseUrl,
+      });
     } catch (error) {
-      if (command !== "doctor") throw error;
+      if (
+        error instanceof MailrithCredentialBaseUrlMismatchError ||
+        error instanceof MailrithCredentialConfigurationError
+      ) {
+        throw usageError(error.message);
+      }
+      if (
+        command !== "doctor" ||
+        !(error instanceof MailrithCredentialNotConfiguredError)
+      ) {
+        throw error;
+      }
     }
     const baseUrl = normalizeApiBaseUrl(
-      getStringFlag(args, "base-url") ??
-        environment.MAILRITH_API_BASE_URL ??
-        credential?.baseUrl ??
+      credential?.baseUrl ??
+        requestedBaseUrl ??
         "https://api.mailrith.com",
     );
 
@@ -850,13 +875,30 @@ export const runMailrithCli = async (
     const exitCode = getErrorExitCode(error);
     const cliError = error instanceof MailrithCliError ? error : null;
     const apiError = error instanceof MailrithApiError ? error : null;
+    const safeMessage = cliError
+      ? cliError.message
+      : apiError
+        ? `Mailrith API request failed with HTTP ${apiError.status}.`
+        : error instanceof MailrithCredentialNotConfiguredError
+          ? error.message
+          : "Mailrith CLI could not complete the command.";
+    const safeApiDetails = apiError?.credentialRecovery
+      ? {
+          credential_type: apiError.credentialRecovery.credentialType,
+          action: apiError.credentialRecovery.action,
+          missing_scopes: apiError.credentialRecovery.missingScopes,
+          replacement_scopes: apiError.credentialRecovery.replacementScopes,
+        }
+      : undefined;
     const payload = {
       ok: false,
       error: {
         code: cliError?.code ?? apiError?.code ?? "cli_failure",
-        message: error instanceof Error ? error.message : String(error),
+        message: safeMessage,
         request_id: apiError?.requestId ?? null,
-        details: redactSecrets(cliError?.details ?? apiError?.responseBody),
+        details: cliError
+          ? redactSecrets(cliError.details)
+          : safeApiDetails,
       },
     };
     if (args?.flags.get("json") === true) {
@@ -865,10 +907,14 @@ export const runMailrithCli = async (
       stderr(`${payload.error.code}: ${payload.error.message}`);
       if (payload.error.request_id) stderr(`Request ID: ${payload.error.request_id}`);
       if (apiError?.credentialRecovery) {
-        stderr(`Next step: ${apiError.credentialRecovery.message}`);
-        if (apiError.credentialRecovery.accessUpdateUrl) {
-          stderr(`Update access: ${apiError.credentialRecovery.accessUpdateUrl}`);
-        }
+        stderr(
+          apiError.credentialRecovery.action === "replace_api_key"
+            ? "Next step: Create and install a replacement API key with the missing permission."
+            : "Next step: Reconnect Mailrith and approve the required permissions.",
+        );
+        stderr(
+          "Permission help: https://mailrith.com/developers/authentication#add-permissions",
+        );
       }
     }
     return exitCode;

@@ -20,3 +20,9 @@ const subscriber = await client.subscribers.upsert({
   },
 });
 ```
+
+## Official Builds And Forks
+
+Modified public versions must use distinct package and service names and
+clearly say that they are unofficial. See the
+[Mailrith Trademark And Unofficial Fork Policy](https://github.com/anrawool/mailrith-agent-platform/blob/main/TRADEMARKS.md).

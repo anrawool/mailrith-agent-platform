@@ -20,7 +20,8 @@
     "connectors",
     "CHANGELOG.md",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "TRADEMARKS.md"
   ],
   "engines": {
     "node": ">=20"

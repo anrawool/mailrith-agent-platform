@@ -26,14 +26,14 @@
     "mcp_manifest_sha256": "fd878e224290a225bbf229bd813ba1df501c8018a6d4e2c981cf00c5f46b88f7",
     "agent_skill_sha256": "b22b0999a1b170db1666a0ce4e3047d809745b74b6e3d1b58447a1e957032cad",
     "connector_templates_sha256": "282b81077101f6e37b5bd7e7ec153853fe2caddba774f211e3c32a3f4f3d18c7",
-    "platform_integrations_sha256": "06d56ed64652cd589765dd21cec8cd9e42528713ad3e2c7d3ee93e14f1ce189a",
-    "agent_discovery_and_guidance_sha256": "5556ed0b5baa24856f2ea77e85ea22db30a478eeb0abf5013d3419efda4be06b"
+    "platform_integrations_sha256": "087144d71267db63961ce4c11b711ec14d0c0fc847779e23052185959a203ed4",
+    "agent_discovery_and_guidance_sha256": "9d7a73d3ca4ab5a54222c9490d41ff6728b089fc4903dfe098da54747c3e78dc"
   },
   "compatibility": {
     "node": ">=20",
     "python": ">=3.10",
     "mcp_transport": "streamable_http",
-    "mcp_typescript_sdk": "1.29.0",
+    "mcp_typescript_sdk": "1.30.0",
     "claude_mcp_protocol": "mcp-client-2025-11-20",
     "supported_clients": [
       "chatgpt",

@@ -388,7 +388,7 @@ const buildManifest = async () => {
       node: ">=20",
       python: ">=3.10",
       mcp_transport: "streamable_http",
-      mcp_typescript_sdk: "1.29.0",
+      mcp_typescript_sdk: "1.30.0",
       claude_mcp_protocol: "mcp-client-2025-11-20",
       supported_clients: [
         "chatgpt",

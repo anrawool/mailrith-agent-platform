@@ -1,9 +1,23 @@
 import unittest
+from pathlib import Path
 
 from mailrith_sdk import MailrithApiError, MailrithClient
 
 
 class MailrithClientTest(unittest.TestCase):
+    def test_embeds_the_canonical_trademark_policy(self) -> None:
+        repository_root = Path(__file__).resolve().parents[3]
+        canonical_policy = (repository_root / "TRADEMARKS.md").read_text()
+        packaged_policy = (
+            repository_root
+            / "packages"
+            / "python-sdk"
+            / "mailrith_sdk"
+            / "TRADEMARKS.md"
+        ).read_text()
+
+        self.assertEqual(packaged_policy, canonical_policy)
+
     def test_exposes_generated_namespaces(self) -> None:
         client = MailrithClient(transport=lambda *_args: (200, {}, {"version": "v1"}))
 

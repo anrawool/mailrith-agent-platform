@@ -31,6 +31,11 @@ Every Work Profile shown by Mailrith OAuth is accepted by `--profile`; run
 
 The CLI is generated-SDK based. It keeps saved credentials in a mode-`0600` configuration file, never prints API keys, refresh tokens, or access tokens, and bounds automatic pagination.
 
+A saved credential stays bound to the Mailrith API URL selected during login or
+API-key setup. To use another API URL, save a credential for that URL or provide
+a credential through the process environment. This prevents an accidental URL
+override from sending a saved credential to another service.
+
 Operation search and schema inspection do not require a credential or a
 network request. Search uses the same bounded, in-memory intent catalog as the
 MCP server. `operations describe` returns only the selected operation's exact
@@ -39,3 +44,9 @@ explicit command; add `--include-output-schema` only when the response
 contract is also needed.
 
 See [Mailrith Developer Docs](https://mailrith.com/developers) for OAuth, safety, workflow, and configuration guidance.
+
+## Official Builds And Forks
+
+Modified public versions must use distinct package and service names and
+clearly say that they are unofficial. See the
+[Mailrith Trademark And Unofficial Fork Policy](https://github.com/anrawool/mailrith-agent-platform/blob/main/TRADEMARKS.md).

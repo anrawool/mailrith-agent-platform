@@ -145,6 +145,26 @@ describe("@mailrith/sdk", () => {
     expect(init.body).toBe(JSON.stringify({ confirm: true }));
   });
 
+  it("normalizes long trailing-slash input without changing encoded paths", async () => {
+    const fetchMock = vi.fn(async (_input: URL, _init?: RequestInit) =>
+      Response.json({ data: {} }),
+    );
+    const client = createMailrithClient({
+      baseUrl: `https://api.mailrith.com${"/".repeat(10_000)}`,
+      apiKey: "mrk_secret",
+      fetch: fetchMock as unknown as typeof fetch,
+    });
+
+    await client.broadcasts.get({
+      path: { broadcast_id: "broadcast / {one}" },
+    });
+
+    const [url] = fetchMock.mock.calls[0] as [URL, RequestInit];
+    expect(url.toString()).toBe(
+      "https://api.mailrith.com/v1/broadcasts/broadcast%20%2F%20%7Bone%7D",
+    );
+  });
+
   it("supports unauthenticated discovery requests", async () => {
     const onResponse = vi.fn();
     const fetchMock = vi.fn().mockResolvedValue(

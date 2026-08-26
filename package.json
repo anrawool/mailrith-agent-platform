@@ -26,13 +26,13 @@
     "@eslint/js": "9.39.2",
     "@mailrith/mcp-server": "workspace:*",
     "@mailrith/public-api": "workspace:*",
-    "@modelcontextprotocol/sdk": "1.29.0",
+    "@modelcontextprotocol/sdk": "1.30.0",
     "@types/node": "^24.5.2",
     "@typescript-eslint/eslint-plugin": "8.53.1",
     "@typescript-eslint/parser": "8.53.1",
     "eslint": "9.39.2",
-    "tsx": "4.21.0",
+    "tsx": "4.23.12",
     "typescript": "5.9.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   }
 }

@@ -173,19 +173,44 @@ const jsonContentType = "application/json";
 const mailrithClientHeader = "x-mailrith-client";
 const mailrithRequestIdHeader = "x-mailrith-request-id";
 
-const normalizeBaseUrl = (value: string | undefined) => (value ?? "https://api.mailrith.com").replace(
-  /\/+$/,
-  "",
-);
+const normalizeBaseUrl = (value: string | undefined) => {
+  const candidate = value ?? "https://api.mailrith.com";
+  let end = candidate.length;
+  while (end > 0 && candidate.charCodeAt(end - 1) === 47) {
+    end -= 1;
+  }
+  return candidate.slice(0, end);
+};
 
-const encodePath = (pathname: string, pathParams?: Record<string, string | number>) =>
-  pathname.replace(/\{([^}]+)\}/g, (_segment, key: string) => {
+const encodePath = (
+  pathname: string,
+  pathParams?: Record<string, string | number>,
+) => {
+  let encoded = "";
+  let cursor = 0;
+  while (cursor < pathname.length) {
+    const openingBrace = pathname.indexOf("{", cursor);
+    if (openingBrace === -1) {
+      encoded += pathname.slice(cursor);
+      break;
+    }
+    const closingBrace = pathname.indexOf("}", openingBrace + 1);
+    if (closingBrace === -1) {
+      encoded += pathname.slice(cursor);
+      break;
+    }
+
+    encoded += pathname.slice(cursor, openingBrace);
+    const key = pathname.slice(openingBrace + 1, closingBrace);
     const value = pathParams?.[key];
     if (value === undefined || value === null || value === "") {
       throw new Error(`Missing required path parameter: ${key}.`);
     }
-    return encodeURIComponent(String(value));
-  });
+    encoded += encodeURIComponent(String(value));
+    cursor = closingBrace + 1;
+  }
+  return encoded;
+};
 
 const appendQuery = (url: URL, query?: Record<string, MailrithQueryValue>) => {
   if (!query) {

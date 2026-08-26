@@ -33,11 +33,16 @@ user approves, and every tool checks those permissions again when it runs.
 MAILRITH_API_KEY="<secret>" pnpm --filter @mailrith/mcp-server exec tsx src/cli.ts --transport stdio
 ```
 
-Local stdio and self-hosted HTTP use `MAILRITH_API_KEY` automatically. An
-explicit `--api-key` value takes precedence. Keep either value in the client
-secret store or process environment; never put it in a committed configuration
-file. Local stdio stops with a clear setup error when neither value is present
-because it has no browser-based OAuth flow.
+Local stdio reads `MAILRITH_API_KEY` from the client secret environment. The
+server rejects credentials passed as command arguments so they do not appear in
+process listings or shell history. Local stdio stops with a clear setup error
+when the environment variable is missing because it has no browser-based OAuth
+flow.
+
+Self-hosted HTTP does not read a process-wide API key. Each client must send its
+own workspace API key or OAuth access token in the `Authorization` header. The
+built-in HTTP listener accepts only `127.0.0.1` or `localhost`; put a TLS reverse
+proxy in front of it when another machine needs access.
 
 The default `submitted` profile exposes a fixed reviewed catalog of focused
 tools such as:
@@ -90,3 +95,9 @@ The package also preserves two explicit compatibility profiles:
 Use these profiles only for local or purpose-built clients. Public ChatGPT,
 Codex, Claude, and Cursor packages use the fixed `submitted` profile at the
 single `/mcp` endpoint.
+
+## Official Builds And Forks
+
+Modified public versions must use distinct package, registry, plugin, and
+service names and clearly say that they are unofficial. See the
+[Mailrith Trademark And Unofficial Fork Policy](https://github.com/anrawool/mailrith-agent-platform/blob/main/TRADEMARKS.md).

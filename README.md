@@ -56,6 +56,13 @@ public directory approval are separate from npm and PyPI publication.
 
 Do not report security vulnerabilities in public issues. Follow [SECURITY.md](SECURITY.md).
 
+## Official Builds And Forks
+
+Forking the code is allowed. Modified public versions must use distinct names
+and clearly say that they are unofficial and not affiliated with Mailrith. See
+the [Mailrith Trademark And Unofficial Fork Policy](TRADEMARKS.md).
+
 ## License
 
-MIT
+The code is available under the MIT License. Mailrith brand identifiers are not
+licensed with the code.

@@ -148,8 +148,14 @@ export const mailrithMcpOperationIdsHeader = "mailrith-mcp-operation-ids";
 export const mailrithMcpIncludeOutputSchemasHeader =
   "mailrith-mcp-include-output-schemas";
 
-const normalizeBaseUrl = (value: string | undefined) =>
-  (value ?? defaultBaseUrl).replace(/\/+$/, "");
+const normalizeBaseUrl = (value: string | undefined) => {
+  const candidate = value ?? defaultBaseUrl;
+  let end = candidate.length;
+  while (end > 0 && candidate.charCodeAt(end - 1) === 47) {
+    end -= 1;
+  }
+  return candidate.slice(0, end);
+};
 
 const resolveMarketingOrigin = (baseUrl: string) => {
   const url = new URL(baseUrl);
@@ -2684,9 +2690,14 @@ export const runMailrithMcpStdioServer = async (
   return server;
 };
 
+export type MailrithMcpHttpRequestOptions = Omit<
+  MailrithMcpServerOptions,
+  "apiKey"
+>;
+
 export const handleMailrithMcpHttpRequest = async (
   request: Request,
-  options: MailrithMcpServerOptions = {},
+  options: MailrithMcpHttpRequestOptions = {},
 ) => {
   const baseUrl = normalizeBaseUrl(options.baseUrl);
   const profile = options.profile ?? "submitted";
@@ -2705,7 +2716,7 @@ export const handleMailrithMcpHttpRequest = async (
       parsedBody.status,
     );
   }
-  const apiKey = resolveMailrithMcpApiKey(request) ?? options.apiKey;
+  const apiKey = resolveMailrithMcpApiKey(request);
   const batchItemCount = Array.isArray(parsedBody?.value)
     ? parsedBody.value.length
     : 0;

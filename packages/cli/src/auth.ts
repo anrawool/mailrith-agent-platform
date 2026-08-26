@@ -8,8 +8,8 @@ import {
   type MailrithCliConfig,
   type StoredOAuthCredential,
 } from "./config.js";
+import { normalizeMailrithApiBaseUrl } from "./base-url.js";
 
-const defaultApiBaseUrl = "https://api.mailrith.com";
 const defaultOAuthPort = 53682;
 const oauthTimeoutMilliseconds = 5 * 60 * 1000;
 
@@ -38,9 +38,6 @@ export type OAuthLoginOptions = {
   writeLine?: (line: string) => void;
   configPath?: string;
 };
-
-const normalizeBaseUrl = (value: string | undefined) =>
-  (value ?? defaultApiBaseUrl).replace(/\/+$/, "");
 
 const parseJsonResponse = async <T>(response: Response, label: string) => {
   const body = (await response.json().catch(() => null)) as T | null;
@@ -90,6 +87,30 @@ const assertSameSecureOrigin = (baseUrl: string, metadata: OAuthMetadata) => {
     if ((endpoint.protocol !== "https:" && !localHttp) || endpoint.origin !== base.origin) {
       throw new Error(`OAuth ${name} must use the Mailrith API origin over HTTPS or localhost HTTP.`);
     }
+  }
+};
+
+const assertStoredOAuthCredentialMatchesBaseUrl = (
+  baseUrl: string,
+  credential: StoredOAuthCredential,
+) => {
+  let tokenEndpoint: URL;
+  let resource: string;
+  try {
+    tokenEndpoint = new URL(credential.tokenEndpoint);
+    resource = normalizeMailrithApiBaseUrl(credential.resource);
+  } catch {
+    throw new MailrithCredentialConfigurationError();
+  }
+  const base = new URL(baseUrl);
+  const expectedResource = normalizeMailrithApiBaseUrl(`${baseUrl}/v1`);
+  if (
+    tokenEndpoint.origin !== base.origin ||
+    tokenEndpoint.username ||
+    tokenEndpoint.password ||
+    resource !== expectedResource
+  ) {
+    throw new MailrithCredentialConfigurationError();
   }
 };
 
@@ -205,7 +226,7 @@ const registerCli = async (params: {
   );
 
 export const loginWithOAuth = async (options: OAuthLoginOptions) => {
-  const baseUrl = normalizeBaseUrl(options.baseUrl);
+  const baseUrl = normalizeMailrithApiBaseUrl(options.baseUrl);
   const fetchImpl = options.fetch ?? fetch;
   const port = options.port ?? defaultOAuthPort;
   if (!Number.isInteger(port) || port < 1024 || port > 65535) {
@@ -335,27 +356,46 @@ const refreshOAuthCredential = async (
 export const resolveBearerCredential = async (params: {
   fetch?: typeof fetch;
   environment?: NodeJS.ProcessEnv;
+  requestedBaseUrl?: string;
 }) => {
   const environment = params.environment ?? process.env;
   const configPath = resolveMailrithConfigPath(environment);
+  const requestedBaseUrl = params.requestedBaseUrl
+    ? normalizeMailrithApiBaseUrl(params.requestedBaseUrl)
+    : undefined;
   const environmentToken =
     environment.MAILRITH_ACCESS_TOKEN?.trim() ||
     environment.MAILRITH_API_KEY?.trim();
   if (environmentToken) {
     return {
       token: environmentToken,
-      baseUrl: normalizeBaseUrl(environment.MAILRITH_API_BASE_URL),
+      baseUrl: normalizeMailrithApiBaseUrl(
+        requestedBaseUrl ?? environment.MAILRITH_API_BASE_URL,
+      ),
       source: "environment" as const,
     };
   }
 
   const config = await readMailrithCliConfig(configPath);
   if (!config) {
-    throw new Error("No Mailrith credential is configured. Run `mailrith auth login` or set MAILRITH_API_KEY.");
+    throw new MailrithCredentialNotConfiguredError();
+  }
+  const configuredBaseUrl = normalizeMailrithApiBaseUrl(config.baseUrl);
+  if (requestedBaseUrl && requestedBaseUrl !== configuredBaseUrl) {
+    throw new MailrithCredentialBaseUrlMismatchError(configuredBaseUrl);
   }
   if (config.credential.kind === "api_key") {
-    return { token: config.credential.token, baseUrl: config.baseUrl, source: "config" as const };
+    return {
+      token: config.credential.token,
+      baseUrl: configuredBaseUrl,
+      source: "config" as const,
+    };
   }
+
+  assertStoredOAuthCredentialMatchesBaseUrl(
+    configuredBaseUrl,
+    config.credential,
+  );
 
   const expiresAt = new Date(config.credential.expiresAt).getTime();
   const token =
@@ -366,5 +406,29 @@ export const resolveBearerCredential = async (params: {
           params.fetch ?? fetch,
           configPath,
         );
-  return { token, baseUrl: config.baseUrl, source: "config" as const };
+  return { token, baseUrl: configuredBaseUrl, source: "config" as const };
 };
+
+export class MailrithCredentialNotConfiguredError extends Error {
+  constructor() {
+    super(
+      "No Mailrith credential is configured. Run `mailrith auth login` or set MAILRITH_API_KEY.",
+    );
+  }
+}
+
+export class MailrithCredentialBaseUrlMismatchError extends Error {
+  constructor(readonly configuredBaseUrl: string) {
+    super(
+      `The saved credential belongs to ${configuredBaseUrl}. Use auth login or auth set-key for a different Mailrith API URL, or provide a credential through MAILRITH_API_KEY.`,
+    );
+  }
+}
+
+export class MailrithCredentialConfigurationError extends Error {
+  constructor() {
+    super(
+      "The saved OAuth credential does not match its Mailrith API URL. Run auth login again before continuing.",
+    );
+  }
+}

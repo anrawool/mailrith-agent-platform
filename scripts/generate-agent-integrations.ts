@@ -40,11 +40,29 @@ const canonicalLogoPath = path.join(
   "assets",
   "mailrith-logo.svg",
 );
+const canonicalTrademarkPolicyPath = path.join(
+  repositoryRoot,
+  "TRADEMARKS.md",
+);
 const pluginRoots = [
   path.join(integrationsRoot, "openai", "mailrith"),
   path.join(integrationsRoot, "cursor", "mailrith"),
   path.join(integrationsRoot, "claude", "mailrith"),
 ];
+const publicNpmPackageRoots = [
+  path.join(repositoryRoot, "packages", "public-api"),
+  path.join(repositoryRoot, "packages", "sdk"),
+  path.join(repositoryRoot, "packages", "mcp-server"),
+  path.join(repositoryRoot, "packages", "cli"),
+  path.join(repositoryRoot, "packages", "agent-skill"),
+];
+const pythonPackageTrademarkPolicyPath = path.join(
+  repositoryRoot,
+  "packages",
+  "python-sdk",
+  "mailrith_sdk",
+  "TRADEMARKS.md",
+);
 const geminiSkillRoot = path.join(
   repositoryRoot,
   "skills",
@@ -276,6 +294,7 @@ const writeJson = (filePath: string, value: unknown) =>
 
 const main = async () => {
   const license = await readFile(canonicalLicensePath, "utf8");
+  const trademarkPolicy = await readFile(canonicalTrademarkPolicyPath, "utf8");
   for (const pluginRoot of pluginRoots) {
     const skillTarget = path.join(
       pluginRoot,
@@ -286,6 +305,11 @@ const main = async () => {
     await mkdir(path.dirname(skillTarget), { recursive: true });
     await cp(canonicalSkillDirectory, skillTarget, { recursive: true });
     await writeFile(path.join(pluginRoot, "LICENSE"), license, "utf8");
+    await writeFile(
+      path.join(pluginRoot, "TRADEMARKS.md"),
+      trademarkPolicy,
+      "utf8",
+    );
     await mkdir(path.join(pluginRoot, "assets"), { recursive: true });
     await cp(
       canonicalLogoPath,
@@ -296,6 +320,18 @@ const main = async () => {
       submittedProfileManifest,
     );
   }
+  for (const packageRoot of publicNpmPackageRoots) {
+    await writeFile(
+      path.join(packageRoot, "TRADEMARKS.md"),
+      trademarkPolicy,
+      "utf8",
+    );
+  }
+  await writeFile(
+    pythonPackageTrademarkPolicyPath,
+    trademarkPolicy,
+    "utf8",
+  );
   await rm(geminiSkillRoot, { recursive: true, force: true });
   await mkdir(path.dirname(geminiSkillRoot), { recursive: true });
   await cp(canonicalSkillDirectory, geminiSkillRoot, { recursive: true });
@@ -305,6 +341,16 @@ const main = async () => {
   await cp(canonicalLogoPath, microsoftColorIconPath);
   await mkdir(path.dirname(clineLogoPath), { recursive: true });
   await cp(canonicalLogoPath, clineLogoPath);
+  for (const integrationRoot of [
+    path.join(integrationsRoot, "cline"),
+    path.join(integrationsRoot, "microsoft"),
+  ]) {
+    await writeFile(
+      path.join(integrationRoot, "TRADEMARKS.md"),
+      trademarkPolicy,
+      "utf8",
+    );
+  }
   await writeJson(
     path.join(integrationsRoot, "submitted-profile.json"),
     submittedProfileManifest,

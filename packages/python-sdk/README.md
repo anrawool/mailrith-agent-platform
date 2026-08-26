@@ -30,3 +30,9 @@ Python uses the same generated resource aliases, action vocabulary,
 relationship intents, plural handling, ranking, and ambiguity rules as the
 TypeScript SDK, MCP server, and CLI. Narrow a search with `resource` or with
 `category="read"`, `"write"`, `"delete"`, or `"live"`.
+
+## Official Builds And Forks
+
+Modified public versions must use distinct package and service names and
+clearly say that they are unofficial. See the
+[Mailrith Trademark And Unofficial Fork Policy](https://github.com/anrawool/mailrith-agent-platform/blob/main/TRADEMARKS.md).
