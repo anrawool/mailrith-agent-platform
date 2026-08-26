@@ -284,6 +284,16 @@ const getErrorExitCode = (error: unknown) => {
   return mailrithCliExitCodes.transient;
 };
 
+const getSafeApiErrorCode = (status: number) => {
+  if (status === 401) return "api_authentication_failed";
+  if (status === 403) return "api_permission_denied";
+  if (status === 404) return "api_resource_not_found";
+  if (status === 409) return "api_conflict";
+  if (status === 429) return "api_rate_limited";
+  if (status >= 500 || status === 408) return "api_temporarily_unavailable";
+  return "api_request_failed";
+};
+
 const emit = (params: {
   args: ParsedArguments;
   stdout: (line: string) => void;
@@ -893,9 +903,11 @@ export const runMailrithCli = async (
     const payload = {
       ok: false,
       error: {
-        code: cliError?.code ?? apiError?.code ?? "cli_failure",
+        code:
+          cliError?.code ??
+          (apiError ? getSafeApiErrorCode(apiError.status) : "cli_failure"),
         message: safeMessage,
-        request_id: apiError?.requestId ?? null,
+        request_id: apiError?.clientRequestId ?? null,
         details: cliError
           ? redactSecrets(cliError.details)
           : safeApiDetails,

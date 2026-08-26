@@ -126,6 +126,10 @@ describe("@mailrith/sdk", () => {
       query: { dry_run: true, limit: 5 },
       body: { confirm: true },
       idempotencyKey: "broadcast-send-1",
+      headers: {
+        authorization: "Bearer untrusted_override",
+        "x-mailrith-request-id": "req_untrusted_override",
+      },
     });
 
     expect(response).toEqual({ data: { id: "subscriber-1" } });
@@ -139,6 +143,13 @@ describe("@mailrith/sdk", () => {
 
     const headers = new Headers(init.headers);
     expect(headers.get("authorization")).toBe("Bearer mrk_secret");
+    expect(headers.get("authorization")).not.toContain("untrusted_override");
+    expect(headers.get("x-mailrith-request-id")).toMatch(
+      /^req_[0-9a-f-]{36}$/,
+    );
+    expect(headers.get("x-mailrith-request-id")).not.toBe(
+      "req_untrusted_override",
+    );
     expect(headers.get("content-type")).toBe("application/json");
     expect(headers.get("idempotency-key")).toBe("broadcast-send-1");
     expect(headers.get("x-client")).toBe("mailrith-sdk-test");
@@ -204,7 +215,7 @@ describe("@mailrith/sdk", () => {
             code: "insufficient_scope",
             message: "Missing broadcasts:write",
             credential_type: "workspace_api_key",
-            missing_scopes: ["broadcasts:write"],
+            missing_scopes: ["broadcasts:write", "mrk_secret"],
             replacement_scopes: [
               "workspace:read",
               "broadcasts:read",
@@ -244,6 +255,7 @@ describe("@mailrith/sdk", () => {
         type: "permission_error",
         code: "insufficient_scope",
         requestId: "req_denied",
+        clientRequestId: expect.stringMatching(/^req_[0-9a-f-]{36}$/),
         credentialRecovery: {
           credentialType: "workspace_api_key",
           action: "replace_api_key",

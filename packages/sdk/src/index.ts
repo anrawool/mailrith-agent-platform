@@ -20,6 +20,30 @@ export {
 type GeneratedMailrithSdkResource = (typeof generatedMailrithSdkResources)[number];
 type GeneratedMailrithSdkOperation = GeneratedMailrithSdkResource["operations"][number];
 
+const generatedMailrithScopeKeys = Array.from(
+  new Set([
+    ...generatedMailrithWorkProfiles.flatMap((profile) => profile.scopeKeys),
+    ...generatedMailrithSdkResources.flatMap((resource) =>
+      resource.operations.flatMap((operation) => operation.requiredScopes),
+    ),
+  ]),
+);
+const generatedMailrithScopeByKey = new Map<string, string>(
+  generatedMailrithScopeKeys.map((scope) => [scope, scope]),
+);
+
+const selectGeneratedScopes = (value: unknown) => {
+  if (!Array.isArray(value)) return [];
+  const selectedScopes: string[] = [];
+  for (const candidate of value) {
+    if (typeof candidate !== "string") continue;
+    const scope = generatedMailrithScopeByKey.get(candidate);
+    if (scope && !selectedScopes.includes(scope)) selectedScopes.push(scope);
+    if (selectedScopes.length === 50) break;
+  }
+  return selectedScopes;
+};
+
 export type MailrithSdkOperationDescriptor = GeneratedMailrithSdkOperation;
 export type MailrithSdkResourceDescriptor = GeneratedMailrithSdkResource;
 
@@ -98,24 +122,22 @@ const parseCredentialRecovery = (
   ) {
     return null;
   }
+  const credentialType =
+    value.credential_type === "workspace_api_key"
+      ? "workspace_api_key"
+      : "oauth_access_token";
+  const action =
+    recovery.action === "replace_api_key" ? "replace_api_key" : "reconnect_oauth";
   return {
-    credentialType: value.credential_type,
-    action: recovery.action,
+    credentialType,
+    action,
     message: recovery.message,
-    missingScopes: Array.isArray(value.missing_scopes)
-      ? value.missing_scopes
-          .filter((scope): scope is string => typeof scope === "string")
-          .slice(0, 50)
-      : [],
-    replacementScopes: Array.isArray(recovery.replacement_scopes)
-      ? recovery.replacement_scopes
-          .filter((scope): scope is string => typeof scope === "string")
-          .slice(0, 50)
-      : Array.isArray(value.replacement_scopes)
-        ? value.replacement_scopes
-            .filter((scope): scope is string => typeof scope === "string")
-            .slice(0, 50)
-        : [],
+    missingScopes: selectGeneratedScopes(value.missing_scopes),
+    replacementScopes: selectGeneratedScopes(
+      Array.isArray(recovery.replacement_scopes)
+        ? recovery.replacement_scopes
+        : value.replacement_scopes,
+    ),
     ...(typeof recovery.access_update_url === "string"
       ? { accessUpdateUrl: recovery.access_update_url }
       : {}),
@@ -136,6 +158,8 @@ export class MailrithApiError extends Error {
 
   readonly requestId?: string;
 
+  readonly clientRequestId: string;
+
   readonly credentialRecovery: MailrithCredentialRecovery | null;
 
   constructor(params: {
@@ -145,6 +169,7 @@ export class MailrithApiError extends Error {
     code?: string;
     responseBody: unknown;
     requestId?: string;
+    clientRequestId?: string;
   }) {
     super(params.message);
     this.name = "MailrithApiError";
@@ -153,6 +178,7 @@ export class MailrithApiError extends Error {
     this.code = params.code;
     this.responseBody = params.responseBody;
     this.requestId = params.requestId;
+    this.clientRequestId = params.clientRequestId ?? `req_${crypto.randomUUID()}`;
     this.credentialRecovery = parseCredentialRecovery(params.responseBody);
   }
 }
@@ -294,6 +320,7 @@ export class MailrithClientBase {
     request: MailrithOperationRequest = {},
   ): Promise<TResult> {
     const apiKey = request.apiKey ?? this.apiKey;
+    const clientRequestId = `req_${crypto.randomUUID()}`;
     if (operation.authRequired && !apiKey) {
       throw new Error(
         `Mailrith operation ${operation.operationId} requires a bearer credential. Pass apiKey or an OAuth access token to the client or the individual request.`,
@@ -305,27 +332,22 @@ export class MailrithClientBase {
 
     const headers = new Headers(this.defaultHeaders);
     headers.set("accept", jsonContentType);
-    if (!headers.has(mailrithClientHeader)) {
-      headers.set(mailrithClientHeader, "typescript_sdk/dev");
-    }
-    if (!headers.has(mailrithRequestIdHeader)) {
-      headers.set(mailrithRequestIdHeader, `req_${crypto.randomUUID()}`);
-    }
-
     if (request.body !== undefined) {
       headers.set("content-type", jsonContentType);
     }
     if (request.idempotencyKey) {
       headers.set("idempotency-key", request.idempotencyKey);
     }
-    if (apiKey) {
-      headers.set("authorization", `Bearer ${apiKey}`);
-    }
     for (const [key, value] of Object.entries(request.headers ?? {})) {
       headers.set(key, value);
     }
-
-    const outgoingRequestId = headers.get(mailrithRequestIdHeader) ?? "unknown";
+    if (!headers.has(mailrithClientHeader)) {
+      headers.set(mailrithClientHeader, "typescript_sdk/dev");
+    }
+    headers.set(mailrithRequestIdHeader, clientRequestId);
+    if (apiKey) {
+      headers.set("authorization", `Bearer ${apiKey}`);
+    }
 
     const response = await this.fetchImpl(url, {
       method: operation.method,
@@ -335,7 +357,7 @@ export class MailrithClientBase {
     });
 
     const requestId =
-      response.headers.get(mailrithRequestIdHeader) ?? outgoingRequestId;
+      response.headers.get(mailrithRequestIdHeader) ?? clientRequestId;
     this.onResponse?.({
       operationId: operation.operationId,
       requestId,
@@ -362,6 +384,7 @@ export class MailrithClientBase {
         code: errorBody?.code,
         responseBody,
         requestId,
+        clientRequestId,
       });
     }
 

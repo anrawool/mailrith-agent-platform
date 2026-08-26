@@ -552,8 +552,8 @@ describe("Mailrith CLI", () => {
     expect(JSON.parse(stderr[0] ?? "{}")).toMatchObject({
       ok: false,
       error: {
-        code: "insufficient_scope",
-        request_id: "req_denied_123",
+        code: "api_permission_denied",
+        request_id: expect.stringMatching(/^req_[0-9a-f-]{36}$/),
       },
     });
   });
@@ -563,8 +563,23 @@ describe("Mailrith CLI", () => {
     for (const fetchImpl of [
       vi.fn(async () =>
         Response.json(
-          { error: { code: "request_failed", message: secret } },
-          { status: 500 },
+          {
+            error: {
+              code: secret,
+              message: secret,
+              credential_type: "workspace_api_key",
+              missing_scopes: [secret],
+              recovery: {
+                action: "replace_api_key",
+                message: secret,
+                replacement_scopes: [secret],
+              },
+            },
+          },
+          {
+            status: 500,
+            headers: { "x-mailrith-request-id": secret },
+          },
         ),
       ),
       vi.fn(async () => {

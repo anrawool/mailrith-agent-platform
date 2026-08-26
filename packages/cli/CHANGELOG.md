@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Keep browser- and API-supplied error values out of CLI output, use a locally
+  generated request ID for failed requests, and limit recovery permissions to
+  permissions in the generated Mailrith contract.
+
 ## 1.1.0 - 2026-08-17
 
 - Coordinate CLI discovery with the Mailrith 1.1 public contract, including

@@ -139,7 +139,7 @@ const waitForAuthorizationCode = async (params: {
         if (oauthError) {
           response.writeHead(400, { "content-type": "text/plain; charset=utf-8" });
           response.end("Mailrith authorization was not completed. You can close this tab.");
-          reject(new Error(`OAuth authorization failed: ${oauthError}.`));
+          reject(new Error("OAuth authorization was not completed."));
           return;
         }
         if (!code || !safeEqual(state, params.expectedState)) {

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a locally generated request ID to API errors, prevent request headers
+  from replacing authentication and correlation headers, and limit parsed
+  recovery permissions to permissions in the generated Mailrith contract.
+
 ## 1.1.0 - 2026-08-17
 
 - Regenerate operation discovery with exact Mailrith personalization-token
