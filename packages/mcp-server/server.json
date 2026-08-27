@@ -9,7 +9,7 @@
     "id": "1308747458",
     "subfolder": "packages/mcp-server"
   },
-  "version": "1.1.0",
+  "version": "1.1.1",
   "websiteUrl": "https://mailrith.com/developers/mcp",
   "remotes": [
     {
@@ -21,7 +21,7 @@
     {
       "registryType": "npm",
       "identifier": "@mailrith/mcp-server",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"

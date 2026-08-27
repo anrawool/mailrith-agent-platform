@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.1.1 - 2026-08-27
+
+- Include the official Mailrith trademark and unofficial-fork policy in the
+  published Agent Skill and its connector packages.
+
 ## 1.1.0 - 2026-08-17
 
 - Enable `tags_create`, `custom_fields_list`, and `custom_fields_get` in the

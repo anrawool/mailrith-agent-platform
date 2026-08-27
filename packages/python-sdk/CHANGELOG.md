@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.1.1 - 2026-08-27
+
+- Include the official Mailrith trademark and unofficial-fork policy in the
+  wheel and use a fixed, audited build backend version.
+
 ## 1.1.0 - 2026-08-17
 
 - Regenerate bounded operation discovery with exact Mailrith

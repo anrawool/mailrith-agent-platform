@@ -2,9 +2,15 @@
 
 ## Unreleased
 
+## 1.1.1 - 2026-08-27
+
 - Keep browser- and API-supplied error values out of CLI output, use a locally
   generated request ID for failed requests, and limit recovery permissions to
   permissions in the generated Mailrith contract.
+- Bind saved API keys and OAuth refresh tokens to the Mailrith API URL where
+  they were created.
+- Include the official Mailrith trademark and unofficial-fork policy in the
+  published package.
 
 ## 1.1.0 - 2026-08-17
 

@@ -2,9 +2,14 @@
 
 ## Unreleased
 
+## 1.1.1 - 2026-08-27
+
 - Add a locally generated request ID to API errors, prevent request headers
   from replacing authentication and correlation headers, and limit parsed
   recovery permissions to permissions in the generated Mailrith contract.
+- Keep path substitution and connector endpoint checks bounded and exact.
+- Include the official Mailrith trademark and unofficial-fork policy in the
+  published package.
 
 ## 1.1.0 - 2026-08-17
 

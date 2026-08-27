@@ -156,7 +156,7 @@ portal shows all `55` live tools before continuing the existing submission.
 
 1. Give a clean Cline profile only `packages/mcp-server/README.md` and
    `packages/mcp-server/llms-install.md`.
-2. After publishing, confirm Cline installs `@mailrith/mcp-server@1.1.0`
+2. After publishing, confirm Cline installs `@mailrith/mcp-server@1.1.1`
    without cloning or building the monorepo.
 3. Use a synthetic workspace API key and run only
    `discovery_get_capabilities`. Keep `autoApprove` empty.

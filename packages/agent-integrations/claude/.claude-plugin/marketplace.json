@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Official Mailrith plugins for Claude Code and compatible clients.",
-    "version": "1.1.0"
+    "version": "1.1.1"
   },
   "plugins": [
     {
       "name": "mailrith",
       "source": "./mailrith",
       "description": "Manage Mailrith email marketing through focused, permission-scoped tools.",
-      "version": "1.1.0"
+      "version": "1.1.1"
     }
   ]
 }

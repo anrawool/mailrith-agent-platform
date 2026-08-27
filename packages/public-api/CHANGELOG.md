@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.1.1 - 2026-08-27
+
+- Include the official Mailrith trademark and unofficial-fork policy in the
+  published package without changing the public API contract.
+
 ## 1.1.0 - 2026-08-17
 
 - Add Tag creation and bounded Custom Field listing and retrieval to the fixed

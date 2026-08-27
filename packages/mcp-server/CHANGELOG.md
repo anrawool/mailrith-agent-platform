@@ -2,12 +2,16 @@
 
 ## Unreleased
 
+## 1.1.1 - 2026-08-27
+
 - Require every self-hosted HTTP request to provide its own bearer credential;
   process-wide API keys remain available only to local stdio clients.
 - Remove the `--api-key` command option so credentials do not appear in process
   listings or shell history.
 - Keep the built-in HTTP listener on loopback and require a TLS reverse proxy
   for remote self-hosted access.
+- Update runtime dependencies to their audited releases and include the
+  official Mailrith trademark and unofficial-fork policy.
 
 ## 1.1.0 - 2026-08-17
 

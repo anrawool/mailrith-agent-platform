@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 1.1.1 - 2026-08-27
+
+- Include the official Mailrith trademark and unofficial-fork policy in every
+  OpenAI/Codex, Claude, Cursor, Gemini, Microsoft, and Cline package.
+- Preserve the approved remote ChatGPT App and Claude Connector contract and
+  listing without a resubmission-only metadata change.
+
 ## 1.1.0 - 2026-08-17
 
 - Synchronize the 55-tool submitted profile across Claude, OpenAI, Cursor,
