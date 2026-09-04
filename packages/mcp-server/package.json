@@ -51,7 +51,7 @@
     "@mailrith/public-api": "workspace:^",
     "@mailrith/sdk": "workspace:^",
     "@modelcontextprotocol/sdk": "1.30.0",
-    "zod": "4.3.6"
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@types/node": "^24.5.2",
