@@ -1,9 +1,17 @@
 # Releasing The CLI
 
-CLI `1.1.2` is prepared and has not been published. It adds clearer API errors,
+CLI `1.1.2` was published to npm on September 4, 2026. It adds clearer API errors,
 missing-ID guidance, and request-file errors. The public contract, SDK, MCP
 server, Agent Skill, Python SDK, and prepared marketplace packages remain at
 `1.1.1`. Microsoft's review package remains `1.1.1`.
+
+## CLI 1.1.2 Publication
+
+The [publication workflow](https://github.com/anrawool/mailrith-agent-platform/actions/runs/33892905851)
+passed preparation, checksum verification, npm publishing with provenance, and
+a clean installation from the public registries. npm marks `1.1.2` as `latest`.
+The published CLI archive SHA-256 is
+`1afbdfa357b5e15b7c00fbe039d1631a1388336f20b9361fc71f2fe5e4ccc44b`.
 
 ## Independent CLI Versions
 
@@ -27,8 +35,9 @@ marketplace submission. The release verifier checks each version separately.
    publishing or rebuilding the Python and marketplace archives.
 3. Review the successful run and its `mailrith-agent-packages` artifact. Its
    npm folder should contain only `mailrith-cli-1.1.2.tgz`.
-4. When ready to publish, run the same workflow on the same reviewed source
-   with **publish_target** set to **cli**. Complete the existing
+4. Merge the reviewed source into **main** after its required checks pass.
+   The production environment permits publication from **main**. Run the
+   workflow on **main** with **publish_target** set to **cli**. Complete the existing
    `agent-packages-production` environment approval. This publishes only the
    CLI, with provenance, and verifies a fresh installation alongside the
    existing versions of the other packages. The installed CLI must report
