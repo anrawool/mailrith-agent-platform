@@ -152,7 +152,7 @@ describe("agent release workflow", () => {
 
   it("fails closed when private-repository publication is requested", () => {
     expect(workflow).toContain(
-      "if: (startsWith(github.ref, 'refs/tags/agent-v') || inputs.publish_target == 'all' || inputs.publish_target == 'npm' || inputs.publish_target == 'pypi') && github.event.repository.visibility != 'public'",
+      "if: ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/agent-v')) || inputs.publish_target == 'all' || inputs.publish_target == 'npm' || inputs.publish_target == 'cli' || inputs.publish_target == 'pypi') && github.event.repository.visibility != 'public'",
     );
     expect(workflow).toContain(
       "Package publication is blocked while this user-owned repository is private.",
@@ -232,7 +232,7 @@ describe("agent release workflow", () => {
     expect(workflow).not.toMatch(/RELEASE_VERSION: 0\.\d+\.\d+/);
     expect(workflow).toContain("for attempt in {1..30}");
     expect(workflow).toContain(
-      'npm view "$package_name@$RELEASE_VERSION" version',
+      'npm view "$package_spec" version',
     );
     expect(workflow).toContain(
       "npm registry propagation timed out for: ${missing_packages[*]}",

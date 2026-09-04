@@ -30,7 +30,7 @@ import {
   writeMailrithCliConfig,
 } from "./config.js";
 
-export const mailrithCliVersion = "1.1.1";
+export const mailrithCliVersion = "1.1.2";
 export const mailrithCliDefaultOAuthProfile = mailrithDefaultWorkProfileKey;
 export const mailrithCliOAuthProfiles = Object.fromEntries(
   mailrithWorkProfiles.map((profile) => [profile.key, profile.scopeKeys]),
@@ -242,12 +242,54 @@ const readBoundedStream = async (stream: NodeJS.ReadableStream) => {
   return Buffer.concat(chunks).toString("utf8");
 };
 
+const requestBodyReadError = (error: unknown, fromStdin: boolean) => {
+  // Preserve our own input-limit errors, but never print operating-system
+  // messages: they can contain private paths or partial request contents.
+  if (error instanceof MailrithCliError) return error;
+  const details = { field: "body-file" };
+  if (fromStdin) {
+    return usageError(
+      "Could not read standard input. Check the command supplying JSON to --body-file -.",
+      details,
+    );
+  }
+  const code = error && typeof error === "object" && "code" in error
+    ? error.code
+    : undefined;
+  switch (code) {
+    case "ENOENT":
+      return usageError("The request file was not found. Check the file location.", details);
+    case "EISDIR":
+      return usageError("The request file location is a folder. Choose a JSON file instead.", details);
+    case "EACCES":
+    case "EPERM":
+      return usageError("The request file cannot be read with your current permissions. Check its access permissions.", details);
+    case "ENOTDIR":
+    case "ENAMETOOLONG":
+    case "ELOOP":
+    case "ERR_INVALID_ARG_VALUE":
+      return usageError("The request file location is invalid. Check the path and any symbolic links.", details);
+    default:
+      return new MailrithCliError({
+        code: "request_file_read_failed",
+        message: "The request file could not be read. Check that it is available and readable before trying again.",
+        exitCode: mailrithCliExitCodes.transient,
+        details,
+      });
+  }
+};
+
 const readBody = async (args: ParsedArguments) => {
   const bodyFile = getStringFlag(args, "body-file");
-  if (!bodyFile) return undefined;
-  const source = await readBoundedStream(
-    bodyFile === "-" ? processStdin : createReadStream(bodyFile),
-  );
+  if (bodyFile === undefined) return undefined;
+  let source: string;
+  try {
+    source = await readBoundedStream(
+      bodyFile === "-" ? processStdin : createReadStream(bodyFile),
+    );
+  } catch (error) {
+    throw requestBodyReadError(error, bodyFile === "-");
+  }
   try {
     return JSON.parse(source) as unknown;
   } catch {
@@ -272,7 +314,11 @@ const redactSecrets = (value: unknown, depth = 0): unknown => {
 
 const getErrorExitCode = (error: unknown) => {
   if (error instanceof MailrithCliError) return error.exitCode;
+  if (error instanceof MailrithCredentialNotConfiguredError)
+    return mailrithCliExitCodes.authentication;
   if (error instanceof MailrithApiError) {
+    if ([400, 405, 413, 415, 422].includes(error.status))
+      return mailrithCliExitCodes.usage;
     if (error.status === 401) return mailrithCliExitCodes.authentication;
     if (error.status === 403) return mailrithCliExitCodes.permission;
     if (error.status === 404) return mailrithCliExitCodes.notFound;
@@ -282,16 +328,6 @@ const getErrorExitCode = (error: unknown) => {
       return mailrithCliExitCodes.transient;
   }
   return mailrithCliExitCodes.transient;
-};
-
-const getSafeApiErrorCode = (status: number) => {
-  if (status === 401) return "api_authentication_failed";
-  if (status === 403) return "api_permission_denied";
-  if (status === 404) return "api_resource_not_found";
-  if (status === 409) return "api_conflict";
-  if (status === 429) return "api_rate_limited";
-  if (status >= 500 || status === 408) return "api_temporarily_unavailable";
-  return "api_request_failed";
 };
 
 const emit = (params: {
@@ -513,6 +549,20 @@ const invokeOperation = async (params: {
   fetchImpl: typeof fetch;
   stdout: (line: string) => void;
 }) => {
+  // Validate generated path names centrally, before the SDK can throw an
+  // untyped error. Never forward arbitrary network/SDK Error messages.
+  for (const match of params.operation.path.matchAll(/\{([^}]+)\}/g)) {
+    const field = match[1]!;
+    const value = params.request.path?.[field];
+    if (
+      (typeof value !== "string" && typeof value !== "number") ||
+      String(value).trim() === ""
+    ) {
+      throw usageError(`Provide --path ${field}=<value> for this operation.`, {
+        field,
+      });
+    }
+  }
   let metadata: MailrithResponseMetadata | null = null;
   const client = createMailrithClient({
     apiKey: params.token,
@@ -692,6 +742,7 @@ export const runMailrithCli = async (
   const stderr = dependencies.stderr ?? console.error;
   const environment = dependencies.environment ?? process.env;
   const fetchImpl = dependencies.fetch ?? fetch;
+  let attemptedOperation: MailrithSdkOperationDescriptor | undefined;
   let args: ParsedArguments = {
     positionals: [],
     flags: new Map(),
@@ -809,7 +860,10 @@ export const runMailrithCli = async (
       credential = await resolveBearerCredential({
         fetch: fetchImpl,
         environment,
-        requestedBaseUrl,
+        requestedBaseUrl:
+          requestedBaseUrl === undefined
+            ? undefined
+            : normalizeApiBaseUrl(requestedBaseUrl),
       });
     } catch (error) {
       if (
@@ -871,6 +925,7 @@ export const runMailrithCli = async (
       throw usageError("Unknown Mailrith CLI command. Run `mailrith help`.");
     }
 
+    attemptedOperation = operation;
     await invokeOperation({
       args,
       operation,
@@ -885,27 +940,48 @@ export const runMailrithCli = async (
     const exitCode = getErrorExitCode(error);
     const cliError = error instanceof MailrithCliError ? error : null;
     const apiError = error instanceof MailrithApiError ? error : null;
+    const apiDescription = apiError
+      ? (await import("./api-errors.js")).describeMailrithApiError(
+          apiError.status,
+          apiError.code,
+          apiError.message,
+        )
+      : null;
     const safeMessage = cliError
       ? cliError.message
-      : apiError
-        ? `Mailrith API request failed with HTTP ${apiError.status}.`
+      : apiDescription
+        ? apiDescription.message
         : error instanceof MailrithCredentialNotConfiguredError
           ? error.message
           : "Mailrith CLI could not complete the command.";
-    const safeApiDetails = apiError?.credentialRecovery
-      ? {
-          credential_type: apiError.credentialRecovery.credentialType,
-          action: apiError.credentialRecovery.action,
-          missing_scopes: apiError.credentialRecovery.missingScopes,
-          replacement_scopes: apiError.credentialRecovery.replacementScopes,
-        }
+    const schemaHelp =
+      apiError && attemptedOperation &&
+      exitCode === mailrithCliExitCodes.usage
+      ? `mailrith operations describe ${attemptedOperation.operationId} --json`
       : undefined;
+    const safeApiDetails =
+      apiError?.credentialRecovery || schemaHelp
+        ? {
+            ...(schemaHelp ? { help_command: schemaHelp } : {}),
+            ...(apiError?.credentialRecovery
+              ? {
+                  credential_type: apiError.credentialRecovery.credentialType,
+                  action: apiError.credentialRecovery.action,
+                  missing_scopes: apiError.credentialRecovery.missingScopes,
+                  replacement_scopes: apiError.credentialRecovery.replacementScopes,
+                }
+              : {}),
+          }
+        : undefined;
     const payload = {
       ok: false,
       error: {
         code:
           cliError?.code ??
-          (apiError ? getSafeApiErrorCode(apiError.status) : "cli_failure"),
+          apiDescription?.code ??
+          (error instanceof MailrithCredentialNotConfiguredError
+            ? "credential_required"
+            : "cli_failure"),
         message: safeMessage,
         request_id: apiError?.clientRequestId ?? null,
         details: cliError
@@ -918,6 +994,7 @@ export const runMailrithCli = async (
     } else {
       stderr(`${payload.error.code}: ${payload.error.message}`);
       if (payload.error.request_id) stderr(`Request ID: ${payload.error.request_id}`);
+      if (schemaHelp) stderr(`Check request fields: ${schemaHelp}`);
       if (apiError?.credentialRecovery) {
         stderr(
           apiError.credentialRecovery.action === "replace_api_key"

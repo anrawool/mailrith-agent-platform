@@ -10,7 +10,7 @@ import {
   resolveMailrithCliOAuthScopes,
   runMailrithCli,
 } from "./index.js";
-import { mailrithWorkProfiles } from "@mailrith/sdk";
+import { mailrithSdkResources, mailrithWorkProfiles } from "@mailrith/sdk";
 
 const temporaryDirectories: string[] = [];
 
@@ -272,7 +272,7 @@ describe("Mailrith CLI", () => {
       "Bearer mailrith_test_secret",
     );
     expect(requests[0]?.headers.get("x-mailrith-client")).toBe(
-      "cli/1.1.1",
+      "cli/1.1.2",
     );
     expect(stdout.join("\n")).not.toContain("mailrith_test_secret");
     expect(JSON.parse(stdout[0] ?? "{}")).toMatchObject({
@@ -552,10 +552,211 @@ describe("Mailrith CLI", () => {
     expect(JSON.parse(stderr[0] ?? "{}")).toMatchObject({
       ok: false,
       error: {
-        code: "api_permission_denied",
+        code: "insufficient_scope",
         request_id: expect.stringMatching(/^req_[0-9a-f-]{36}$/),
       },
     });
+  });
+
+  it.each([
+    ["invalid_request", "Subscriber email must be valid."],
+    ["invalid_broadcast", "Subject is required."],
+    ["invalid_sequence", "Sequence name is required."],
+    ["invalid_automation", "Automation name is required."],
+    ["invalid_tag_name", "Tag name is required."],
+    ["invalid_custom_field", "Custom field type is invalid."],
+    ["invalid_template_body", "Template body is required."],
+    ["invalid_form", "A published form must include an email field."],
+    ["invalid_landing_page", "Landing page slug must be 2-80 URL-safe characters."],
+    ["invalid_segment", "Segments cannot reference themselves or create circular references."],
+    ["invalid_magic_link", "Destination URL must be a valid http or https URL."],
+    ["invalid_email_delivery_connection", "From name is required."],
+    ["invalid_webhook_event_patterns", "Select at least one webhook event pattern."],
+    ["invalid_mappings", "Email field must be mapped to a CSV column."],
+  ])("preserves safe validation guidance for %s", async (code, message) => {
+    const stderr: string[] = [];
+    const fetchMock = vi.fn(async () => Response.json({
+      error: { code, message, details: { password: "do-not-print" } },
+    }, { status: 400 }));
+    const exitCode = await runMailrithCli(
+      ["call", "subscribers", "list", "--json"],
+      {
+        environment: { MAILRITH_API_KEY: "test_key" },
+        fetch: fetchMock,
+        stderr: (line) => stderr.push(line),
+      },
+    );
+    expect(exitCode).toBe(mailrithCliExitCodes.usage);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(stderr[0]!)).toMatchObject({ error: {
+      code, message,
+      details: { help_command: "mailrith operations describe listSubscribers --json" },
+    } });
+    expect(stderr.join("\n")).not.toContain("do-not-print");
+  });
+
+  it.each([false, true])("explains shared-connection conflicts in JSON=%s output", async (json) => {
+    const stderr: string[] = [];
+    const exitCode = await runMailrithCli([
+      "call", "emailDeliveryConnections", "update",
+      "--path", "connection_id=connection_test", ...(json ? ["--json"] : []),
+    ], {
+      environment: { MAILRITH_API_KEY: "test_key" },
+      fetch: vi.fn(async () => Response.json({ error: {
+        code: "shared_email_delivery_connection_requires_ui",
+        message: "server-secret",
+      } }, { status: 409 })),
+      stderr: (line) => stderr.push(line),
+    });
+    expect(exitCode).toBe(mailrithCliExitCodes.conflict);
+    expect(stderr.join("\n")).toContain("Manage it in Mailrith.");
+    expect(stderr.join("\n")).toContain("shared_email_delivery_connection_requires_ui");
+    expect(stderr.join("\n")).not.toContain("server-secret");
+  });
+
+  it("reports every missing ID for every generated operation before requesting it", async () => {
+    const fetchMock = vi.fn();
+    let checked = 0;
+    for (const resource of mailrithSdkResources) {
+      for (const operation of resource.operations) {
+        const fields = [...operation.path.matchAll(/\{([^}]+)\}/g)].map((match) => match[1]!);
+        for (const missingField of fields) {
+          const stderr: string[] = [];
+          const exitCode = await runMailrithCli([
+            "operations", "run", operation.operationId, "--json",
+            ...fields.filter((field) => field !== missingField)
+              .flatMap((field) => ["--path", `${field}=test_id`]),
+          ], {
+            environment: { MAILRITH_API_KEY: "test_key" },
+            fetch: fetchMock,
+            stderr: (line) => stderr.push(line),
+          });
+          expect(exitCode, operation.operationId).toBe(mailrithCliExitCodes.usage);
+          expect(JSON.parse(stderr[0]!)).toMatchObject({ error: {
+            code: "invalid_usage",
+            message: `Provide --path ${missingField}=<value> for this operation.`,
+            details: { field: missingField },
+          } });
+          checked += 1;
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(0);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it.each([[], ["--path", "subscriber_id="], ["--path", "subscriber_id= "],
+    ["--path", "subscriber_id=first", "--path", "subscriber_id=second"],
+  ])("explains invalid path arguments without a request: %j", async (...pathArgs) => {
+    const stderr: string[] = [];
+    const fetchMock = vi.fn();
+    const exitCode = await runMailrithCli([
+      "call", "subscribers", "get", ...pathArgs, "--json",
+    ], {
+      environment: { MAILRITH_API_KEY: "test_key" },
+      fetch: fetchMock,
+      stderr: (line) => stderr.push(line),
+    });
+    expect(exitCode).toBe(mailrithCliExitCodes.usage);
+    expect(stderr.join("\n")).toContain("--path subscriber_id=<value>");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("prints the input-schema help command for text validation failures", async () => {
+    const stderr: string[] = [];
+    const exitCode = await runMailrithCli(["subscribers", "sync"], {
+      environment: { MAILRITH_API_KEY: "test_key" },
+      fetch: vi.fn(async () => Response.json({ error: {
+        code: "invalid_request", message: "Subscriber email must be valid.",
+      } }, { status: 400 })),
+      stderr: (line) => stderr.push(line),
+    });
+    expect(exitCode).toBe(mailrithCliExitCodes.usage);
+    expect(stderr[0]).toBe("invalid_request: Subscriber email must be valid.");
+    expect(stderr.join("\n")).toContain("mailrith operations describe upsertSubscriber --json");
+  });
+
+  it("keeps authentication, conflict, rate-limit and transient exits distinct", async () => {
+    for (const [status, expected] of [
+      [401, mailrithCliExitCodes.authentication],
+      [403, mailrithCliExitCodes.permission],
+      [404, mailrithCliExitCodes.notFound],
+      [409, mailrithCliExitCodes.conflict],
+      [429, mailrithCliExitCodes.rateLimit],
+      [408, mailrithCliExitCodes.transient],
+      [500, mailrithCliExitCodes.transient],
+      [503, mailrithCliExitCodes.transient],
+      [400, mailrithCliExitCodes.usage],
+      [405, mailrithCliExitCodes.usage],
+      [413, mailrithCliExitCodes.usage],
+      [415, mailrithCliExitCodes.usage],
+      [422, mailrithCliExitCodes.usage],
+    ]) {
+      const stderr: string[] = [];
+      const exitCode = await runMailrithCli(["capabilities", "--json"], {
+        environment: { MAILRITH_API_KEY: "test_key" },
+        fetch: vi.fn(async () => Response.json({ error: {
+          code: "invalid_request", message: "Subject is required.",
+        } }, { status })),
+        stderr: (line) => stderr.push(line),
+      });
+      expect(exitCode, String(status)).toBe(expected);
+      if (status >= 500 || status === 408) {
+        expect(stderr.join("\n")).not.toContain("Subject is required.");
+      }
+    }
+  });
+
+  it("identifies an invalid API URL as a usage error before requesting it", async () => {
+    const stderr: string[] = [];
+    const fetchMock = vi.fn();
+    const exitCode = await runMailrithCli([
+      "capabilities", "--base-url", "not-a-url", "--json",
+    ], {
+      environment: { MAILRITH_API_KEY: "test_key" },
+      fetch: fetchMock,
+      stderr: (line) => stderr.push(line),
+    });
+    expect(exitCode).toBe(mailrithCliExitCodes.usage);
+    expect(JSON.parse(stderr[0]!)).toMatchObject({ error: { code: "invalid_usage" } });
+    expect(stderr.join("\n")).toContain("URL");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("explains missing credentials with an authentication exit", async () => {
+    const stderr: string[] = [];
+    const fetchMock = vi.fn();
+    const exitCode = await runMailrithCli(["capabilities", "--json"], {
+      environment: { MAILRITH_CONFIG_FILE: await createTemporaryConfigPath() },
+      fetch: fetchMock,
+      stderr: (line) => stderr.push(line),
+    });
+    expect(exitCode).toBe(mailrithCliExitCodes.authentication);
+    expect(JSON.parse(stderr[0]!)).toMatchObject({ error: { code: "credential_required" } });
+    expect(stderr.join("\n")).toContain("mailrith auth login");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["invalid_request", "Subject is required.\nsecret"],
+    ["invalid_request", "x".repeat(2048)],
+    ["constructor", "secret"],
+    ["__proto__", "secret"],
+    ["secret", "Subject is required."],
+    ["x".repeat(2048), "secret"],
+  ])("does not trust arbitrary API codes or partial message matches", async (code, message) => {
+    const stderr: string[] = [];
+    const exitCode = await runMailrithCli(["capabilities", "--json"], {
+      environment: { MAILRITH_API_KEY: "test_key" },
+      fetch: vi.fn(async () => Response.json({ error: {
+        code, message, details: { field: "secret" },
+      } }, { status: 400, headers: { "x-mailrith-request-id": "secret" } })),
+      stderr: (line) => stderr.push(line),
+    });
+    expect(exitCode).toBe(mailrithCliExitCodes.usage);
+    expect(stderr.join("\n")).not.toContain("secret");
+    expect(stderr.join("\n")).not.toContain("Subject is required.");
+    expect(stderr.join("\n")).not.toContain("x".repeat(200));
   });
 
   it("does not print secrets echoed by API or network errors", async () => {
