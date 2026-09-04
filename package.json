@@ -23,16 +23,16 @@
     "validate": "pnpm generate:agent-artifacts && pnpm generate:agent-integrations && git diff --exit-code -- packages/sdk/src/generated.ts packages/python-sdk/mailrith_sdk/contract.json packages/python-sdk/mailrith_sdk/manifest.json packages/mcp-server/src/generated-tool-manifest.ts packages/agent-integrations chatgpt-app-submission.json && pnpm agent:release:verify && pnpm agent:clients:conformance -- --profile static && pnpm lint && pnpm typecheck && pnpm test && pnpm test:python && pnpm build"
   },
   "devDependencies": {
-    "@eslint/js": "9.39.2",
+    "@eslint/js": "10.0.1",
     "@mailrith/mcp-server": "workspace:*",
     "@mailrith/public-api": "workspace:*",
     "@modelcontextprotocol/sdk": "1.30.0",
-    "@types/node": "^24.5.2",
-    "@typescript-eslint/eslint-plugin": "8.53.1",
-    "@typescript-eslint/parser": "8.53.1",
-    "eslint": "9.39.2",
-    "tsx": "4.23.12",
-    "typescript": "5.9.3",
+    "@types/node": "^26.4.0",
+    "@typescript-eslint/eslint-plugin": "8.69.0",
+    "@typescript-eslint/parser": "8.69.0",
+    "eslint": "10.9.1",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2",
     "vitest": "4.1.11"
   }
 }
