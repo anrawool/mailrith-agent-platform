@@ -1,6 +1,6 @@
 {
   "name": "@mailrith/cli",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Official command-line interface for Mailrith agent workflows.",
   "license": "MIT",
   "homepage": "https://mailrith.com/developers/agent-quickstarts",
@@ -42,7 +42,7 @@
     "prepack": "pnpm build",
     "lint": "pnpm -w exec eslint packages/cli/src --ext .ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --root ../.. packages/cli/src/index.test.ts"
+    "test": "vitest run --root ../.. packages/cli/src"
   },
   "dependencies": {
     "@mailrith/public-api": "workspace:^",

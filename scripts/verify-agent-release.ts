@@ -12,6 +12,8 @@ type JsonObject = Record<string, unknown>;
 type AgentReleaseConfig = {
   schema_version: 1;
   release_version: string;
+  cli_release_version: string;
+  cli_release_status: "prepared_not_published" | "published";
   python_release_version: string;
   marketplace_submission_version: string;
   channel: "ga";
@@ -33,17 +35,27 @@ export const parseAgentReleaseConfig = (value: unknown): AgentReleaseConfig => {
   if (
     typeof config.release_version !== "string" ||
     config.release_version.trim().length === 0 ||
+    typeof config.cli_release_version !== "string" ||
+    config.cli_release_version.trim().length === 0 ||
     typeof config.python_release_version !== "string" ||
     config.python_release_version.trim().length === 0 ||
     typeof config.marketplace_submission_version !== "string" ||
     config.marketplace_submission_version.trim().length === 0
   ) {
     throw new Error(
-      "Agent release config must declare npm, Python, and marketplace versions.",
+      "Agent release config must declare npm, CLI, Python, and marketplace versions.",
     );
   }
   if (config.channel !== "ga") {
     throw new Error("Agent release config channel must be ga.");
+  }
+  if (
+    config.cli_release_status !== "prepared_not_published" &&
+    config.cli_release_status !== "published"
+  ) {
+    throw new Error(
+      "Agent release config CLI status must be prepared_not_published or published.",
+    );
   }
   if (
     config.status !== "prepared_not_published" &&
@@ -118,6 +130,13 @@ const npmPackages = [
   ["@mailrith/cli", "packages/cli/package.json"],
   ["@mailrith/agent-skill", "packages/agent-skill/package.json"],
 ] as const;
+
+export const npmPackageReleaseVersion = (
+  packageName: string,
+  config: AgentReleaseConfig,
+) => packageName === "@mailrith/cli"
+  ? config.cli_release_version
+  : config.release_version;
 
 const verifyNpmPackage = async (
   expectedName: string,
@@ -283,14 +302,14 @@ const buildManifest = async () => {
   );
   const publishedNpmPackages = await Promise.all(
     npmPackages.map(([name, packagePath]) =>
-      verifyNpmPackage(name, packagePath, releaseConfig.release_version),
+      verifyNpmPackage(name, packagePath, npmPackageReleaseVersion(name, releaseConfig)),
     ),
   );
   await Promise.all([
     verifyRuntimeVersion(
       "packages/cli/src/index.ts",
       'export const mailrithCliVersion = "{version}";',
-      releaseConfig.release_version,
+      releaseConfig.cli_release_version,
     ),
     verifyRuntimeVersion(
       "packages/mcp-server/src/index.ts",
@@ -339,6 +358,8 @@ const buildManifest = async () => {
   const manifest = {
     schema_version: releaseConfig.schema_version,
     release_version: releaseConfig.release_version,
+    cli_release_version: releaseConfig.cli_release_version,
+    cli_release_status: releaseConfig.cli_release_status,
     marketplace_submission_version:
       releaseConfig.marketplace_submission_version,
     channel: releaseConfig.channel,
@@ -427,7 +448,7 @@ const main = async () => {
       throw new Error("Agent release manifest is stale. Run `pnpm agent:release:manifest`.");
     }
     process.stdout.write(
-      `Agent release ${releaseConfig.release_version} is internally consistent.\n`,
+      `Agent release ${releaseConfig.release_version} with CLI ${releaseConfig.cli_release_version} (${releaseConfig.cli_release_status}) is internally consistent.\n`,
     );
   }
 };

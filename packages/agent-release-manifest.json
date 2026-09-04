@@ -1,17 +1,19 @@
 {
   "schema_version": 1,
   "release_version": "1.1.1",
+  "cli_release_version": "1.1.2",
+  "cli_release_status": "prepared_not_published",
   "marketplace_submission_version": "1.1.1",
   "channel": "ga",
   "status": "published",
   "contract_version": "v1",
-  "documentation_revision": "2026-08-27",
+  "documentation_revision": "2026-09-04",
   "packages": {
     "npm": {
       "@mailrith/public-api": "1.1.1",
       "@mailrith/sdk": "1.1.1",
       "@mailrith/mcp-server": "1.1.1",
-      "@mailrith/cli": "1.1.1",
+      "@mailrith/cli": "1.1.2",
       "@mailrith/agent-skill": "1.1.1"
     },
     "pypi": {
@@ -26,7 +28,7 @@
     "mcp_manifest_sha256": "fd878e224290a225bbf229bd813ba1df501c8018a6d4e2c981cf00c5f46b88f7",
     "agent_skill_sha256": "b22b0999a1b170db1666a0ce4e3047d809745b74b6e3d1b58447a1e957032cad",
     "connector_templates_sha256": "282b81077101f6e37b5bd7e7ec153853fe2caddba774f211e3c32a3f4f3d18c7",
-    "platform_integrations_sha256": "b14a526005ef3794e32cfdc305e2af55bcc6bbcfd16d3651d407d9a4ce0bf29a",
+    "platform_integrations_sha256": "90e921ad054a8adf4842241fbc47ffaf287b7cebf3c317d75c0c9fc6a8c7dd80",
     "agent_discovery_and_guidance_sha256": "c5e2ab5df8d359d7fe185bc0131c39f5626bc85a0585d79df683d2db8034f1ab"
   },
   "compatibility": {

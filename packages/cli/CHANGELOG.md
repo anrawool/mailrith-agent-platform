@@ -1,6 +1,21 @@
 # Changelog
 
-## Unreleased
+## 1.1.2 - Unreleased
+
+- Explain missing, invalid, inaccessible or unreadable request files through
+  the shared body reader for every command. Keep private paths and partial
+  contents hidden, preserve the 1 MiB limit, and distinguish interrupted input
+  pipes and unexpected storage failures.
+- Run every CLI regression test through the package's test command.
+- Restore safe, actionable errors across all commands using a shared catalog
+  of known API errors and exact, reviewed validation messages. Keep unexpected
+  server text, URLs, request IDs, and details out of error output.
+- Explain missing or invalid path IDs before sending a request, point invalid
+  requests to their operation's input schema, and distinguish usage and
+  authentication failures from temporary failures.
+- Load error guidance only after an API failure, preserving the existing
+  operation-search and successful-request paths without extra network calls
+  or stored data.
 
 ## 1.1.1 - 2026-08-27
 

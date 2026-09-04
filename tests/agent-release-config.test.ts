@@ -1,11 +1,13 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { parseAgentReleaseConfig } from "../scripts/verify-agent-release";
+import { npmPackageReleaseVersion, parseAgentReleaseConfig } from "../scripts/verify-agent-release";
 
 const validConfig = {
   schema_version: 1,
   release_version: "0.1.0",
+  cli_release_version: "0.1.0",
+  cli_release_status: "prepared_not_published",
   python_release_version: "0.1.0",
   marketplace_submission_version: "0.1.0",
   channel: "ga",
@@ -69,6 +71,37 @@ describe("agent release config", () => {
     ).toMatchObject({ channel: "ga", status: "published" });
   });
 
+  it("allows an unpublished CLI patch without changing published packages or marketplaces", () => {
+    const config = parseAgentReleaseConfig({
+      ...validConfig,
+      release_version: "1.1.1",
+      python_release_version: "1.1.1",
+      marketplace_submission_version: "1.1.1",
+      status: "published",
+      cli_release_version: "1.1.2",
+    });
+    expect(npmPackageReleaseVersion("@mailrith/cli", config)).toBe("1.1.2");
+    for (const name of ["public-api", "sdk", "mcp-server", "agent-skill"]) {
+      expect(npmPackageReleaseVersion(`@mailrith/${name}`, config)).toBe("1.1.1");
+    }
+    expect(config).toMatchObject({
+      python_release_version: "1.1.1",
+      marketplace_submission_version: "1.1.1",
+      status: "published",
+      cli_release_status: "prepared_not_published",
+    });
+  });
+
+  it("records CLI publication independently", () => {
+    expect(parseAgentReleaseConfig({
+      ...validConfig,
+      cli_release_status: "published",
+    })).toMatchObject({
+      status: "prepared_not_published",
+      cli_release_status: "published",
+    });
+  });
+
   it.each([
     [{ ...validConfig, channel: "preview" }, "channel must be ga"],
     [
@@ -81,7 +114,19 @@ describe("agent release config", () => {
     ],
     [
       { ...validConfig, marketplace_submission_version: "" },
-      "must declare npm, Python, and marketplace versions",
+      "must declare npm, CLI, Python, and marketplace versions",
+    ],
+    [
+      { ...validConfig, cli_release_version: undefined },
+      "must declare npm, CLI, Python, and marketplace versions",
+    ],
+    [
+      { ...validConfig, cli_release_version: " " },
+      "must declare npm, CLI, Python, and marketplace versions",
+    ],
+    [
+      { ...validConfig, cli_release_status: "publishing" },
+      "CLI status must be prepared_not_published or published",
     ],
   ])("rejects an invalid release state", (config, message) => {
     expect(() => parseAgentReleaseConfig(config)).toThrow(message);

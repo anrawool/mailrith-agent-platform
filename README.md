@@ -37,12 +37,13 @@ Commit the contract and every regenerated artifact in the same change.
 ## Releases
 
 The `Release Agent Packages` workflow prepares checksummed npm, Python, and
-platform packages on every manual run. Publishing requires the protected
+platform packages on coordinated runs. The `prepare-cli` and `cli` targets
+prepare only the CLI archive. Publishing requires the protected
 `agent-packages-production` environment and trusted publishing configured for
 npm and PyPI. A matching `agent-v<version>` tag or an explicitly approved
 publish run starts publication.
 
-The npm, Python, and marketplace submission versions advance independently
+The CLI, other npm packages, Python, and marketplace submission versions advance independently
 through the coordinated workflow. This keeps already-submitted marketplace
 archives unchanged while another package channel receives a compatible
 patch release. The release manifest records each version, the contract digest,
@@ -51,6 +52,10 @@ package digests, and public-registry status.
 The platform archives are submission-ready files for OpenAI, Claude, Cursor,
 Gemini CLI, GitHub Copilot CLI, Microsoft, and Cline. Provider review and
 public directory approval are separate from npm and PyPI publication.
+
+CLI `1.1.2` is prepared but not published. The other packages and prepared
+marketplace artifacts remain at `1.1.1`. See [Releasing The CLI](packages/cli/RELEASING.md)
+for the separate CLI version fields and the preparation and publication steps.
 
 ## Security
 
