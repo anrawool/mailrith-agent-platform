@@ -53,7 +53,7 @@ The platform archives are submission-ready files for OpenAI, Claude, Cursor,
 Gemini CLI, GitHub Copilot CLI, Microsoft, and Cline. Provider review and
 public directory approval are separate from npm and PyPI publication.
 
-CLI `1.1.2` is prepared but not published. The other packages and prepared
+CLI `1.1.2` was published to npm on September 4, 2026. The other packages and prepared
 marketplace artifacts remain at `1.1.1`. See [Releasing The CLI](packages/cli/RELEASING.md)
 for the separate CLI version fields and the preparation and publication steps.
 

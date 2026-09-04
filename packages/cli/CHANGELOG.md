@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.2 - Unreleased
+## 1.1.2 - 2026-09-04
 
 - Explain missing, invalid, inaccessible or unreadable request files through
   the shared body reader for every command. Keep private paths and partial
