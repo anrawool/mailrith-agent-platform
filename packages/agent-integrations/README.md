@@ -3,10 +3,8 @@
 This folder contains the local submission packages for:
 
 - ChatGPT and Codex
-- Claude Connector and the complementary Claude Code plugin
-- Cursor
+- Claude Connector
 - Gemini CLI
-- GitHub Copilot CLI
 - Microsoft MCP server certification
 - Cline
 
@@ -24,6 +22,6 @@ credential, or real customer data.
 
 ## Official Builds And Forks
 
-Modified public versions must use distinct plugin, connector, marketplace, and
+Modified public versions must use distinct plugin, connector, extension, and
 service names and clearly say that they are unofficial. See the
 [Mailrith Trademark And Unofficial Fork Policy](https://github.com/anrawool/mailrith-agent-platform/blob/main/TRADEMARKS.md).

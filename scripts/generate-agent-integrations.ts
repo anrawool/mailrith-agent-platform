@@ -46,8 +46,6 @@ const canonicalTrademarkPolicyPath = path.join(
 );
 const pluginRoots = [
   path.join(integrationsRoot, "openai", "mailrith"),
-  path.join(integrationsRoot, "cursor", "mailrith"),
-  path.join(integrationsRoot, "claude", "mailrith"),
 ];
 const publicNpmPackageRoots = [
   path.join(repositoryRoot, "packages", "public-api"),
