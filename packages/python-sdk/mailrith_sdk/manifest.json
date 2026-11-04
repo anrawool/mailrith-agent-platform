@@ -29,7 +29,6 @@
           "broadcasts",
           "sequences",
           "automations",
-          "email_delivery_setup",
           "subscriber_import_export",
           "outbound_webhooks"
         ],
@@ -72,7 +71,6 @@
           "broadcasts",
           "sequences",
           "automations",
-          "email_delivery_setup",
           "subscriber_import_export",
           "outbound_webhooks"
         ],
@@ -115,7 +113,6 @@
           "broadcasts",
           "sequences",
           "automations",
-          "email_delivery_setup",
           "subscriber_import_export",
           "outbound_webhooks"
         ],
@@ -167,7 +164,6 @@
           "broadcasts",
           "sequences",
           "automations",
-          "email_delivery_setup",
           "subscriber_import_export",
           "outbound_webhooks"
         ],
@@ -219,7 +215,6 @@
           "broadcasts",
           "sequences",
           "automations",
-          "email_delivery_setup",
           "subscriber_import_export",
           "outbound_webhooks"
         ],
@@ -267,7 +262,6 @@
           "broadcasts",
           "sequences",
           "automations",
-          "email_delivery_setup",
           "subscriber_import_export",
           "outbound_webhooks"
         ],
@@ -281,413 +275,6 @@
         "risk_rationale": "Reads one enabled sender identity without provider credentials.",
         "path_params": [
           "sender_identity_id"
-        ],
-        "query_params": [],
-        "header_params": [],
-        "has_request_body": false,
-        "request_body_required": false
-      }
-    ]
-  },
-  {
-    "namespace": "email_delivery_connections",
-    "name": "Email Delivery Connections",
-    "description": "Set up and manage email delivery connections for the authenticated workspace. Provider credentials are entered only in Mailrith's secure browser flow and are never accepted or returned by the agent API.",
-    "operations": [
-      {
-        "namespace": "email_delivery_connections",
-        "method_name": "list",
-        "operation_id": "listEmailDeliveryConnections",
-        "method": "GET",
-        "path": "/v1/email-delivery-connections",
-        "summary": "List email delivery connections",
-        "description": "Returns a bounded page of email delivery connections linked to the authenticated workspace. Saved credentials and webhook secrets are never returned.",
-        "auth_required": true,
-        "required_scopes": [
-          "email_delivery_connections:read"
-        ],
-        "mcp_tool_name": "email_delivery_connections_list",
-        "risk": "read",
-        "external_side_effect": false,
-        "requires_live_action": false,
-        "side_effect_class": "none",
-        "retry_mode": "safe",
-        "idempotency_policy": "safe-read",
-        "toolsets": [
-          "full_email_marketing_access",
-          "reporting",
-          "broadcasts",
-          "sequences",
-          "automations",
-          "email_delivery_setup"
-        ],
-        "annotations": {
-          "title": "List email delivery connections",
-          "readOnlyHint": true,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Reads a bounded page of secret-free delivery connection metadata.",
-        "path_params": [],
-        "query_params": [
-          "limit",
-          "starting_after"
-        ],
-        "header_params": [],
-        "has_request_body": false,
-        "request_body_required": false
-      },
-      {
-        "namespace": "email_delivery_connections",
-        "method_name": "start_setup",
-        "operation_id": "startEmailDeliveryConnectionSetup",
-        "method": "POST",
-        "path": "/v1/email-delivery-connection-setup-sessions",
-        "summary": "Start secure email delivery connection setup",
-        "description": "Creates a short-lived browser handoff containing only non-secret defaults. Open setup_url so an authorized Mailrith user can enter provider credentials directly in Mailrith.",
-        "auth_required": true,
-        "required_scopes": [
-          "email_delivery_connections:write"
-        ],
-        "mcp_tool_name": "email_delivery_connections_start_setup",
-        "risk": "admin",
-        "external_side_effect": false,
-        "requires_live_action": false,
-        "side_effect_class": "secret-change",
-        "retry_mode": "resource-state",
-        "idempotency_policy": "resource-state",
-        "toolsets": [
-          "full_email_marketing_access",
-          "email_delivery_setup"
-        ],
-        "annotations": {
-          "title": "Start secure email delivery connection setup",
-          "readOnlyHint": false,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Creates a short-lived browser handoff so provider credentials never pass through the agent API.",
-        "path_params": [],
-        "query_params": [],
-        "header_params": [],
-        "has_request_body": true,
-        "request_body_required": true
-      },
-      {
-        "namespace": "email_delivery_connections",
-        "method_name": "get_setup",
-        "operation_id": "getEmailDeliveryConnectionSetup",
-        "method": "GET",
-        "path": "/v1/email-delivery-connection-setup-sessions/{setup_session_id}",
-        "summary": "Get secure setup status",
-        "description": "Returns pending or completed status for one short-lived setup session. It never returns the browser token or provider credentials.",
-        "auth_required": true,
-        "required_scopes": [
-          "email_delivery_connections:write"
-        ],
-        "mcp_tool_name": "email_delivery_connections_get_setup",
-        "risk": "read",
-        "external_side_effect": false,
-        "requires_live_action": false,
-        "side_effect_class": "none",
-        "retry_mode": "safe",
-        "idempotency_policy": "safe-read",
-        "toolsets": [
-          "full_email_marketing_access",
-          "email_delivery_setup"
-        ],
-        "annotations": {
-          "title": "Get secure setup status",
-          "readOnlyHint": true,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Reads the bounded status of one short-lived secure setup session.",
-        "path_params": [
-          "setup_session_id"
-        ],
-        "query_params": [],
-        "header_params": [],
-        "has_request_body": false,
-        "request_body_required": false
-      },
-      {
-        "namespace": "email_delivery_connections",
-        "method_name": "renew_setup",
-        "operation_id": "renewEmailDeliveryConnectionSetup",
-        "method": "POST",
-        "path": "/v1/email-delivery-connection-setup-sessions/{setup_session_id}/renew",
-        "summary": "Renew secure email delivery setup",
-        "description": "Creates a fresh short-lived browser link from the previous session's bounded non-secret defaults. Completed sessions cannot be renewed.",
-        "auth_required": true,
-        "required_scopes": [
-          "email_delivery_connections:write"
-        ],
-        "mcp_tool_name": "email_delivery_connections_renew_setup",
-        "risk": "admin",
-        "external_side_effect": false,
-        "requires_live_action": false,
-        "side_effect_class": "secret-change",
-        "retry_mode": "resource-state",
-        "idempotency_policy": "resource-state",
-        "toolsets": [
-          "full_email_marketing_access",
-          "email_delivery_setup"
-        ],
-        "annotations": {
-          "title": "Renew secure email delivery setup",
-          "readOnlyHint": false,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Reissues a short-lived browser handoff from bounded non-secret setup context.",
-        "path_params": [
-          "setup_session_id"
-        ],
-        "query_params": [],
-        "header_params": [],
-        "has_request_body": false,
-        "request_body_required": false
-      },
-      {
-        "namespace": "email_delivery_connections",
-        "method_name": "get",
-        "operation_id": "getEmailDeliveryConnection",
-        "method": "GET",
-        "path": "/v1/email-delivery-connections/{connection_id}",
-        "summary": "Get an email delivery connection",
-        "description": "Returns one secret-free email delivery connection linked to the authenticated workspace.",
-        "auth_required": true,
-        "required_scopes": [
-          "email_delivery_connections:read"
-        ],
-        "mcp_tool_name": "email_delivery_connections_get",
-        "risk": "read",
-        "external_side_effect": false,
-        "requires_live_action": false,
-        "side_effect_class": "none",
-        "retry_mode": "safe",
-        "idempotency_policy": "safe-read",
-        "toolsets": [
-          "full_email_marketing_access",
-          "reporting",
-          "broadcasts",
-          "sequences",
-          "automations",
-          "email_delivery_setup"
-        ],
-        "annotations": {
-          "title": "Get an email delivery connection",
-          "readOnlyHint": true,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Reads one secret-free delivery connection linked to the workspace.",
-        "path_params": [
-          "connection_id"
-        ],
-        "query_params": [],
-        "header_params": [],
-        "has_request_body": false,
-        "request_body_required": false
-      },
-      {
-        "namespace": "email_delivery_connections",
-        "method_name": "update",
-        "operation_id": "updateEmailDeliveryConnection",
-        "method": "PATCH",
-        "path": "/v1/email-delivery-connections/{connection_id}",
-        "summary": "Update an email delivery connection",
-        "description": "Changes non-secret details for one connection linked only to the authenticated workspace. Use a secure setup session to replace provider credentials. Shared connections must be changed in the Mailrith UI.",
-        "auth_required": true,
-        "required_scopes": [
-          "email_delivery_connections:write"
-        ],
-        "mcp_tool_name": "email_delivery_connections_update",
-        "risk": "admin",
-        "external_side_effect": false,
-        "requires_live_action": false,
-        "side_effect_class": "workspace-change",
-        "retry_mode": "resource-state",
-        "idempotency_policy": "resource-state",
-        "toolsets": [
-          "full_email_marketing_access",
-          "email_delivery_setup"
-        ],
-        "annotations": {
-          "title": "Update an email delivery connection",
-          "readOnlyHint": false,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Changes non-secret sender settings for one workspace-only connection.",
-        "path_params": [
-          "connection_id"
-        ],
-        "query_params": [],
-        "header_params": [],
-        "has_request_body": true,
-        "request_body_required": true
-      },
-      {
-        "namespace": "email_delivery_connections",
-        "method_name": "update_status",
-        "operation_id": "updateEmailDeliveryConnectionStatus",
-        "method": "PUT",
-        "path": "/v1/email-delivery-connections/{connection_id}/status",
-        "summary": "Enable or disable an email delivery connection",
-        "description": "Enables or disables one connection linked only to the authenticated workspace. Shared or in-use connections remain protected.",
-        "auth_required": true,
-        "required_scopes": [
-          "email_delivery_connections:write"
-        ],
-        "mcp_tool_name": "email_delivery_connections_update_status",
-        "risk": "admin",
-        "external_side_effect": false,
-        "requires_live_action": false,
-        "side_effect_class": "workspace-change",
-        "retry_mode": "resource-state",
-        "idempotency_policy": "resource-state",
-        "toolsets": [
-          "full_email_marketing_access",
-          "email_delivery_setup"
-        ],
-        "annotations": {
-          "title": "Enable or disable an email delivery connection",
-          "readOnlyHint": false,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Enables or disables a delivery connection and can change whether workspace resources may be created or sent.",
-        "path_params": [
-          "connection_id"
-        ],
-        "query_params": [],
-        "header_params": [],
-        "has_request_body": true,
-        "request_body_required": true
-      },
-      {
-        "namespace": "email_delivery_connections",
-        "method_name": "verify",
-        "operation_id": "verifyEmailDeliveryConnection",
-        "method": "POST",
-        "path": "/v1/email-delivery-connections/{connection_id}/verify",
-        "summary": "Verify an email delivery connection",
-        "description": "Checks the saved provider credential and sender without returning secrets. If the provider key allows sending but not inspection, the response clearly requires a real test email.",
-        "auth_required": true,
-        "required_scopes": [
-          "email_delivery_connections:write"
-        ],
-        "mcp_tool_name": "email_delivery_connections_verify",
-        "risk": "read",
-        "external_side_effect": false,
-        "requires_live_action": false,
-        "side_effect_class": "none",
-        "retry_mode": "safe",
-        "idempotency_policy": "safe-read",
-        "toolsets": [
-          "full_email_marketing_access",
-          "email_delivery_setup"
-        ],
-        "annotations": {
-          "title": "Verify an email delivery connection",
-          "readOnlyHint": true,
-          "destructiveHint": false,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Checks the saved provider credential and sender without storing a verification history.",
-        "path_params": [
-          "connection_id"
-        ],
-        "query_params": [],
-        "header_params": [],
-        "has_request_body": false,
-        "request_body_required": false
-      },
-      {
-        "namespace": "email_delivery_connections",
-        "method_name": "send_test",
-        "operation_id": "testEmailDeliveryConnection",
-        "method": "POST",
-        "path": "/v1/email-delivery-connections/{connection_id}/test",
-        "summary": "Send an email delivery connection test",
-        "description": "Sends one real test email through the saved connection. This is the definitive check when a send-only provider key cannot be inspected.",
-        "auth_required": true,
-        "required_scopes": [
-          "live_actions:write",
-          "email_delivery_connections:write"
-        ],
-        "mcp_tool_name": "email_delivery_connections_send_test",
-        "risk": "test",
-        "external_side_effect": true,
-        "requires_live_action": true,
-        "side_effect_class": "external-email",
-        "retry_mode": "idempotency-key",
-        "idempotency_policy": "idempotency-key",
-        "toolsets": [
-          "full_email_marketing_access",
-          "email_delivery_setup"
-        ],
-        "annotations": {
-          "title": "Send an email delivery connection test",
-          "readOnlyHint": false,
-          "destructiveHint": true,
-          "idempotentHint": false,
-          "openWorldHint": true
-        },
-        "risk_rationale": "Sends one real test email to a controlled recipient.",
-        "path_params": [
-          "connection_id"
-        ],
-        "query_params": [],
-        "header_params": [
-          "Idempotency-Key"
-        ],
-        "has_request_body": true,
-        "request_body_required": true
-      },
-      {
-        "namespace": "email_delivery_connections",
-        "method_name": "delete",
-        "operation_id": "deleteEmailDeliveryConnection",
-        "method": "DELETE",
-        "path": "/v1/email-delivery-connections/{connection_id}",
-        "summary": "Delete an email delivery connection",
-        "description": "Deletes one connection linked only to the authenticated workspace. Shared or in-use connections are not deleted.",
-        "auth_required": true,
-        "required_scopes": [
-          "email_delivery_connections:write"
-        ],
-        "mcp_tool_name": "email_delivery_connections_delete",
-        "risk": "delete",
-        "external_side_effect": false,
-        "requires_live_action": false,
-        "side_effect_class": "deletion",
-        "retry_mode": "resource-state",
-        "idempotency_policy": "resource-state",
-        "toolsets": [
-          "full_email_marketing_access",
-          "email_delivery_setup"
-        ],
-        "annotations": {
-          "title": "Delete an email delivery connection",
-          "readOnlyHint": false,
-          "destructiveHint": true,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "risk_rationale": "Deletes one eligible workspace-only delivery connection and its saved provider credentials.",
-        "path_params": [
-          "connection_id"
         ],
         "query_params": [],
         "header_params": [],
@@ -718,8 +305,8 @@
         "external_side_effect": false,
         "requires_live_action": false,
         "side_effect_class": "workspace-change",
-        "retry_mode": "resource-state",
-        "idempotency_policy": "resource-state",
+        "retry_mode": "idempotency-key",
+        "idempotency_policy": "idempotency-key",
         "toolsets": [
           "full_email_marketing_access",
           "reporting",
@@ -731,13 +318,15 @@
           "title": "Create or reuse an analytics report",
           "readOnlyHint": false,
           "destructiveHint": false,
-          "idempotentHint": true,
+          "idempotentHint": false,
           "openWorldHint": false
         },
         "risk_rationale": "Creates or reuses one bounded, expiring aggregate report from compact rollups.",
         "path_params": [],
         "query_params": [],
-        "header_params": [],
+        "header_params": [
+          "Idempotency-Key"
+        ],
         "has_request_body": true,
         "request_body_required": true
       },
@@ -3188,7 +2777,7 @@
         "method": "GET",
         "path": "/v1/sequences/{sequence_id}/preflight",
         "summary": "Check sequence readiness",
-        "description": "Checks the saved Sequence, its published emails, and its email delivery connection without changing data or sending email.",
+        "description": "Checks the saved Sequence, its published emails, and its sender without changing data or sending email.",
         "auth_required": true,
         "required_scopes": [
           "sequences:read"
@@ -4508,7 +4097,7 @@
         "method": "POST",
         "path": "/v1/broadcasts/{broadcast_id}/test",
         "summary": "Send a broadcast test email",
-        "description": "Sends a test message from an existing Broadcast that has an email delivery connection. Provide a saved Subscriber ID for personalization; use subscribers_list to find one when needed. The recipient may be any test inbox and does not have to match the saved Subscriber.",
+        "description": "Sends a test message from an existing Broadcast that has a sender. Provide a saved Subscriber ID for personalization; use subscribers_list to find one when needed. The recipient may be any test inbox and does not have to match the saved Subscriber.",
         "auth_required": true,
         "required_scopes": [
           "live_actions:write",

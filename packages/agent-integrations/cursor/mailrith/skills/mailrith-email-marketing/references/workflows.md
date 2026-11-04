@@ -21,7 +21,7 @@
 
 ## Broadcasts
 
-1. Run `discovery_get_capabilities`. If Mailrith reports that email delivery is missing or disabled, give the returned setup link to the user or ask them to enable the existing connection.
+1. Run `discovery_get_capabilities`. If Mailrith reports that sending is not ready, tell the user that the workspace owner checks Sending Domain in Workspace settings (Workspaces > Edit Workspace > Sending Domain). Never ask for provider credentials.
 2. Use `sender_identities_list`, the relevant targeting reads, and `email_templates_list` or `email_templates_get` to choose saved resources.
 3. Run `broadcasts_create` or `broadcasts_update`. Keep the Broadcast as a draft.
 4. Confirm subject, sender, recipients, exclusions, and unsubscribe behavior.
@@ -29,18 +29,6 @@
 6. Run `broadcasts_preflight`. Creating or updating a draft does not send it. Run `broadcasts_send_test`, `broadcasts_schedule`, or `broadcasts_send` only when the user's task requires that separate action.
 7. Before changing a scheduled Broadcast, run `broadcasts_get` and retain its `scheduled_at` in the current task only. If that time is no longer safely in the future, ask the user for a new time before changing anything. Otherwise run `broadcasts_unschedule`, update the draft, schedule it for the same time, and run `broadcasts_get` again to verify both `status` and `scheduled_at`.
 8. If an update fails after unscheduling, restore the unchanged Broadcast to the same future time when possible. If the schedule cannot be restored, leave it as a draft and immediately tell the user that it will not send. Never choose a replacement time without the user.
-
-## Email Delivery Setup
-
-1. Connect through the standard MCP URL, choose Email Delivery Setup during OAuth, and confirm the connection has the required permission.
-2. Ask which email delivery provider and sender identity the user wants. Do not ask for an API key, password, secret, or SMTP credential.
-3. Open the setup link returned by Mailrith or use the Email Delivery Setup workflow in the Mailrith UI or CLI. Include the provider, connection name, From name, and From email. For credential replacement, choose the existing connection and the replacement purpose.
-4. Give the returned short-lived setup link to the authorized user. The user signs in to Mailrith and enters provider credentials there; the credentials never pass through the agent. After the link opens, Mailrith keeps the setup in a browser-bound secure session so a reload does not require a new agent link.
-5. Check setup status at a bounded interval until it is completed or `expires_at` has passed. Do not poll rapidly or repeatedly create new setup sessions.
-6. Read the completed connection and confirm its provider, From name, From email, and enabled status. Saved credentials are never returned.
-7. Verify provider and sender access in Mailrith. If inspection is unavailable for a send-only provider key, explain that a real test email is still required.
-8. Send a test from the Mailrith setup workflow to the user's chosen recipient. Confirm the successful result before preparing email-dependent resources.
-9. If the provider requires DNS, domain, or sender verification, tell the user what remains to be completed in the provider account before sending.
 
 ## Broadcast Scheduling
 
@@ -100,8 +88,8 @@
 ## Permission Diagnosis
 
 1. Run `mailrith doctor --json` for discovery, OAuth, MCP, and capability checks.
-2. Read effective capabilities. An omitted operation can be caused by the credential's permissions, the current plan, the workspace limit, a missing or disabled email delivery connection, or a rollout control.
+2. Read effective capabilities. An omitted operation can be caused by the credential's permissions, the current plan, the workspace limit, a sender that is not ready, or a rollout control.
 3. Use the returned missing-permission list, recommended Work Profile, and access-update link. A general-purpose agent should normally use Full Email Marketing Access; keep a focused connection narrow unless the user chooses to broaden it.
-4. Follow the capability limitation's setup link or guidance when the credential already has the required scope but a workspace prerequisite is not ready.
+4. Follow the capability limitation's guidance when the credential already has the required scope but a workspace prerequisite is not ready. If the sender is not ready, the workspace owner checks Sending Domain in Workspace settings.
 5. For OAuth, reconnect from the client to approve the listed missing permissions. Never silently expand an existing token.
 6. If authentication is invalid, use OAuth login or replace the API key without printing either credential.

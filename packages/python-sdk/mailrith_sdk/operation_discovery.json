@@ -11,20 +11,6 @@
       "sender",
       "identity"
     ],
-    "email_delivery_connections": [
-      "email provider",
-      "delivery provider",
-      "sending provider",
-      "smtp",
-      "credentials",
-      "sender connection",
-      "amazon ses",
-      "postmark",
-      "sendgrid",
-      "mailgun",
-      "resend",
-      "brevo"
-    ],
     "subscribers": [
       "contact",
       "contacts",
@@ -355,14 +341,6 @@
       "leave subscriber sequence",
       "leave contact sequence"
     ],
-    "updateEmailDeliveryConnectionStatus": [
-      "enable email delivery connection",
-      "disable email delivery connection",
-      "enable sending provider connection",
-      "disable sending provider connection",
-      "turn on email delivery connection",
-      "turn off email delivery connection"
-    ],
     "updateSubscriberStatus": [
       "unsubscribe subscriber",
       "unsubscribe contact",
@@ -378,26 +356,6 @@
       "change contact status",
       "stop email for contact",
       "allow email for contact"
-    ],
-    "startEmailDeliveryConnectionSetup": [
-      "connect email provider",
-      "connect sending provider",
-      "connect smtp",
-      "connect amazon ses",
-      "connect postmark",
-      "connect sendgrid",
-      "connect mailgun",
-      "connect resend",
-      "connect brevo",
-      "set up email delivery",
-      "replace email provider credentials",
-      "replace sending provider credentials",
-      "replace smtp credentials",
-      "replace smtp password",
-      "replace postmark credentials",
-      "replace mailgun credentials",
-      "replace resend credentials",
-      "change provider api key"
     ],
     "createBroadcast": [
       "draft broadcast",

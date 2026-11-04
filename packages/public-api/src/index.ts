@@ -183,6 +183,17 @@ const personalizedEmailSubjectSchema = {
   description: broadcastEmailPersonalizationGuidance,
 };
 
+// IDs returned by the provider, in request-message order. SMTP providers may
+// accept a message without returning an ID. Acceptance is not inbox delivery.
+const testProviderMessageIdsSchema = {
+  type: "array",
+  minItems: 1,
+  maxItems: 5,
+  items: { type: "string", nullable: true, maxLength: 200 },
+  description:
+    "Provider acceptance IDs in sent-message order; null when unavailable. These are not delivery or inbox receipts.",
+} as const;
+
 const dateTimeSchema = {
   type: "string",
   format: "date-time",
@@ -241,6 +252,7 @@ const baseHeadersSchema = {
 
 export const publicApiVersion = "v1";
 export const publicApiBasePath = `/${publicApiVersion}`;
+export const publicApiIdempotencyKeyMaxBytes = 256;
 export const publicApiDocsPath = "/developers";
 export const publicApiAgentsPath = "/developers/agents";
 export const publicApiSdkDocsPath = "/developers/sdks";
@@ -253,6 +265,7 @@ export const publicApiOpenIdConfigurationPath =
   "/.well-known/openid-configuration";
 export const publicApiOAuthProtectedResourcePath =
   "/.well-known/oauth-protected-resource";
+export const publicApiVersionedOAuthProtectedResourcePath = `${publicApiOAuthProtectedResourcePath}${publicApiBasePath}`;
 export const publicApiMcpOAuthProtectedResourcePath = `${publicApiOAuthProtectedResourcePath}${publicApiMcpPath}`;
 export const publicApiOAuthAuthorizePath = "/oauth/authorize";
 export const publicApiOAuthTokenPath = "/oauth/token";
@@ -271,6 +284,19 @@ export const publicApiAgentSkillsIndexPath =
   "/.well-known/agent-skills/index.json";
 export const publicApiAgentSkillPath =
   "/.well-known/agent-skills/mailrith-api/SKILL.md";
+export const marketingOpenApiPath = "/openapi.json";
+export const marketingAgentOnboardingPath =
+  "/.well-known/agent-onboarding.json";
+export const mailrithCliPackageName = "@mailrith/cli";
+export const mailrithCliPackageUrl =
+  "https://www.npmjs.com/package/@mailrith/cli";
+export const mailrithCliRunCommand = "npx @mailrith/cli@latest";
+export const agentDiscoveryMonitoringIntervalSeconds = 300;
+export const agentDiscoveryMonitoringProvider = "aws";
+export const agentDiscoveryMonitoringPath =
+  "/developers/agent-compatibility";
+export const agentDiscoveryMonitoringUrl =
+  `https://mailrith.com${agentDiscoveryMonitoringPath}`;
 
 export const publicApiBroadcastUpdateStateGuidance =
   "Before changing a scheduled Broadcast, read it by ID and retain its scheduled_at in the current task only. If the saved time is no longer safely in the future, ask the user for a new time before unscheduling. Otherwise unschedule it, apply the update, reschedule it for the same time, and verify both status and scheduled_at. If the update fails after unscheduling, restore the unchanged Broadcast to the same future time when possible. If the schedule cannot be restored, leave it as a Draft and immediately report that it will not send; never choose a replacement time without the user.";
@@ -324,6 +350,7 @@ export const publicApiGuides: PublicApiSection[] = [
     body: [
       "Asynchronous job creation endpoints accept an `Idempotency-Key` header so callers can safely retry requests after network failures.",
       "When a caller reuses the same key with the same request body, Mailrith returns the original successful job response.",
+      "An idempotency key cannot exceed 256 UTF-8 bytes.",
     ],
   },
   {
@@ -438,11 +465,6 @@ export const publicApiTags: PublicApiTagDefinition[] = [
       "Read enabled sender names and email addresses without exposing provider credentials.",
   },
   {
-    name: "Email Delivery Connections",
-    description:
-      "Create and manage the selected workspace's email delivery service connection without returning saved credentials.",
-  },
-  {
     name: "Email Templates",
     description:
       "Create and manage reusable email templates for the authenticated workspace.",
@@ -525,75 +547,6 @@ const publicApiCapabilityResourceDefinitions: PublicApiCapabilityResourceDefinit
         path: "/v1/sender-identities/{sender_identity_id}",
         operationId: "getSenderIdentity",
         summary: "Get a sender identity",
-      },
-    ],
-  },
-  {
-    key: "email_delivery_connections",
-    name: "Email Delivery Connections",
-    description:
-      "Set up and manage email delivery connections for the authenticated workspace. Provider credentials are entered only in Mailrith's secure browser flow and are never accepted or returned by the agent API.",
-    operations: [
-      {
-        method: "GET",
-        path: "/v1/email-delivery-connections",
-        operationId: "listEmailDeliveryConnections",
-        summary: "List email delivery connections",
-      },
-      {
-        method: "POST",
-        path: "/v1/email-delivery-connection-setup-sessions",
-        operationId: "startEmailDeliveryConnectionSetup",
-        summary: "Start secure email delivery connection setup",
-      },
-      {
-        method: "GET",
-        path: "/v1/email-delivery-connection-setup-sessions/{setup_session_id}",
-        operationId: "getEmailDeliveryConnectionSetup",
-        summary: "Get secure setup status",
-      },
-      {
-        method: "POST",
-        path:
-          "/v1/email-delivery-connection-setup-sessions/{setup_session_id}/renew",
-        operationId: "renewEmailDeliveryConnectionSetup",
-        summary: "Renew secure setup",
-      },
-      {
-        method: "GET",
-        path: "/v1/email-delivery-connections/{connection_id}",
-        operationId: "getEmailDeliveryConnection",
-        summary: "Get an email delivery connection",
-      },
-      {
-        method: "PATCH",
-        path: "/v1/email-delivery-connections/{connection_id}",
-        operationId: "updateEmailDeliveryConnection",
-        summary: "Update an email delivery connection",
-      },
-      {
-        method: "PUT",
-        path: "/v1/email-delivery-connections/{connection_id}/status",
-        operationId: "updateEmailDeliveryConnectionStatus",
-        summary: "Enable or disable an email delivery connection",
-      },
-      {
-        method: "POST",
-        path: "/v1/email-delivery-connections/{connection_id}/verify",
-        operationId: "verifyEmailDeliveryConnection",
-        summary: "Verify an email delivery connection",
-      },
-      {
-        method: "POST",
-        path: "/v1/email-delivery-connections/{connection_id}/test",
-        operationId: "testEmailDeliveryConnection",
-        summary: "Send an email delivery connection test",
-      },
-      {
-        method: "DELETE",
-        path: "/v1/email-delivery-connections/{connection_id}",
-        operationId: "deleteEmailDeliveryConnection",
-        summary: "Delete an email delivery connection",
       },
     ],
   },
@@ -2136,166 +2089,6 @@ const schemas = {
       },
       created_at: dateTimeSchema,
       updated_at: dateTimeSchema,
-    },
-  },
-  EmailDeliveryProviderPublicConfig: {
-    type: "object",
-    additionalProperties: false,
-    properties: {
-      region: { type: "string" },
-      access_key_id: { type: "string" },
-      has_secret_access_key: { type: "boolean" },
-      has_server_token: { type: "boolean" },
-      has_account_token: { type: "boolean" },
-      message_stream: { type: "string", nullable: true },
-      has_api_key: { type: "boolean" },
-      domain: { type: "string" },
-      host: { type: "string" },
-      port: { type: "integer" },
-      secure_mode: {
-        type: "string",
-        enum: ["starttls", "tls", "none"],
-      },
-      username: { type: "string" },
-      has_password: { type: "boolean" },
-    },
-    description:
-      "Secret-free provider settings. Boolean fields only indicate whether a saved credential exists.",
-  },
-  EmailDeliveryConnection: {
-    type: "object",
-    additionalProperties: false,
-    required: [
-      "id",
-      "name",
-      "provider",
-      "from_email",
-      "from_name",
-      "enabled",
-      "provider_config",
-      "created_at",
-      "updated_at",
-    ],
-    properties: {
-      id: { type: "string" },
-      name: { type: "string" },
-      provider: {
-        type: "string",
-        enum: [
-          "amazon-ses",
-          "postmark",
-          "sendgrid",
-          "mailgun",
-          "resend",
-          "brevo",
-          "custom-smtp",
-        ],
-      },
-      from_email: { type: "string", format: "email" },
-      from_name: { type: "string" },
-      enabled: { type: "boolean" },
-      provider_config: {
-        anyOf: [
-          { $ref: "#/components/schemas/EmailDeliveryProviderPublicConfig" },
-          { type: "null" },
-        ],
-      },
-      created_at: dateTimeSchema,
-      updated_at: dateTimeSchema,
-    },
-  },
-  EmailDeliveryConnectionSetupRequest: {
-    type: "object",
-    additionalProperties: false,
-    properties: {
-      purpose: {
-        type: "string",
-        enum: ["create", "replace_credentials"],
-        default: "create",
-      },
-      connection_id: {
-        type: "string",
-        description:
-          "Required only when purpose is replace_credentials.",
-      },
-      name: { type: "string" },
-      provider: {
-        type: "string",
-        enum: [
-          "amazon-ses",
-          "postmark",
-          "sendgrid",
-          "mailgun",
-          "resend",
-          "brevo",
-          "custom-smtp",
-        ],
-      },
-      from_email: { type: "string", format: "email" },
-      from_name: { type: "string" },
-    },
-    description:
-      "Non-secret defaults for a short-lived setup session. For create, include name, provider, from_email, and from_name. For replace_credentials, include connection_id. Provider credentials must never be sent to this API.",
-  },
-  EmailDeliveryConnectionSetupSession: {
-    type: "object",
-    additionalProperties: false,
-    required: ["id", "purpose", "status", "expires_at"],
-    properties: {
-      id: { type: "string" },
-      purpose: {
-        type: "string",
-        enum: ["create", "replace_credentials"],
-      },
-      status: {
-        type: "string",
-        enum: ["pending", "completed", "failed", "expired"],
-      },
-      setup_url: {
-        type: "string",
-        format: "uri",
-        description:
-          "Returned only when the session is created. Open this short-lived link in a browser to enter provider credentials directly in Mailrith.",
-      },
-      connection_id: { type: "string", nullable: true },
-      expires_at: dateTimeSchema,
-      completed_at: nullableDateTimeSchema,
-      failed_at: nullableDateTimeSchema,
-      failure_code: {
-        type: "string",
-        nullable: true,
-        enum: ["setup_action_failed", null],
-        description:
-          "Generic failure code. Provider error details and credentials are never stored in the session.",
-      },
-    },
-  },
-  EmailDeliveryConnectionUpdateRequest: {
-    type: "object",
-    additionalProperties: false,
-    minProperties: 1,
-    properties: {
-      name: { type: "string" },
-      from_email: { type: "string", format: "email" },
-      from_name: { type: "string" },
-    },
-    description:
-      "Updates non-secret connection details. Use a secure setup session to replace provider credentials.",
-  },
-  EmailDeliveryConnectionStatusRequest: {
-    type: "object",
-    additionalProperties: false,
-    required: ["enabled"],
-    properties: {
-      enabled: { type: "boolean" },
-    },
-  },
-  EmailDeliveryConnectionTestRequest: {
-    type: "object",
-    additionalProperties: false,
-    required: ["to"],
-    properties: {
-      to: { type: "string", format: "email" },
     },
   },
   TagSummary: {
@@ -4056,6 +3849,7 @@ const schemas = {
     type: "object",
     additionalProperties: false,
     properties: {
+      connectionId: { type: "string" },
       tagId: { type: "string" },
       sequenceId: { type: "string" },
       magicLinkId: { type: "string" },
@@ -4143,7 +3937,11 @@ const schemas = {
       subject: personalizedEmailSubjectSchema,
       previewText: { type: "string" },
       bodyDocument: { $ref: "#/components/schemas/BroadcastEmailDocument" },
-      replyToEmail: { type: "string" },
+      replyToEmail: {
+        type: "string",
+        description:
+          "Send Email steps only. Empty uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain.",
+      },
       trackOpens: { type: "boolean" },
       trackClicks: { type: "boolean" },
       utmSource: { type: "string" },
@@ -4360,7 +4158,12 @@ const schemas = {
       connection_id: { type: "string", nullable: true },
       from_name: { type: "string", nullable: true },
       from_email: { type: "string", nullable: true },
-      reply_to_email: { type: "string", nullable: true },
+      reply_to_email: {
+        type: "string",
+        nullable: true,
+        description:
+          "An override for this email's Reply-To. Null uses the sender's current Reply-To when the email is sent.",
+      },
       track_opens: { type: "boolean" },
       track_clicks: { type: "boolean" },
       utm_source: { type: "string", nullable: true },
@@ -4721,6 +4524,7 @@ const schemas = {
     required: ["status", "sent_count", "message_ids", "subscriber_id"],
     additionalProperties: false,
     properties: {
+      provider_message_ids: testProviderMessageIdsSchema,
       status: { type: "string", enum: ["completed"] },
       subscriber_id: { type: "string" },
       sent_count: { type: "integer", minimum: 1, maximum: 5 },
@@ -4738,7 +4542,12 @@ const schemas = {
     properties: {
       name: { type: "string" },
       connection_id: { type: "string", nullable: true },
-      reply_to_email: { type: "string", nullable: true },
+      reply_to_email: {
+        type: "string",
+        nullable: true,
+        description:
+          "Empty or null uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain, or the request fails with invalid_reply_to_email.",
+      },
       track_opens: { type: "boolean" },
       track_clicks: { type: "boolean" },
       utm_source: { type: "string", nullable: true },
@@ -4758,7 +4567,12 @@ const schemas = {
     properties: {
       name: { type: "string" },
       connection_id: { type: "string", nullable: true },
-      reply_to_email: { type: "string", nullable: true },
+      reply_to_email: {
+        type: "string",
+        nullable: true,
+        description:
+          "Empty or null uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain, or the request fails with invalid_reply_to_email.",
+      },
       track_opens: { type: "boolean" },
       track_clicks: { type: "boolean" },
       utm_source: { type: "string", nullable: true },
@@ -5082,7 +4896,12 @@ const schemas = {
       connection_id: { type: "string", nullable: true },
       from_name: { type: "string", nullable: true },
       from_email: { type: "string", nullable: true },
-      reply_to_email: { type: "string", nullable: true },
+      reply_to_email: {
+        type: "string",
+        nullable: true,
+        description:
+          "An override for this email's Reply-To. Null uses the sender's current Reply-To when the email is sent.",
+      },
       audience_definition: {
         anyOf: [
           { $ref: "#/components/schemas/AudienceDefinition" },
@@ -5157,7 +4976,12 @@ const schemas = {
         allOf: [{ $ref: "#/components/schemas/BroadcastEmailDocument" }],
       },
       connection_id: { type: "string", nullable: true },
-      reply_to_email: { type: "string", nullable: true },
+      reply_to_email: {
+        type: "string",
+        nullable: true,
+        description:
+          "Empty or null uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain, or the request fails with invalid_reply_to_email.",
+      },
       audience_definition: {
         anyOf: [
           { $ref: "#/components/schemas/AudienceDefinition" },
@@ -5185,7 +5009,12 @@ const schemas = {
         allOf: [{ $ref: "#/components/schemas/BroadcastEmailDocument" }],
       },
       connection_id: { type: "string", nullable: true },
-      reply_to_email: { type: "string", nullable: true },
+      reply_to_email: {
+        type: "string",
+        nullable: true,
+        description:
+          "Empty or null uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain, or the request fails with invalid_reply_to_email.",
+      },
       audience_definition: {
         anyOf: [
           { $ref: "#/components/schemas/AudienceDefinition" },
@@ -5246,6 +5075,7 @@ const schemas = {
     additionalProperties: false,
     required: ["status", "subscriber_id"],
     properties: {
+      provider_message_ids: testProviderMessageIdsSchema,
       status: { type: "string", enum: ["completed"] },
       subscriber_id: { type: "string" },
     },
@@ -5626,8 +5456,6 @@ const schemas = {
 const selfLinkedSchemaNames = [
   "Workspace",
   "SenderIdentity",
-  "EmailDeliveryConnection",
-  "EmailDeliveryConnectionSetupSession",
   "WebhookSubscription",
   "Subscriber",
   "Tag",
@@ -5678,8 +5506,9 @@ const security = [{ WorkspaceApiKey: [] }];
 const idempotencyKeyParameter = {
   name: "Idempotency-Key",
   in: "header",
-  description: "Optional idempotency key to retry the request safely.",
-  schema: { type: "string" },
+  description:
+    "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes.",
+  schema: { type: "string", maxLength: publicApiIdempotencyKeyMaxBytes },
 } as const;
 
 const listOperationResponse = (itemRef: string) => ({
@@ -5834,6 +5663,7 @@ export const publicApiSpec: PublicApiSpec = {
         tags: ["Analytics"],
         operationId: "createAnalyticsReport",
         security,
+        parameters: [idempotencyKeyParameter],
         requestBody: {
           required: true,
           content: {
@@ -6059,473 +5889,6 @@ export const publicApiSpec: PublicApiSpec = {
           },
           "404": {
             description: "Sender identity not found",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/v1/email-delivery-connection-setup-sessions": {
-      post: {
-        method: "POST",
-        path: "/v1/email-delivery-connection-setup-sessions",
-        summary: "Start secure email delivery connection setup",
-        description:
-          "Creates a short-lived browser handoff containing only non-secret defaults. Open setup_url so an authorized Mailrith user can enter provider credentials directly in Mailrith.",
-        tags: ["Email Delivery Connections"],
-        operationId: "startEmailDeliveryConnectionSetup",
-        security,
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/EmailDeliveryConnectionSetupRequest",
-              },
-            },
-          },
-        },
-        responses: {
-          "201": itemOperationResponse(
-            "#/components/schemas/EmailDeliveryConnectionSetupSession",
-            "Secure setup session created",
-          ),
-          "400": {
-            description: "The non-secret setup defaults are invalid.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/v1/email-delivery-connection-setup-sessions/{setup_session_id}": {
-      get: {
-        method: "GET",
-        path: "/v1/email-delivery-connection-setup-sessions/{setup_session_id}",
-        summary: "Get secure setup status",
-        description:
-          "Returns pending or completed status for one short-lived setup session. It never returns the browser token or provider credentials.",
-        tags: ["Email Delivery Connections"],
-        operationId: "getEmailDeliveryConnectionSetup",
-        security,
-        parameters: [
-          {
-            name: "setup_session_id",
-            in: "path",
-            required: true,
-            description: "The identifier returned when setup started.",
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          "200": itemOperationResponse(
-            "#/components/schemas/EmailDeliveryConnectionSetupSession",
-          ),
-          "404": {
-            description: "The setup session was not found or expired.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/v1/email-delivery-connection-setup-sessions/{setup_session_id}/renew": {
-      post: {
-        method: "POST",
-        path:
-          "/v1/email-delivery-connection-setup-sessions/{setup_session_id}/renew",
-        summary: "Renew secure email delivery setup",
-        description:
-          "Creates a fresh short-lived browser link from the previous session's bounded non-secret defaults. Completed sessions cannot be renewed.",
-        tags: ["Email Delivery Connections"],
-        operationId: "renewEmailDeliveryConnectionSetup",
-        security,
-        parameters: [
-          {
-            name: "setup_session_id",
-            in: "path",
-            required: true,
-            description: "The previous setup session identifier.",
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          "201": itemOperationResponse(
-            "#/components/schemas/EmailDeliveryConnectionSetupSession",
-            "A fresh secure setup session was created.",
-          ),
-          "409": {
-            description: "The setup session cannot be renewed.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/v1/email-delivery-connections": {
-      get: {
-        method: "GET",
-        path: "/v1/email-delivery-connections",
-        summary: "List email delivery connections",
-        description:
-          "Returns a bounded page of email delivery connections linked to the authenticated workspace. Saved credentials and webhook secrets are never returned.",
-        tags: ["Email Delivery Connections"],
-        operationId: "listEmailDeliveryConnections",
-        security,
-        parameters: [
-          {
-            name: "limit",
-            in: "query",
-            description: "Maximum number of connections to return.",
-            schema: { type: "integer", minimum: 1, maximum: 100 },
-          },
-          {
-            name: "starting_after",
-            in: "query",
-            description:
-              "Opaque next_cursor returned by the previous connection page.",
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          "200": listOperationResponse(
-            "#/components/schemas/EmailDeliveryConnection",
-          ),
-          "401": {
-            description: "Unauthorized",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/v1/email-delivery-connections/{connection_id}": {
-      get: {
-        method: "GET",
-        path: "/v1/email-delivery-connections/{connection_id}",
-        summary: "Get an email delivery connection",
-        description:
-          "Returns one secret-free email delivery connection linked to the authenticated workspace.",
-        tags: ["Email Delivery Connections"],
-        operationId: "getEmailDeliveryConnection",
-        security,
-        parameters: [
-          {
-            name: "connection_id",
-            in: "path",
-            required: true,
-            description: "The identifier of the connection to return.",
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          "200": itemOperationResponse(
-            "#/components/schemas/EmailDeliveryConnection",
-          ),
-          "404": {
-            description: "The connection was not found.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-      patch: {
-        method: "PATCH",
-        path: "/v1/email-delivery-connections/{connection_id}",
-        summary: "Update an email delivery connection",
-        description:
-          "Changes non-secret details for one connection linked only to the authenticated workspace. Use a secure setup session to replace provider credentials. Shared connections must be changed in the Mailrith UI.",
-        tags: ["Email Delivery Connections"],
-        operationId: "updateEmailDeliveryConnection",
-        security,
-        parameters: [
-          {
-            name: "connection_id",
-            in: "path",
-            required: true,
-            description: "The identifier of the connection to update.",
-            schema: { type: "string" },
-          },
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/EmailDeliveryConnectionUpdateRequest",
-              },
-            },
-          },
-        },
-        responses: {
-          "200": itemOperationResponse(
-            "#/components/schemas/EmailDeliveryConnection",
-          ),
-          "400": {
-            description: "The non-secret connection details are invalid.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-          "409": {
-            description:
-              "The connection is shared or currently in use and cannot be changed through a workspace-scoped credential.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-      delete: {
-        method: "DELETE",
-        path: "/v1/email-delivery-connections/{connection_id}",
-        summary: "Delete an email delivery connection",
-        description:
-          "Deletes one connection linked only to the authenticated workspace. Shared or in-use connections are not deleted.",
-        tags: ["Email Delivery Connections"],
-        operationId: "deleteEmailDeliveryConnection",
-        security,
-        parameters: [
-          {
-            name: "connection_id",
-            in: "path",
-            required: true,
-            description: "The identifier of the connection to delete.",
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          "204": { description: "The connection was deleted." },
-          "404": {
-            description: "The connection was not found.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-          "409": {
-            description:
-              "The connection is shared or currently in use and cannot be deleted.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/v1/email-delivery-connections/{connection_id}/status": {
-      put: {
-        method: "PUT",
-        path: "/v1/email-delivery-connections/{connection_id}/status",
-        summary: "Enable or disable an email delivery connection",
-        description:
-          "Enables or disables one connection linked only to the authenticated workspace. Shared or in-use connections remain protected.",
-        tags: ["Email Delivery Connections"],
-        operationId: "updateEmailDeliveryConnectionStatus",
-        security,
-        parameters: [
-          {
-            name: "connection_id",
-            in: "path",
-            required: true,
-            description: "The identifier of the connection to change.",
-            schema: { type: "string" },
-          },
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/EmailDeliveryConnectionStatusRequest",
-              },
-            },
-          },
-        },
-        responses: {
-          "200": itemOperationResponse(
-            "#/components/schemas/EmailDeliveryConnection",
-          ),
-          "409": {
-            description:
-              "The connection is shared or currently in use and cannot be changed.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/v1/email-delivery-connections/{connection_id}/verify": {
-      post: {
-        method: "POST",
-        path: "/v1/email-delivery-connections/{connection_id}/verify",
-        summary: "Verify an email delivery connection",
-        description:
-          "Checks the saved provider credential and sender without returning secrets. If the provider key allows sending but not inspection, the response clearly requires a real test email.",
-        tags: ["Email Delivery Connections"],
-        operationId: "verifyEmailDeliveryConnection",
-        security,
-        parameters: [
-          {
-            name: "connection_id",
-            in: "path",
-            required: true,
-            description: "The identifier of the connection to verify.",
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          "200": {
-            description: "Verification completed.",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  required: ["data"],
-                  properties: {
-                    data: {
-                      type: "object",
-                      required: [
-                        "connection_id",
-                        "verification_status",
-                        "inspection_status",
-                        "message",
-                        "verified_at",
-                      ],
-                      properties: {
-                        connection_id: { type: "string" },
-                        verification_status: {
-                          type: "string",
-                          enum: ["verified", "send_test_required"],
-                        },
-                        inspection_status: {
-                          type: "string",
-                          enum: ["available", "unavailable"],
-                        },
-                        message: { type: "string" },
-                        verified_at: dateTimeSchema,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          "400": {
-            description: "The provider or sender verification failed.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/v1/email-delivery-connections/{connection_id}/test": {
-      post: {
-        method: "POST",
-        path: "/v1/email-delivery-connections/{connection_id}/test",
-        summary: "Send an email delivery connection test",
-        description:
-          "Sends one real test email through the saved connection. This is the definitive check when a send-only provider key cannot be inspected.",
-        tags: ["Email Delivery Connections"],
-        operationId: "testEmailDeliveryConnection",
-        security,
-        parameters: [
-          {
-            name: "connection_id",
-            in: "path",
-            required: true,
-            description: "The identifier of the connection to test.",
-            schema: { type: "string" },
-          },
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            required: true,
-            description:
-              "Prevents an automatic retry from sending a duplicate test email.",
-            schema: { type: "string" },
-          },
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/EmailDeliveryConnectionTestRequest",
-              },
-            },
-          },
-        },
-        responses: {
-          "200": {
-            description: "Test email sent.",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  required: ["data"],
-                  properties: {
-                    data: {
-                      type: "object",
-                      required: [
-                        "connection_id",
-                        "recipient",
-                        "status",
-                        "sent_at",
-                      ],
-                      properties: {
-                        connection_id: { type: "string" },
-                        recipient: { type: "string", format: "email" },
-                        status: { type: "string", enum: ["sent"] },
-                        sent_at: dateTimeSchema,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          "400": {
-            description: "The recipient is invalid or the test send failed.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
-          "429": {
-            description: "Too many test emails were requested.",
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },
@@ -6999,14 +6362,7 @@ export const publicApiSpec: PublicApiSpec = {
         tags: ["Email Templates"],
         operationId: "createEmailTemplate",
         security,
-        parameters: [
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description: "Optional idempotency key for safe retries.",
-            schema: { type: "string" },
-          },
-        ],
+        parameters: [idempotencyKeyParameter],
         requestBody: {
           required: true,
           content: {
@@ -7268,14 +6624,7 @@ export const publicApiSpec: PublicApiSpec = {
         tags: ["Broadcasts"],
         operationId: "createBroadcast",
         security,
-        parameters: [
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description: "Optional idempotency key for safe retries.",
-            schema: { type: "string" },
-          },
-        ],
+        parameters: [idempotencyKeyParameter],
         requestBody: {
           required: true,
           content: {
@@ -7670,12 +7019,7 @@ export const publicApiSpec: PublicApiSpec = {
             description: "The broadcast identifier.",
             schema: { type: "string" },
           },
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description: "Optional idempotency key to make retries safe.",
-            schema: { type: "string" },
-          },
+          idempotencyKeyParameter,
         ],
         requestBody: {
           required: false,
@@ -7768,12 +7112,7 @@ export const publicApiSpec: PublicApiSpec = {
             description: "The broadcast identifier.",
             schema: { type: "string" },
           },
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description: "Optional idempotency key to make retries safe.",
-            schema: { type: "string" },
-          },
+          idempotencyKeyParameter,
         ],
         responses: {
           "202": {
@@ -7836,7 +7175,7 @@ export const publicApiSpec: PublicApiSpec = {
         path: "/v1/broadcasts/{broadcast_id}/test",
         summary: "Send a broadcast test email",
         description:
-          "Sends a test message from an existing Broadcast that has an email delivery connection. Provide a saved Subscriber ID for personalization; use subscribers_list to find one when needed. The recipient may be any test inbox and does not have to match the saved Subscriber.",
+          "Sends a test message from an existing Broadcast that has a sender. Provide a saved Subscriber ID for personalization; use subscribers_list to find one when needed. The recipient may be any test inbox and does not have to match the saved Subscriber.",
         tags: ["Broadcasts"],
         operationId: "testBroadcast",
         security,
@@ -7848,12 +7187,7 @@ export const publicApiSpec: PublicApiSpec = {
             description: "The broadcast identifier.",
             schema: { type: "string" },
           },
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description: "Optional idempotency key to make retries safe.",
-            schema: { type: "string" },
-          },
+          idempotencyKeyParameter,
         ],
         requestBody: {
           required: true,
@@ -7940,14 +7274,7 @@ export const publicApiSpec: PublicApiSpec = {
         tags: ["Sequences"],
         operationId: "createSequence",
         security,
-        parameters: [
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description: "Optional idempotency key to make retries safe.",
-            schema: { type: "string" },
-          },
-        ],
+        parameters: [idempotencyKeyParameter],
         requestBody: {
           required: true,
           content: {
@@ -8142,7 +7469,7 @@ export const publicApiSpec: PublicApiSpec = {
         path: "/v1/sequences/{sequence_id}/preflight",
         summary: "Check sequence readiness",
         description:
-          "Checks the saved Sequence, its published emails, and its email delivery connection without changing data or sending email.",
+          "Checks the saved Sequence, its published emails, and its sender without changing data or sending email.",
         tags: ["Sequences"],
         operationId: "preflightSequence",
         security,
@@ -8232,12 +7559,7 @@ export const publicApiSpec: PublicApiSpec = {
             description: "The Sequence identifier.",
             schema: { type: "string" },
           },
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description: "Optional idempotency key to make retries safe.",
-            schema: { type: "string" },
-          },
+          idempotencyKeyParameter,
         ],
         requestBody: {
           required: true,
@@ -8331,14 +7653,7 @@ export const publicApiSpec: PublicApiSpec = {
         tags: ["Automations"],
         operationId: "createAutomation",
         security,
-        parameters: [
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description: "Optional idempotency key to make retries safe.",
-            schema: { type: "string" },
-          },
-        ],
+        parameters: [idempotencyKeyParameter],
         requestBody: {
           required: true,
           content: {
@@ -8622,12 +7937,7 @@ export const publicApiSpec: PublicApiSpec = {
             description: "The Automation identifier.",
             schema: { type: "string" },
           },
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description: "Optional idempotency key to make retries safe.",
-            schema: { type: "string" },
-          },
+          idempotencyKeyParameter,
         ],
         requestBody: {
           required: true,
@@ -8722,14 +8032,7 @@ export const publicApiSpec: PublicApiSpec = {
         tags: ["Magic Links"],
         operationId: "createMagicLink",
         security,
-        parameters: [
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description: "Optional idempotency key to make retries safe.",
-            schema: { type: "string" },
-          },
-        ],
+        parameters: [idempotencyKeyParameter],
         requestBody: {
           required: true,
           content: {
@@ -9768,14 +9071,7 @@ export const publicApiSpec: PublicApiSpec = {
         tags: ["Custom Fields"],
         operationId: "createCustomField",
         security,
-        parameters: [
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description: "Optional idempotency key to make retries safe.",
-            schema: { type: "string" },
-          },
-        ],
+        parameters: [idempotencyKeyParameter],
         requestBody: {
           required: true,
           content: {
@@ -9978,15 +9274,7 @@ export const publicApiSpec: PublicApiSpec = {
         tags: ["Forms"],
         operationId: "createForm",
         security,
-        parameters: [
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description:
-              "Optional idempotency key to retry the request safely.",
-            schema: { type: "string" },
-          },
-        ],
+        parameters: [idempotencyKeyParameter],
         requestBody: {
           required: true,
           content: {
@@ -10312,15 +9600,7 @@ export const publicApiSpec: PublicApiSpec = {
         tags: ["Landing Pages"],
         operationId: "createLandingPage",
         security,
-        parameters: [
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description:
-              "Optional idempotency key to retry the request safely.",
-            schema: { type: "string" },
-          },
-        ],
+        parameters: [idempotencyKeyParameter],
         requestBody: {
           required: true,
           content: {
@@ -10664,15 +9944,7 @@ export const publicApiSpec: PublicApiSpec = {
         tags: ["Segments"],
         operationId: "createSegment",
         security,
-        parameters: [
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description:
-              "Optional idempotency key to retry the request safely.",
-            schema: { type: "string" },
-          },
-        ],
+        parameters: [idempotencyKeyParameter],
         requestBody: {
           required: true,
           content: {
@@ -10916,15 +10188,7 @@ export const publicApiSpec: PublicApiSpec = {
         tags: ["Jobs"],
         operationId: "createSubscriberImportJob",
         security,
-        parameters: [
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description:
-              "Optional idempotency key to retry the request safely.",
-            schema: { type: "string" },
-          },
-        ],
+        parameters: [idempotencyKeyParameter],
         requestBody: {
           required: true,
           content: {
@@ -11096,15 +10360,7 @@ export const publicApiSpec: PublicApiSpec = {
         tags: ["Jobs"],
         operationId: "createSubscriberExportJob",
         security,
-        parameters: [
-          {
-            name: "Idempotency-Key",
-            in: "header",
-            description:
-              "Optional idempotency key to retry the request safely.",
-            schema: { type: "string" },
-          },
-        ],
+        parameters: [idempotencyKeyParameter],
         requestBody: {
           required: false,
           content: {
@@ -11195,7 +10451,6 @@ export type PublicApiSdkOperation = {
     | "discovery"
     | "workspace"
     | "senderIdentities"
-    | "emailDeliveryConnections"
     | "subscribers"
     | "tags"
     | "customFields"
@@ -11381,22 +10636,6 @@ export const publicApiSdkResources: PublicApiSdkResource[] = [
     listSenderIdentities: "list",
     getSenderIdentity: "get",
   }),
-  createSdkResource(
-    "emailDeliveryConnections",
-    "email_delivery_connections",
-    {
-      listEmailDeliveryConnections: "list",
-      startEmailDeliveryConnectionSetup: "startSetup",
-      getEmailDeliveryConnectionSetup: "getSetup",
-      renewEmailDeliveryConnectionSetup: "renewSetup",
-      getEmailDeliveryConnection: "get",
-      updateEmailDeliveryConnection: "update",
-      updateEmailDeliveryConnectionStatus: "updateStatus",
-      verifyEmailDeliveryConnection: "verify",
-      testEmailDeliveryConnection: "sendTest",
-      deleteEmailDeliveryConnection: "delete",
-    },
-  ),
   createSdkResource("analytics", "analytics", {
     createAnalyticsReport: "createReport",
     getAnalyticsReport: "getReport",
@@ -11577,27 +10816,21 @@ export const publicApiQuickstart = {
   -d '{
     "email": "ada@example.com",
     "name": "Ada Lovelace",
-    "status": "Active",
-    "custom_fields": {
-      "company": "Analytical Engines"
-    }
+    "status": "Unconfirmed"
   }'`,
   response: `{
   "data": {
     "id": "subscriber_123",
+    "self": "/v1/subscribers/subscriber_123",
     "email": "ada@example.com",
     "name": "Ada Lovelace",
-    "status": "Active",
+    "status": "Unconfirmed",
     "country": null,
     "subscribed_at": "2026-04-11T12:00:00.000Z",
     "last_opened_at": null,
-    "tags": [
-      { "id": "tag_website_signup", "name": "Website Signup" }
-    ],
+    "tags": [],
     "sequence_ids": [],
-    "custom_fields": {
-      "company": "Analytical Engines"
-    },
+    "custom_fields": {},
     "created_at": "2026-04-11T12:00:00.000Z",
     "updated_at": "2026-04-11T12:00:00.000Z"
   }

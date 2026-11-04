@@ -2085,6 +2085,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes."
+          },
           "body": {
             "$ref": "#/$defs/AnalyticsReportCreateRequest",
             "type": "object",
@@ -2457,7 +2462,7 @@
         "title": "Create or reuse an analytics report",
         "readOnlyHint": false,
         "destructiveHint": false,
-        "idempotentHint": true,
+        "idempotentHint": false,
         "openWorldHint": false
       }
     },
@@ -3699,7 +3704,8 @@
         "properties": {
           "idempotency_key": {
             "type": "string",
-            "description": "Optional idempotency key to retry the request safely."
+            "maxLength": 256,
+            "description": "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes."
           },
           "body": {
             "$ref": "#/$defs/SubscriberUpsertRequest",
@@ -7620,7 +7626,8 @@
         "properties": {
           "idempotency_key": {
             "type": "string",
-            "description": "Optional idempotency key to retry the request safely."
+            "maxLength": 256,
+            "description": "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes."
           },
           "body": {
             "$ref": "#/$defs/TagCreateRequest",
@@ -10616,7 +10623,8 @@
         "properties": {
           "idempotency_key": {
             "type": "string",
-            "description": "Optional idempotency key for safe retries."
+            "maxLength": 256,
+            "description": "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes."
           },
           "body": {
             "$ref": "#/$defs/BroadcastUpsertRequest",
@@ -10671,7 +10679,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Empty or null uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain, or the request fails with invalid_reply_to_email."
                   },
                   {
                     "type": "null"
@@ -11625,7 +11634,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "An override for this email's Reply-To. Null uses the sender's current Reply-To when the email is sent."
                   },
                   {
                     "type": "null"
@@ -12630,7 +12640,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "An override for this email's Reply-To. Null uses the sender's current Reply-To when the email is sent."
                   },
                   {
                     "type": "null"
@@ -13286,7 +13297,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Empty or null uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain, or the request fails with invalid_reply_to_email."
                   },
                   {
                     "type": "null"
@@ -14240,7 +14252,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "An override for this email's Reply-To. Null uses the sender's current Reply-To when the email is sent."
                   },
                   {
                     "type": "null"
@@ -15338,7 +15351,8 @@
           },
           "idempotency_key": {
             "type": "string",
-            "description": "Optional idempotency key to make retries safe."
+            "maxLength": 256,
+            "description": "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes."
           },
           "body": {
             "$ref": "#/$defs/BroadcastTestRequest",
@@ -15650,6 +15664,23 @@
               "subscriber_id"
             ],
             "properties": {
+              "provider_message_ids": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 5,
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "description": "Provider acceptance IDs in sent-message order; null when unavailable. These are not delivery or inbox receipts."
+              },
               "status": {
                 "type": "string",
                 "enum": [
@@ -16113,7 +16144,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "An override for this email's Reply-To. Null uses the sender's current Reply-To when the email is sent."
                   },
                   {
                     "type": "null"
@@ -17118,7 +17150,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "An override for this email's Reply-To. Null uses the sender's current Reply-To when the email is sent."
                   },
                   {
                     "type": "null"
@@ -17725,7 +17758,8 @@
           },
           "idempotency_key": {
             "type": "string",
-            "description": "Optional idempotency key to make retries safe."
+            "maxLength": 256,
+            "description": "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes."
           },
           "body": {
             "type": "object",
@@ -18158,7 +18192,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "An override for this email's Reply-To. Null uses the sender's current Reply-To when the email is sent."
                   },
                   {
                     "type": "null"
@@ -18765,7 +18800,8 @@
           },
           "idempotency_key": {
             "type": "string",
-            "description": "Optional idempotency key to make retries safe."
+            "maxLength": 256,
+            "description": "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes."
           }
         },
         "required": [
@@ -19973,7 +20009,8 @@
         "properties": {
           "idempotency_key": {
             "type": "string",
-            "description": "Optional idempotency key to make retries safe."
+            "maxLength": 256,
+            "description": "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes."
           },
           "body": {
             "$ref": "#/$defs/SequenceUpsertRequest",
@@ -20009,7 +20046,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Empty or null uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain, or the request fails with invalid_reply_to_email."
                   },
                   {
                     "type": "null"
@@ -21179,7 +21217,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "An override for this email's Reply-To. Null uses the sender's current Reply-To when the email is sent."
                   },
                   {
                     "type": "null"
@@ -22605,7 +22644,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "An override for this email's Reply-To. Null uses the sender's current Reply-To when the email is sent."
                   },
                   {
                     "type": "null"
@@ -23704,7 +23744,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Empty or null uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain, or the request fails with invalid_reply_to_email."
                   },
                   {
                     "type": "null"
@@ -24874,7 +24915,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "An override for this email's Reply-To. Null uses the sender's current Reply-To when the email is sent."
                   },
                   {
                     "type": "null"
@@ -26699,7 +26741,8 @@
           },
           "idempotency_key": {
             "type": "string",
-            "description": "Optional idempotency key to make retries safe."
+            "maxLength": 256,
+            "description": "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes."
           },
           "body": {
             "$ref": "#/$defs/WorkflowTestRequest",
@@ -27021,6 +27064,23 @@
             ],
             "additionalProperties": false,
             "properties": {
+              "provider_message_ids": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 5,
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "description": "Provider acceptance IDs in sent-message order; null when unavailable. These are not delivery or inbox receipts."
+              },
               "status": {
                 "type": "string",
                 "enum": [
@@ -27448,7 +27508,8 @@
               "reply_to_email": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "description": "An override for this email's Reply-To. Null uses the sender's current Reply-To when the email is sent."
                   },
                   {
                     "type": "null"
@@ -28896,7 +28957,8 @@
         "properties": {
           "idempotency_key": {
             "type": "string",
-            "description": "Optional idempotency key to make retries safe."
+            "maxLength": 256,
+            "description": "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes."
           },
           "body": {
             "$ref": "#/$defs/AutomationUpsertRequest",
@@ -29232,6 +29294,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+              "connectionId": {
+                "type": "string"
+              },
               "tagId": {
                 "type": "string"
               },
@@ -29398,7 +29463,8 @@
                 "$ref": "#/$defs/BroadcastEmailDocument"
               },
               "replyToEmail": {
-                "type": "string"
+                "type": "string",
+                "description": "Send Email steps only. Empty uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain."
               },
               "trackOpens": {
                 "type": "boolean"
@@ -30501,6 +30567,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+              "connectionId": {
+                "type": "string"
+              },
               "tagId": {
                 "type": "string"
               },
@@ -30667,7 +30736,8 @@
                 "$ref": "#/$defs/BroadcastEmailDocument"
               },
               "replyToEmail": {
-                "type": "string"
+                "type": "string",
+                "description": "Send Email steps only. Empty uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain."
               },
               "trackOpens": {
                 "type": "boolean"
@@ -31786,6 +31856,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+              "connectionId": {
+                "type": "string"
+              },
               "tagId": {
                 "type": "string"
               },
@@ -31952,7 +32025,8 @@
                 "$ref": "#/$defs/BroadcastEmailDocument"
               },
               "replyToEmail": {
-                "type": "string"
+                "type": "string",
+                "description": "Send Email steps only. Empty uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain."
               },
               "trackOpens": {
                 "type": "boolean"
@@ -32768,6 +32842,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+              "connectionId": {
+                "type": "string"
+              },
               "tagId": {
                 "type": "string"
               },
@@ -32934,7 +33011,8 @@
                 "$ref": "#/$defs/BroadcastEmailDocument"
               },
               "replyToEmail": {
-                "type": "string"
+                "type": "string",
+                "description": "Send Email steps only. Empty uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain."
               },
               "trackOpens": {
                 "type": "boolean"
@@ -34037,6 +34115,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+              "connectionId": {
+                "type": "string"
+              },
               "tagId": {
                 "type": "string"
               },
@@ -34203,7 +34284,8 @@
                 "$ref": "#/$defs/BroadcastEmailDocument"
               },
               "replyToEmail": {
-                "type": "string"
+                "type": "string",
+                "description": "Send Email steps only. Empty uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain."
               },
               "trackOpens": {
                 "type": "boolean"
@@ -35477,7 +35559,8 @@
           },
           "idempotency_key": {
             "type": "string",
-            "description": "Optional idempotency key to make retries safe."
+            "maxLength": 256,
+            "description": "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes."
           },
           "body": {
             "$ref": "#/$defs/WorkflowTestRequest",
@@ -35799,6 +35882,23 @@
             ],
             "additionalProperties": false,
             "properties": {
+              "provider_message_ids": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 5,
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "description": "Provider acceptance IDs in sent-message order; null when unavailable. These are not delivery or inbox receipts."
+              },
               "status": {
                 "type": "string",
                 "enum": [
@@ -36503,6 +36603,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+              "connectionId": {
+                "type": "string"
+              },
               "tagId": {
                 "type": "string"
               },
@@ -36669,7 +36772,8 @@
                 "$ref": "#/$defs/BroadcastEmailDocument"
               },
               "replyToEmail": {
-                "type": "string"
+                "type": "string",
+                "description": "Send Email steps only. Empty uses the sender's current Reply-To. With a Mailrith sending domain, a value must be the workspace owner's verified account email or an address on that sender's domain."
               },
               "trackOpens": {
                 "type": "boolean"
@@ -37543,7 +37647,8 @@
         "properties": {
           "idempotency_key": {
             "type": "string",
-            "description": "Optional idempotency key for safe retries."
+            "maxLength": 256,
+            "description": "Optional idempotency key to retry the request safely. It must not exceed 256 UTF-8 bytes."
           },
           "body": {
             "$ref": "#/$defs/EmailTemplateUpsertRequest",

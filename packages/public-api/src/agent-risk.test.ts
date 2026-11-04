@@ -92,6 +92,10 @@ describe("public API agent operation risk catalog", () => {
     ).toMatchObject({
       sideEffectClass: "bulk-data",
     });
+    expect(getPublicApiAgentOperationRisk("createAnalyticsReport")).toMatchObject({
+      retryMode: "idempotency-key",
+      idempotencyPolicy: "idempotency-key",
+    });
     expect(
       getPublicApiAgentOperationRisk("rotateWebhookSubscriptionSecret"),
     ).toMatchObject({

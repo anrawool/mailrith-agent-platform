@@ -468,7 +468,7 @@ describe("Mailrith Agent Integration Packages", () => {
     ).toBe(canonical);
   });
 
-  it("prepares the Microsoft certification package from the submitted catalog", async () => {
+  it("preserves Microsoft connector identity and authorization with dynamic tool discovery", async () => {
     const submitted = await readSubmittedProfile();
     const microsoftRoot = path.join(integrationsRoot, "microsoft");
     const manifest = await readJson<{
@@ -483,7 +483,6 @@ describe("Mailrith Agent Integration Packages", () => {
         toolSource: {
           remoteMcpServer: {
             mcpServerUrl: string;
-            mcpToolDescription: { file: string };
             authorization: { type: string; referenceId: string };
           };
         };
@@ -505,12 +504,11 @@ describe("Mailrith Agent Integration Packages", () => {
 
     expect(manifest.manifestVersion).toBe("devPreview");
     expect(manifest.id).toBe("__MICROSOFT_APP_ID__");
-    expect(manifest.developer.name).toBe("Rawool Publications");
+    expect(manifest.developer.name).toBe("Mailrith");
     expect(manifest.developer.privacyUrl).toMatch(/^https:\/\//);
     expect(manifest.developer.termsOfUseUrl).toMatch(/^https:\/\//);
     expect(remote).toEqual({
       mcpServerUrl: submitted.mcp_server_url,
-      mcpToolDescription: { file: "mcptools.json" },
       authorization: {
         type: "AzureKeyVault",
         referenceId: "__MICROSOFT_KEY_VAULT_URI__",
@@ -539,6 +537,55 @@ describe("Mailrith Agent Integration Packages", () => {
         true,
       );
     }
+  });
+
+  it("keeps Microsoft listing copy aligned with the approved preview schema and required support contacts", async () => {
+    const microsoftRoot = path.join(integrationsRoot, "microsoft");
+    const manifest = await readJson<{
+      $schema: string;
+      manifestVersion: string;
+      version: string;
+      developer: Record<string, unknown>;
+      description: { short: string; full: string };
+    }>(path.join(microsoftRoot, "manifest.template.json"));
+    const listing = await readFile(
+      path.join(microsoftRoot, "listing-description.md"),
+      "utf8",
+    );
+    const intro = await readFile(path.join(microsoftRoot, "intro.md"), "utf8");
+
+    expect(manifest.version).toBe((await readReleaseConfig()).marketplace_submission_version);
+    expect(manifest.description.short.length).toBeLessThanOrEqual(80);
+    expect(manifest.description.full.length).toBeLessThanOrEqual(4000);
+    expect(listing.trim()).toBe(manifest.description.full);
+    for (const source of [manifest.description.full, intro]) {
+      for (const required of [
+        "active trial or paid Mailrith subscription",
+        "credit-card details",
+        "one Mailrith workspace",
+        "Billing, team administration, account security, and delivery credentials",
+        "https://app.mailrith.com/signup",
+        "https://mailrith.com/docs/sign-up-and-access",
+        "https://mailrith.com/docs",
+        "https://mailrith.com/contact",
+        "support@mailrith.com",
+      ]) {
+        expect(source.replace(/\s+/g, " ")).toContain(required);
+      }
+      expect(source).not.toMatch(/create (?:a )?free (?:Mailrith )?account/i);
+    }
+
+    // Microsoft's September 22 guidance permits devPreview and requires contacts.
+    expect(manifest.$schema).toBe(
+      "https://developer.microsoft.com/en-us/json-schemas/teams/vDevPreview/MicrosoftTeams.schema.json",
+    );
+    expect(manifest.manifestVersion).toBe("devPreview");
+    expect(manifest.developer.contactInfo).toEqual({
+      defaultSupport: {
+        userEmailsForChatSupport: ["support@mailrith.com"],
+        emailsForEmailSupport: ["support@mailrith.com"],
+      },
+    });
   });
 
   it("provides a bounded Cline installation path", async () => {

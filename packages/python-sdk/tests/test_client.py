@@ -1,7 +1,9 @@
 import unittest
+from urllib import error
 from pathlib import Path
 
 from mailrith_sdk import MailrithApiError, MailrithClient
+from mailrith_sdk.client import _UnconfirmedResponseError
 
 
 class MailrithClientTest(unittest.TestCase):
@@ -66,11 +68,80 @@ class MailrithClientTest(unittest.TestCase):
         self.assertEqual(headers["x-client"], "mailrith-python-sdk-test")
         self.assertEqual(body, '{"confirm": true}')
 
+    def test_retries_unconfirmed_idempotent_request_with_one_key(self) -> None:
+        calls = []
+
+        def transport(method, url, headers, body):
+            calls.append((method, url, dict(headers), body))
+            if len(calls) == 1:
+                raise error.URLError("network unavailable")
+            return 202, {"content-type": "application/json"}, {
+                "data": {"id": "export-1"}
+            }
+
+        client = MailrithClient(
+            api_key="mrk_secret",
+            transport=transport,
+            idempotent_retry_delay_seconds=0,
+        )
+
+        response = client.jobs.create_export(body={"status": "active"})
+
+        self.assertEqual(response, {"data": {"id": "export-1"}})
+        self.assertEqual(len(calls), 2)
+        self.assertTrue(calls[0][2]["idempotency-key"].startswith("op_"))
+        self.assertEqual(
+            calls[1][2]["idempotency-key"], calls[0][2]["idempotency-key"]
+        )
+        self.assertEqual(calls[1][3], calls[0][3])
+
+    def test_retries_unreadable_success_response_with_one_key(self) -> None:
+        calls = []
+
+        def transport(method, url, headers, body):
+            calls.append((method, url, dict(headers), body))
+            if len(calls) == 1:
+                raise _UnconfirmedResponseError("truncated response")
+            return 202, {"content-type": "application/json"}, {
+                "data": {"id": "export-1"}
+            }
+
+        client = MailrithClient(
+            api_key="mrk_secret",
+            transport=transport,
+            idempotent_retry_delay_seconds=0,
+        )
+
+        response = client.jobs.create_export(body={"status": "active"})
+
+        self.assertEqual(response, {"data": {"id": "export-1"}})
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(
+            calls[1][2]["idempotency-key"], calls[0][2]["idempotency-key"]
+        )
+
+    def test_does_not_automatically_retry_resource_state_mutation(self) -> None:
+        calls = []
+
+        def transport(method, url, headers, body):
+            calls.append((method, url, dict(headers), body))
+            raise error.URLError("network unavailable")
+
+        client = MailrithClient(
+            api_key="mrk_secret",
+            transport=transport,
+            idempotent_retry_delay_seconds=0,
+        )
+
+        with self.assertRaises(error.URLError):
+            client.subscribers.delete(path={"subscriber_id": "subscriber-1"})
+
+        self.assertEqual(len(calls), 1)
+
     def test_searches_generated_operations_with_relationship_aware_intents(self) -> None:
         client = MailrithClient(transport=lambda *_args: (200, {}, {}))
         cases = (
             ("create campaign", "createBroadcast"),
-            ("connect smtp", "startEmailDeliveryConnectionSetup"),
             ("unsubscribe contact", "updateSubscriberStatus"),
             ("show newsletter performance", "createAnalyticsReport"),
             ("draft automation", "createAutomation"),

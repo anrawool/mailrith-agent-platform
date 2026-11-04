@@ -1,9 +1,8 @@
 # Releasing The CLI
 
-CLI `1.1.2` was published to npm on September 4, 2026. It adds clearer API errors,
-missing-ID guidance, and request-file errors. The public contract, SDK, MCP
-server, Agent Skill, Python SDK, and prepared marketplace packages remain at
-`1.1.1`. Microsoft's review package remains `1.1.1`.
+The CLI normally shares the coordinated package version, currently `2.0.0`. An
+independent CLI patch can be released on its own, as `1.1.2` was on September 4,
+2026.
 
 ## CLI 1.1.2 Publication
 

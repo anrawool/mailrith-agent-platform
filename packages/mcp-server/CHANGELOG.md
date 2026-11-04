@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 2.0.0 - 2026-11-04
+
+- **Breaking:** removes Email Delivery Connections. The hosted API has already
+  retired them, so the removed calls were failing before this release.
+- Remove the Email Delivery Setup toolset and the email delivery connection
+  scopes from the generated catalog.
+
 ## 1.1.1 - 2026-08-27
 
 - Require every self-hosted HTTP request to provide its own bearer credential;
