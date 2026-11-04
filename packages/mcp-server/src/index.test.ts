@@ -24,10 +24,30 @@ import {
   mailrithSubmittedMcpToolNames,
   resolveMailrithMcpApiKey,
   resolveEnabledMcpToolsets,
+  withoutJsonSchemaDefaults,
 } from "./index";
 import { createLazyMcpSchemaCache } from "./lazy-schema-cache";
 
 describe("@mailrith/mcp-server", () => {
+  it("strips default keywords but keeps a property named default", () => {
+    expect(
+      withoutJsonSchemaDefaults({
+        type: "object",
+        default: {},
+        properties: {
+          default: { type: "string", default: "kept-out" },
+          nested: { type: "array", items: [{ type: "number", default: 1 }] },
+        },
+      }),
+    ).toEqual({
+      type: "object",
+      properties: {
+        default: { type: "string" },
+        nested: { type: "array", items: [{ type: "number" }] },
+      },
+    });
+  });
+
   it("builds one fixed submitted catalog from canonical focused operations", () => {
     const client = { request: vi.fn() } as never;
     const submitted = createMailrithMcpToolDefinitions(client, {

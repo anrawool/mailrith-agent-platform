@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 2.0.1 - 2026-11-04
+
+- Move to `@modelcontextprotocol/sdk` `1.32.2` and `zod` `4.6.7` to pick up security
+  fixes. `npm audit` no longer reports them.
+
 ## 2.0.0 - 2026-11-04
 
 - **Breaking:** removes Email Delivery Connections. The hosted API has already

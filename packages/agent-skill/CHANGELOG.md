@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 2.0.1 - 2026-11-04
+
+- Release alongside the MCP server security patch. No skill changes.
+
 ## 2.0.0 - 2026-11-04
 
 - **Breaking:** removes Email Delivery Connections. The hosted API has already
