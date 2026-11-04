@@ -183,7 +183,7 @@ Partner Center fields.
 
 1. Give a clean Cline profile only `packages/mcp-server/README.md` and
    `packages/mcp-server/llms-install.md`.
-2. After publishing, confirm Cline installs `@mailrith/mcp-server@2.0.0`
+2. After publishing, confirm Cline installs `@mailrith/mcp-server@2.0.1`
    without cloning or building the monorepo.
 3. Use a synthetic workspace API key and run only
    `discovery_get_capabilities`. Keep `autoApprove` empty.
