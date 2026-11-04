@@ -19,7 +19,7 @@ Add this entry under `mcpServers` in Cline's MCP settings:
     "command": "npx",
     "args": [
       "-y",
-      "@mailrith/mcp-server@1.1.1",
+      "@mailrith/mcp-server@2.0.0",
       "--transport",
       "stdio"
     ],

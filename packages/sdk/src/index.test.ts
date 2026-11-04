@@ -73,10 +73,6 @@ describe("@mailrith/sdk", () => {
       ["enroll a contact in a sequence", "addSubscriberSequence"],
       ["resubscribe this contact", "updateSubscriberStatus"],
       ["block this contact from email", "updateSubscriberStatus"],
-      ["connect Mailgun", "startEmailDeliveryConnectionSetup"],
-      ["connect Resend as our email provider", "startEmailDeliveryConnectionSetup"],
-      ["replace our SMTP credentials", "startEmailDeliveryConnectionSetup"],
-      ["replace Postmark credentials", "startEmailDeliveryConnectionSetup"],
       ["schedule the newsletter", "scheduleBroadcast"],
       ["reschedule the campaign", "scheduleBroadcast"],
       ["cancel the scheduled newsletter", "unscheduleBroadcast"],
@@ -154,6 +150,104 @@ describe("@mailrith/sdk", () => {
     expect(headers.get("idempotency-key")).toBe("broadcast-send-1");
     expect(headers.get("x-client")).toBe("mailrith-sdk-test");
     expect(init.body).toBe(JSON.stringify({ confirm: true }));
+  });
+
+  it("retries an unconfirmed idempotent request with one generated operation key", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError("Network request failed"))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: { id: "export-1" } }), {
+          status: 202,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+    const client = createMailrithClient({
+      apiKey: "mrk_secret",
+      fetch: fetchMock as unknown as typeof fetch,
+      idempotentRetryDelayMs: 0,
+      defaultHeaders: {
+        authorization: "Bearer untrusted_default",
+        "x-mailrith-request-id": "req_untrusted_default",
+      },
+    });
+
+    await expect(
+      client.jobs.createExport({
+        body: { status: "active" },
+        headers: {
+          Authorization: "Bearer untrusted_override",
+          "X-Mailrith-Request-Id": "req_untrusted_override",
+        },
+      }),
+    ).resolves.toEqual({ data: { id: "export-1" } });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const firstHeaders = new Headers(fetchMock.mock.calls[0]?.[1]?.headers);
+    const secondHeaders = new Headers(fetchMock.mock.calls[1]?.[1]?.headers);
+    for (const headers of [firstHeaders, secondHeaders]) {
+      expect(headers.get("authorization")).toBe("Bearer mrk_secret");
+      expect(headers.get("x-mailrith-request-id")).toMatch(/^req_[0-9a-f-]{36}$/);
+    }
+    expect(secondHeaders.get("x-mailrith-request-id")).toBe(
+      firstHeaders.get("x-mailrith-request-id"),
+    );
+    expect(firstHeaders.get("idempotency-key")).toMatch(/^op_/);
+    expect(secondHeaders.get("idempotency-key")).toBe(
+      firstHeaders.get("idempotency-key"),
+    );
+    expect(fetchMock.mock.calls[1]?.[1]?.body).toBe(
+      fetchMock.mock.calls[0]?.[1]?.body,
+    );
+  });
+
+  it("retries an unreadable successful response with the same operation key", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response("{truncated", {
+          status: 202,
+          headers: { "content-type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: { id: "export-1" } }), {
+          status: 202,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+    const client = createMailrithClient({
+      apiKey: "mrk_secret",
+      fetch: fetchMock as unknown as typeof fetch,
+      idempotentRetryDelayMs: 0,
+    });
+
+    await expect(
+      client.jobs.createExport({ body: { status: "active" } }),
+    ).resolves.toEqual({ data: { id: "export-1" } });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const firstHeaders = new Headers(fetchMock.mock.calls[0]?.[1]?.headers);
+    const secondHeaders = new Headers(fetchMock.mock.calls[1]?.[1]?.headers);
+    expect(secondHeaders.get("idempotency-key")).toBe(
+      firstHeaders.get("idempotency-key"),
+    );
+  });
+
+  it("does not automatically retry a resource-state mutation", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValue(new TypeError("Network request failed"));
+    const client = createMailrithClient({
+      apiKey: "mrk_secret",
+      fetch: fetchMock as unknown as typeof fetch,
+      idempotentRetryDelayMs: 0,
+    });
+
+    await expect(
+      client.subscribers.delete({
+        path: { subscriber_id: "subscriber-1" },
+      }),
+    ).rejects.toThrow("Network request failed");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("normalizes long trailing-slash input without changing encoded paths", async () => {

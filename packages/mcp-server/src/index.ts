@@ -52,7 +52,7 @@ export const mailrithMcpMaxAnonymousBatchItems = 1;
 export const mailrithMcpMaxAuthenticatedBatchItems = 25;
 const mcpServerInfo = {
   name: "mailrith",
-  version: "1.1.1",
+  version: "2.0.0",
 } as const;
 
 type MailrithFetch = typeof fetch;

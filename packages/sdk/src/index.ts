@@ -71,6 +71,8 @@ export type MailrithClientOptions = {
   apiKey?: string;
   fetch?: typeof fetch;
   defaultHeaders?: Record<string, string>;
+  idempotentRetryMaxAttempts?: number;
+  idempotentRetryDelayMs?: number;
   onResponse?: (metadata: MailrithResponseMetadata) => void;
 };
 
@@ -276,6 +278,48 @@ const parseResponseBody = async (response: Response) => {
   return text.length > 0 ? text : null;
 };
 
+const isIdempotencyInProgressResponse = (
+  response: Response,
+  responseBody: unknown,
+) => {
+  if (
+    response.status !== 409 ||
+    !responseBody ||
+    typeof responseBody !== "object" ||
+    Array.isArray(responseBody) ||
+    !("error" in responseBody)
+  ) {
+    return false;
+  }
+  const errorBody = responseBody.error;
+  if (!errorBody || typeof errorBody !== "object" || Array.isArray(errorBody)) {
+    return false;
+  }
+  return (
+    "code" in errorBody &&
+    errorBody.code === "idempotency_key_in_progress"
+  );
+};
+
+const waitForRetry = (delayMs: number, signal?: AbortSignal) => {
+  if (signal?.aborted) {
+    return Promise.reject(signal.reason ?? new DOMException("Aborted", "AbortError"));
+  }
+  return new Promise<void>((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      cleanup();
+      resolve();
+    }, delayMs);
+    const handleAbort = () => {
+      clearTimeout(timeout);
+      cleanup();
+      reject(signal?.reason ?? new DOMException("Aborted", "AbortError"));
+    };
+    const cleanup = () => signal?.removeEventListener("abort", handleAbort);
+    signal?.addEventListener("abort", handleAbort, { once: true });
+  });
+};
+
 export class MailrithClientBase {
   readonly baseUrl: string;
 
@@ -287,6 +331,10 @@ export class MailrithClientBase {
 
   private readonly defaultHeaders: Record<string, string>;
 
+  private readonly idempotentRetryMaxAttempts: number;
+
+  private readonly idempotentRetryDelayMs: number;
+
   private readonly onResponse?: (metadata: MailrithResponseMetadata) => void;
 
   constructor(options: MailrithClientOptions = {}) {
@@ -294,6 +342,14 @@ export class MailrithClientBase {
     this.apiKey = options.apiKey;
     this.fetchImpl = options.fetch ?? fetch;
     this.defaultHeaders = options.defaultHeaders ?? {};
+    this.idempotentRetryMaxAttempts = Math.max(
+      1,
+      Math.min(Math.floor(options.idempotentRetryMaxAttempts ?? 3), 5),
+    );
+    this.idempotentRetryDelayMs = Math.max(
+      0,
+      Math.min(Math.floor(options.idempotentRetryDelayMs ?? 250), 5_000),
+    );
     this.onResponse = options.onResponse;
   }
 
@@ -303,6 +359,8 @@ export class MailrithClientBase {
       apiKey,
       fetch: this.fetchImpl,
       defaultHeaders: this.defaultHeaders,
+      idempotentRetryMaxAttempts: this.idempotentRetryMaxAttempts,
+      idempotentRetryDelayMs: this.idempotentRetryDelayMs,
       onResponse: this.onResponse,
     });
   }
@@ -337,6 +395,8 @@ export class MailrithClientBase {
     }
     if (request.idempotencyKey) {
       headers.set("idempotency-key", request.idempotencyKey);
+    } else if (operation.retryMode === "idempotency-key") {
+      headers.set("idempotency-key", `op_${crypto.randomUUID()}`);
     }
     for (const [key, value] of Object.entries(request.headers ?? {})) {
       headers.set(key, value);
@@ -349,46 +409,101 @@ export class MailrithClientBase {
       headers.set("authorization", `Bearer ${apiKey}`);
     }
 
-    const response = await this.fetchImpl(url, {
-      method: operation.method,
-      headers,
-      body: request.body === undefined ? undefined : serializeBody(request.body),
-      signal: request.signal,
-    });
+    const serializedBody =
+      request.body === undefined ? undefined : serializeBody(request.body);
+    const canRetry =
+      operation.retryMode === "safe" ||
+      (operation.retryMode === "idempotency-key" &&
+        Boolean(headers.get("idempotency-key")));
 
-    const requestId =
-      response.headers.get(mailrithRequestIdHeader) ?? clientRequestId;
-    this.onResponse?.({
-      operationId: operation.operationId,
-      requestId,
-      status: response.status,
-    });
+    for (
+      let attempt = 1;
+      attempt <= this.idempotentRetryMaxAttempts;
+      attempt += 1
+    ) {
+      let response: Response;
+      try {
+        response = await this.fetchImpl(url, {
+          method: operation.method,
+          headers,
+          body: serializedBody,
+          signal: request.signal,
+        });
+      } catch (error) {
+        if (
+          !canRetry ||
+          attempt >= this.idempotentRetryMaxAttempts ||
+          !(error instanceof TypeError) ||
+          request.signal?.aborted
+        ) {
+          throw error;
+        }
+        await waitForRetry(this.idempotentRetryDelayMs * attempt, request.signal);
+        continue;
+      }
 
-    const responseBody = await parseResponseBody(response);
-    if (!response.ok) {
-      const errorBody =
-        responseBody &&
-        typeof responseBody === "object" &&
-        "error" in responseBody &&
-        typeof responseBody.error === "object" &&
-        responseBody.error
-          ? (responseBody.error as { message?: string; type?: string; code?: string })
-          : null;
-
-      throw new MailrithApiError({
-        status: response.status,
-        message:
-          errorBody?.message ??
-          `Mailrith request failed with status ${response.status}.`,
-        type: errorBody?.type,
-        code: errorBody?.code,
-        responseBody,
+      const requestId =
+        response.headers.get(mailrithRequestIdHeader) ?? clientRequestId;
+      this.onResponse?.({
+        operationId: operation.operationId,
         requestId,
-        clientRequestId,
+        status: response.status,
       });
+
+      let responseBody: unknown;
+      try {
+        responseBody = await parseResponseBody(response);
+      } catch (error) {
+        if (
+          !response.ok ||
+          !canRetry ||
+          attempt >= this.idempotentRetryMaxAttempts ||
+          request.signal?.aborted
+        ) {
+          throw error;
+        }
+        await waitForRetry(this.idempotentRetryDelayMs * attempt, request.signal);
+        continue;
+      }
+      if (
+        canRetry &&
+        attempt < this.idempotentRetryMaxAttempts &&
+        isIdempotencyInProgressResponse(response, responseBody)
+      ) {
+        await waitForRetry(this.idempotentRetryDelayMs * attempt, request.signal);
+        continue;
+      }
+      if (!response.ok) {
+        const errorBody =
+          responseBody &&
+          typeof responseBody === "object" &&
+          "error" in responseBody &&
+          typeof responseBody.error === "object" &&
+          responseBody.error
+            ? (responseBody.error as {
+                message?: string;
+                type?: string;
+                code?: string;
+              })
+            : null;
+
+        throw new MailrithApiError({
+          status: response.status,
+          message:
+            errorBody?.message ??
+            `Mailrith request failed with status ${response.status}.`,
+          type: errorBody?.type,
+          code: errorBody?.code,
+          responseBody,
+          requestId,
+          clientRequestId,
+        });
+      }
+
+      return responseBody as TResult;
     }
 
-    return responseBody as TResult;
+    throw new Error("Mailrith request could not be completed.");
   }
 }
 
