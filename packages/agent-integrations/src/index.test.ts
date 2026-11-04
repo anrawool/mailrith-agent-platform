@@ -72,22 +72,6 @@ describe("Mailrith Agent Integration Packages", () => {
         "mailrith-mcp-contract.json",
       ),
     );
-    const cursor = await readJson<typeof submitted>(
-      path.join(
-        integrationsRoot,
-        "cursor",
-        "mailrith",
-        "mailrith-mcp-contract.json",
-      ),
-    );
-    const claude = await readJson<typeof submitted>(
-      path.join(
-        integrationsRoot,
-        "claude",
-        "mailrith",
-        "mailrith-mcp-contract.json",
-      ),
-    );
 
     expect(submitted.profile).toBe("submitted");
     expect(submitted.contract_version).toBe("1.0");
@@ -100,8 +84,6 @@ describe("Mailrith Agent Integration Packages", () => {
       submitted.tool_count,
     );
     expect(openAi).toEqual(submitted);
-    expect(cursor).toEqual(submitted);
-    expect(claude).toEqual(submitted);
   });
 
   it("keeps every integration package on the coordinated marketplace version", async () => {
@@ -109,8 +91,6 @@ describe("Mailrith Agent Integration Packages", () => {
     for (const relativePath of [
       "packages/agent-integrations/package.json",
       "packages/agent-integrations/openai/mailrith/.codex-plugin/plugin.json",
-      "packages/agent-integrations/cursor/mailrith/.cursor-plugin/plugin.json",
-      "packages/agent-integrations/claude/mailrith/.claude-plugin/plugin.json",
       "packages/agent-integrations/microsoft/manifest.template.json",
       "gemini-extension.json",
     ]) {
@@ -119,29 +99,9 @@ describe("Mailrith Agent Integration Packages", () => {
       );
       expect(manifest.version).toBe(release.marketplace_submission_version);
     }
-    for (const relativePath of [
-      ".claude-plugin/marketplace.json",
-      ".github/plugin/marketplace.json",
-      "packages/agent-integrations/claude/.claude-plugin/marketplace.json",
-    ]) {
-      const marketplace = await readJson<{
-        metadata: { version: string };
-        plugins: Array<{ version: string }>;
-      }>(path.join(repositoryRoot, relativePath));
-      expect(marketplace.metadata.version).toBe(
-        release.marketplace_submission_version,
-      );
-      expect(marketplace.plugins.length).toBeGreaterThan(0);
-      expect(
-        marketplace.plugins.every(
-          (plugin) =>
-            plugin.version === release.marketplace_submission_version,
-        ),
-      ).toBe(true);
-    }
   });
 
-  it("configures OpenAI, Claude, Codex, and Cursor with the exact catalog", async () => {
+  it("configures OpenAI, Claude, Codex, and Gemini with the exact catalog", async () => {
     const submitted = await readSubmittedProfile();
     const expectedTools = submitted.tools.map((tool) => tool.name);
     const openAi = await readJson<{
@@ -189,21 +149,6 @@ describe("Mailrith Agent Integration Packages", () => {
     }>(
       path.join(integrationsRoot, "openai", "mailrith", ".mcp.json"),
     );
-    const cursorMcp = await readJson<{
-      mcpServers: Record<string, { type: string; url: string }>;
-    }>(
-      path.join(integrationsRoot, "cursor", "mailrith", "mcp.json"),
-    );
-    const claudePluginMcp = await readJson<{
-      mcpServers: Record<string, { type: string; url: string }>;
-    }>(
-      path.join(
-        integrationsRoot,
-        "claude",
-        "mailrith",
-        ".mcp.json",
-      ),
-    );
     const gemini = await readJson<{
       mcpServers: Record<string, { url: string }>;
     }>(path.join(repositoryRoot, "gemini-extension.json"));
@@ -222,23 +167,14 @@ describe("Mailrith Agent Integration Packages", () => {
       url: submitted.mcp_server_url,
       oauth_resource: submitted.mcp_server_url,
     });
-    expect(cursorMcp.mcpServers.mailrith).toEqual({
-      type: "http",
-      url: submitted.mcp_server_url,
-    });
-    expect(claudePluginMcp.mcpServers.mailrith).toEqual({
-      type: "http",
-      url: submitted.mcp_server_url,
-    });
     expect(gemini.mcpServers.mailrith).toEqual({
       url: submitted.mcp_server_url,
     });
   });
 
-  it("ships complete OpenAI and Cursor plugin manifests", async () => {
+  it("ships a complete OpenAI plugin manifest", async () => {
     const release = await readReleaseConfig();
     const openAiRoot = path.join(integrationsRoot, "openai", "mailrith");
-    const cursorRoot = path.join(integrationsRoot, "cursor", "mailrith");
     const openAi = await readJson<{
       name: string;
       version: string;
@@ -253,24 +189,6 @@ describe("Mailrith Agent Integration Packages", () => {
         logo: string;
       };
     }>(path.join(openAiRoot, ".codex-plugin", "plugin.json"));
-    const cursor = await readJson<{
-      name: string;
-      version: string;
-      license: string;
-      skills: string;
-      mcpServers: string;
-      logo: string;
-    }>(path.join(cursorRoot, ".cursor-plugin", "plugin.json"));
-    const cursorMarketplace = await readJson<{
-      plugins: Array<{ name: string; source: string }>;
-    }>(
-      path.join(
-        integrationsRoot,
-        "cursor",
-        ".cursor-plugin",
-        "marketplace.json",
-      ),
-    );
 
     expect(openAi).toMatchObject({
       name: "mailrith",
@@ -282,59 +200,22 @@ describe("Mailrith Agent Integration Packages", () => {
     expect(openAi.interface.defaultPrompt).toHaveLength(3);
     expect(openAi.interface.privacyPolicyURL).toMatch(/^https:\/\//);
     expect(openAi.interface.termsOfServiceURL).toMatch(/^https:\/\//);
-    expect(cursor).not.toHaveProperty("$schema");
-    expect(cursor).toMatchObject({
-      name: "mailrith",
-      version: release.marketplace_submission_version,
-      license: "MIT",
-      skills: "./skills/",
-      mcpServers: "./mcp.json",
-      logo: "assets/logo.svg",
-    });
-    expect(cursorMarketplace.plugins).toEqual([
-      { name: "mailrith", source: "mailrith", description: expect.any(String) },
-    ]);
-
-    for (const [root, relativePaths] of [
-      [
-        openAiRoot,
-        [
-          openAi.mcpServers,
-          openAi.skills,
-          openAi.interface.composerIcon,
-          openAi.interface.logo,
-          "LICENSE",
-        ],
-      ],
-      [
-        cursorRoot,
-        [cursor.mcpServers, cursor.skills, cursor.logo, "LICENSE"],
-      ],
-    ] as const) {
-      for (const relativePath of relativePaths) {
-        expect(
-          (await stat(path.resolve(root, relativePath))).isFile() ||
-            (await stat(path.resolve(root, relativePath))).isDirectory(),
-        ).toBe(true);
-      }
+    for (const relativePath of [
+      openAi.mcpServers,
+      openAi.skills,
+      openAi.interface.composerIcon,
+      openAi.interface.logo,
+      "LICENSE",
+    ]) {
+      expect(
+        (await stat(path.resolve(openAiRoot, relativePath))).isFile() ||
+          (await stat(path.resolve(openAiRoot, relativePath))).isDirectory(),
+      ).toBe(true);
     }
   });
 
-  it("ships a Gemini extension and one shared Claude and Copilot plugin", async () => {
+  it("ships a Gemini extension", async () => {
     const release = await readReleaseConfig();
-    const claudeRoot = path.join(
-      integrationsRoot,
-      "claude",
-      "mailrith",
-    );
-    const claude = await readJson<{
-      name: string;
-      version: string;
-      license: string;
-      skills: string;
-      mcpServers: string;
-      repository: string;
-    }>(path.join(claudeRoot, ".claude-plugin", "plugin.json"));
     const gemini = await readJson<{
       name: string;
       version: string;
@@ -342,25 +223,7 @@ describe("Mailrith Agent Integration Packages", () => {
       contextFileName: string;
       mcpServers: Record<string, { url: string }>;
     }>(path.join(repositoryRoot, "gemini-extension.json"));
-    const claudeMarketplace = await readJson<{
-      plugins: Array<{ name: string; source: string; version: string }>;
-    }>(
-      path.join(repositoryRoot, ".claude-plugin", "marketplace.json"),
-    );
-    const copilotMarketplace = await readJson<{
-      plugins: Array<{ name: string; source: string; version: string }>;
-    }>(
-      path.join(repositoryRoot, ".github", "plugin", "marketplace.json"),
-    );
 
-    expect(claude).toMatchObject({
-      name: "mailrith",
-      version: release.marketplace_submission_version,
-      license: "MIT",
-      skills: "./skills/",
-      mcpServers: "./.mcp.json",
-      repository: "https://github.com/anrawool/mailrith-agent-platform",
-    });
     expect(gemini).toMatchObject({
       name: "mailrith",
       version: release.marketplace_submission_version,
@@ -370,41 +233,25 @@ describe("Mailrith Agent Integration Packages", () => {
       },
     });
     expect(gemini.description.length).toBeGreaterThan(20);
-    expect(claudeMarketplace.plugins).toEqual([
-      {
-        name: "mailrith",
-        source: "./packages/agent-integrations/claude/mailrith",
-        description: expect.any(String),
-        version: release.marketplace_submission_version,
-      },
-    ]);
-    expect(copilotMarketplace.plugins).toEqual([
-      {
-        name: "mailrith",
-        source: "packages/agent-integrations/claude/mailrith",
-        description: expect.any(String),
-        version: release.marketplace_submission_version,
-      },
-    ]);
-
-    for (const relativePath of [
-      claude.mcpServers,
-      claude.skills,
-      "README.md",
-      "LICENSE",
-      "assets/logo.svg",
-      "mailrith-mcp-contract.json",
-    ]) {
-      expect(
-        (await stat(path.resolve(claudeRoot, relativePath))).isFile() ||
-          (await stat(path.resolve(claudeRoot, relativePath))).isDirectory(),
-      ).toBe(true);
-    }
     expect(
       (
         await stat(path.join(repositoryRoot, gemini.contextFileName))
       ).isFile(),
     ).toBe(true);
+  });
+
+  it("does not ship the retired Claude Code, Cursor, or Copilot plugins", async () => {
+    for (const relativePath of [
+      ".claude-plugin",
+      ".github/plugin",
+      "packages/agent-integrations/claude/mailrith",
+      "packages/agent-integrations/claude/.claude-plugin",
+      "packages/agent-integrations/cursor",
+    ]) {
+      await expect(
+        stat(path.join(repositoryRoot, relativePath)),
+      ).rejects.toMatchObject({ code: "ENOENT" });
+    }
   });
 
   it("keeps generated skill copies byte-for-byte aligned", async () => {
@@ -418,7 +265,7 @@ describe("Mailrith Agent Integration Packages", () => {
       ),
       "utf8",
     );
-    for (const platform of ["openai", "cursor", "claude"]) {
+    for (const platform of ["openai"]) {
       const copy = await readFile(
         path.join(
           integrationsRoot,
@@ -441,7 +288,7 @@ describe("Mailrith Agent Integration Packages", () => {
       ),
       "utf8",
     );
-    for (const platform of ["openai", "cursor", "claude"]) {
+    for (const platform of ["openai"]) {
       expect(
         await readFile(
           path.join(
@@ -727,19 +574,6 @@ describe("Mailrith Agent Integration Packages", () => {
         path.join(
           integrationsRoot,
           "openai",
-          "mailrith",
-          ".mcp.json",
-        ),
-        "utf8",
-      ),
-      readFile(
-        path.join(integrationsRoot, "cursor", "mailrith", "mcp.json"),
-        "utf8",
-      ),
-      readFile(
-        path.join(
-          integrationsRoot,
-          "claude",
           "mailrith",
           ".mcp.json",
         ),

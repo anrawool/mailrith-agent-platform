@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "mailrith": {
-      "type": "http",
-      "url": "https://api.mailrith.com/mcp"
-    }
-  }
-}

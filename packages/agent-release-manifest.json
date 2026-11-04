@@ -2,10 +2,10 @@
   "schema_version": 1,
   "release_version": "2.0.1",
   "cli_release_version": "2.0.1",
-  "cli_release_status": "prepared_not_published",
+  "cli_release_status": "published",
   "marketplace_submission_version": "2.0.0",
   "channel": "ga",
-  "status": "prepared_not_published",
+  "status": "published",
   "contract_version": "v1",
   "documentation_revision": "2026-11-04",
   "packages": {
@@ -28,8 +28,8 @@
     "mcp_manifest_sha256": "c6e11c8873604b6407a75e9e51151792b890ba8c475aa38d03f991cd51801fb4",
     "agent_skill_sha256": "da643ece11ce6d5f06bbaa36937be72689d8e9f886454f4e00b7e1870fb94506",
     "connector_templates_sha256": "282b81077101f6e37b5bd7e7ec153853fe2caddba774f211e3c32a3f4f3d18c7",
-    "platform_integrations_sha256": "147ee59ac4cd45d1b59ab4f11ee01e860b0d82c96970bd11bd5b87281a21b9a3",
-    "agent_discovery_and_guidance_sha256": "0814f79a7ff359cb44385b7108506d6d00aa7db893b386ddf2a409b787bce136"
+    "platform_integrations_sha256": "1659db4f83acca1f0fae500c96d8bf4aedc73b7e873f1db94e30a5210b778e44",
+    "agent_discovery_and_guidance_sha256": "3fb76827f6ad21c9a1ebb6901cc07fe6ecdb37b588c88f62842e1efa88f9cb21"
   },
   "compatibility": {
     "node": ">=20",
@@ -43,7 +43,6 @@
       "claude_connector",
       "claude_messages",
       "codex",
-      "cursor",
       "n8n",
       "pipedream"
     ]
