@@ -79,45 +79,12 @@ Keep the existing published contract working throughout the update. See
    **Submit Connector**.
 9. Enter the listing, ownership, privacy, data-handling, support, and reviewer
    account details. The portal reads the live MCP tools from the server.
-10. Submit the Connector. Do not make a separate Claude companion plugin a
-    requirement.
+10. Submit the Connector.
 
 For an already published Connector, deploy and verify the new tools against
 the existing connection; a tool-only server update does not require a new
 Connector submission. For a Connector that is still under review, confirm the
 portal shows all `55` live tools before continuing the existing submission.
-
-## Submit The Claude Community Plugin
-
-1. Use `claude/mailrith` as the plugin root. The plugin complements the Claude
-   Connector and is not required to use it.
-2. Run `claude plugin validate --strict claude/mailrith` from
-   `packages/agent-integrations`.
-3. Load the plugin with `claude --plugin-dir claude/mailrith` from a clean
-   profile.
-4. Open `/mcp`, connect Mailrith through OAuth, and confirm the intended
-   workspace and permissions.
-5. Run the draft, preflight, prompt-injection, and unrelated evaluation cases.
-6. Push the exact reviewed source to the public
-   `anrawool/mailrith-agent-platform` repository.
-7. Submit the public repository and plugin path through
-   `https://platform.claude.com/plugins/submit`. Use the Claude organization
-   form instead only when the owning Team or Enterprise organization will own
-   the listing.
-8. Record the submitted commit and review receipt. Approval publishes the
-   plugin to Anthropic's community marketplace, not the separately curated
-   official marketplace.
-
-## Submit The Cursor Plugin
-
-1. Validate `cursor/mailrith` against Cursor's current plugin schema. The
-   validator receives the schema URL; do not add an undeclared `$schema`
-   property to the plugin manifest.
-2. Install the plugin from a clean local or public-source checkout.
-3. Complete OAuth and confirm the exact submitted tool catalog is available.
-4. Run the draft, preflight, test, schedule, and activation evaluation cases.
-5. Complete the Cursor publisher application and Marketplace terms.
-6. Submit the reviewed package and request re-indexing only when needed.
 
 ## List The Gemini CLI Extension
 
@@ -135,22 +102,6 @@ portal shows all `55` live tools before continuing the existing submission.
 7. Confirm the repository is public and the default branch is the stable
    release. Gemini's gallery crawler checks qualifying repositories daily; no
    separate submission form is required.
-
-## Submit The GitHub Copilot Plugin
-
-1. Use `claude/mailrith` as the shared Claude Code and GitHub Copilot plugin
-   root.
-2. Install it from a clean profile with
-   `copilot plugin install anrawool/mailrith-agent-platform:packages/agent-integrations/claude/mailrith`.
-3. Confirm `copilot mcp get mailrith` reports the remote HTTP server and its
-   tools after OAuth.
-4. Run the draft, preflight, prompt-injection, and unrelated evaluation cases.
-5. Create an immutable public release tag and record its full commit SHA.
-6. Submit the external plugin through the `github/awesome-copilot` issue form
-   with the public repository, plugin path, semantic version, MIT license,
-   immutable tag, and full SHA.
-7. Confirm the automated `vally lint` and Copilot CLI install smoke tests pass
-   before maintainer review.
 
 ## Prepare Microsoft MCP Certification
 
@@ -183,7 +134,7 @@ Partner Center fields.
 
 1. Give a clean Cline profile only `packages/mcp-server/README.md` and
    `packages/mcp-server/llms-install.md`.
-2. After publishing, confirm Cline installs `@mailrith/mcp-server@2.0.0`
+2. After publishing, confirm Cline installs `@mailrith/mcp-server@2.0.1`
    without cloning or building the monorepo.
 3. Use a synthetic workspace API key and run only
    `discovery_get_capabilities`. Keep `autoApprove` empty.

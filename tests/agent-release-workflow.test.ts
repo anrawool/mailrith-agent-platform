@@ -46,7 +46,7 @@ describe("agent release workflow", () => {
     try {
       for (const directory of [
         "package/.cache",
-        "package/.cursor-plugin",
+        "package/.codex-plugin",
         "package/.turbo",
         "package/coverage",
         "package/dist",
@@ -66,14 +66,14 @@ describe("agent release workflow", () => {
         writeFileSync(join(root, file), "local-only");
       }
       for (const file of [
-        "package/.cursor-plugin/plugin.json",
+        "package/.codex-plugin/plugin.json",
         "package/README.md",
       ]) {
         writeFileSync(join(root, file), "release");
       }
 
       await expect(listReleaseDigestFiles("package", root)).resolves.toEqual([
-        "package/.cursor-plugin/plugin.json",
+        "package/.codex-plugin/plugin.json",
         "package/README.md",
       ]);
     } finally {
@@ -108,9 +108,8 @@ describe("agent release workflow", () => {
     expect(workflow).toContain(
       "mailrith-claude-connector-$MARKETPLACE_SUBMISSION_VERSION.tar.gz",
     );
-    expect(workflow).toContain(
-      "mailrith-cursor-plugin-$MARKETPLACE_SUBMISSION_VERSION.tar.gz",
-    );
+    expect(workflow).not.toContain("mailrith-cursor-plugin-");
+    expect(workflow).not.toContain("mailrith-claude-copilot-plugin-");
     expect(workflow).toContain(
       "chatgpt-app-submission-$MARKETPLACE_SUBMISSION_VERSION.json",
     );

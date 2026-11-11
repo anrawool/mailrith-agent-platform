@@ -52,7 +52,7 @@ export const mailrithMcpMaxAnonymousBatchItems = 1;
 export const mailrithMcpMaxAuthenticatedBatchItems = 25;
 const mcpServerInfo = {
   name: "mailrith",
-  version: "2.0.0",
+  version: "2.0.1",
 } as const;
 
 type MailrithFetch = typeof fetch;
@@ -1466,9 +1466,31 @@ const validateMcpBearerCredential = async (params: {
   };
 };
 
+// zod fills in `default` values while validating. Requests carry only what the
+// caller sent, and the API applies its own defaults.
+export const withoutJsonSchemaDefaults = (schema: unknown): unknown => {
+  if (Array.isArray(schema)) return schema.map(withoutJsonSchemaDefaults);
+  if (!schema || typeof schema !== "object") return schema;
+  return Object.fromEntries(
+    Object.entries(schema)
+      .filter(([key]) => key !== "default")
+      .map(([key, value]) => [
+        key,
+        key === "properties" && value && typeof value === "object"
+          ? Object.fromEntries(
+              Object.entries(value).map(([name, property]) => [
+                name,
+                withoutJsonSchemaDefaults(property),
+              ]),
+            )
+          : withoutJsonSchemaDefaults(value),
+      ]),
+  );
+};
+
 const toZodSchema = (schema: unknown) =>
   z.fromJSONSchema(
-    schema as Parameters<typeof z.fromJSONSchema>[0],
+    withoutJsonSchemaDefaults(schema) as Parameters<typeof z.fromJSONSchema>[0],
   );
 
 const compiledMcpSchemas = createLazyMcpSchemaCache(toZodSchema);

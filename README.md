@@ -7,8 +7,7 @@ This public repository contains the versioned developer surfaces for building sa
 - The local and self-hosted MCP server
 - The Mailrith CLI
 - The installable Mailrith Agent Skill and supported-client connection templates
-- The installable ChatGPT/Codex, Claude Code, GitHub Copilot CLI, and Cursor
-  plugin packages
+- The installable ChatGPT and Codex plugin package
 - The Gemini CLI extension
 - The Claude Connector listing, Microsoft certification package, Cline
   installation guide, and shared submission materials
@@ -49,13 +48,13 @@ archives unchanged while another package channel receives a compatible
 patch release. The release manifest records each version, the contract digest,
 package digests, and public-registry status.
 
-The platform archives are submission-ready files for OpenAI, Claude, Cursor,
-Gemini CLI, GitHub Copilot CLI, Microsoft, and Cline. Provider review and
-public directory approval are separate from npm and PyPI publication.
+The platform archives are submission-ready files for OpenAI, the Claude Connector,
+Gemini CLI, Microsoft, and Cline. Provider review and public directory approval are
+separate from npm and PyPI publication.
 
-CLI `1.1.2` was published to npm on September 4, 2026. The other packages and prepared
-marketplace artifacts remain at `1.1.1`. See [Releasing The CLI](packages/cli/RELEASING.md)
-for the separate CLI version fields and the preparation and publication steps.
+The npm packages are at `2.0.1`. The Python SDK and marketplace packages are at `2.0.0`.
+See [Releasing The CLI](packages/cli/RELEASING.md) for the separate CLI version fields and
+the preparation and publication steps.
 
 ## Security
 

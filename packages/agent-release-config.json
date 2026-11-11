@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "release_version": "2.0.0",
-  "cli_release_version": "2.0.0",
-  "cli_release_status": "prepared_not_published",
+  "release_version": "2.0.1",
+  "cli_release_version": "2.0.1",
+  "cli_release_status": "published",
   "python_release_version": "2.0.0",
   "marketplace_submission_version": "2.0.0",
   "channel": "ga",
-  "status": "prepared_not_published",
+  "status": "published",
   "documentation_revision": "2026-11-04"
 }
