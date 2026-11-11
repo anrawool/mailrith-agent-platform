@@ -176,40 +176,6 @@ export const publicApiAgentOperationRiskCatalog = [
     "Reads one enabled sender identity without provider credentials.",
   ),
   read(
-    "listEmailDeliveryConnections",
-    "email_delivery_connections",
-    "workspace",
-    "Reads a bounded page of secret-free delivery connection metadata.",
-  ),
-  change(
-    "startEmailDeliveryConnectionSetup",
-    "email_delivery_connections",
-    "admin",
-    {
-      sideEffectClass: "secret-change",
-      retryMode: "resource-state",
-      rationale:
-        "Creates a short-lived browser handoff so provider credentials never pass through the agent API.",
-    },
-  ),
-  read(
-    "getEmailDeliveryConnectionSetup",
-    "email_delivery_connections",
-    "workspace",
-    "Reads the bounded status of one short-lived secure setup session.",
-  ),
-  change(
-    "renewEmailDeliveryConnectionSetup",
-    "email_delivery_connections",
-    "admin",
-    {
-      sideEffectClass: "secret-change",
-      retryMode: "resource-state",
-      rationale:
-        "Reissues a short-lived browser handoff from bounded non-secret setup context.",
-    },
-  ),
-  read(
     "listEmailStartingPoints",
     "starting_points",
     "workspace",
@@ -245,65 +211,11 @@ export const publicApiAgentOperationRiskCatalog = [
     "workspace",
     "Reads one canonical Landing Page starting point on demand.",
   ),
-  read(
-    "getEmailDeliveryConnection",
-    "email_delivery_connections",
-    "workspace",
-    "Reads one secret-free delivery connection linked to the workspace.",
-  ),
-  change(
-    "updateEmailDeliveryConnection",
-    "email_delivery_connections",
-    "admin",
-    {
-      retryMode: "resource-state",
-      rationale:
-        "Changes non-secret sender settings for one workspace-only connection.",
-    },
-  ),
-  change(
-    "updateEmailDeliveryConnectionStatus",
-    "email_delivery_connections",
-    "admin",
-    {
-      retryMode: "resource-state",
-      rationale:
-        "Enables or disables a delivery connection and can change whether workspace resources may be created or sent.",
-    },
-  ),
-  read(
-    "verifyEmailDeliveryConnection",
-    "email_delivery_connections",
-    "workspace",
-    "Checks the saved provider credential and sender without storing a verification history.",
-  ),
-  change(
-    "testEmailDeliveryConnection",
-    "email_delivery_connections",
-    "test",
-    {
-      destructive: true,
-      externalSideEffect: true,
-      sideEffectClass: "external-email",
-      rationale: "Sends one real test email to a controlled recipient.",
-    },
-  ),
-  change(
-    "deleteEmailDeliveryConnection",
-    "email_delivery_connections",
-    "delete",
-    {
-      retryMode: "resource-state",
-      rationale:
-        "Deletes one eligible workspace-only delivery connection and its saved provider credentials.",
-    },
-  ),
   change(
     "createAnalyticsReport",
     "analytics",
     "draft",
     {
-      retryMode: "resource-state",
       rationale:
         "Creates or reuses one bounded, expiring aggregate report from compact rollups.",
     },

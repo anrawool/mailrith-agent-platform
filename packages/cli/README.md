@@ -12,8 +12,8 @@ npx @mailrith/cli call subscribers list --query limit=10 --json
 
 `auth login` uses the **Full Email Marketing Access** profile by default, so the
 CLI can use every public email-marketing operation in the selected workspace
-after the user approves access. This includes secure email delivery setup,
-Subscriber imports and exports, and Outbound Webhooks. It does not grant
+after the user approves access. This includes Subscriber imports and exports
+and Outbound Webhooks. It does not grant
 billing, team, account-security, credential-reading, or internal
 administration access.
 

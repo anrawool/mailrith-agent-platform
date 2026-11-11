@@ -46,8 +46,6 @@ const canonicalTrademarkPolicyPath = path.join(
 );
 const pluginRoots = [
   path.join(integrationsRoot, "openai", "mailrith"),
-  path.join(integrationsRoot, "cursor", "mailrith"),
-  path.join(integrationsRoot, "claude", "mailrith"),
 ];
 const publicNpmPackageRoots = [
   path.join(repositoryRoot, "packages", "public-api"),
@@ -213,14 +211,14 @@ const chatGptAppSubmission = {
       expected_output_url: null,
     },
     {
-      description: "Find one Subscriber and apply an existing Tag.",
+      description: "Create a Tag and inspect an available Custom Field.",
       user_prompt:
-        "Find ada.reviewer@example.com and add the Customer Tag after showing me the matching Subscriber.",
+        "Create a Tag named Reviewer 1.1 Check, then list the available Custom Fields and inspect the first field returned so I can see its exact personalization token. Do not change any Subscriber.",
       file_attachment_urls: null,
       tools_triggered:
-        "subscribers_list, tags_list, subscribers_add_tag",
+        "tags_create, custom_fields_list, custom_fields_get",
       expected_output:
-        "Shows the matching synthetic Subscriber and, after approval, confirms the Tag change.",
+        "Confirms the Tag creation and returns one Custom Field with its exact personalization token without changing any Subscriber.",
       expected_output_url: null,
     },
     {

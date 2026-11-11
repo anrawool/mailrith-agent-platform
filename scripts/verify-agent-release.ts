@@ -183,8 +183,6 @@ const verifyAgentIntegrations = async (
   for (const versionedManifestPath of [
     "packages/agent-integrations/package.json",
     "packages/agent-integrations/openai/mailrith/.codex-plugin/plugin.json",
-    "packages/agent-integrations/cursor/mailrith/.cursor-plugin/plugin.json",
-    "packages/agent-integrations/claude/mailrith/.claude-plugin/plugin.json",
     "packages/agent-integrations/microsoft/manifest.template.json",
     "gemini-extension.json",
   ]) {
@@ -192,31 +190,6 @@ const verifyAgentIntegrations = async (
     if (versionedManifest.version !== marketplaceSubmissionVersion) {
       throw new Error(
         `${versionedManifestPath} must use marketplace version ${marketplaceSubmissionVersion}.`,
-      );
-    }
-  }
-  for (const marketplacePath of [
-    ".claude-plugin/marketplace.json",
-    ".github/plugin/marketplace.json",
-    "packages/agent-integrations/claude/.claude-plugin/marketplace.json",
-  ]) {
-    const marketplace = await readJson(marketplacePath);
-    const metadata = marketplace.metadata as JsonObject | undefined;
-    const plugins = marketplace.plugins;
-    if (
-      metadata?.version !== marketplaceSubmissionVersion ||
-      !Array.isArray(plugins) ||
-      plugins.length === 0 ||
-      plugins.some(
-        (plugin) =>
-          !plugin ||
-          typeof plugin !== "object" ||
-          Array.isArray(plugin) ||
-          (plugin as JsonObject).version !== marketplaceSubmissionVersion,
-      )
-    ) {
-      throw new Error(
-        `${marketplacePath} and every listed plugin must use marketplace version ${marketplaceSubmissionVersion}.`,
       );
     }
   }
@@ -237,7 +210,6 @@ const verifyAgentIntegrations = async (
   const expectedDigest = submittedProfile.submitted_schema_digest;
   for (const pluginContractPath of [
     "packages/agent-integrations/openai/mailrith/mailrith-mcp-contract.json",
-    "packages/agent-integrations/cursor/mailrith/mailrith-mcp-contract.json",
   ]) {
     const pluginContract = await readJson(pluginContractPath);
     if (
@@ -251,7 +223,6 @@ const verifyAgentIntegrations = async (
   }
   for (const pluginManifestPath of [
     "packages/agent-integrations/openai/mailrith/.codex-plugin/plugin.json",
-    "packages/agent-integrations/cursor/mailrith/.cursor-plugin/plugin.json",
   ]) {
     const pluginManifest = await readJson(pluginManifestPath);
     if (
@@ -417,7 +388,6 @@ const buildManifest = async () => {
         "claude_connector",
         "claude_messages",
         "codex",
-        "cursor",
         "n8n",
         "pipedream",
       ],
