@@ -28,7 +28,7 @@
     "mcp_manifest_sha256": "c6e11c8873604b6407a75e9e51151792b890ba8c475aa38d03f991cd51801fb4",
     "agent_skill_sha256": "da643ece11ce6d5f06bbaa36937be72689d8e9f886454f4e00b7e1870fb94506",
     "connector_templates_sha256": "282b81077101f6e37b5bd7e7ec153853fe2caddba774f211e3c32a3f4f3d18c7",
-    "platform_integrations_sha256": "9c0781e77630ef456521ffd8ed513ab6fc123a35c89721371c887cc94c46a67b",
+    "platform_integrations_sha256": "b324822248523b86ed0c4d1b3fa7165c50819be09cdd05919dbd297acd77954d",
     "agent_discovery_and_guidance_sha256": "3fb76827f6ad21c9a1ebb6901cc07fe6ecdb37b588c88f62842e1efa88f9cb21"
   },
   "compatibility": {
