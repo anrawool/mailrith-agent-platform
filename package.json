@@ -27,12 +27,12 @@
     "@mailrith/mcp-server": "workspace:*",
     "@mailrith/public-api": "workspace:*",
     "@modelcontextprotocol/sdk": "1.32.2",
-    "@types/node": "^24.5.2",
+    "@types/node": "^26.6.6",
     "@typescript-eslint/eslint-plugin": "8.72.1",
     "@typescript-eslint/parser": "8.72.1",
     "eslint": "10.14.0",
     "tsx": "4.23.15",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "vitest": "5.1.0"
   }
 }
