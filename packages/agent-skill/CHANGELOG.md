@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 2.0.1 - 2026-11-04
+
+- Release alongside the MCP server security patch. No skill changes.
+
+## 2.0.0 - 2026-11-04
+
+- **Breaking:** removes Email Delivery Connections. The hosted API has already
+  retired them, so the removed calls were failing before this release.
+- Remove the Email Delivery Setup recipe and Work Profile. When sending is not
+  ready, agents tell the user that the workspace owner checks Sending Domain in
+  Workspace settings and never ask for provider credentials.
+
 ## 1.1.1 - 2026-08-27
 
 - Include the official Mailrith trademark and unofficial-fork policy in the

@@ -24,10 +24,30 @@ import {
   mailrithSubmittedMcpToolNames,
   resolveMailrithMcpApiKey,
   resolveEnabledMcpToolsets,
+  withoutJsonSchemaDefaults,
 } from "./index";
 import { createLazyMcpSchemaCache } from "./lazy-schema-cache";
 
 describe("@mailrith/mcp-server", () => {
+  it("strips default keywords but keeps a property named default", () => {
+    expect(
+      withoutJsonSchemaDefaults({
+        type: "object",
+        default: {},
+        properties: {
+          default: { type: "string", default: "kept-out" },
+          nested: { type: "array", items: [{ type: "number", default: 1 }] },
+        },
+      }),
+    ).toEqual({
+      type: "object",
+      properties: {
+        default: { type: "string" },
+        nested: { type: "array", items: [{ type: "number" }] },
+      },
+    });
+  });
+
   it("builds one fixed submitted catalog from canonical focused operations", () => {
     const client = { request: vi.fn() } as never;
     const submitted = createMailrithMcpToolDefinitions(client, {
@@ -455,6 +475,53 @@ describe("@mailrith/mcp-server", () => {
     });
   });
 
+  it("isolates bearer credentials across simultaneous hosted requests", async () => {
+    const credentialsSeen = new Set<string>();
+    let releaseValidation!: () => void;
+    const bothValidationsStarted = new Promise<void>((resolve) => {
+      releaseValidation = resolve;
+    });
+    const mailrithApiFetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = new Request(input, init);
+      expect(new URL(request.url).pathname).toBe("/v1/capabilities");
+      const authorization = request.headers.get("authorization")!;
+      expect(["Bearer mrat_first", "Bearer mrat_second"]).toContain(authorization);
+      credentialsSeen.add(authorization);
+      if (credentialsSeen.size === 2) releaseValidation();
+      await bothValidationsStarted;
+      return Response.json({
+        data: {
+          workspace: {
+            id: authorization === "Bearer mrat_first" ? "workspace-first" : "workspace-second",
+          },
+          credential: { type: "oauth_access_token", scopes: publicApiScopeKeys },
+        },
+      });
+    });
+    const responses = await Promise.all(["first", "second"].map((name) =>
+      handleMailrithMcpHttpRequest(new Request("https://mailrith.test/mcp", {
+        method: "POST",
+        headers: {
+          accept: "application/json, text/event-stream",
+          "content-type": "application/json",
+          authorization: `Bearer mrat_${name}`,
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0", id: 1, method: "tools/call",
+          params: { name: "discovery_get_capabilities", arguments: {} },
+        }),
+      }), { baseUrl: "https://api.mailrith.com", fetch: mailrithApiFetch }),
+    ));
+    const [first, second] = await Promise.all(responses.map((response) => {
+      expect(response.status).toBe(200);
+      return response.text();
+    }));
+    expect(first).toContain("workspace-first");
+    expect(first).not.toContain("workspace-second");
+    expect(second).toContain("workspace-second");
+    expect(second).not.toContain("workspace-first");
+  });
+
   it("uses the full Work Profile catalog when capability discovery starts OAuth", async () => {
     const unavailableFetch = vi.fn(() => {
       throw new Error("An unauthenticated tool call must not reach the API.");
@@ -743,11 +810,11 @@ describe("@mailrith/mcp-server", () => {
   it("forwards the active toolsets and read-only profile to capability discovery", () => {
     expect(
       createMcpCapabilityContextHeaders({
-        enabledToolsets: ["reporting", "email_delivery_setup"],
+        enabledToolsets: ["reporting", "outbound_webhooks"],
         readOnly: true,
       }),
     ).toEqual({
-      "mailrith-mcp-toolsets": "reporting,email_delivery_setup",
+      "mailrith-mcp-toolsets": "reporting,outbound_webhooks",
       "mailrith-mcp-read-only": "true",
     });
     expect(createMcpCapabilityContextHeaders({})).toEqual({});
@@ -1097,21 +1164,6 @@ describe("@mailrith/mcp-server", () => {
       },
     });
 
-    const smtp = await search?.invoke({
-      query: "connect my SMTP sending provider",
-      limit: 5,
-    });
-    expect(smtp?.structuredContent).toMatchObject({
-      response: {
-        data: expect.arrayContaining([
-          expect.objectContaining({
-            operation_id: "startEmailDeliveryConnectionSetup",
-            resource: "emailDeliveryConnections",
-          }),
-        ]),
-      },
-    });
-
     const verbose = await search?.invoke({
       query:
         "Please show me all of the active newsletters we created for the summer launch last month",
@@ -1146,11 +1198,6 @@ describe("@mailrith/mcp-server", () => {
       ["draft the monthly newsletter campaign", "write", "createBroadcast"],
       ["build an onboarding drip email series", "write", "createSequence"],
       ["create a triggered customer journey", "write", "createAutomation"],
-      [
-        "connect our SMTP sending provider",
-        "write",
-        "startEmailDeliveryConnectionSetup",
-      ],
       ["show our from email identities", "read", "listSenderIdentities"],
       ["show delivery failure diagnostics", "read", "listBroadcastDeliveryErrors"],
       ["show outbound event callbacks", "read", "listWebhookSubscriptions"],
@@ -1185,14 +1232,6 @@ describe("@mailrith/mcp-server", () => {
       ["return the automation to draft", "updateAutomationStatus"],
       ["stop the automation", "updateAutomationStatus"],
       ["inspect broadcast readiness", "preflightBroadcast"],
-      [
-        "enable the email delivery connection",
-        "updateEmailDeliveryConnectionStatus",
-      ],
-      [
-        "disable the sending provider connection",
-        "updateEmailDeliveryConnectionStatus",
-      ],
       ["draft a newsletter campaign", "createBroadcast"],
       ["build an onboarding email series", "createSequence"],
       ["activate the customer workflow", "updateAutomationStatus"],
@@ -1866,17 +1905,15 @@ describe("@mailrith/mcp-server", () => {
       new MailrithApiError({
         status: 409,
         message:
-          "Set up an email delivery connection before creating this resource.",
-        code: "email_delivery_setup_connection_missing",
+          "Ask the workspace owner to check Sending Domain in Workspace settings before creating this resource.",
+        code: "email_delivery_connection_missing",
         responseBody: {
           error: {
             prerequisite: {
-              resource: "email_delivery_setup_connection",
+              resource: "email_delivery_connection",
               state: "missing",
-              required_scopes: ["email_delivery_connections:write"],
-              work_profile: "email_delivery_setup",
               setup_url:
-                "https://app.mailrith.com/email-delivery-connections?workspace=workspace-1",
+                "https://app.mailrith.com/workspaces?workspace=workspace-1",
               internal_detail: "must not be copied",
             },
             retry: {
@@ -1901,12 +1938,10 @@ describe("@mailrith/mcp-server", () => {
     expect(missingDeliveryResult?.structuredContent).toMatchObject({
       error: {
         prerequisite: {
-          resource: "email_delivery_setup_connection",
+          resource: "email_delivery_connection",
           state: "missing",
-          required_scopes: ["email_delivery_connections:write"],
-          work_profile: "email_delivery_setup",
           setup_url:
-            "https://app.mailrith.com/email-delivery-connections?workspace=workspace-1",
+            "https://app.mailrith.com/workspaces?workspace=workspace-1",
         },
         retry: {
           safe: true,
@@ -1934,11 +1969,7 @@ describe("@mailrith/mcp-server", () => {
         "subscribers_update_status",
         "sequences_update_status",
         "automations_update_status",
-        "email_delivery_connections_list",
-        "email_delivery_connections_start_setup",
-        "email_delivery_connections_get_setup",
-        "email_delivery_connections_verify",
-        "email_delivery_connections_send_test",
+        "sender_identities_list",
         "broadcasts_get_send_progress",
         "broadcasts_preflight",
         "webhook_subscriptions_rotate_secret",
@@ -2458,7 +2489,7 @@ describe("@mailrith/mcp-server", () => {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "mailrith-mcp-toolsets": "email_delivery_setup",
+          "mailrith-mcp-toolsets": "outbound_webhooks",
         },
         body: JSON.stringify({
           jsonrpc: "2.0",
@@ -2481,8 +2512,8 @@ describe("@mailrith/mcp-server", () => {
     expect(scope).toEqual([
       "live_actions:write",
       "workspace:read",
-      "email_delivery_connections:read",
-      "email_delivery_connections:write",
+      "webhooks:read",
+      "webhooks:write",
     ]);
   });
 
@@ -2520,7 +2551,6 @@ describe("@mailrith/mcp-server", () => {
       "broadcasts",
       "sequences",
       "automations",
-      "email_delivery_setup",
       "outbound_webhooks",
     ];
 

@@ -6,15 +6,29 @@ Broadcasts, and manage Sequences, Automations, targeting, and email Templates.
 
 ## Before You Connect
 
-You need a Mailrith account and access to the workspace you want to connect.
+You need a Mailrith account, access to the workspace you want to connect, and
+an active trial or paid Mailrith subscription for that workspace. New workspace
+owners must choose a plan and enter credit-card details during checkout before
+using Mailrith. Invited team members use the workspace owner's subscription and
+need permission to connect integrations.
+
 Your Mailrith role and the permissions you approve control what the agent can
-read or change.
+read or change. Mailrith sends the email, and sending may need the workspace
+owner to finish Sending Domain setup.
+
+- [Sign Up For Mailrith](https://app.mailrith.com/signup)
+- [Get Started](https://mailrith.com/docs/sign-up-and-access)
+- [Plans And Pricing](https://mailrith.com/pricing)
 
 ## Connect Mailrith
 
+These steps apply once Mailrith is available in your organization's tool
+catalog. During certification, use the test connection approved for the review.
+
 1. In Microsoft Copilot Studio, open the agent that should use Mailrith.
-2. Open **Tools**.
-3. Select **Add a tool**.
+2. Select **Build**, then find the **Tools** section. In the earlier Copilot
+   Studio layout, open the **Tools** tab instead.
+3. Select **Add tool** (or **Add a tool** in the earlier layout).
 4. Find and select **Mailrith**.
 5. Select **Connect**.
 6. Sign in to Mailrith.
@@ -39,7 +53,7 @@ read or change.
 - One connection works with one Mailrith workspace. Connect again to work in a
   different workspace.
 - Available actions depend on the Mailrith role and permissions approved
-  during sign-in.
+  during sign-in, as well as the workspace's plan and status.
 - Billing, team administration, account security, and delivery credentials
   are not available through this connector.
 - Some changes, including sending, scheduling, activation, deletion, and
@@ -47,5 +61,6 @@ read or change.
 
 ## Support
 
-Email [support@mailrith.com](mailto:support@mailrith.com) or visit
-[Mailrith Support](https://mailrith.com/contact) for help.
+Read the [Mailrith Help Docs](https://mailrith.com/docs), visit
+[Contact Mailrith](https://mailrith.com/contact), or email
+[support@mailrith.com](mailto:support@mailrith.com).
