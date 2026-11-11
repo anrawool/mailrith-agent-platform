@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retire the Claude Code community plugin, the GitHub Copilot CLI plugin, and
+  the Cursor plugin. Their package folders, marketplace files, and release
+  archives are removed and will no longer be maintained. The Claude Connector,
+  ChatGPT and Codex plugin, Gemini CLI extension, Microsoft package, and Cline
+  listing are unchanged.
+
 ## 2.0.0 - 2026-11-04
 
 - **Breaking:** removes Email Delivery Connections. The hosted API has already
