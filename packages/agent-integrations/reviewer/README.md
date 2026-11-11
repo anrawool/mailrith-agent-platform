@@ -1,6 +1,6 @@
 # Marketplace Reviewer Workspace
 
-Use one dedicated Mailrith workspace for OpenAI, Anthropic, and Cursor review.
+Use one dedicated Mailrith workspace for OpenAI, Anthropic, and other marketplace reviews.
 Never copy customer data into this workspace.
 
 ## Prepare The Workspace

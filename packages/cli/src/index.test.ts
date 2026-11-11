@@ -68,7 +68,6 @@ describe("Mailrith CLI", () => {
         "subscribers:write",
         "broadcasts:read",
         "broadcasts:write",
-        "email_delivery_connections:write",
         "subscribers:import",
         "subscribers:export",
         "webhooks:write",
@@ -82,8 +81,8 @@ describe("Mailrith CLI", () => {
     expect(Object.keys(mailrithCliOAuthProfiles)).toEqual(
       mailrithWorkProfiles.map((profile) => profile.key),
     );
-    expect(resolveMailrithCliOAuthScopes({ profile: "email_delivery_setup" })).toEqual(
-      mailrithCliOAuthProfiles.email_delivery_setup,
+    expect(resolveMailrithCliOAuthScopes({ profile: "outbound_webhooks" })).toEqual(
+      mailrithCliOAuthProfiles.outbound_webhooks,
     );
     expect(resolveMailrithCliOAuthScopes({ profile: "reporting" })).toEqual(
       mailrithCliOAuthProfiles.reporting,
@@ -272,7 +271,7 @@ describe("Mailrith CLI", () => {
       "Bearer mailrith_test_secret",
     );
     expect(requests[0]?.headers.get("x-mailrith-client")).toBe(
-      "cli/1.1.2",
+      "cli/2.0.1",
     );
     expect(stdout.join("\n")).not.toContain("mailrith_test_secret");
     expect(JSON.parse(stdout[0] ?? "{}")).toMatchObject({
@@ -570,7 +569,6 @@ describe("Mailrith CLI", () => {
     ["invalid_landing_page", "Landing page slug must be 2-80 URL-safe characters."],
     ["invalid_segment", "Segments cannot reference themselves or create circular references."],
     ["invalid_magic_link", "Destination URL must be a valid http or https URL."],
-    ["invalid_email_delivery_connection", "From name is required."],
     ["invalid_webhook_event_patterns", "Select at least one webhook event pattern."],
     ["invalid_mappings", "Email field must be mapped to a CSV column."],
   ])("preserves safe validation guidance for %s", async (code, message) => {
@@ -593,25 +591,6 @@ describe("Mailrith CLI", () => {
       details: { help_command: "mailrith operations describe listSubscribers --json" },
     } });
     expect(stderr.join("\n")).not.toContain("do-not-print");
-  });
-
-  it.each([false, true])("explains shared-connection conflicts in JSON=%s output", async (json) => {
-    const stderr: string[] = [];
-    const exitCode = await runMailrithCli([
-      "call", "emailDeliveryConnections", "update",
-      "--path", "connection_id=connection_test", ...(json ? ["--json"] : []),
-    ], {
-      environment: { MAILRITH_API_KEY: "test_key" },
-      fetch: vi.fn(async () => Response.json({ error: {
-        code: "shared_email_delivery_connection_requires_ui",
-        message: "server-secret",
-      } }, { status: 409 })),
-      stderr: (line) => stderr.push(line),
-    });
-    expect(exitCode).toBe(mailrithCliExitCodes.conflict);
-    expect(stderr.join("\n")).toContain("Manage it in Mailrith.");
-    expect(stderr.join("\n")).toContain("shared_email_delivery_connection_requires_ui");
-    expect(stderr.join("\n")).not.toContain("server-secret");
   });
 
   it("reports every missing ID for every generated operation before requesting it", async () => {

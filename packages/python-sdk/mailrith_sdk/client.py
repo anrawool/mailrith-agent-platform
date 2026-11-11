@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import http.client
 import json
 import re
+import time
 import uuid
 from dataclasses import dataclass
 from importlib import resources
@@ -11,6 +13,10 @@ from urllib import error, parse, request
 
 TransportResponse = tuple[int, Mapping[str, str], Any]
 Transport = Callable[[str, str, Mapping[str, str], str | None], TransportResponse]
+
+
+class _UnconfirmedResponseError(RuntimeError):
+    """The server may have completed a request, but its success body was unreadable."""
 
 
 def _load_package_json(file_name: str) -> Any:
@@ -230,6 +236,19 @@ class _Operation:
     method: str
     path: str
     auth_required: bool
+    retry_mode: str
+
+
+def _is_idempotency_in_progress_response(
+    status: int, response_body: Any
+) -> bool:
+    if status != 409 or not isinstance(response_body, dict):
+        return False
+    error_payload = response_body.get("error")
+    return (
+        isinstance(error_payload, dict)
+        and error_payload.get("code") == "idempotency_key_in_progress"
+    )
 
 
 def _default_transport(
@@ -256,6 +275,8 @@ def _default_transport(
         content_type = exc.headers.get("Content-Type", "")
         parsed = json.loads(payload) if payload and "application/json" in content_type else payload or None
         return exc.code, dict(exc.headers.items()), parsed
+    except (json.JSONDecodeError, UnicodeDecodeError, http.client.IncompleteRead) as exc:
+        raise _UnconfirmedResponseError("The response body could not be read.") from exc
 
 
 def _normalize_base_url(value: str | None) -> str:
@@ -326,6 +347,7 @@ class _ResourceNamespace:
                 method=operation["method"],
                 path=operation["path"],
                 auth_required=bool(operation["auth_required"]),
+                retry_mode=operation["retry_mode"],
             )
             for operation in resource["operations"]
         }
@@ -365,11 +387,19 @@ class MailrithClient:
         api_key: str | None = None,
         transport: Transport | None = None,
         default_headers: Mapping[str, str] | None = None,
+        idempotent_retry_max_attempts: int = 3,
+        idempotent_retry_delay_seconds: float = 0.25,
     ) -> None:
         self.base_url = _normalize_base_url(base_url)
         self.api_key = api_key
         self.transport = transport or _default_transport
         self.default_headers = dict(default_headers or {})
+        self.idempotent_retry_max_attempts = max(
+            1, min(int(idempotent_retry_max_attempts), 5)
+        )
+        self.idempotent_retry_delay_seconds = max(
+            0.0, min(float(idempotent_retry_delay_seconds), 5.0)
+        )
         self.operations = _SDK_MANIFEST
 
         for resource in _SDK_MANIFEST:
@@ -381,6 +411,8 @@ class MailrithClient:
             api_key=api_key,
             transport=self.transport,
             default_headers=self.default_headers,
+            idempotent_retry_max_attempts=self.idempotent_retry_max_attempts,
+            idempotent_retry_delay_seconds=self.idempotent_retry_delay_seconds,
         )
 
     def get_operation(
@@ -607,18 +639,48 @@ class MailrithClient:
             request_headers["authorization"] = f"Bearer {resolved_api_key}"
         if idempotency_key:
             request_headers["idempotency-key"] = idempotency_key
+        elif operation.retry_mode == "idempotency-key":
+            request_headers["idempotency-key"] = f"op_{uuid.uuid4()}"
 
         serialized_body: str | None = None
         if body is not None:
             request_headers["content-type"] = "application/json"
             serialized_body = body if isinstance(body, str) else json.dumps(body)
 
-        status, response_headers, response_body = self.transport(
-            operation.method,
-            url,
-            request_headers,
-            serialized_body,
+        can_retry = operation.retry_mode == "safe" or (
+            operation.retry_mode == "idempotency-key"
+            and bool(request_headers.get("idempotency-key"))
         )
+        status = 0
+        response_headers: Mapping[str, str] = {}
+        response_body: Any = None
+        for attempt in range(1, self.idempotent_retry_max_attempts + 1):
+            try:
+                status, response_headers, response_body = self.transport(
+                    operation.method,
+                    url,
+                    request_headers,
+                    serialized_body,
+                )
+            except (
+                error.URLError,
+                TimeoutError,
+                ConnectionError,
+                _UnconfirmedResponseError,
+            ):
+                if not can_retry or attempt >= self.idempotent_retry_max_attempts:
+                    raise
+                time.sleep(self.idempotent_retry_delay_seconds * attempt)
+                continue
+
+            if (
+                can_retry
+                and attempt < self.idempotent_retry_max_attempts
+                and _is_idempotency_in_progress_response(status, response_body)
+            ):
+                time.sleep(self.idempotent_retry_delay_seconds * attempt)
+                continue
+            break
 
         if status < 200 or status >= 300:
             error_payload = (

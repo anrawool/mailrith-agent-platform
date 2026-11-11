@@ -14,6 +14,7 @@ import {
   publicApiDefaultScopeKeys,
   publicApiExamplePayloads,
   publicApiGuides,
+  publicApiIdempotencyKeyMaxBytes,
   publicApiMcpOperationContractMap,
   publicApiMcpOperationContracts,
   publicApiMcpDocsPath,
@@ -44,6 +45,7 @@ import {
   publicApiOAuthRevokePath,
   publicApiOAuthRegisterPath,
   publicApiOAuthProtectedResourcePath,
+  publicApiVersionedOAuthProtectedResourcePath,
   publicApiMcpOAuthProtectedResourcePath,
   publicApiAgentOperationRiskCatalog,
   publicApiSubmittedMcpOperationIds,
@@ -359,6 +361,21 @@ describe("@mailrith/public-api", () => {
       ],
     ).toBeDefined();
     expect(publicApiQuickstart.response).toContain('"country": null');
+    const quickstartBody = JSON.parse(
+      publicApiQuickstart.request.split("-d '")[1].split("'")[0],
+    );
+    expect(quickstartBody).toEqual({
+      email: "ada@example.com",
+      name: "Ada Lovelace",
+      status: "Unconfirmed",
+    });
+    const quickstartResponse = JSON.parse(publicApiQuickstart.response).data;
+    expect(quickstartResponse.status).toBe("Unconfirmed");
+    const requiredSubscriberFields = publicApiSpec.components.schemas.Subscriber
+      .required as string[];
+    for (const field of requiredSubscriberFields) {
+      expect(quickstartResponse).toHaveProperty(field);
+    }
     expect(
       publicApiSpec.paths["/v1/subscribers/{subscriber_id}/tags/{tag_id}"]
         ?.delete,
@@ -876,7 +893,6 @@ describe("@mailrith/public-api", () => {
         "discovery",
         "workspace",
         "senderIdentities",
-        "emailDeliveryConnections",
         "analytics",
         "diagnostics",
         "subscribers",
@@ -1241,7 +1257,6 @@ describe("@mailrith/public-api", () => {
       "broadcasts",
       "sequences",
       "automations",
-      "email_delivery_setup",
       "subscriber_import_export",
       "outbound_webhooks",
     ]);
@@ -1270,6 +1285,15 @@ describe("@mailrith/public-api", () => {
         expect(operation.headerParams, operation.operationId).toContain(
           "Idempotency-Key",
         );
+        const inputProperties = publicApiMcpOperationContractMap.get(
+          operation.operationId,
+        )?.inputSchema.properties as
+          | Record<string, { maxLength?: number }>
+          | undefined;
+        expect(
+          inputProperties?.idempotency_key,
+          operation.operationId,
+        ).toMatchObject({ maxLength: publicApiIdempotencyKeyMaxBytes });
       }
     }
 
@@ -1300,6 +1324,8 @@ describe("@mailrith/public-api", () => {
       risk: "draft",
       destructive: false,
       externalSideEffect: false,
+      retryMode: "idempotency-key",
+      idempotencyPolicy: "idempotency-key",
     });
 
     for (const operationId of [
@@ -1397,7 +1423,6 @@ describe("@mailrith/public-api", () => {
     ).toEqual([
       "workspace",
       "sender_identities",
-      "email_delivery_connections",
       "analytics",
       "diagnostics",
       "subscribers",
@@ -1672,6 +1697,19 @@ describe("@mailrith/public-api", () => {
       unsupportedScopeKeys: ["tags:configure"],
     });
     expect(
+      validatePublicApiScopeKeys([
+        "workspace:read",
+        "email_delivery_connections:read",
+        "email_delivery_connections:write",
+      ]),
+    ).toEqual({
+      ok: true,
+      value: ["workspace:read"],
+    });
+    expect(
+      validatePublicApiScopeKeys(["email_delivery_connections:read"]),
+    ).toEqual({ ok: true, value: [] });
+    expect(
       validatePublicApiScopeKeys(["forms:read", "invalid", "invalid"]),
     ).toEqual({
       ok: false,
@@ -1685,7 +1723,6 @@ describe("@mailrith/public-api", () => {
       "Broadcasts",
       "Sequences",
       "Automations",
-      "Email Delivery Setup",
       "Subscriber Import And Export",
       "Outbound Webhooks",
     ]);
@@ -1734,10 +1771,19 @@ describe("@mailrith/public-api", () => {
     const broadcasts = publicApiWorkProfiles.find(
       (profile) => profile.key === "broadcasts",
     )!;
-    expect(broadcasts.scopeKeys).toEqual(
-      expect.arrayContaining(["broadcasts:read", "broadcasts:write"]),
-    );
-    expect(broadcasts.scopeKeys).not.toContain("sequences:write");
+    expect(broadcasts.scopeKeys).toEqual([
+      "analytics:read",
+      "live_actions:write",
+      "subscribers:read",
+      "segments:read",
+      "segments:write",
+      "tags:read",
+      "broadcasts:read",
+      "broadcasts:write",
+      "workspace:read",
+      "email_templates:read",
+      "custom_fields:read",
+    ]);
     const subscriberManagement = publicApiWorkProfiles.find(
       (profile) => profile.key === "subscriber_management",
     )!;
@@ -1779,10 +1825,7 @@ describe("@mailrith/public-api", () => {
       ).toBe(true);
     }
     for (const resource of publicApiResourceContracts) {
-      if (
-        resource.archetype === "derived_view" ||
-        resource.archetype === "ephemeral_handle"
-      ) {
+      if (resource.archetype === "derived_view") {
         continue;
       }
       for (const itemPath of resource.itemPaths ?? []) {
@@ -1842,6 +1885,9 @@ describe("OAuth discovery paths", () => {
   });
 
   it("exports protected resource metadata paths for MCP OAuth discovery", () => {
+    expect(publicApiVersionedOAuthProtectedResourcePath).toBe(
+      "/.well-known/oauth-protected-resource/v1",
+    );
     expect(publicApiOAuthProtectedResourcePath).toBe(
       "/.well-known/oauth-protected-resource",
     );
