@@ -136,10 +136,6 @@ jobs:
           tar -czf "release/platform/mailrith-openai-plugin-$MARKETPLACE_SUBMISSION_VERSION.tar.gz" \
             -C packages/agent-integrations/openai \
             mailrith
-          tar -czf "release/platform/mailrith-cursor-plugin-$MARKETPLACE_SUBMISSION_VERSION.tar.gz" \
-            -C packages/agent-integrations/cursor \
-            .cursor-plugin \
-            mailrith
           tar -czf "release/platform/mailrith-claude-connector-$MARKETPLACE_SUBMISSION_VERSION.tar.gz" \
             -C packages/agent-integrations \
             claude \
@@ -148,9 +144,6 @@ jobs:
             PRIVACY.md \
             SUBMISSION.md \
             submitted-profile.json
-          tar -czf "release/platform/mailrith-claude-copilot-plugin-$MARKETPLACE_SUBMISSION_VERSION.tar.gz" \
-            -C packages/agent-integrations/claude \
-            mailrith
           tar -czf "release/platform/mailrith-gemini-cli-extension-$MARKETPLACE_SUBMISSION_VERSION.tar.gz" \
             gemini-extension.json \
             GEMINI.md \

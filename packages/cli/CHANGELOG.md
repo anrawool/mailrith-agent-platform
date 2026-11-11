@@ -1,6 +1,19 @@
 # Changelog
 
-## 1.1.2 - Unreleased
+## Unreleased
+
+## 2.0.1 - 2026-11-04
+
+- Release alongside the MCP server security patch. No CLI changes.
+
+## 2.0.0 - 2026-11-04
+
+- **Breaking:** removes Email Delivery Connections. The hosted API has already
+  retired them, so the removed calls were failing before this release.
+- Remove the email delivery connection commands and their error advice. Sender
+  errors now point to the workspace sender and Sending Domain settings.
+
+## 1.1.2 - 2026-09-04
 
 - Explain missing, invalid, inaccessible or unreadable request files through
   the shared body reader for every command. Keep private paths and partial

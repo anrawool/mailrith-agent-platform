@@ -92,9 +92,9 @@ The package also preserves two explicit compatibility profiles:
 - `custom` exposes generated focused tools with caller-selected Work Profile,
   permission, and read-only filters.
 
-Use these profiles only for local or purpose-built clients. Public ChatGPT,
-Codex, Claude, and Cursor packages use the fixed `submitted` profile at the
-single `/mcp` endpoint.
+Use these profiles only for local or purpose-built clients. The public ChatGPT/Codex plugin
+and the Claude Connector use the fixed `submitted` profile at the single `/mcp`
+endpoint.
 
 ## Official Builds And Forks
 

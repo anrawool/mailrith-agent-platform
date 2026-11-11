@@ -29,7 +29,6 @@ const supportedClients = [
   "claude_connector",
   "claude",
   "codex",
-  "cursor",
   "n8n",
   "pipedream",
 ] as const;
@@ -79,11 +78,6 @@ const connectorFilesByClient: Record<SupportedClient, string[]> = {
   ],
   claude: ["packages/agent-skill/connectors/claude-messages.json"],
   codex: ["packages/agent-skill/connectors/codex-config.toml"],
-  cursor: [
-    "packages/agent-integrations/cursor/mailrith/.cursor-plugin/plugin.json",
-    "packages/agent-integrations/cursor/mailrith/mcp.json",
-    "packages/agent-integrations/cursor/mailrith/mailrith-mcp-contract.json",
-  ],
   n8n: [
     "packages/agent-skill/connectors/n8n-read-capabilities.workflow.json",
   ],
@@ -98,7 +92,6 @@ const connectorEndpointFileByClient: Record<SupportedClient, string> = {
     "packages/agent-integrations/claude/connector-listing.json",
   claude: "packages/agent-skill/connectors/claude-messages.json",
   codex: "packages/agent-skill/connectors/codex-config.toml",
-  cursor: "packages/agent-integrations/cursor/mailrith/mcp.json",
   n8n: "packages/agent-skill/connectors/n8n-read-capabilities.workflow.json",
   pipedream:
     "packages/agent-skill/connectors/pipedream-read-capabilities.mjs",
@@ -109,7 +102,6 @@ const conformanceStepNameByClient: Record<SupportedClient, string> = {
   claude_connector: "claude_connector",
   claude: "claude_messages_template",
   codex: "codex_template",
-  cursor: "cursor_plugin",
   n8n: "n8n_template",
   pipedream: "pipedream_template",
 };
@@ -213,11 +205,6 @@ const hasSafeConnectorDefault = (
     case "chatgpt":
       return (
         source.includes('"mcpServers": "./.mcp.json"') &&
-        hasSubmittedTools
-      );
-    case "cursor":
-      return (
-        source.includes('"mcpServers": "./mcp.json"') &&
         hasSubmittedTools
       );
     case "claude_connector":
