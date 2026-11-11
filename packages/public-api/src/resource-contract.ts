@@ -16,7 +16,6 @@ export type PublicApiResourceArchetype =
   | "supporting_catalog"
   | "nested_record"
   | "durable_job"
-  | "ephemeral_handle"
   | "derived_view";
 
 export type PublicApiResourceContract = {
@@ -200,20 +199,6 @@ const publicApiScopeDefinitionCatalog = [
     "write",
     "Manage Automations",
     "Create, change, test, start, pause, return to draft, and delete Automations.",
-  ),
-  scope(
-    "email_delivery_connections:read",
-    "email_delivery_connections",
-    "read",
-    "View Email Delivery Connections",
-    "View connection names, providers, sender identities, readiness, and secret-free configuration.",
-  ),
-  scope(
-    "email_delivery_connections:write",
-    "email_delivery_connections",
-    "write",
-    "Manage Email Delivery Connections",
-    "Create, change, verify, test, enable, disable, and delete connections. Saved credentials are never returned.",
   ),
   scope(
     "email_templates:read",
@@ -427,31 +412,6 @@ export const publicApiResourceContracts = [
     exactNaturalKeys: [],
   }),
   resourceContract({
-    key: "email_delivery_connections",
-    name: "Email Delivery Connections",
-    description: "Secret-safe email provider connections.",
-    archetype: "primary_collection",
-    collectionPaths: ["/v1/email-delivery-connections"],
-    itemPaths: ["/v1/email-delivery-connections/{connection_id}"],
-    exactNaturalKeys: [],
-    scopeKeys: [
-      "email_delivery_connections:read",
-      "email_delivery_connections:write",
-    ],
-  }),
-  resourceContract({
-    key: "email_delivery_connection_setup_sessions",
-    name: "Email Delivery Connection Setup Sessions",
-    description: "Short-lived browser handoffs for connection setup.",
-    archetype: "ephemeral_handle",
-    collectionPaths: ["/v1/email-delivery-connection-setup-sessions"],
-    itemPaths: [
-      "/v1/email-delivery-connection-setup-sessions/{setup_session_id}",
-      "/v1/email-delivery-connection-setup-sessions/{setup_session_id}/renew",
-    ],
-    exactNaturalKeys: [],
-  }),
-  resourceContract({
     key: "starting_points",
     name: "Starting Points",
     description:
@@ -573,10 +533,6 @@ export const publicApiScopeDisplaySections = [
     label: "Account",
     resources: [
       { label: "Workspaces", resourceKeys: ["workspace"] },
-      {
-        label: "Email Delivery Connections",
-        resourceKeys: ["email_delivery_connections"],
-      },
       { label: "Email Templates", resourceKeys: ["email_templates"] },
       { label: "Custom Fields", resourceKeys: ["custom_fields"] },
       { label: "Integrations", resourceKeys: ["webhooks"] },
@@ -623,7 +579,6 @@ export type PublicApiWorkProfileKey =
   | "broadcasts"
   | "sequences"
   | "automations"
-  | "email_delivery_setup"
   | "subscriber_import_export"
   | "outbound_webhooks";
 
@@ -727,7 +682,6 @@ export const publicApiWorkProfiles = [
       "tags:read",
       "broadcasts:read",
       "broadcasts:write",
-      "email_delivery_connections:read",
       "email_templates:read",
       "custom_fields:read",
     ],
@@ -745,7 +699,6 @@ export const publicApiWorkProfiles = [
       "tags:read",
       "sequences:read",
       "sequences:write",
-      "email_delivery_connections:read",
       "email_templates:read",
       "custom_fields:read",
     ],
@@ -762,20 +715,8 @@ export const publicApiWorkProfiles = [
       "tags:read",
       "automations:read",
       "automations:write",
-      "email_delivery_connections:read",
       "email_templates:read",
       "custom_fields:read",
-    ],
-  ),
-  workProfile(
-    "email_delivery_setup",
-    "Email Delivery Setup",
-    "View and manage email delivery connections without exposing saved provider credentials.",
-    [
-      "workspace:read",
-      "live_actions:write",
-      "email_delivery_connections:read",
-      "email_delivery_connections:write",
     ],
   ),
   workProfile(
@@ -826,7 +767,7 @@ export const publicApiWorkProfileDisplaySections = [
   {
     key: "connections",
     label: "Connections",
-    profileKeys: ["email_delivery_setup", "outbound_webhooks"],
+    profileKeys: ["outbound_webhooks"],
   },
 ] as const satisfies readonly {
   key: string;
@@ -864,12 +805,21 @@ export const normalizePublicApiScopeKeys = (
   return publicApiScopeKeys.filter((scopeKey) => selected.has(scopeKey));
 };
 
+/** Removed scope names that clients with a fixed scope list may still send.
+ * They are dropped rather than rejected so those clients keep connecting. */
+const publicApiRetiredScopeKeys: ReadonlySet<string> = new Set([
+  "email_delivery_connections:read",
+  "email_delivery_connections:write",
+]);
+
 export const validatePublicApiScopeKeys = (
   scopeKeys: Iterable<string>,
 ):
   | { ok: true; value: PublicApiScopeKey[] }
   | { ok: false; unsupportedScopeKeys: string[] } => {
-  const requestedScopeKeys = Array.from(scopeKeys);
+  const requestedScopeKeys = Array.from(scopeKeys).filter(
+    (scopeKey) => !publicApiRetiredScopeKeys.has(scopeKey),
+  );
   const unsupportedScopeKeys = Array.from(
     new Set(
       requestedScopeKeys.filter((scopeKey) => !isPublicApiScopeKey(scopeKey)),
@@ -887,9 +837,6 @@ export const validatePublicApiScopeKeys = (
 const explicitOperationScopes = {
   listSenderIdentities: ["workspace:read"],
   getSenderIdentity: ["workspace:read"],
-  startEmailDeliveryConnectionSetup: ["email_delivery_connections:write"],
-  getEmailDeliveryConnectionSetup: ["email_delivery_connections:write"],
-  renewEmailDeliveryConnectionSetup: ["email_delivery_connections:write"],
   listEmailStartingPoints: ["email_templates:read"],
   getEmailStartingPoint: ["email_templates:read"],
   listFormStartingPoints: ["forms:read"],

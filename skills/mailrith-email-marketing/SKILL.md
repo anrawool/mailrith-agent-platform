@@ -1,6 +1,6 @@
 ---
 name: mailrith-email-marketing
-description: Plan and run safe Mailrith email marketing workflows through the Mailrith MCP server or CLI. Use for Mailrith email delivery setup, Subscriber sync, content, targeting, capture, Broadcast preparation and sending, Sequence operations, Automation changes, Webhooks, data transfer, progress checks, result verification, permission diagnosis, and retry decisions.
+description: Plan and run safe Mailrith email marketing workflows through the Mailrith MCP server or CLI. Use for Mailrith Subscriber sync, content, targeting, capture, Broadcast preparation and sending, Sequence operations, Automation changes, Webhooks, data transfer, progress checks, result verification, permission diagnosis, and retry decisions.
 ---
 
 # Mailrith Email Marketing
@@ -33,6 +33,7 @@ For an MCP connection, call `discovery_get_capabilities` first. If the client as
 - Treat API key and OAuth scopes as the authorization boundary. Do not attempt operations outside the granted scopes.
 - Treat a resource write permission as authority to change that resource. Operations that send, activate or change running workflows, change Subscriber delivery or targeting, publish capture surfaces, or configure outbound event delivery also require Perform Live Actions.
 - Stop when resource state conflicts with the requested change or Mailrith returns an uncertain outcome.
+- If sending is not ready, tell the user that the workspace owner checks Sending Domain in Workspace settings (Workspaces > Edit Workspace > Sending Domain). Never ask for provider credentials.
 - Use idempotency keys exactly as documented and reuse one only for the same canonical input.
 
 ## Keep Data Bounded

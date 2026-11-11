@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+- Retire the Claude Code community plugin, the GitHub Copilot CLI plugin, and
+  the Cursor plugin. Their package folders, marketplace files, and release
+  archives are removed and will no longer be maintained. The Claude Connector,
+  ChatGPT and Codex plugin, Gemini CLI extension, Microsoft package, and Cline
+  listing are unchanged.
+
+## 2.0.0 - 2026-11-04
+
+- **Breaking:** removes Email Delivery Connections. The hosted API has already
+  retired them, so the removed calls were failing before this release.
+- Remove Email Delivery Setup from the OpenAI, Claude, Cursor, Gemini and
+  GitHub Copilot skill copies. The 55-tool submitted profile is unchanged.
+- Fix Microsoft's listing text in the source. The submission under review still
+  mentions delivery connections, and the update goes in after that review ends.
+
 ## 1.1.1 - 2026-08-27
 
 - Include the official Mailrith trademark and unofficial-fork policy in every

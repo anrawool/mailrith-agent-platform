@@ -1,7 +1,7 @@
 # Mailrith Claude Connector
 
 The Mailrith Connector uses the same official remote MCP server as ChatGPT,
-Codex, Cursor, and other supported clients:
+Codex, Gemini CLI, and other supported clients:
 
 `https://api.mailrith.com/mcp`
 
@@ -17,5 +17,5 @@ Codex, Cursor, and other supported clients:
    select **Allow Access**.
 
 The same connection is intended for Claude web, Desktop, mobile, and supported
-Claude Code remote-MCP use. Installing an extra Claude companion plugin is not
-required.
+Claude Code remote-MCP use. Mailrith does not publish a separate Claude Code
+plugin.

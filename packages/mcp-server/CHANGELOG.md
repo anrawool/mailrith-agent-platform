@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 2.0.1 - 2026-11-04
+
+- Move to `@modelcontextprotocol/sdk` `1.32.2` and `zod` `4.6.7` to pick up security
+  fixes. `npm audit` no longer reports them.
+
+## 2.0.0 - 2026-11-04
+
+- **Breaking:** removes Email Delivery Connections. The hosted API has already
+  retired them, so the removed calls were failing before this release.
+- Remove the Email Delivery Setup toolset and the email delivery connection
+  scopes from the generated catalog.
+
 ## 1.1.1 - 2026-08-27
 
 - Require every self-hosted HTTP request to provide its own bearer credential;
