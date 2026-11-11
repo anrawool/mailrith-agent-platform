@@ -159,7 +159,7 @@ describe("agent release workflow", () => {
   });
 
   it("preserves registry provenance and trusted publishing", () => {
-    expect(workflow).toMatch(/uses: actions\/setup-node@[0-9a-f]{40} # v6/);
+    expect(workflow).toMatch(/uses: actions\/setup-node@[0-9a-f]{40} # v7/);
     expect(workflow).toContain('NPM_CONFIG_PROVENANCE: "true"');
     expect(workflow).toContain(
       'npm publish "$archive" --access public --provenance --tag latest',
