@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 2.1.0 - 2026-11-16
+
+- Regenerate the tool manifest from public-api 2.1.0: `subscribers_upsert` and `subscribers_update_status` accept `reactivate`, and `consent_evidence` is optional.
+
 ## 2.0.1 - 2026-11-04
 
 - Move to `@modelcontextprotocol/sdk` `1.32.2` and `zod` `4.6.7` to pick up security

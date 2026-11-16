@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 2.1.0 - 2026-11-16
+
+- Add an optional `reactivate` flag to Subscriber create, upsert and status updates. Making an Unsubscribed, Complained, Bounced, or Blocked Subscriber Active again needs `reactivate: true`; without it the API returns 409.
+- `consent_evidence` is now optional when a request makes a Subscriber Active.
+- Document the 409 response for status changes and clarify the Automation step sender (`connectionId`) and `subscribers_update` field scope.
+
 ## 2.0.1 - 2026-11-04
 
 - Release alongside the MCP server security patch. No contract changes.

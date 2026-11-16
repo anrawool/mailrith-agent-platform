@@ -6,11 +6,13 @@ Broadcasts, and manage Sequences, Automations, targeting, and email Templates.
 
 ## Before You Connect
 
-You need a Mailrith account, access to the workspace you want to connect, and
-an active trial or paid Mailrith subscription for that workspace. New workspace
-owners must choose a plan and enter credit-card details during checkout before
-using Mailrith. Invited team members use the workspace owner's subscription and
-need permission to connect integrations.
+You need a Mailrith account and access to the workspace you want to connect.
+After sign-up, new account owners choose how to start: on the Free plan at no
+cost, or with a trial of Solo, Pro, or Agency. The Pricing page shows the
+current trial length and whether a credit card is required. On the Free plan,
+Sequences, Automations, Email Templates, and Custom Fields tools are not
+available. Invited team members use the workspace owner's plan and need
+permission to connect integrations.
 
 Your Mailrith role and the permissions you approve control what the agent can
 read or change. Mailrith sends the email, and sending may need the workspace

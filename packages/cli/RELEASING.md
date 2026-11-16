@@ -1,6 +1,6 @@
 # Releasing The CLI
 
-The CLI normally shares the coordinated package version, currently `2.0.0`. An
+The CLI normally shares the coordinated package version, currently `2.1.0`. An
 independent CLI patch can be released on its own, as `1.1.2` was on September 4,
 2026.
 

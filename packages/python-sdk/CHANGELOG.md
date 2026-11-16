@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 2.1.0 - 2026-11-16
+
+- Regenerate the operation manifest from public-api 2.1.0: operation descriptions now cover the `reactivate` flag and optional `consent_evidence`.
+
 ## 2.0.0 - 2026-11-04
 
 - **Breaking:** removes Email Delivery Connections. The hosted API has already

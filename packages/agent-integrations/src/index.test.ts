@@ -144,7 +144,7 @@ describe("Mailrith Agent Integration Packages", () => {
     const openAiMcp = await readJson<{
       mcpServers: Record<
         string,
-        { type: string; url: string; oauth_resource: string }
+        { type: string; url: string }
       >;
     }>(
       path.join(integrationsRoot, "openai", "mailrith", ".mcp.json"),
@@ -165,7 +165,6 @@ describe("Mailrith Agent Integration Packages", () => {
     expect(openAiMcp.mcpServers.mailrith).toEqual({
       type: "http",
       url: submitted.mcp_server_url,
-      oauth_resource: submitted.mcp_server_url,
     });
     expect(gemini.mcpServers.mailrith).toEqual({
       url: submitted.mcp_server_url,
@@ -183,6 +182,8 @@ describe("Mailrith Agent Integration Packages", () => {
       mcpServers: string;
       interface: {
         defaultPrompt: string[];
+        supportURL: string;
+        category: string;
         privacyPolicyURL: string;
         termsOfServiceURL: string;
         composerIcon: string;
@@ -198,6 +199,14 @@ describe("Mailrith Agent Integration Packages", () => {
       mcpServers: "./.mcp.json",
     });
     expect(openAi.interface.defaultPrompt).toHaveLength(3);
+    // The OpenAI plugin portal rejects a missing support URL and categories
+    // outside its own list.
+    expect(openAi.interface.supportURL).toMatch(/^https:\/\//);
+    expect(openAi.interface.category).toBe("Business & Operations");
+    const portal = await readJson<{ package_name: string }>(
+      path.join(integrationsRoot, "openai", "portal.json"),
+    );
+    expect(portal.package_name).toMatch(/^app-[0-9a-f]{32}$/);
     expect(openAi.interface.privacyPolicyURL).toMatch(/^https:\/\//);
     expect(openAi.interface.termsOfServiceURL).toMatch(/^https:\/\//);
     for (const relativePath of [
@@ -407,8 +416,8 @@ describe("Mailrith Agent Integration Packages", () => {
     expect(listing.trim()).toBe(manifest.description.full);
     for (const source of [manifest.description.full, intro]) {
       for (const required of [
-        "active trial or paid Mailrith subscription",
-        "credit-card details",
+        "Free plan",
+        "whether a credit card is required",
         "one Mailrith workspace",
         "Billing, team administration, account security, and delivery credentials",
         "https://app.mailrith.com/signup",

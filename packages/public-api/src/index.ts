@@ -2180,6 +2180,11 @@ const schemas = {
           "Custom field values keyed by custom field ID. For Multi Select fields, send an array of option names or a comma-separated string. Blank optional values leave saved values unchanged when updating an existing subscriber, and filled-in invalid values are rejected.",
       },
       consent_evidence: { $ref: "#/components/schemas/ConsentEvidence" },
+      reactivate: {
+        type: "boolean",
+        description:
+          "Send true to make an Unsubscribed, Complained, Bounced, or Blocked Subscriber Active again, and only when they knowingly asked to receive your emails again. Without it, that change returns a 409 conflict. A Subscriber who objected to or restricted processing through a privacy request can only be made Active after that request's privacy block is lifted in the app.",
+      },
     },
     example: {
       email: "ada@example.com",
@@ -2233,12 +2238,17 @@ const schemas = {
         ],
       },
       consent_evidence: { $ref: "#/components/schemas/ConsentEvidence" },
+      reactivate: {
+        type: "boolean",
+        description:
+          "Send true to make an Unsubscribed, Complained, Bounced, or Blocked Subscriber Active again, and only when they knowingly asked to receive your emails again. Without it, that change returns a 409 conflict. A Subscriber who objected to or restricted processing through a privacy request can only be made Active after that request's privacy block is lifted in the app.",
+      },
     },
   },
   ConsentEvidence: {
     type: "object",
     description:
-      "Compact evidence required when the public API makes a Subscriber Active. Keep raw consent text, IP addresses, and user-agent data in your evidence system; Mailrith stores only this version, reference, URL, and optional SHA-256 digest.",
+      "Optional compact consent evidence. Send it when you have it; Mailrith stores it when the request makes the Subscriber Active. Keep raw consent text, IP addresses, and user-agent data in your evidence system; Mailrith stores only this version, reference, URL, and optional SHA-256 digest.",
     required: ["lawful_basis", "collected_at", "evidence_reference"],
     additionalProperties: false,
     properties: {
@@ -3849,7 +3859,11 @@ const schemas = {
     type: "object",
     additionalProperties: false,
     properties: {
-      connectionId: { type: "string" },
+      connectionId: {
+        type: "string",
+        description:
+          "Send Email and internal notification steps only. The id of a sender from sender_identities_list in this workspace. Empty keeps the step's current sender, or uses the workspace's first available sender for a new step.",
+      },
       tagId: { type: "string" },
       sequenceId: { type: "string" },
       magicLinkId: { type: "string" },
@@ -8317,7 +8331,7 @@ export const publicApiSpec: PublicApiSpec = {
         path: "/v1/subscribers",
         summary: "Create or upsert a subscriber",
         description:
-          "Creates a new subscriber when the email does not exist in the workspace. If the email already exists, the API updates the existing subscriber unless create_only is true.",
+          "Creates a new subscriber when the email does not exist in the workspace. New subscribers are Active unless you send another status. If the email already exists, the API updates the existing subscriber unless create_only is true. Making an existing Unsubscribed, Complained, Bounced, or Blocked subscriber Active again needs reactivate: true.",
         tags: ["Subscribers"],
         operationId: "upsertSubscriber",
         security,
@@ -8431,7 +8445,7 @@ export const publicApiSpec: PublicApiSpec = {
         path: "/v1/subscribers/{subscriber_id}",
         summary: "Update a subscriber",
         description:
-          "Updates profile fields, status, custom fields, tags, or sequence assignments for one subscriber. Fields omitted from the request stay unchanged. Blank optional custom field values also leave saved values unchanged, and filled-in invalid values are rejected.",
+          "Updates profile fields (email, name, subscribed date, and country) and custom field values for one subscriber. To change status, tags, or sequences, use subscribers_update_status, subscribers_add_tag, subscribers_remove_tag, subscribers_add_to_sequence, or subscribers_remove_from_sequence instead. Fields omitted from the request stay unchanged. Blank optional custom field values also leave saved values unchanged, and filled-in invalid values are rejected.",
         tags: ["Subscribers"],
         operationId: "updateSubscriber",
         security,
@@ -8534,7 +8548,7 @@ export const publicApiSpec: PublicApiSpec = {
         path: "/v1/subscribers/{subscriber_id}/status",
         summary: "Change Subscriber sending eligibility",
         description:
-          "Changes the delivery status for one Subscriber without changing profile, targeting, or Sequence enrollment fields. Making a Subscriber Active requires consent_evidence; its collected_at value must include the correct UTC offset and must not be later than Mailrith's server time.",
+          "Changes the delivery status for one Subscriber without changing profile, targeting, or Sequence enrollment fields. Making an Unsubscribed, Complained, Bounced, or Blocked Subscriber Active again needs reactivate: true. The consent_evidence object is optional; when it is sent, its collected_at value must include the correct UTC offset and must not be later than Mailrith's server time.",
         tags: ["Subscribers"],
         operationId: "updateSubscriberStatus",
         security,
@@ -8567,6 +8581,15 @@ export const publicApiSpec: PublicApiSpec = {
           },
           "404": {
             description: "Subscriber not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "409": {
+            description:
+              "Reactivation needs reactivate: true, or the Subscriber has a privacy block that must be lifted first",
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },

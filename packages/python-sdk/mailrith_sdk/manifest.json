@@ -708,7 +708,7 @@
         "method": "POST",
         "path": "/v1/subscribers",
         "summary": "Create or upsert a subscriber",
-        "description": "Creates a new subscriber when the email does not exist in the workspace. If the email already exists, the API updates the existing subscriber unless create_only is true.",
+        "description": "Creates a new subscriber when the email does not exist in the workspace. New subscribers are Active unless you send another status. If the email already exists, the API updates the existing subscriber unless create_only is true. Making an existing Unsubscribed, Complained, Bounced, or Blocked subscriber Active again needs reactivate: true.",
         "auth_required": true,
         "required_scopes": [
           "live_actions:write",
@@ -749,7 +749,7 @@
         "method": "PATCH",
         "path": "/v1/subscribers/{subscriber_id}",
         "summary": "Update a subscriber",
-        "description": "Updates profile fields, status, custom fields, tags, or sequence assignments for one subscriber. Fields omitted from the request stay unchanged. Blank optional custom field values also leave saved values unchanged, and filled-in invalid values are rejected.",
+        "description": "Updates profile fields (email, name, subscribed date, and country) and custom field values for one subscriber. To change status, tags, or sequences, use subscribers_update_status, subscribers_add_tag, subscribers_remove_tag, subscribers_add_to_sequence, or subscribers_remove_from_sequence instead. Fields omitted from the request stay unchanged. Blank optional custom field values also leave saved values unchanged, and filled-in invalid values are rejected.",
         "auth_required": true,
         "required_scopes": [
           "subscribers:write"
@@ -829,7 +829,7 @@
         "method": "PUT",
         "path": "/v1/subscribers/{subscriber_id}/status",
         "summary": "Change Subscriber sending eligibility",
-        "description": "Changes the delivery status for one Subscriber without changing profile, targeting, or Sequence enrollment fields. Making a Subscriber Active requires consent_evidence; its collected_at value must include the correct UTC offset and must not be later than Mailrith's server time.",
+        "description": "Changes the delivery status for one Subscriber without changing profile, targeting, or Sequence enrollment fields. Making an Unsubscribed, Complained, Bounced, or Blocked Subscriber Active again needs reactivate: true. The consent_evidence object is optional; when it is sent, its collected_at value must include the correct UTC offset and must not be later than Mailrith's server time.",
         "auth_required": true,
         "required_scopes": [
           "live_actions:write",

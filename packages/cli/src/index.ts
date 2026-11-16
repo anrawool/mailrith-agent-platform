@@ -30,7 +30,7 @@ import {
   writeMailrithCliConfig,
 } from "./config.js";
 
-export const mailrithCliVersion = "2.0.1";
+export const mailrithCliVersion = "2.1.0";
 export const mailrithCliDefaultOAuthProfile = mailrithDefaultWorkProfileKey;
 export const mailrithCliOAuthProfiles = Object.fromEntries(
   mailrithWorkProfiles.map((profile) => [profile.key, profile.scopeKeys]),

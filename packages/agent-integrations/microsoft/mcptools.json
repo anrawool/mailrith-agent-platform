@@ -3771,6 +3771,10 @@
               },
               "consent_evidence": {
                 "$ref": "#/$defs/ConsentEvidence"
+              },
+              "reactivate": {
+                "type": "boolean",
+                "description": "Send true to make an Unsubscribed, Complained, Bounced, or Blocked Subscriber Active again, and only when they knowingly asked to receive your emails again. Without it, that change returns a 409 conflict. A Subscriber who objected to or restricted processing through a privacy request can only be made Active after that request's privacy block is lifted in the app."
               }
             },
             "example": {
@@ -3796,7 +3800,7 @@
           },
           "ConsentEvidence": {
             "type": "object",
-            "description": "Compact evidence required when the public API makes a Subscriber Active. Keep raw consent text, IP addresses, and user-agent data in your evidence system; Mailrith stores only this version, reference, URL, and optional SHA-256 digest.",
+            "description": "Optional compact consent evidence. Send it when you have it; Mailrith stores it when the request makes the Subscriber Active. Keep raw consent text, IP addresses, and user-agent data in your evidence system; Mailrith stores only this version, reference, URL, and optional SHA-256 digest.",
             "required": [
               "lawful_basis",
               "collected_at",
@@ -4767,12 +4771,16 @@
               },
               "consent_evidence": {
                 "$ref": "#/$defs/ConsentEvidence"
+              },
+              "reactivate": {
+                "type": "boolean",
+                "description": "Send true to make an Unsubscribed, Complained, Bounced, or Blocked Subscriber Active again, and only when they knowingly asked to receive your emails again. Without it, that change returns a 409 conflict. A Subscriber who objected to or restricted processing through a privacy request can only be made Active after that request's privacy block is lifted in the app."
               }
             }
           },
           "ConsentEvidence": {
             "type": "object",
-            "description": "Compact evidence required when the public API makes a Subscriber Active. Keep raw consent text, IP addresses, and user-agent data in your evidence system; Mailrith stores only this version, reference, URL, and optional SHA-256 digest.",
+            "description": "Optional compact consent evidence. Send it when you have it; Mailrith stores it when the request makes the Subscriber Active. Keep raw consent text, IP addresses, and user-agent data in your evidence system; Mailrith stores only this version, reference, URL, and optional SHA-256 digest.",
             "required": [
               "lawful_basis",
               "collected_at",
@@ -29295,7 +29303,8 @@
             "additionalProperties": false,
             "properties": {
               "connectionId": {
-                "type": "string"
+                "type": "string",
+                "description": "Send Email and internal notification steps only. The id of a sender from sender_identities_list in this workspace. Empty keeps the step's current sender, or uses the workspace's first available sender for a new step."
               },
               "tagId": {
                 "type": "string"
@@ -30568,7 +30577,8 @@
             "additionalProperties": false,
             "properties": {
               "connectionId": {
-                "type": "string"
+                "type": "string",
+                "description": "Send Email and internal notification steps only. The id of a sender from sender_identities_list in this workspace. Empty keeps the step's current sender, or uses the workspace's first available sender for a new step."
               },
               "tagId": {
                 "type": "string"
@@ -31857,7 +31867,8 @@
             "additionalProperties": false,
             "properties": {
               "connectionId": {
-                "type": "string"
+                "type": "string",
+                "description": "Send Email and internal notification steps only. The id of a sender from sender_identities_list in this workspace. Empty keeps the step's current sender, or uses the workspace's first available sender for a new step."
               },
               "tagId": {
                 "type": "string"
@@ -32843,7 +32854,8 @@
             "additionalProperties": false,
             "properties": {
               "connectionId": {
-                "type": "string"
+                "type": "string",
+                "description": "Send Email and internal notification steps only. The id of a sender from sender_identities_list in this workspace. Empty keeps the step's current sender, or uses the workspace's first available sender for a new step."
               },
               "tagId": {
                 "type": "string"
@@ -34116,7 +34128,8 @@
             "additionalProperties": false,
             "properties": {
               "connectionId": {
-                "type": "string"
+                "type": "string",
+                "description": "Send Email and internal notification steps only. The id of a sender from sender_identities_list in this workspace. Empty keeps the step's current sender, or uses the workspace's first available sender for a new step."
               },
               "tagId": {
                 "type": "string"
@@ -36604,7 +36617,8 @@
             "additionalProperties": false,
             "properties": {
               "connectionId": {
-                "type": "string"
+                "type": "string",
+                "description": "Send Email and internal notification steps only. The id of a sender from sender_identities_list in this workspace. Empty keeps the step's current sender, or uses the workspace's first available sender for a new step."
               },
               "tagId": {
                 "type": "string"

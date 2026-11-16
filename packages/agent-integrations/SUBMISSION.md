@@ -26,7 +26,12 @@ required identity, legal, privacy, and data-handling statements.
 3. In **Roles**, confirm the submitter has **Apps Management: Write**. An
    organization owner already has this permission.
 4. Open the **Plugin Submission** portal and create one Mailrith draft.
-5. Package `openai/mailrith` from the exact reviewed commit.
+5. Upload `mailrith-openai-plugin-<version>.zip` from the release artifacts of
+   the exact reviewed commit. `scripts/package-openai-plugin.py` builds it with
+   the files at the ZIP root and the manifest name set to the OpenAI app id in
+   `openai/portal.json`, which the portal requires for a new version of the
+   existing app. Keep `.mcp.json` free of auth settings (`oauth_resource`,
+   `auth`); the portal reuses the existing app's OAuth and rejects overrides.
 6. Import `chatgpt-app-submission.json` and enter the public MCP URL,
    `https://api.mailrith.com/mcp`.
 7. When the portal displays a domain-verification token, set it on the
@@ -134,7 +139,7 @@ Partner Center fields.
 
 1. Give a clean Cline profile only `packages/mcp-server/README.md` and
    `packages/mcp-server/llms-install.md`.
-2. After publishing, confirm Cline installs `@mailrith/mcp-server@2.0.1`
+2. After publishing, confirm Cline installs `@mailrith/mcp-server@2.1.0`
    without cloning or building the monorepo.
 3. Use a synthetic workspace API key and run only
    `discovery_get_capabilities`. Keep `autoApprove` empty.
