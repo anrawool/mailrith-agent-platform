@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 2.1.0 - 2026-11-16
+
+- Regenerate from public-api 2.1.0.
+- Plan-limit errors now name the Solo, Pro, and Agency plans and the Free plan start option.
+
 ## 2.0.1 - 2026-11-04
 
 - Release alongside the MCP server security patch. No CLI changes.

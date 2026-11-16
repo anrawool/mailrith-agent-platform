@@ -3,8 +3,8 @@
   "profile": "submitted",
   "contract_version": "1.0",
   "source_contract_version": "v1",
-  "source_schema_digest": "sha256:59ecc1d2ca7da2151a7d9275e9144d26c54c5ff1fe3cc91b734daf4a42e80631",
-  "submitted_schema_digest": "sha256:d64c63049e5820ea4cdb07d1348d549a78b90eee212221b5ba28cd882adf4d9a",
+  "source_schema_digest": "sha256:0d87c7206897646110d26c68b2537cb1e3f629c4b3bb1035056467e2dc2b499c",
+  "submitted_schema_digest": "sha256:39869d076039bb88cb2dfae25b716bba6a79531ba0d7149315b6dc4732811594",
   "mcp_server_url": "https://api.mailrith.com/mcp",
   "tool_count": 55,
   "tools": [

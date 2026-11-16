@@ -6,6 +6,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -81,6 +82,59 @@ describe("agent release workflow", () => {
     }
   });
 
+  it("packs an OpenAI portal ZIP with root files and the app id name", () => {
+    const root = mkdtempSync(join(tmpdir(), "mailrith-openai-zip-"));
+    try {
+      const output = join(root, "plugin.zip");
+      const packed = spawnSync(
+        "python3",
+        ["scripts/package-openai-plugin.py", output],
+        { cwd: process.cwd(), encoding: "utf8" },
+      );
+      expect(packed.status, packed.stderr).toBe(0);
+      const inspected = spawnSync(
+        "python3",
+        [
+          "-c",
+          [
+            "import json, sys, zipfile",
+            "z = zipfile.ZipFile(sys.argv[1])",
+            "names = z.namelist()",
+            "manifest = json.loads(z.read('.codex-plugin/plugin.json'))",
+            "mcp = json.loads(z.read('.mcp.json'))",
+            "print(json.dumps({'names': names, 'name': manifest['name'], 'mcp': mcp}))",
+          ].join("\n"),
+          output,
+        ],
+        { encoding: "utf8" },
+      );
+      expect(inspected.status, inspected.stderr).toBe(0);
+      const result = JSON.parse(inspected.stdout) as {
+        names: string[];
+        name: string;
+        mcp: { mcpServers: Record<string, Record<string, unknown>> };
+      };
+      const portal = JSON.parse(
+        readFileSync(
+          join(process.cwd(), "packages/agent-integrations/openai/portal.json"),
+          "utf8",
+        ),
+      ) as { package_name: string };
+      expect(result.name).toBe(portal.package_name);
+      expect(result.names).toContain(".mcp.json");
+      expect(result.names).toContain("skills/mailrith-email-marketing/SKILL.md");
+      expect(result.names.some((name) => name.startsWith("mailrith/"))).toBe(
+        false,
+      );
+      for (const server of Object.values(result.mcp.mcpServers)) {
+        expect(server).not.toHaveProperty("oauth_resource");
+        expect(server).not.toHaveProperty("auth");
+      }
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("keeps non-publishing preparation usable for private repositories", () => {
     expect(workflow).toContain(
       "if: github.event.repository.visibility == 'public'",
@@ -104,6 +158,12 @@ describe("agent release workflow", () => {
     expect(workflow).toContain("release/platform");
     expect(workflow).toContain(
       "mailrith-openai-plugin-$MARKETPLACE_SUBMISSION_VERSION.tar.gz",
+    );
+    expect(workflow).toContain(
+      "python scripts/package-openai-plugin.py",
+    );
+    expect(workflow).toContain(
+      "mailrith-openai-plugin-$MARKETPLACE_SUBMISSION_VERSION.zip",
     );
     expect(workflow).toContain(
       "mailrith-claude-connector-$MARKETPLACE_SUBMISSION_VERSION.tar.gz",

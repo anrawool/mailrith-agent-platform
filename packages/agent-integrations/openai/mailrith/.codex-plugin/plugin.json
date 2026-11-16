@@ -22,13 +22,14 @@
     "displayName": "Mailrith",
     "shortDescription": "Manage email marketing",
     "longDescription": "Review Subscribers and reports, prepare and deliver Broadcasts, and manage Sequences, Automations, targeting, and email Templates in the connected Mailrith workspace.",
-    "developerName": "Mailrith",
-    "category": "Productivity",
+    "developerName": "Rawool Publications",
+    "category": "Business & Operations",
     "capabilities": [
       "Read",
       "Write"
     ],
     "websiteURL": "https://mailrith.com",
+    "supportURL": "https://mailrith.com/contact",
     "privacyPolicyURL": "https://mailrith.com/privacy-policy",
     "termsOfServiceURL": "https://mailrith.com/terms-of-service",
     "defaultPrompt": [

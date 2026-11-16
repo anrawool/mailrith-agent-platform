@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 2.1.0 - 2026-11-16
+
+- Release alongside public-api 2.1.0. No skill changes.
+
 ## 2.0.1 - 2026-11-04
 
 - Release alongside the MCP server security patch. No skill changes.

@@ -212,6 +212,41 @@ describe("@mailrith/public-api", () => {
     expect(updateStatus?.description).toContain("correct UTC offset");
   });
 
+  it("describes only the Subscriber update fields its request body accepts", () => {
+    const updateSubscriber = publicApiSdkResources
+      .flatMap((resource) => resource.operations)
+      .find((operation) => operation.operationId === "updateSubscriber");
+    const updateRequest = publicApiSpec.components.schemas
+      .SubscriberUpdateRequest as PublicApiSchemaObject;
+    const requestFields = Object.keys(updateRequest.properties ?? {});
+    const mcpToolNames = new Set(
+      publicApiSdkResources
+        .flatMap((resource) => resource.operations)
+        .map((operation) => operation.mcpToolName),
+    );
+    const description = updateSubscriber?.description ?? "";
+
+    expect(requestFields).not.toContain("status");
+    for (const field of ["tag", "sequence"]) {
+      expect(requestFields.some((name) => name.includes(field))).toBe(false);
+    }
+    expect(description).toMatch(
+      /^Updates profile fields \(email, name, subscribed date, and country\) and custom field values for one subscriber\./,
+    );
+
+    const dedicatedTools = [
+      "subscribers_update_status",
+      "subscribers_add_tag",
+      "subscribers_remove_tag",
+      "subscribers_add_to_sequence",
+      "subscribers_remove_from_sequence",
+    ];
+    for (const toolName of dedicatedTools) {
+      expect(mcpToolNames.has(toolName)).toBe(true);
+      expect(description).toContain(toolName);
+    }
+  });
+
   it("requires every user-supplied date-time to include an explicit timezone", () => {
     const scheduleRequest = publicApiSpec.components.schemas
       .BroadcastScheduleRequest as PublicApiSchemaObject;
